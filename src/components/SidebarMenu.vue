@@ -10,7 +10,7 @@ const adminMenu = [
   { label: '대시보드', icon: 'pi pi-home', to: '/' },
   { label: '공지사항 관리', icon: 'pi pi-bell', to: '/notice-admin' },
   { label: '회원 관리', icon: 'pi pi-users', to: '/members' },
-  { label: '요율표 관리', icon: 'pi pi-list', to: '/rate-admin' },
+  { label: '요율표 관리', icon: 'pi pi-list', to: '/admin/products/list' },
   { label: '필터링 관리', icon: 'pi pi-filter', to: '/filter-admin' },
   { label: 'EDI 파일 관리', icon: 'pi pi-file', to: '/edi-admin' },
   { label: '정산 관리', icon: 'pi pi-wallet', to: '/settlement-admin' },
@@ -18,7 +18,7 @@ const adminMenu = [
 const userMenu = [
   { label: '대시보드', icon: 'pi pi-home', to: '/' },
   { label: '공지사항', icon: 'pi pi-bell', to: '/notice' },
-  { label: '요율표', icon: 'pi pi-list', to: '/rate' },
+  { label: '요율표', icon: 'pi pi-list', to: '/products/list' },
   { label: '필터링', icon: 'pi pi-filter', to: '/filter' },
   { label: 'EDI 제출', icon: 'pi pi-upload', to: '/edi' },
   { label: '정산내역서', icon: 'pi pi-wallet', to: '/settlement' },
@@ -27,17 +27,14 @@ const menuItems = computed(() => props.isAdmin ? adminMenu : userMenu);
 </script>
 
 <template>
-  <aside :class="['sidebar', { open: visible }]">
+  <aside class="sidebar">
     <div class="sidebar-header">
       <span class="logo">CSO</span>
-      <button class="close-btn" @click="$emit('toggle')">
-        <i class="pi pi-times"></i>
-      </button>
     </div>
     <nav class="menu-list">
-      <RouterLink v-for="item in menuItems" :key="item.label" :to="item.to" class="menu-item" @click="$emit('toggle')">
+      <RouterLink v-for="item in menuItems" :key="item.label" :to="item.to" class="menu-item">
         <i :class="item.icon"></i>
-        <span>{{ item.label }}</span>
+        <span class="menu-label">{{ item.label }}</span>
       </RouterLink>
     </nav>
   </aside>
@@ -45,7 +42,7 @@ const menuItems = computed(() => props.isAdmin ? adminMenu : userMenu);
 
 <style scoped>
 .sidebar {
-  width: 220px;
+  width: 56px;
   background: #fff;
   border-right: 1px solid #eee;
   min-height: 100vh;
@@ -53,30 +50,25 @@ const menuItems = computed(() => props.isAdmin ? adminMenu : userMenu);
   left: 0;
   top: 0;
   z-index: 1000;
-  transform: translateX(-100%);
-  transition: transform 0.3s;
+  transition: width 0.2s cubic-bezier(.4,0,.2,1);
   box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+  overflow-x: hidden;
 }
-.sidebar.open {
-  transform: translateX(0);
+.sidebar:hover {
+  width: 220px;
 }
 .sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
+  justify-content: center;
+  padding: 1rem 0;
   border-bottom: 1px solid #eee;
 }
 .logo {
   font-weight: bold;
   font-size: 1.2rem;
   color: #2c3e50;
-}
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
+  white-space: nowrap;
 }
 .menu-list {
   display: flex;
@@ -90,11 +82,23 @@ const menuItems = computed(() => props.isAdmin ? adminMenu : userMenu);
   color: #333;
   text-decoration: none;
   font-size: 1rem;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
 }
 .menu-item i {
   margin-right: 0.8rem;
   font-size: 1.2rem;
+  min-width: 24px;
+  text-align: center;
+}
+.menu-label {
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.sidebar:hover .menu-label {
+  opacity: 1;
+  pointer-events: auto;
 }
 .menu-item.router-link-exact-active {
   background: #f0f4ff;
@@ -108,6 +112,12 @@ const menuItems = computed(() => props.isAdmin ? adminMenu : userMenu);
     position: fixed;
     height: 100vh;
     z-index: 2000;
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    transition: width 0.2s;
+  }
+  .sidebar:hover {
     width: 70vw;
     min-width: 180px;
     max-width: 320px;
