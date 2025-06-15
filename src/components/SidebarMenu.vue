@@ -8,20 +8,20 @@ const emit = defineEmits(['toggle']);
 
 const adminMenu = [
   { label: '대시보드', icon: 'pi pi-home', to: '/' },
-  { label: '공지사항 관리', icon: 'pi pi-bell', to: '/notice-admin' },
-  { label: '회원 관리', icon: 'pi pi-users', to: '/members' },
+  { label: '공지사항 관리', icon: 'pi pi-bell', to: '/admin/notice/list' },
+  { label: '회원 관리', icon: 'pi pi-users', to: '/admin/members/list' },
   { label: '요율표 관리', icon: 'pi pi-list', to: '/admin/products/list' },
-  { label: '필터링 관리', icon: 'pi pi-filter', to: '/filter-admin' },
-  { label: 'EDI 파일 관리', icon: 'pi pi-file', to: '/edi-admin' },
-  { label: '정산 관리', icon: 'pi pi-wallet', to: '/settlement-admin' },
+  { label: '필터링 관리', icon: 'pi pi-filter', to: '/admin/filter/list' },
+  { label: 'EDI 파일 관리', icon: 'pi pi-file', to: '/admin/edi/list' },
+  { label: '정산 관리', icon: 'pi pi-wallet', to: '/admin/settlement/list' },
 ];
 const userMenu = [
   { label: '대시보드', icon: 'pi pi-home', to: '/' },
-  { label: '공지사항', icon: 'pi pi-bell', to: '/notice' },
+  { label: '공지사항', icon: 'pi pi-bell', to: '/notice/list' },
   { label: '요율표', icon: 'pi pi-list', to: '/products/list' },
-  { label: '필터링', icon: 'pi pi-filter', to: '/filter' },
-  { label: 'EDI 제출', icon: 'pi pi-upload', to: '/edi' },
-  { label: '정산내역서', icon: 'pi pi-wallet', to: '/settlement' },
+  { label: '필터링', icon: 'pi pi-filter', to: '/filter/list' },
+  { label: 'EDI 제출', icon: 'pi pi-upload', to: '/edi/list' },
+  { label: '정산내역서', icon: 'pi pi-wallet', to: '/settlement/list' },
 ];
 const menuItems = computed(() => props.isAdmin ? adminMenu : userMenu);
 </script>
