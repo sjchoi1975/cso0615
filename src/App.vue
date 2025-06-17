@@ -1,19 +1,103 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
-import { ref } from 'vue'
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
 import SidebarMenu from './components/SidebarMenu.vue'
+import { useRoute, useRouter } from 'vue-router'
+import { supabase } from '@/supabase'
+import TopbarMenu from './components/TopbarMenu.vue'
 
 // 임시: 관리자/회원 구분 (추후 로그인 연동)
 const isAdmin = ref(true) // true: 관리자, false: 회원
-const sidebarVisible = ref(true)
+const sidebarVisible = ref(false)
+const userInfo = ref(null)
+const route = useRoute()
+const router = useRouter()
+
+// 로그인 후 userInfo를 세팅하는 예시(실제 구현에서는 로그인 성공 시 setUserInfo 호출)
+function setUserInfo(info) {
+  userInfo.value = info
+}
+window.setUserInfo = setUserInfo;
+
+// 예시: 페이지 새로고침 시 세션이 있으면 userInfo 자동 세팅(간단 버전)
+supabase.auth.getUser().then(async ({ data }) => {
+  if (data?.user?.email) {
+    const { data: member } = await supabase
+      .from('members')
+      .select('role, company_name')
+      .eq('id_email', data.user.email)
+      .single()
+    if (member) userInfo.value = member
+  }
+})
+
+// 현재 라우트에 따른 메뉴명 추출(간단 예시)
+const menuNameMap = {
+  '/admin/notice/list': '공지사항 목록',
+  '/admin/members/list': '회원목록',
+  '/admin/products/list': '요율표 관리',
+  '/admin/filter/list': '필터링 요청 목록',
+  '/admin/edi/list': 'EDI 제출 내역',
+  '/admin/settlement/list': '정산내역서',
+  '/notice/list': '공지사항',
+  '/products/list': '요율표',
+  '/filter/list': '요청 목록',
+  '/filter/create': '필터링 요청',
+  '/edi/list': '제출 내역',
+  '/edi/upload': 'EDI 제출',
+  '/settlement/list': '정산내역서',
+}
+const menuName = computed(() => menuNameMap[route.path] || '')
+
+const handleLogout = async () => {
+  await supabase.auth.signOut()
+  router.push('/login')
+}
+const handleProfile = () => {
+  // 내 정보 변경 로직(추후 구현)
+  alert('내 정보 변경 기능은 추후 제공됩니다.')
+}
+
+function handleMenuClick() {
+  if (window.innerWidth <= 900) sidebarVisible.value = false
+}
+
+// 로그인/회원가입 화면일 때 body에 login-page 클래스 추가
+watch(
+  () => route.path,
+  (newPath) => {
+    if (['/login', '/signup'].includes(newPath)) {
+      document.body.classList.add('login-page');
+    } else {
+      document.body.classList.remove('login-page');
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
   <div class="layout">
-    <SidebarMenu :visible="sidebarVisible" :is-admin="isAdmin" @toggle="sidebarVisible = !sidebarVisible" />
-    <div class="main-content">
-      <button class="menu-toggle" @click="sidebarVisible = !sidebarVisible">
+    <SidebarMenu
+      v-if="!['/login','/signup'].includes(route.path)"
+      :visible="sidebarVisible"
+      :user-info="userInfo"
+      @menu-click="handleMenuClick"
+    >
+      <div v-if="visible" class="sidebar-container">
+        <aside class="sidebar"> ... </aside>
+      </div>
+    </SidebarMenu>
+    <TopbarMenu
+      v-if="!['/login','/signup'].includes(route.path)"
+      :menu-name="menuName"
+      :company-name="userInfo?.company_name || ''"
+      @logout="handleLogout"
+      @profile="handleProfile"
+    />
+    <div class="main-content main-margin">
+      <button v-if="!['/login','/signup'].includes(route.path)" class="menu-toggle" @click="sidebarVisible = !sidebarVisible">
         <i class="pi pi-bars"></i>
       </button>
       <RouterView />
@@ -22,98 +106,9 @@ const sidebarVisible = ref(true)
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-
 .layout {
-  display: flex;
   min-height: 100vh;
-}
-.main-content {
-  flex: 1;
-  padding: 1.5rem;
-  transition: margin-left 0.3s;
-}
-.menu-toggle {
-  display: none;
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1001;
-  background: #fff;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-@media (max-width: 900px) {
-  .layout {
-    flex-direction: column;
-  }
-  .main-content {
-    padding: 1rem;
-  }
-  .menu-toggle {
-    display: block;
-  }
+  width: 100vw;
+  overflow-x: hidden;
 }
 </style>
