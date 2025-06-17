@@ -3,18 +3,20 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import SignupView from '../views/SignupView.vue'
 
-import AdminProductsList from '../views/admin/AdminProductsList.vue'
-import AdminMembersList from '../views/admin/AdminMembersList.vue'
 import AdminNoticeList from '../views/admin/AdminNoticeList.vue'
+import AdminMembersList from '../views/admin/AdminMembersList.vue'
+import AdminProductsList from '../views/admin/AdminProductsList.vue'
 import AdminFilterList from '../views/admin/AdminFilterList.vue'
 import AdminEdiList from '../views/admin/AdminEdiList.vue'
 import AdminSettlementList from '../views/admin/AdminSettlementList.vue'
+import AdminProductsCreate from '../views/admin/AdminProductsCreate.vue'
 
 import UserFilterList from '../views/user/UserFilterList.vue'
 import UserFilterCreate from '../views/user/UserFilterCreate.vue'
 import UserEdiList from '../views/user/UserEdiList.vue'
 import UserEdiUpload from '../views/user/UserEdiUpload.vue'
 import UserSettlementList from '../views/user/UserSettlementList.vue'
+import UserProductsList from '../views/user/UserProductsList.vue'
 // (유저용 컴포넌트도 나중에 추가 가능)
 
 const router = createRouter({
@@ -56,6 +58,11 @@ const router = createRouter({
       component: AdminSettlementList,
     },
     {
+      path: '/admin/products/create',
+      name: 'admin-products-create',
+      component: AdminProductsCreate,
+    },
+    {
       path: '/signup',
       name: 'signup',
       component: SignupView,
@@ -90,12 +97,11 @@ const router = createRouter({
       name: 'user-settlement-list',
       component: UserSettlementList,
     },
-    // 유저용 라우트는 나중에 추가
-    // {
-    //   path: '/products/list',
-    //   name: 'user-products-list',
-    //   component: UserProductsList,
-    // },
+    {
+      path: '/products/list',
+      name: 'user-products-list',
+      component: UserProductsList,
+    },
   ],
 })
 

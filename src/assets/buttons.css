@@ -27,7 +27,7 @@
 .file-upload-label,
 .file-label {
   padding: 0.25rem 1rem !important;
-  margin: 0 0.5rem !important;
+  margin: 0.5rem 0.5rem !important;
   font-size: var(--font-size-base) !important;
   font-weight: 400 !important;
   line-height: 1.5 !important;
@@ -141,20 +141,20 @@
   border-radius: var(--border-radius) !important;
 }
 
-/* 로그인 버튼 */
+/* 로그인 */
 .login-btn {
   background: var(--primary) !important;
   color: var(--text-white) !important;
   margin-top: 1.2rem !important;
 }
 
-/* 회원가입 버튼 */
+/* 회원가입 */
 .signup-btn {
   background: var(--primary-blue) !important;
   color: var(--text-white) !important;
 }
 
-/* 취소 버튼 */
+/* 취소 */
 .cancel-btn {
   background: var(--gray-400) !important;
   color: var(--text-dark) !important;
@@ -182,7 +182,7 @@
 .btn-download-sm {  
   padding: 0.15rem 0.4rem !important;
   margin: 0 0.2rem !important;
-  font-size: var(--font-size-sm) !important;
+  font-size: var(--font-size-90) !important;
   font-weight: 400 !important;
   line-height: 1.25 !important;
   border: 1px solid transparent !important;
@@ -411,7 +411,7 @@ button:focus,
 .active-badge,
 .inactive-badge {
   padding: 0.3em 0.8em !important;
-  font-size: var(--font-size-sm) !important;
+  font-size: var(--font-size-90) !important;
   font-weight: 300 !important;
   line-height: 1.2 !important;
   border-radius: 40px !important;

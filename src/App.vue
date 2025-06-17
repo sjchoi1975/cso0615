@@ -35,7 +35,7 @@ supabase.auth.getUser().then(async ({ data }) => {
 // 현재 라우트에 따른 메뉴명 추출(간단 예시)
 const menuNameMap = {
   '/admin/notice/list': '공지사항 목록',
-  '/admin/members/list': '회원목록',
+  '/admin/members/list': '회원 목록',
   '/admin/products/list': '요율표 관리',
   '/admin/filter/list': '필터링 요청 목록',
   '/admin/edi/list': 'EDI 제출 내역',
@@ -104,11 +104,3 @@ watch(
     </div>
   </div>
 </template>
-
-<style scoped>
-.layout {
-  min-height: 100vh;
-  width: 100vw;
-  overflow-x: hidden;
-}
-</style>

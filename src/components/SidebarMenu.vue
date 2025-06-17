@@ -1,6 +1,10 @@
 <template>
   <div class="sidebar-container" :class="{ 'mobile-visible': visible }">
-    <aside class="sidebar" :class="{ 'sidebar-mobile-open': visible }">
+    <aside
+      class="sidebar"
+      :class="{ 'sidebar-mobile-open': visible }"
+      :style="isMobile && visible ? 'position: fixed; left: 0; top: 0; z-index: 2000;' : ''"
+    >
       <nav>
         <div
           v-for="item in menuItems"
@@ -13,8 +17,10 @@
             class="menu-item menu-group-label clickable"
             v-if="item.items"
           >
-            <i :class="item.icon"></i>
-            <span class="menu-label">{{ item.label }}</span>
+            <div class="menu-item-content">
+              <i :class="item.icon"></i>
+              <span class="menu-label">{{ item.label }}</span>
+            </div>
           </div>
           <div v-if="item.items && hoveredGroup === item.label">
             <RouterLink
@@ -24,8 +30,10 @@
               class="sub-menu-item menu-item"
               @click="$emit('menu-click')"
             >
-              <i :class="sub.icon"></i>
-              <span>{{ sub.label }}</span>
+              <div class="menu-item-content">
+                <i :class="sub.icon"></i>
+                <span>{{ sub.label }}</span>
+              </div>
             </RouterLink>
           </div>
           <RouterLink
@@ -34,12 +42,16 @@
             class="menu-item"
             @click="$emit('menu-click')"
           >
-            <i :class="item.icon"></i>
-            <span class="menu-label">{{ item.label }}</span>
+            <div class="menu-item-content">
+              <i :class="item.icon"></i>
+              <span class="menu-label">{{ item.label }}</span>
+            </div>
           </RouterLink>
         </div>
       </nav>
     </aside>
+    <!-- 오버레이: 사이드바 오른쪽에만 표시 -->
+    <div v-if="visible && isMobile" class="sidebar-overlay" @click="$emit('toggle')"></div>
   </div>
 </template>
 
@@ -61,7 +73,7 @@ const props = defineProps({
 const emit = defineEmits(['toggle', 'menu-click']);
 
 const adminMenu = [
-  { label: '대시보드', icon: 'pi pi-home', to: '/' },
+  // { label: '대시보드', icon: 'pi pi-home', to: '/' }, // 임시 히든 처리
   { label: '공지사항 관리', icon: 'pi pi-bell', items: [
       { label: '공지사항 목록', icon: 'pi pi-list', to: '/admin/notice/list' },
     ]
