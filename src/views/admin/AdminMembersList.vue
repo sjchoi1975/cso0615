@@ -2,39 +2,48 @@
   <div class="admin-members-view page-container">
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
-      <div class="filter-row" style="gap: 0.5rem; align-items: center;">
-        <span style="margin-right: 0.25rem;">검색</span>
+      <div class="filter-row">
+        <span>통합 검색</span>
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="회사명, 사업자등록번호, 대표자명 검색" class="input-search" />
         </span>
-        <span style="margin-left: 1rem; margin-right: 0.25rem;">인증</span>
+        <span>인증</span>
         <select v-model="approval" class="filter-dropdown">
           <option value="">전체</option>
           <option value="approved">인증 회원</option>
           <option value="unapproved">미인증 회원</option>
         </select>
-        <span style="margin-left: 1rem; margin-right: 0.25rem;">등급</span>
+        <span>등급</span>
         <select v-model="grade" class="filter-dropdown">
           <option value="">전체</option>
           <option value="A">A</option>
           <option value="B">B</option>
           <option value="C">C</option>
         </select>
-        <button class="filter-reset-btn" @click="resetFilters" style="margin-left: 1rem; display: flex; align-items: center; gap: 0.2rem;">
-          <span class="material-icons"></span> 초기화
+        <button class="filter-reset-btn"
+          @click="resetFilters"
+          style="margin-left: 1rem; display: flex; align-items: center; gap: 0.2rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 2px;"><path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
+          초기화
         </button>
       </div>
     </div>
-    <!-- 하단: 테이블카드 -->
-    <div class="data-card">
-      <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
-        <button class="btn-add" @click="downloadExcel">엑셀 다운로드</button>
+
+    <!-- 중간: 기능카드 -->
+    <div class="function-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="total-count">총 {{ filteredMembers.length }}명</div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
+        </div>
       </div>
+    </div>
+
+    <!-- 하단: 테이블카드 -->
+    <div class="table-card">
       <DataTable
         :value="filteredMembers"
-        :loading="loading" paginator 
-        :rows="20" 
-        :rowsPerPageOptions="[20, 50, 100]" 
+        :loading="loading"
         responsiveLayout="scroll"
       >
         <Column header="순번" 

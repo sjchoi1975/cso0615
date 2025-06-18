@@ -2,40 +2,75 @@
   <div class="admin-products-view page-container">
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
-      <div class="filter-row" style="gap: 0.5rem; align-items: center;">
-        <span style="margin-right: 0.25rem;">검색</span>
+      <div class="filter-row">
+        <span>기준월</span>
+        <select v-model="currentMonth.value" class="filter-dropdown" style="width:120px;">
+          <option v-for="m in monthOptions" :key="m" :value="m">
+            {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
+          </option>
+        </select>
+        <span>통합 검색</span>
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 검색" class="input-search" />
         </span>
+        <span>급여</span>
+        <select v-model="reimbursement" class="filter-dropdown">
+          <option value="">전체</option>
+          <option value="급여">급여</option>
+          <option value="비급여">비급여</option>
+        </select>
+        <span>상태</span>
+        <select v-model="status" class="filter-dropdown">
+          <option value="">전체</option>
+          <option value="active">활성</option>
+          <option value="inactive">비활성</option>
+        </select>
+        <button class="btn-add" @click="searchProducts" :disabled="!isSearchActive" style="margin-left: 2rem; margin: 0rem">검색</button>
+        <button class="filter-reset-btn"
+          @click="resetFilters"
+          style="margin-left: 0.5rem; display: flex; align-items: center; gap: 0.2rem;">
+          <svg xmlns="http://www.w3.org/2000/svg"
+          width="20" height="20" viewBox="0 0 24 24"
+          style="vertical-align: middle; margin-right: 2px;">
+          <path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
+          초기화
+        </button>
       </div>
     </div>
-    <!-- 하단: 테이블카드 -->
-    <div class="data-card">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-        <div class="month-selector">
-          <button v-if="hasPrevMonth" class="month-nav" @click="goToPrevMonth">&lt;</button>
-          <span style="margin: 0 0.5rem;" class="selected-month">{{ displayMonth }}</span>
-          <button v-if="hasNextMonth" class="month-nav" @click="goToNextMonth">&gt;</button>
-        </div>
+
+    <!-- 중간: 기능카드 -->
+    <div class="function-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
         <div style="display: flex; gap:0.5rem; align-items:center;">
-          <button class="btn-add" @click="downloadExcel">엑셀 다운로드</button>
-          <button class="btn-add" @click="downloadTemplate">엑셀 템플릿</button>
+          <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
+          <button class="btn-add" @click="downloadTemplate">템플릿</button>
           <label class="btn-add" style="margin-bottom:0; cursor:pointer;">
-            엑셀 일괄 등록
+            엑셀 등록
             <input type="file" accept=".xlsx,.xls" @change="uploadExcel" style="display:none;" />
           </label>
           <button class="btn-add" @click="goToProductCreate">제품 등록</button>
+          <button class="btn-danger" @click="deleteAllProducts" style="margin-left:0.5rem;">전체 삭제</button>
         </div>
       </div>
+    </div>
+
+    <!-- 하단: 테이블카드 -->
+    <div class="table-card">
       <DataTable
-        :value="filteredProducts"
-        :loading="loading" paginator
+        :value="products"
+        :loading="loading"
+        paginator
         :rows="100"
-        :rowsPerPageOptions="[20, 50, 100]"
+        :rowsPerPageOptions="[100, 200, 500]"
+        :totalRecords="totalCount"
+        :first="first"
+        @page="onPageChange"
+        lazy
         responsiveLayout="scroll"
-        v-model:first="first"
         scrollable
-        :scrollHeight="'calc(100vh - 250px)'"
+        :scrollHeight="'calc(100vh - 240px)'"
+        ref="tableRef"
       >
         <Column header="순번"
           :style="{ width: columnWidths.index }"
@@ -44,7 +79,7 @@
             {{ first + slotProps.index + 1 }}
           </template>
         </Column>
-        <Column field="pharmacist" header="제약사*"
+        <Column field="pharmacist" header="제약사 *"
           :sortable="columnSortables.pharmacist"
           :style="{ width: columnWidths.pharmacist }"
           :bodyStyle="{ textAlign: columnAligns.pharmacist }">
@@ -60,7 +95,7 @@
             <span :title="slotProps.data.classification">{{ slotProps.data.classification }}</span>
           </template>
         </Column>
-        <Column field="product_name" header="제품명*"
+        <Column field="product_name" header="제품명 *"
           :sortable="columnSortables.product_name"
           :style="{ width: columnWidths.product_name }"
           :bodyStyle="{ textAlign: columnAligns.product_name }">
@@ -72,6 +107,9 @@
           :sortable="columnSortables.insurance_code"
           :style="{ width: columnWidths.insurance_code }"
           :bodyStyle="{ textAlign: columnAligns.insurance_code }">
+          <template #body="slotProps">
+            {{ slotProps.data.insurance_code || '' }}
+          </template>
         </Column>
         <Column field="price" header="약가"
           :sortable="columnSortables.price"
@@ -162,12 +200,15 @@
           </template>
         </Column>
       </DataTable>
+      <div v-if="loading" class="table-loading-spinner-center">
+        <img src="/spinner.svg" alt="로딩중" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, onUnmounted, nextTick } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -180,8 +221,8 @@ const columnWidths = {
   index: '4%',
   pharmacist: '6%',
   classification: '8%',
-  product_name: '10%',
-  insurance_code: '6%',
+  product_name: '11%',
+  insurance_code: '5%',
   price: '4%',
   commission_rate_a: '4%',
   commission_rate_b: '4%',
@@ -198,21 +239,21 @@ const columnWidths = {
 // 컬럼별 정렬 여부 한 곳에서 관리
 const columnSortables = {
   index: false,
-  pharmacist: true,
-  classification: true,
-  product_name: true,
-  insurance_code: true,
-  price: true,
-  commission_rate_a: true,
-  commission_rate_b: true,
-  commission_rate_c: true,
-  Ingredient: true,
-  comparator: true,
-  reimbursement: true,
-  bioequivalence: true,
-  Inhouse: true,
-  remarks: true,
-  status: true
+  pharmacist: false,
+  classification: false,
+  product_name: false,
+  insurance_code: false,
+  price: false,
+  commission_rate_a: false,
+  commission_rate_b: false,
+  commission_rate_c: false,
+  Ingredient: false,
+  comparator: false,
+  reimbursement: false,
+  bioequivalence: false,
+  Inhouse: false,
+  remarks: false,
+  status: false
 };
 
 // 컬럼별 정렬 방식 한 곳에서 관리
@@ -241,79 +282,117 @@ const search = ref('');
 const currentMonth = ref('');
 const router = useRouter();
 const first = ref(0);
+const reimbursement = ref('');
+const status = ref('');
+const totalCount = ref(0);
+const pageSize = ref(100);
+const monthOptions = ref([]);
+const appliedMonth = ref('');
+const appliedSearch = ref('');
+const appliedReimbursement = ref('');
+const appliedStatus = ref('');
 
-// 연월 관련
-const today = dayjs();
-currentMonth.value = today.format('YYYY-MM');
-
-const displayMonth = computed(() => {
-  const [y, m] = currentMonth.value.split('-');
-  return `${y}년 ${parseInt(m)}월`;
-});
-
-const hasPrevMonth = computed(() => {
-  // 예시: 2020-01 이후 데이터만 있다고 가정
-  return currentMonth.value > '2020-01';
-});
-const hasNextMonth = computed(() => {
-  return currentMonth.value < today.format('YYYY-MM');
-});
-const goToPrevMonth = () => {
-  currentMonth.value = dayjs(currentMonth.value + '-01').subtract(1, 'month').format('YYYY-MM');
+const fetchMonthOptions = async () => {
+  const { data, error } = await supabase
+    .from('product_months')
+    .select('base_month');
+  if (!error && data) {
+    const uniqueMonths = data.map(row => row.base_month);
+    monthOptions.value = uniqueMonths;
+    if (uniqueMonths.length > 0 && !currentMonth.value) {
+      currentMonth.value = uniqueMonths[0];
+      searchProducts();
+    }
+  }
 };
-const goToNextMonth = () => {
-  currentMonth.value = dayjs(currentMonth.value + '-01').add(1, 'month').format('YYYY-MM');
-};
 
-const fetchProducts = async () => {
+onMounted(() => {
+  fetchMonthOptions();
+});
+
+watch(monthOptions, (newOptions) => {
+  if (newOptions && newOptions.length > 0 && !currentMonth.value) {
+    currentMonth.value = newOptions[0];
+    fetchProducts(0, pageSize.value);
+    appliedMonth.value = newOptions[0];
+  }
+});
+
+const tableRef = ref(null);
+
+const fetchProducts = async (pageFirst = 0, pageRows = 100) => {
   loading.value = true;
-  let query = supabase.from('products').select('*').eq('base_month', currentMonth.value).order('registered_at', { ascending: false });
-  const { data, error } = await query;
+  let query = supabase
+    .from('products')
+    .select('*', { count: 'exact' })
+    .eq('base_month', currentMonth.value);
+  if (appliedSearch.value) {
+    const keyword = appliedSearch.value.toLowerCase();
+    query = query.or(`pharmacist.ilike.%${keyword}%,product_name.ilike.%${keyword}%,insurance_code.ilike.%${keyword}%,Ingredient.ilike.%${keyword}%`);
+  }
+  if (appliedReimbursement.value) {
+    query = query.eq('reimbursement', appliedReimbursement.value);
+  }
+  if (appliedStatus.value) {
+    query = query.eq('status', appliedStatus.value);
+  }
+  const from = pageFirst;
+  const to = from + pageRows - 1;
+  query = query.range(from, to);
+  const { data, error, count } = await query.order('registered_at', { ascending: false });
+  console.log('data:', data, 'error:', error, 'count:', count);
   if (!error) {
     products.value = data;
+    totalCount.value = count || 0;
+  } else {
+    alert('데이터 로드 실패: ' + error.message);
   }
   loading.value = false;
 };
 
-onMounted(fetchProducts);
+const onPageChange = (event) => {
+  first.value = event.first;
+  pageSize.value = event.rows;
+  fetchProducts(event.first, event.rows);
+};
 
-// 연월이 바뀌면 데이터 다시 불러오기
-watch(currentMonth, fetchProducts);
+const searchProducts = () => {
+  appliedMonth.value = currentMonth.value;
+  appliedSearch.value = search.value.trim();
+  appliedReimbursement.value = reimbursement.value;
+  appliedStatus.value = status.value;
+  fetchProducts(0, pageSize.value);
+};
+
+const resetFilters = () => {
+  search.value = '';
+  reimbursement.value = '';
+  status.value = '';
+  first.value = 0;
+  fetchProducts(0, pageSize.value);
+};
 
 const filteredProducts = computed(() => {
-  let result = products.value;
-  if (search.value) {
-    const keyword = search.value.toLowerCase();
-    result = result.filter(p =>
-      (p.pharmacist && p.pharmacist.toLowerCase().includes(keyword)) ||
-      (p.product_name && p.product_name.toLowerCase().includes(keyword)) ||
-      (p.insurance_code && p.insurance_code.toLowerCase().includes(keyword)) ||
-      (p.Ingredient && p.Ingredient.toLowerCase().includes(keyword))
-    );
-  }
-  return result;
+  return products.value;
 });
 
 const goToProductCreate = () => {
   router.push('/admin/products/create');
 };
 
-// 상태 토글 함수 추가
 const onHtmlToggleStatus = async (product, checked) => {
   const toActive = checked;
   const msg = toActive ? '활성화 하시겠습니까?' : '비활성화 하시겠습니까?';
   if (!confirm(msg)) {
-    fetchProducts(); // 상태 복구
+    fetchProducts(first.value, pageSize.value);
     return;
   }
   await supabase.from('products').update({ status: toActive ? 'active' : 'inactive' }).eq('id', product.id);
-  fetchProducts();
+  fetchProducts(first.value, pageSize.value);
 };
 
-// 엑셀 다운로드
 const downloadExcel = () => {
   const todayStr = dayjs().format('YYYY-MM-DD');
-  // 목록에 표시되는 컬럼만 추출
   const exportData = filteredProducts.value.map(row => ({
     '제약사': row.pharmacist,
     '분류명': row.classification,
@@ -337,23 +416,25 @@ const downloadExcel = () => {
   XLSX.writeFile(wb, `products_${todayStr}.xlsx`);
 };
 
-// 엑셀 일괄등록용 템플릿 다운로드
 const downloadTemplate = () => {
   const headers = [
+    '기준월',
     '제약사', '분류명', '제품명', '보험코드', '약가',
     '수수료A', '수수료B', '수수료C', '성분',
     '대조약',
     '급여',
     '생동', '자사/위탁', '비고', '상태'
   ];
-  const ws = XLSX.utils.aoa_to_sheet([headers]);
+  const exampleRow = [
+    '2025-05', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+  ];
+  const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '템플릿');
   const todayStr = dayjs().format('YYYY-MM-DD');
   XLSX.writeFile(wb, `products_template_${todayStr}.xlsx`);
 };
 
-// 엑셀 업로드
 const uploadExcel = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -364,12 +445,12 @@ const uploadExcel = async (e) => {
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
     const json = XLSX.utils.sheet_to_json(sheet);
-    // 엑셀 헤더에 맞춰 변환
     const rows = json.map(row => ({
+      base_month: row['기준월'] ? String(row['기준월']).slice(0, 7) : currentMonth.value,
       pharmacist: row['제약사'] || '',
       classification: row['분류명'] || '',
       product_name: row['제품명'] || '',
-      insurance_code: row['보험코드'] || '',
+      insurance_code: row['보험코드'] !== undefined && row['보험코드'] !== null ? String(row['보험코드']).padStart(9, '0') : '',
       price: row['약가'] || null,
       commission_rate_a: row['수수료A'] ? parseFloat(row['수수료A']) : null,
       commission_rate_b: row['수수료B'] ? parseFloat(row['수수료B']) : null,
@@ -381,10 +462,8 @@ const uploadExcel = async (e) => {
       Inhouse: row['자사/위탁'] || '',
       remarks: row['비고'] || '',
       status: row['상태'] === '비활성' ? 'inactive' : 'active',
-      base_month: currentMonth.value,
       registered_at: new Date().toISOString()
     }));
-    // 필수값 체크(제약사, 제품명)
     const validRows = rows.filter(r => r.pharmacist && r.product_name);
     if (validRows.length === 0) {
       alert('엑셀에 등록할 데이터가 없습니다.');
@@ -393,11 +472,46 @@ const uploadExcel = async (e) => {
     const { error } = await supabase.from('products').insert(validRows);
     if (error) {
       alert('엑셀 등록 실패: ' + error.message);
+      console.error('엑셀 등록 실패:', error);
     } else {
       alert('엑셀 등록 성공!');
-      fetchProducts();
+      fetchProducts(first.value, pageSize.value);
     }
   };
   reader.readAsBinaryString(file);
 };
+
+const deleteAllProducts = async () => {
+  if (!confirm('현재 조건에 맞는 모든 제품을 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+  loading.value = true;
+
+  let query = supabase.from('products').delete().eq('base_month', currentMonth.value);
+  if (appliedSearch.value) {
+    const keyword = appliedSearch.value.toLowerCase();
+    query = query.or(`pharmacist.ilike.%${keyword}%,product_name.ilike.%${keyword}%,insurance_code.ilike.%${keyword}%,Ingredient.ilike.%${keyword}%`);
+  }
+  if (appliedReimbursement.value) {
+    query = query.eq('reimbursement', appliedReimbursement.value);
+  }
+  if (appliedStatus.value) {
+    query = query.eq('status', appliedStatus.value);
+  }
+  const { error } = await query;
+  loading.value = false;
+  if (error) {
+    alert('삭제 실패: ' + error.message);
+  } else {
+    alert('삭제 완료!');
+    fetchProducts(first.value, pageSize.value);
+  }
+};
+
+const isSearchActive = computed(() => {
+  return (
+    search.value.trim() !== appliedSearch.value ||
+    reimbursement.value !== appliedReimbursement.value ||
+    status.value !== appliedStatus.value ||
+    currentMonth.value !== appliedMonth.value
+  );
+});
 </script>

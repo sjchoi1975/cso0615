@@ -26,8 +26,8 @@
 .btn-select-none,
 .file-upload-label,
 .file-label {
-  padding: 0.25rem 1rem !important;
-  margin: 0.5rem 0.5rem !important;
+  padding: 0.3rem 1rem !important;
+  margin: 0 0.5rem !important;
   font-size: var(--font-size-base) !important;
   font-weight: 400 !important;
   line-height: 1.5 !important;
@@ -136,7 +136,7 @@
 .cancel-btn {
   width: 100% !important;
   font-size: var(--font-size-base) !important;
-  padding: 0.5rem 1rem !important;
+  padding: 0.6rem 1rem !important;
   border: none !important;
   border-radius: var(--border-radius) !important;
 }
@@ -436,6 +436,17 @@ button:focus,
   color: var(--text-white) !important;
   border: 1px solid var(--gray-400) !important;
 }
+
+.important-badge {
+  background: #ff4757;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 
 
 /* ========================================== */

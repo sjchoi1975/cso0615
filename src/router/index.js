@@ -4,12 +4,15 @@ import LoginView from '../views/LoginView.vue'
 import SignupView from '../views/SignupView.vue'
 
 import AdminNoticeList from '../views/admin/AdminNoticeList.vue'
+import AdminNoticeDetail from '../views/admin/AdminNoticeDetail.vue'
+import AdminNoticeEdit from '../views/admin/AdminNoticeEdit.vue'
 import AdminMembersList from '../views/admin/AdminMembersList.vue'
 import AdminProductsList from '../views/admin/AdminProductsList.vue'
 import AdminFilterList from '../views/admin/AdminFilterList.vue'
 import AdminEdiList from '../views/admin/AdminEdiList.vue'
 import AdminSettlementList from '../views/admin/AdminSettlementList.vue'
 import AdminProductsCreate from '../views/admin/AdminProductsCreate.vue'
+import AdminNoticeCreate from '../views/admin/AdminNoticeCreate.vue'
 
 import UserFilterList from '../views/user/UserFilterList.vue'
 import UserFilterCreate from '../views/user/UserFilterCreate.vue'
@@ -17,6 +20,8 @@ import UserEdiList from '../views/user/UserEdiList.vue'
 import UserEdiUpload from '../views/user/UserEdiUpload.vue'
 import UserSettlementList from '../views/user/UserSettlementList.vue'
 import UserProductsList from '../views/user/UserProductsList.vue'
+import UserNoticesList from '../views/user/UserNoticesList.vue'
+import UserNoticesDatail from '../views/user/UserNoticesDatail.vue'
 // (유저용 컴포넌트도 나중에 추가 가능)
 
 const router = createRouter({
@@ -63,6 +68,26 @@ const router = createRouter({
       component: AdminProductsCreate,
     },
     {
+      path: '/admin/notices/list',
+      name: 'AdminNoticeList',
+      component: AdminNoticeList,
+    },
+    {
+      path: '/admin/notices/create',
+      name: 'AdminNoticeCreate',
+      component: AdminNoticeCreate,
+    },
+    {
+      path: '/admin/notices/detail/:id',
+      name: 'AdminNoticeDetail',
+      component: AdminNoticeDetail,
+    },
+    {
+      path: '/admin/notices/edit/:id',
+      name: 'AdminNoticeEdit',
+      component: AdminNoticeEdit,
+    },
+    {
       path: '/signup',
       name: 'signup',
       component: SignupView,
@@ -101,6 +126,16 @@ const router = createRouter({
       path: '/products/list',
       name: 'user-products-list',
       component: UserProductsList,
+    },
+    {
+      path: '/notice/list',
+      name: 'UserNoticesList',
+      component: UserNoticesList,
+    },
+    {
+      path: '/notice/detail/:id',
+      name: 'UserNoticesDatail',
+      component: UserNoticesDatail,
     },
   ],
 })
