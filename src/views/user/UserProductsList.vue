@@ -35,7 +35,7 @@
       <DataTable
         :value="filteredProducts"
         :loading="loading"
-        paginator
+        :paginator="false"
         :rows="100"
         :rowsPerPageOptions="[100, 200, 500]"
         :totalRecords="totalCount"
@@ -113,6 +113,16 @@
         </Column>
       </DataTable>
     </div>
+
+    <div class="fixed-paginator">
+      <Paginator
+        :rows="pageSize"
+        :totalRecords="totalCount"
+        :first="first"
+        :rowsPerPageOptions="[100, 200, 500]"
+        @page="onPageChange"
+      />
+    </div>
   </div>
 </template>
 
@@ -121,6 +131,7 @@ import { ref, onMounted, computed } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import Paginator from 'primevue/paginator';
 
 const search = ref('');
 const products = ref([]);
@@ -330,5 +341,16 @@ function downloadExcel() {
     margin-left: 0.3rem;
     font-size: 1rem;
   }
+}
+
+.fixed-paginator {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  z-index: 100;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  padding: 8px 0;
 }
 </style>

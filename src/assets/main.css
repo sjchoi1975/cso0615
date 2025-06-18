@@ -1,5 +1,5 @@
 html {
-  font-size: 13.7px; /* 1rem = 16px (기본값) */
+  font-size: 13.5px; /* 1rem = 16px (기본값) */
 }
 
 html, body {
@@ -174,7 +174,7 @@ a,
 
 
   /* 페이지네이터 설정 */
-  --paginator-dropdown-font-size: 0.95rem; /* 행 개수 드롭다운 폰트 크기 */
+  --paginator-dropdown-font-size: 1rem; /* 행 개수 드롭다운 폰트 크기 */
   --paginator-dropdown-height: 32px; /* 행 개수 드롭다운 높이 */
   --paginator-dropdown-padding: 2px 8px; /* 행 개수 드롭다운 내부 패딩 */
 }
@@ -288,7 +288,7 @@ nav {
   width: 100%;
   font-size: 12px;
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 0.5rem;
 }
 
 nav a.router-link-exact-active {
@@ -330,8 +330,7 @@ nav a:first-of-type {
     text-align: left;
     margin-left: -1rem;
     font-size: 1rem;
-    padding: 1rem 0;
-    margin-top: 1rem;
+    padding: 0.5rem 0;
   }
 }
 
@@ -643,8 +642,9 @@ nav a:first-of-type {
 }
 
 .topbar .company-name {
-  font-weight: bold;
-  color: #666;
+  font-size: var(--font-size-110) !important;
+  font-weight: 400 !important;
+  color: #999;
 }
 
 .topbar .profile-menu {
@@ -757,7 +757,7 @@ nav a:first-of-type {
 }
 
 .filter-card {
-  padding: 1.25rem 1rem 1.25rem 1.25rem !important;
+  padding: 1rem 1rem 1rem 1.25rem !important;
   border-bottom: 1px solid var(--border-secondary) !important;
   background: #f7fafd !important; /* 작업 구분용 */
 }
@@ -796,6 +796,7 @@ nav a:first-of-type {
 
 /* 인풋, 검색, 드롭다운 공통 스타일 */
 .input,
+.input-240,
 .input-search,
 .filter-dropdown {
   font-size: var(--font-size-base) !important;
@@ -809,6 +810,7 @@ nav a:first-of-type {
 
 /* 인풋, 검색, 드롭다운 포커스 처리 */
 .input:focus,
+.input-240:focus,
 .input-search:focus,
 .filter-dropdown:focus {
   background: #fff !important;
@@ -822,10 +824,17 @@ nav a:first-of-type {
   width: 100% !important;
 }
 
+
+.input-240 {
+  width: 240px !important;
+}
+
+
 /* 검색 width */
 .input-search {
   width: var(--input-search-width) !important;
 }
+
 
 /* 드롭다운  */
 .filter-dropdown {
@@ -1117,8 +1126,8 @@ label {
   background: #f7fafd !important;
   color: #222;
   font-weight: 500;
-  border-bottom: 1px solid #ccc;
-  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid #c0c4ca;
+  padding: 0.5rem 0.5rem;
   text-align: center !important;
   transition: background-color 0.2s ease;
 }
@@ -1130,7 +1139,7 @@ label {
 
 .p-datatable .p-datatable-tbody > tr {
   background: #fff;
-  padding: 0.35rem 0.5rem;
+  padding: 0.5rem 0.5rem;
   transition: background 0.2s;
 }
 
@@ -1145,6 +1154,17 @@ label {
 
 .p-datatable .p-datatable-tbody > tr:last-child {
   border-bottom: none;
+}
+
+/* 헤더 하단 테이블 선 명확하게 */
+.p-datatable .p-datatable-thead > tr > th {
+  border-bottom: 1px solid #c0c4ca !important;
+  background: #f0f0f0;
+  color: #222;
+  font-weight: 500;
+  padding: 0.5rem 0.5rem;
+  text-align: center !important;
+  transition: background-color 0.2s ease;
 }
 
 /* 모든 PrimeVue DataTable 헤더(컬럼명) 가운데 정렬 */
@@ -1198,7 +1218,7 @@ label {
 .p-datatable-scrollable-footer td,
 .p-datatable-scrollable-footer th {
   border: none !important;
-  border-width: 0 !important;
+  border-width: none !important;
   border-style: none !important;
   box-shadow: none !important;
   background: transparent !important;
@@ -1211,11 +1231,11 @@ label {
 .p-paginator .p-paginator-first,
 .p-paginator .p-paginator-last {
   border: 1px solid #ccc;
-  border-radius: 1px;
+  border-radius: 2px;
   background: #fff;
-  min-width: 1.8rem;
-  min-height: 1.8rem;
-  margin: 0 0.2rem;
+  min-width: 2rem;
+  min-height: 2rem;
+  margin: 0 0.25rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1241,21 +1261,19 @@ label {
   display: none !important;
 }
 
-/* 페이지네이터 하단 여백 조정 */
-.p-paginator {
-  margin-bottom: 0px !important;
+/* 페이지네이터 하단 고정 */
+.fixed-paginator {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: #f7fafd !important;
+  border-top: 1px solid #c0c4ca !important;
+  z-index: 100;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  padding: 0 0 0.75rem 0;
 }
 
-/* 헤더 하단 테이블 선 명확하게 */
-.p-datatable .p-datatable-thead > tr > th {
-  border-bottom: 2px solid #ccc !important;
-  background: #f0f0f0;
-  color: #222;
-  font-weight: 500;
-  padding: 0.35rem 0.5rem;
-  text-align: center !important;
-  transition: background-color 0.2s ease;
-}
 .btn-add:disabled {
   background: #e0e0e0 !important;
   color: #aaa !important;
@@ -1350,4 +1368,5 @@ button.p-paginator-page:hover {
   height: 120px;
   display: block;
 }
+
 

@@ -60,7 +60,7 @@
       <DataTable
         :value="products"
         :loading="loading"
-        paginator
+        :paginator="false"
         :rows="100"
         :rowsPerPageOptions="[100, 200, 500]"
         :totalRecords="totalCount"
@@ -69,7 +69,7 @@
         lazy
         responsiveLayout="scroll"
         scrollable
-        :scrollHeight="'calc(100vh - 240px)'"
+        :scrollHeight="'calc(100vh - 220px)'"
         ref="tableRef"
       >
         <Column header="순번"
@@ -204,6 +204,16 @@
         <img src="/spinner.svg" alt="로딩중" />
       </div>
     </div>
+
+    <div class="fixed-paginator">
+      <Paginator
+        :rows="pageSize"
+        :totalRecords="totalCount"
+        :first="first"
+        :rowsPerPageOptions="[100, 200, 500]"
+        @page="onPageChange"
+      />
+    </div>
   </div>
 </template>
 
@@ -215,6 +225,7 @@ import Column from 'primevue/column';
 import dayjs from 'dayjs';
 import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
+import Paginator from 'primevue/paginator';
 
 // 컬럼 너비 한 곳에서 관리
 const columnWidths = {

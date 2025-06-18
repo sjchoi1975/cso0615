@@ -21,7 +21,7 @@
     <div class="table-card">
       <DataTable 
         :value="filterednotice"
-        :paginator="true"
+        :paginator="false"
         :rows="20"
         :rowsPerPageOptions="[20, 50, 100]"
         :first="first"
@@ -79,6 +79,16 @@
         />
       </DataTable>
     </div>
+
+    <div class="fixed-paginator">
+      <Paginator
+        :rows="pageSize"
+        :totalRecords="totalCount"
+        :first="first"
+        :rowsPerPageOptions="[20, 50, 100]"
+        @page="onPageChange"
+      />
+    </div>
   </div>
 </template>
 
@@ -88,6 +98,7 @@ import { useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import Paginator from 'primevue/paginator';
 
 const router = useRouter();
 const search = ref('');
@@ -192,5 +203,16 @@ const goDetail = (id) => {
     flex-direction: column;
     gap: 0.5rem;
   }
+}
+
+.fixed-paginator {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  z-index: 100;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  padding: 8px 0;
 }
 </style>
