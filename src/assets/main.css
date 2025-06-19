@@ -8,9 +8,26 @@ html, body {
   box-sizing: border-box;
   min-height: 100vh;
   background: #f4f6fa;
-  overflow: hidden !important;
+  overflow: hidden !important; /* 기본값: 스크롤 비활성화 */
   width: 100vw !important;
   height: 100vh !important;
+}
+
+/* 스크롤이 필요한 페이지를 위한 클래스 */
+html.scroll-enabled, 
+body.scroll-enabled {
+  overflow: auto !important;
+}
+
+/* 스크롤이 필요한 페이지의 레이아웃 조정 */
+.scroll-enabled .layout {
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.scroll-enabled .page-container {
+  height: auto !important;
+  min-height: 100vh !important;
 }
 
 @import './base.css';

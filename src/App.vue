@@ -72,6 +72,31 @@ watch(
     } else {
       document.body.classList.remove('login-page');
     }
+        
+    // 스크롤이 필요한 페이지들
+    const scrollEnabledPages = [
+      '/login', 
+      '/signup', 
+      '/admin/notices/create', 
+      '/admin/notices/detail/',  // 동적 라우트 체크를 위해 끝에 /만 남김
+      '/admin/notices/edit/',    // 동적 라우트 체크를 위해 끝에 /만 남김
+      '/admin/products/create',
+      '/filter/create',
+      '/edi/upload'
+    ];
+    
+    // 동적 라우트를 포함한 페이지 체크
+    const isScrollEnabled = scrollEnabledPages.some(page => 
+      newPath.startsWith(page)
+    );
+    
+    if (isScrollEnabled) {
+      document.documentElement.classList.add('scroll-enabled');
+      document.body.classList.add('scroll-enabled');
+    } else {
+      document.documentElement.classList.remove('scroll-enabled');
+      document.body.classList.remove('scroll-enabled');
+    }
   },
   { immediate: true }
 );

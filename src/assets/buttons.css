@@ -25,7 +25,10 @@
 .btn-select-all,
 .btn-select-none,
 .file-upload-label,
-.file-label {
+.file-label,
+.login-btn,
+.signup-btn,
+.cancel-btn {
   padding: 0.5rem 1rem !important;
   font-size: var(--font-size-base) !important;
   font-weight: 400 !important;
@@ -38,6 +41,28 @@
   transition: all 0.2s ease-in-out !important;
   box-shadow: var(--shadow-sm) !important;
 }
+
+/* 로그인 */
+.login-btn {
+  background: var(--primary) !important;
+  color: var(--text-white) !important;
+  margin-top: 1.2rem !important;
+}
+
+/* 회원가입 */
+.signup-btn {
+  background: var(--primary-blue) !important;
+  color: var(--text-white) !important;
+}
+
+/* 취소 */
+.cancel-btn {
+  background: var(--gray-400) !important;
+  color: var(--text-dark) !important;
+}
+
+
+
 
 /* 기본 버튼 색상 스타일 */
 .btn-primary,
@@ -139,24 +164,7 @@
   border-radius: var(--border-radius) !important;
 }
 
-/* 로그인 */
-.login-btn {
-  background: var(--primary) !important;
-  color: var(--text-white) !important;
-  margin-top: 1.2rem !important;
-}
 
-/* 회원가입 */
-.signup-btn {
-  background: var(--primary-blue) !important;
-  color: var(--text-white) !important;
-}
-
-/* 취소 */
-.cancel-btn {
-  background: var(--gray-400) !important;
-  color: var(--text-dark) !important;
-}
 
 
 
