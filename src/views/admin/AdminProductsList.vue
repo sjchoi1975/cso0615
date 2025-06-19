@@ -4,7 +4,7 @@
     <div class="filter-card">
       <div class="filter-row">
         <span>기준월</span>
-        <select v-model="currentMonth.value" class="filter-dropdown" style="width:120px;">
+        <select v-model="currentMonth.value" class="filter-dropdown">
           <option v-for="m in monthOptions" :key="m" :value="m">
             {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
           </option>

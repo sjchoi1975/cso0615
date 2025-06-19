@@ -95,7 +95,7 @@ const adminMenu = [
     ]
   },
   { label: '정산 관리', icon: 'pi pi-wallet', items: [
-      { label: '정산내역서', icon: 'pi pi-list', to: '/admin/settlement/list' },
+      { label: '월별 정산 현황', icon: 'pi pi-list', to: '/admin/settlement/month' },
     ]
   },
 ];
@@ -112,7 +112,7 @@ const userMenu = [
       { label: '등록 내역', icon: 'pi pi-list', to: '/edi/list' },
     ]
   },
-  { label: '정산내역서', icon: 'pi pi-wallet', to: '/settlement/list' },
+  { label: '정산내역서', icon: 'pi pi-wallet', to: '/settlement/month' },
 ];
 const menuItems = computed(() => props.userInfo?.role === 'admin' ? adminMenu : userMenu);
 

@@ -8,13 +8,13 @@
           <input v-model="search" placeholder="회사명, 사업자등록번호, 대표자명 검색" class="input-search" />
         </span>
         <span>인증</span>
-        <select v-model="approval" class="filter-dropdown">
+        <select v-model="approval" class="input-120">
           <option value="">전체</option>
           <option value="approved">인증 회원</option>
           <option value="unapproved">미인증 회원</option>
         </select>
         <span>등급</span>
-        <select v-model="grade" class="filter-dropdown">
+        <select v-model="grade" class="input-120">
           <option value="">전체</option>
           <option value="A">A</option>
           <option value="B">B</option>

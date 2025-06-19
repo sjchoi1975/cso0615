@@ -3,28 +3,23 @@
       <!-- 상단: 필터카드 -->
       <div class="filter-card">
         <div class="filter-row">
-          <span>정산월</span>
-          <select v-model="selectedMonth" class="filter-dropdown" style="width:110px;">
-            <option value="">- 선택 -</option>
-            <option v-for="m in monthOptions" :key="m" :value="m">{{ m }}</option>
-          </select>
           <span>처방월</span>
-          <select v-model="selectedPrescriptionMonth" class="filter-dropdown" style="width:110px;" :disabled="!selectedMonth">
+          <select v-model="selectedPrescriptionMonth" class="input-120">
             <option value="">전체</option>
             <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
           </select>
-          <span>업체</span>
-          <select v-model="selectedCompany" class="input-240" style="width:110px;" :disabled="!selectedMonth">
+          <span>업체명</span>
+          <select v-model="selectedCompany" class="input-240">
             <option value="">전체</option>
             <option v-for="c in companyOptions" :key="c" :value="c">{{ c }}</option>
           </select>
           <span>병의원</span>
-          <select v-model="selectedHospital" class="input-240" style="width:110px;" :disabled="!selectedMonth">
+          <select v-model="selectedHospital" class="input-240">
             <option value="">전체</option>
             <option v-for="h in hospitalOptions" :key="h" :value="h">{{ h }}</option>
           </select>
           <span>제품</span>
-          <select v-model="selectedProduct" class="input-240" style="width:110px;" :disabled="!selectedMonth">
+          <select v-model="selectedProduct" class="input-240">
             <option value="">전체</option>
             <option v-for="p in productOptions" :key="p" :value="p">{{ p }}</option>
           </select>
@@ -110,6 +105,7 @@
   import Column from 'primevue/column';
   import * as XLSX from 'xlsx';
   import Paginator from 'primevue/paginator';
+  import { useRoute } from 'vue-router';
   
   const settlements = ref([]);
   const loading = ref(false);
@@ -194,6 +190,8 @@
     { field: 'remarks', header: '비고' }
   ];
   
+  const route = useRoute();
+  
   const fetchFilterOptions = async () => {
     // 정산월 목록
     const { data: months } = await supabase.from('settlements').select('settlement_month', { distinct: true });
@@ -239,7 +237,12 @@
     loading.value = false;
   };
   
-  onMounted(() => {
+  onMounted(async () => {
+    // URL 파라미터로 month가 있으면 selectedMonth에 세팅
+    if (route.query.month) {
+      selectedMonth.value = route.query.month;
+    }
+    await getCurrentUser();
     fetchFilterOptions();
   });
   
@@ -305,6 +308,14 @@
   
   const downloadExcel = () => {
     const todayStr = new Date().toISOString().slice(0, 10);
+    let monthLabel = selectedMonth.value;
+    let fileMonth = '';
+    if (monthLabel && monthLabel.length === 7) {
+      const [y, m] = monthLabel.split('-');
+      fileMonth = `${y}년 ${Number(m)}월`;
+    } else {
+      fileMonth = '전체';
+    }
     const exportData = settlements.value.map(row => ({
       '정산월': selectedMonth.value,
       '업체명': row.company_name,
@@ -325,33 +336,32 @@
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, '정산내역');
-    XLSX.writeFile(wb, `settlements_${todayStr}.xlsx`);
+    XLSX.writeFile(wb, `정산내역서 - ${fileMonth}_${todayStr}.xlsx`);
   };
   
   const downloadTemplate = () => {
     const headers = [
-      '정산월', '업체명', '업체사업자등록번호', '병의원', '병의원사업자등록번호', '처방월',
+      //'정산월',  // 정산월 컬럼 제거
+      '업체명', '업체사업자등록번호', '병의원', '병의원사업자등록번호', '처방월',
       '제약사', '제품명', '보험코드', '약가', '수량', '처방액', '수수료율', '지급액', '비고'
     ];
     const exampleRow = [
-      '2024-06', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+      // '',
+      '', '', '', '', '', '', '', '', '', '', '', '', '', ''
     ];
     const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
-    // 합계행 추가
-    ws['A9'] = { t: 's', v: '합계' };
-    ws['B9'] = { t: 's', v: '업체 수' };
-    ws['D9'] = { t: 's', v: '병의원 수' };
-    ws['G9'] = { t: 's', v: '제약사 수' };
-    ws['H9'] = { t: 's', v: '제품 수' };
-    ws['K9'] = { t: 's', v: '총 수량' };
-    ws['L9'] = { t: 's', v: '총 처방액' };
-    ws['N9'] = { t: 's', v: '총 지급액' };
+    // 합계행 등은 필요시 추가
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, '정산내역');
-    XLSX.writeFile(wb, `settlement_template.xlsx`);
+    XLSX.writeFile(wb, '정산내역서_일괄등록양식.xlsx');
   };
   
   const uploadExcel = async (e) => {
+    console.log('selectedMonth:', selectedMonth.value)
+    if (!selectedMonth.value) {
+      alert('정산월을 먼저 선택하세요.');
+      return;
+    }
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -362,7 +372,7 @@
       const sheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(sheet);
       const rows = json.map(row => ({
-        settlement_month: row['정산월'] || '',
+        settlement_month: selectedMonth.value,
         company_name: row['업체명'] || '',
         company_reg_no: row['업체사업자등록번호'] || '',
         hospital_name: row['병의원'] || '',
@@ -378,7 +388,7 @@
         payment_amount: row['지급액'] || null,
         remarks: row['비고'] || ''
       }));
-      const validRows = rows.filter(r => r.settlement_month && r.company_name && r.hospital_name);
+      const validRows = rows.filter(r => r.company_name && r.hospital_name && r.product_name);
       if (validRows.length === 0) {
         alert('엑셀에 등록할 데이터가 없습니다.');
         return;
@@ -402,21 +412,3 @@
   };
   </script>
   
-  <style scoped>
-  .table-card {
-    margin-bottom: 2rem;
-  }
-  .table-container {
-    margin-left: 3rem;
-  }
-  .fixed-paginator {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background: #fff;
-    z-index: 100;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
-    padding: 8px 0;
-  }
-  </style>
