@@ -1,11 +1,11 @@
 <template>
   <div class="admin-notice-view page-container">
+    
     <!-- 상단: 필터카드 -->
-    <div class="filter-card">
+    <div class="filter-card search-center-card">
       <div class="filter-row">
-        <span class="search-label">통합 검색</span>
-        <span class="p-input-icon-left search-input-container">
-          <input v-model="search" placeholder="제목, 내용 검색" class="input-search" />
+        <span class="p-input-icon-left">
+          <input v-model="search" placeholder="제목, 내용 검색" class="input-search wide-mobile-search" />
         </span>
       </div>
     </div>
@@ -176,41 +176,3 @@ const goDetail = (id) => {
   router.push(`/notice/detail/${id}`);
 };
 </script>
-
-<style scoped>
-/* 모바일용 스타일 */
-@media (max-width: 768px) {
-  .search-label {
-    display: none;
-  }
-  
-  .search-input-container {
-    width: 100%;
-    padding: 0 0.5rem;
-  }
-  
-  .input-search {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-  
-  .filter-row {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-}
-
-.fixed-paginator {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  background: #fff;
-  z-index: 100;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
-  padding: 8px 0;
-}
-</style>

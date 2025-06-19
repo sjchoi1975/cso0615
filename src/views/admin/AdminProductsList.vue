@@ -1,7 +1,7 @@
 <template>
   <div class="admin-products-view page-container">
-    <!-- 상단: 필터카드 -->
-    <div class="filter-card">
+    <!-- 모바일 필터 카드 스크롤 처리 -->
+    <div class="filter-card custom-auto-height">
       <div class="filter-row">
         <span class="hide-mobile">기준월</span>
         <select v-model="currentMonth.value" class="filter-dropdown">
@@ -37,8 +37,8 @@
       </div>
     </div>
 
-    <!-- 중간: 기능카드 -->
-    <div class="function-card">
+    <!-- 모바일 기능카드 스크롤 처리 -->
+    <div class="function-card custom-auto-height">
       <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}개 제품</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
         <button class="btn-add" @click="downloadExcel">엑셀 다운</button>

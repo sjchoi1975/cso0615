@@ -795,29 +795,6 @@ nav a:first-of-type {
   max-height: 4.2rem !important;
 }
 
-@media (max-width: 600px) {
-  .filter-card,
-  .function-card {
-    padding: 1rem 1rem !important;   /* 위아래, 좌우 여백 */
-    min-height: unset !important;
-    max-height: unset !important;
-    height: auto !important;
-  }
-  .filter-row {
-    margin-bottom: 1rem !important;    /* 필터와 버튼 사이 간격 */
-  }
-}
-
-@media (max-width: 600px) {
-  .filter-card {
-    overflow-x: auto !important;
-    white-space: nowrap !important;
-  }
-  .filter-row {
-    flex-wrap: nowrap !important;
-  }
-}
-
 .filter-card {
   padding: 0 1rem !important;
   border-bottom: 1px solid var(--border-secondary) !important;
@@ -832,59 +809,6 @@ nav a:first-of-type {
 .table-card {
   padding-bottom: 48px !important;
 }
-
-
-
-/* 모바일 테이블 스크롤 처리 */
-@media (max-width: 600px) {
-  .table-card {
-    overflow-x: auto;
-    width: 100vw;
-    /* 필요시 min-width: 100vw; */
-  }
-.table-card .p-datatable-table {
-  min-width: 1280px;
-}
-}
-
-/* 개별 화면별 모바일 테이블 스크롤 지정 */
-@media (max-width: 600px) {
-  .admin-products-view-table .p-datatable-table {
-    min-width: 1800px;
-  }
-}
-
-
-
-
-
-
-
-.filter-hide-mobile {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem; /* 필요시 조정 */
-}
-
-@media (max-width: 600px) {
-  .filter-hide-mobile {
-    display: none !important;
-  }
-}
-
-
-@media (max-width: 600px) {
-  .hide-mobile {
-    gap: 1rem !important;
-    display: none !important;
-  }
-}
-
-
-
-
-
 
 
 
@@ -933,27 +857,6 @@ nav a:first-of-type {
 .input-120 { width: 120px !important; }
 .input-240 { width: 240px !important; }
 .input-search { width: var(--input-search-width) !important; }
-
-
-
-/* 모바일 통합 검색용 */
-@media (max-width: 600px) {
-  .input-search {
-    width: 93vw !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    padding: 0.8rem 0.5rem !important;
-    margin: 0 !important;
-  }
-}
-
-@media (max-width: 600px) {
-  .filter-card {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-}
 
 
 
@@ -1582,6 +1485,111 @@ button.p-paginator-page:hover {
   z-index: 100;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
   padding: 8px 0;
+}
+
+
+
+/* ========================================================================================================= */
+/* 모바일 테이블 스크롤 처리
+/* ========================================================================================================= */
+
+/* 모바일 필터 카드 스크롤 처리 */
+@media (max-width: 600px) {
+  .custom-auto-height {
+    min-height: unset !important;
+    max-height: unset !important;
+    height: auto !important;
+  }
+}
+
+/* 모바일 필터 카드 스크롤 처리 */
+@media (max-width: 600px) {
+  .filter-card {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+  }
+  .filter-row {
+    flex-wrap: nowrap !important;
+  }
+}
+
+
+/* 모바일 테이블 스크롤 처리 - 기본 너비 1280 */
+@media (max-width: 600px) {
+  .table-card {
+    overflow-x: auto;
+    width: 100vw;
+    /* 필요시 min-width: 100vw; */
+  }
+.table-card .p-datatable-table {
+  min-width: 1280px;
+}
+}
+
+/* 개별 화면별 모바일 테이블 너비 설정 */
+@media (max-width: 600px) {
+  .admin-products-view-table .p-datatable-table {
+    min-width: 1800px;
+  }
+}
+
+
+/* 개별 화면별 모바일 테이블 너비 설정 */
+@media (max-width: 600px) {
+  .admin-products-view-table .p-datatable-table {
+    min-width: 1800px;
+  }
+}
+
+
+
+
+.filter-hide-mobile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem; /* 필요시 조정 */
+}
+
+@media (max-width: 600px) {
+  .filter-hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .hide-mobile {
+    gap: 1rem !important;
+    display: none !important;
+  }
+}
+
+
+
+
+/* ========================================================================================================= */
+/* 모바일 통합 검색용 처리 (가운데 꽉 차게)
+/* ========================================================================================================= */
+
+
+/* <input class="input-search wide-mobile-search"> 추가 */
+@media (max-width: 600px) {
+  .wide-mobile-search {
+    width: 93vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 0.8rem 0.5rem !important;
+    margin: 0 !important;
+  }
+}
+
+/* <div class="filter-card search-center-card"> 추가 */
+@media (max-width: 600px) {
+  .search-center-card {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
 }
 
 

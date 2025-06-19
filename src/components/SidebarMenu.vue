@@ -88,6 +88,7 @@ const adminMenu = [
   },
   { label: '필터링 관리', icon: 'pi pi-filter', items: [
       { label: '필터링 요청 목록', icon: 'pi pi-list', to: '/admin/filter/list' },
+      { label: '제약사 관리', icon: 'pi pi-building', to: '/admin/pharmaceutical-companies' },
     ]
   },
   { label: 'EDI 파일 관리', icon: 'pi pi-file', items: [

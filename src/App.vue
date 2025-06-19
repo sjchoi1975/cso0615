@@ -38,6 +38,7 @@ const menuNameMap = {
   '/admin/members/list': '회원 목록',
   '/admin/products/list': '요율표 관리',
   '/admin/filter/list': '필터링 요청 목록',
+  '/admin/pharmaceutical-companies': '제약사 관리',
   '/admin/edi/list': 'EDI 제출 내역',
   '/admin/settlement/list': '정산내역서',
   '/notice/list': '공지사항',

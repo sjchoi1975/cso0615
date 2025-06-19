@@ -9,6 +9,7 @@ import AdminNoticeEdit from '../views/admin/AdminNoticeEdit.vue'
 import AdminMembersList from '../views/admin/AdminMembersList.vue'
 import AdminProductsList from '../views/admin/AdminProductsList.vue'
 import AdminFilterList from '../views/admin/AdminFilterList.vue'
+import AdminPharmaceuticalCompanies from '../views/admin/AdminPharmaceuticalCompanies.vue'
 import AdminEdiList from '../views/admin/AdminEdiList.vue'
 import AdminSettlementList from '../views/admin/AdminSettlementList.vue'
 import AdminProductsCreate from '../views/admin/AdminProductsCreate.vue'
@@ -53,6 +54,11 @@ const router = createRouter({
       path: '/admin/filter/list',
       name: 'admin-filter-list',
       component: AdminFilterList,
+    },
+    {
+      path: '/admin/pharmaceutical-companies',
+      name: 'admin-pharmaceutical-companies',
+      component: AdminPharmaceuticalCompanies,
     },
     {
       path: '/admin/edi/list',

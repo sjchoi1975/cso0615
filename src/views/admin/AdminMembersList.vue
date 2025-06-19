@@ -1,11 +1,13 @@
 <template>
   <div class="admin-members-view page-container">
     <!-- 상단: 필터카드 -->
-    <div class="filter-card">
+    <div class="filter-card search-center-card">
       <div class="filter-row">
         <span class="p-input-icon-left">
-          <input v-model="search" placeholder="회사명, 사업자등록번호, 대표자명 검색" class="input-search" />
+          <input v-model="search" placeholder="회사명, 사업자등록번호, 대표자명 검색" class="input-search wide-mobile-search" />
         </span>
+
+        <!-- 모바일 필터 카드 스크롤 처리 -->
         <div class="filter-hide-mobile">
           <span>인증</span>
           <select v-model="approval" class="input-120">

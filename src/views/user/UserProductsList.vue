@@ -1,10 +1,11 @@
 <template>
   <div class="admin-products-view page-container">
+
+
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row flex-row">
-        <span class="search-label">통합 검색</span>
-        <span class="p-input-icon-left search-input-wrap">
+        <span class="p-input-icon-left">
           <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 검색" class="input-search" />
           <button class="btn-add search-btn" @click="searchProducts" :disabled="!isSearchActive">검색</button>
         </span>
@@ -266,89 +267,3 @@ function downloadExcel() {
   // 엑셀 다운로드 로직은 기존과 동일하게 구현
 }
 </script>
-
-<style scoped>
-.flex-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.search-input-wrap {
-  display: flex;
-  flex: 2;
-  min-width: 0;
-}
-.input-search {
-  flex: 1;
-  border-radius: 4px 0 0 4px;
-  border-right: none;
-  height: 40px;
-  font-size: 1rem;
-  padding: 0.5rem 0.7rem;
-}
-.search-btn {
-  border-radius: 0 4px 4px 0;
-  border-left: none;
-  height: 40px;
-  font-size: 1rem;
-  padding: 0 1.2rem;
-  margin-left: 0;
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.icon-reset {
-  min-width: 60px;
-  padding: 0.5rem 0.7rem;
-  margin-left: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-}
-.icon-reset svg {
-  margin-right: 4px;
-}
-
-@media (max-width: 600px) {
-  .search-label {
-    display: none !important;
-  }
-  .filter-row.flex-row {
-    flex-wrap: nowrap;
-    gap: 0.3rem;
-  }
-  .search-input-wrap {
-    flex: 2;
-  }
-  .input-search {
-    font-size: 1rem;
-    padding: 0.5rem 0.5rem;
-    height: 38px;
-  }
-  .search-btn {
-    font-size: 1rem;
-    padding: 0 1rem;
-    height: 38px;
-  }
-  .icon-reset {
-    min-width: 48px;
-    padding: 0.5rem 0.5rem;
-    margin-left: 0.3rem;
-    font-size: 1rem;
-  }
-}
-
-.fixed-paginator {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  background: #fff;
-  z-index: 100;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
-  padding: 8px 0;
-}
-</style>

@@ -1,10 +1,11 @@
 <template>
   <div class="admin-notice-view page-container">
+
     <!-- 상단: 필터카드 -->
-    <div class="filter-card">
+    <div class="filter-card search-center-card">
       <div class="filter-row">
         <span class="p-input-icon-left">
-          <input v-model="search" placeholder="제목, 내용 검색" class="input-search" />
+          <input v-model="search" placeholder="제목, 내용 검색" class="input-search wide-mobile-search" />
         </span>
       </div>
     </div>
