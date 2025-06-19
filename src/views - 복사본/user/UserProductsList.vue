@@ -22,9 +22,11 @@
 
     <!-- 중간: 기능카드 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
-      <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
+        <div style="display: flex; gap:0.5rem; align-items:center;">
+          <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
+        </div>
       </div>
     </div>
 
@@ -40,7 +42,7 @@
         :first="first"
         @page="onPageChange"
         scrollable
-        :scrollHeight="'calc(100vh - 220px)'"
+        :scrollHeight="'calc(100vh - 240px)'"
         ref="tableRef"
         lazy
       >

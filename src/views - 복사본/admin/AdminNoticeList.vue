@@ -12,8 +12,12 @@
 
     <!-- 중간: 기능카드 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount }}건</div>
-      <router-link to="/admin/notices/create" class="btn-add">공지 작성</router-link>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="total-count">총 {{ totalCount }}건</div>
+        <div style="display: flex; gap: 0.5rem;">
+          <router-link to="/admin/notices/create" class="btn-add">공지 작성</router-link>
+        </div>
+      </div>
     </div>
 
     <!-- 하단: 테이블카드 -->
@@ -27,7 +31,7 @@
         :totalRecords="totalCount"
         @page="onPageChange"
         scrollable
-        :scrollHeight="'calc(100vh - 220px)'"
+        :scrollHeight="'calc(100vh - 238px)'"
       >
         <Column 
           header="순번" 
@@ -117,7 +121,7 @@
       </DataTable>
     </div>
 
-    <div v-if="showPaginator" class="fixed-paginator">
+    <div class="fixed-paginator">
       <Paginator
         :rows="pageSize"
         :totalRecords="totalCount"
@@ -270,7 +274,17 @@ const deleteNotice = async (id) => {
     alert('삭제 실패: ' + error.message);
   }
 };
-
-// 페이지네이터 표시 여부(예시: 전체 데이터가 1페이지 초과일 때만 true)
-const showPaginator = ref(true); // 실제로는 데이터 개수로 판단
 </script>
+
+<style scoped>
+.fixed-paginator {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  z-index: 100;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  padding: 8px 0;
+}
+</style>

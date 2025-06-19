@@ -40,16 +40,18 @@
 
     <!-- 중간: 기능카드 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
-      <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
-        <button class="btn-add" @click="downloadTemplate">템플릿</button>
-        <label class="btn-add" style="margin-bottom:0; cursor:pointer;">
-          엑셀 등록
-          <input type="file" accept=".xlsx,.xls" @change="uploadExcel" style="display:none;" />
-        </label>
-        <button class="btn-add" @click="goToProductCreate">제품 등록</button>
-        <button class="btn-danger" @click="deleteAllProducts">전체 삭제</button>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
+        <div style="display: flex; gap:0.5rem; align-items:center;">
+          <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
+          <button class="btn-add" @click="downloadTemplate">템플릿</button>
+          <label class="btn-add" style="margin-bottom:0; cursor:pointer;">
+            엑셀 등록
+            <input type="file" accept=".xlsx,.xls" @change="uploadExcel" style="display:none;" />
+          </label>
+          <button class="btn-add" @click="goToProductCreate">제품 등록</button>
+          <button class="btn-danger" @click="deleteAllProducts" style="margin-left:0.5rem;">전체 삭제</button>
+        </div>
       </div>
     </div>
 

@@ -11,9 +11,11 @@
     </div>
     <!-- 기능카드 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount }}건</div>
-      <div style="display: flex; gap: 0.5rem;">
-        <button class="btn-add" @click="downloadExcel">엑셀 다운로드</button>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="total-count">총 {{ totalCount }}건</div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn-add" @click="downloadExcel">엑셀 다운로드</button>
+        </div>
       </div>
     </div>
 
@@ -60,10 +62,14 @@
       <div class="custom-modal">
         <label class="modai-title">전달사항</label>
         <div class="modal-body">
-          <div style="white-space: pre-line;">{{ noteValue }}</div>
+          <div v-if="!noteEditMode" style="white-space: pre-line;">{{ noteValue }}</div>
+          <textarea v-else v-model="noteValue" rows="12" style="width:100%; margin-bottom:2.5rem;"></textarea>
         </div>
         <div class="modal-footer">
-          <button class="btn-primary" @click="closeNoteDialog">확인</button>
+          <button class="btn-edit" v-if="!noteEditMode" @click="startEditNote">수정</button>
+          <button class="btn-primary" v-if="!noteEditMode" @click="closeNoteDialog">확인</button>
+          <button class="btn-cancel" v-if="noteEditMode" @click="cancelEditNote">취소</button>
+          <button class="btn-add" v-if="noteEditMode" @click="saveNote">저장</button>
         </div>
       </div>
     </div>
@@ -89,7 +95,10 @@ const monthOptions = ref([]);
 
 // 전달사항 팝업 상태
 const showNoteDialog = ref(false);
+const noteEditMode = ref(false);
+const noteMonth = ref('');
 const noteValue = ref('');
+const noteOrigin = ref('');
 
 const currentUserRegNo = ref('');
 
@@ -241,11 +250,37 @@ const downloadExcel = () => {
   XLSX.writeFile(wb, fileName);
 };
 const openNotePopup = (row) => {
+  noteMonth.value = row.settlement_month;
   noteValue.value = row.note;
+  noteOrigin.value = row.note;
+  noteEditMode.value = false;
   showNoteDialog.value = true;
 };
 const closeNoteDialog = () => {
   showNoteDialog.value = false;
+  noteEditMode.value = false;
+};
+const startEditNote = () => {
+  noteEditMode.value = true;
+};
+const cancelEditNote = () => {
+  noteEditMode.value = false;
+  noteValue.value = noteOrigin.value;
+};
+const saveNote = async () => {
+  try {
+    const { error } = await supabase
+      .from('settlement_months')
+      .update({ note: noteValue.value, updated_at: new Date().toISOString() })
+      .eq('settlement_month', noteMonth.value);
+    if (error) throw error;
+    alert('전달사항이 저장되었습니다.');
+    showNoteDialog.value = false;
+    fetchMonthList();
+  } catch (e) {
+    alert('저장 실패: ' + e.message);
+  }
+  noteEditMode.value = false;
 };
 const goDetail = (row) => {
   // 상세화면(월별 상세)로 이동, 정산월 파라미터 전달

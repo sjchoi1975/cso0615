@@ -1,5 +1,5 @@
 html {
-  font-size: 14px; /* 1rem = 16px (기본값) */
+  font-size: 13.5px; /* 1rem = 16px (기본값) */
 }
 
 html, body {
@@ -8,9 +8,6 @@ html, body {
   box-sizing: border-box;
   min-height: 100vh;
   background: #f4f6fa;
-  overflow: hidden !important;
-  width: 100vw !important;
-  height: 100vh !important;
 }
 
 @import './base.css';
@@ -198,13 +195,13 @@ a,
 
 /* 관리자 뷰 카드/컨테이너 전체 너비 & 여백 제거 */
 .page-container {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  height: 100vh !important;
-  overflow: hidden !important;
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 !important;
+  padding: 0 !important;
   display: flex;
   flex-direction: column;
+  height: calc(100vh-3rem); /* 또는 100dvh */
 }
 
 
@@ -294,6 +291,7 @@ nav {
   width: 100%;
   font-size: 12px;
   text-align: center;
+  margin-top: 0.5rem;
 }
 
 nav a.router-link-exact-active {
@@ -551,7 +549,7 @@ nav a:first-of-type {
   background: none !important;
   border: none !important;
   width: 100% !important;
-  font-size: var(--font-size-base) !important;
+  font-size: var(--font-size-90) !important;
   color: #222 !important;
   cursor: pointer !important;
   transition: background 0.2s !important;
@@ -586,8 +584,8 @@ nav a:first-of-type {
   align-items: center !important;
   justify-content: center !important;
   margin-right: 0 !important;
-  width: 2.2rem !important;
-  height: 2.2rem !important;
+  width: 2rem !important;
+  height: 2rem !important;
   border-radius: 50% !important;
   background: var(--gray-600) !important;
   color: #fff !important;
@@ -759,38 +757,34 @@ nav a:first-of-type {
 .filter-card,
 .function-card,
 .table-card {
-  flex: 1 1 auto;
   width: 100% !important;
-  max-width: none !important;
-  overflow-x: auto !important;
-  overflow-y: auto !important;
+  max-width: 100vw !important;
   background: var(--bg-content) !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }
 
-.filter-card,
-.function-card {
-  display: flex !important;
-  align-items: center !important;
-  min-height: 3.0rem !important;
-  max-height: 4.2rem !important;
-}
-
 .filter-card {
-  padding: 0 1rem !important;
+  padding: 1rem 1rem 1rem 1.25rem !important;
   border-bottom: 1px solid var(--border-secondary) !important;
   background: #f7fafd !important; /* 작업 구분용 */
 }
 
 .function-card {
-  padding: 0 1rem !important;
-  justify-content: space-between !important; /* 좌우 끝 정렬 */
+  padding: 1.0rem 1rem 0.5rem 1rem !important;
+  /*border-bottom: 1px solid var(--border-secondary) !important;
+  /*background: #ff99ff !important; /* 작업 구분용 */
 }
 
 .table-card {
-  padding-bottom: 48px !important;
+  flex: 1 1 auto;
+  min-height: 0; /* (flexbox에서 스크롤 등 깨짐 방지) */
+  padding: 0.5rem 0rem 1rem 0rem !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  height: calc(100vh-3rem) !important;
+  /*background: #ffffaa !important; /* 작업 구분용 */
 }
 
 
@@ -816,7 +810,7 @@ nav a:first-of-type {
 .input-search,
 .filter-dropdown {
   font-size: var(--font-size-base) !important;
-  padding: 0.8rem 1.0rem !important;
+  padding: 0.6rem 1.0rem !important;
   border: 1px solid var(--border-primary) !important;
   border-radius: var(--border-radius-md) !important;
   background: var(--bg-content) !important;
@@ -856,8 +850,8 @@ nav a:first-of-type {
 
 /* 총 개수 */
 .total-count {
+  padding: 0 0 0 0.5rem !important;
   font-size: var(--font-size-base) !important;
-  text-align: center !important;
   color: var(--text-primary) !important;
 }
 
@@ -1291,12 +1285,12 @@ label {
 .p-paginator .p-paginator-prev,
 .p-paginator .p-paginator-first,
 .p-paginator .p-paginator-last {
-  border: 1px solid #c0c0c0;
-  border-radius: 0px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
   background: #fff;
-  min-width: 2.4rem;
-  min-height: 2.0rem;
-  margin: 0 0rem;
+  min-width: 2rem;
+  min-height: 2rem;
+  margin: 0 0.25rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1325,13 +1319,14 @@ label {
 /* 페이지네이터 하단 고정 */
 .fixed-paginator {
   position: fixed;
-  left: 0 !important;
-  bottom: 0 !important;
-  width: 100% !important;
+  left: 0;
+  bottom: 0;
+  width: 100%;
   background: #f7fafd !important;
-  z-index: 100 !important;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.04) !important;
-  padding: 8px 0 !important;
+  border-top: 1px solid #c0c4ca !important;
+  z-index: 100;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  padding: 0 0 0.75rem 0;
 }
 
 .btn-add:disabled {
@@ -1427,42 +1422,6 @@ button.p-paginator-page:hover {
   width: 120px;
   height: 120px;
   display: block;
-}
-
-.p-datatable-wrapper,
-.p-datatable {
-  margin-bottom: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-.p-datatable-wrapper,
-.p-datatable {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  overflow-x: auto !important;
-  overflow-y: visible !important;
-}
-
-/* ================== 공통 테이블 카드/페이지네이터 ================== */
-.table-card {
-  flex: 1 1 auto;
-  overflow: auto;
-  margin-bottom: 0;
-  transition: margin-bottom 0.2s;
-}
-.table-card.no-paginator {
-  margin-bottom: 40px;
-}
-.fixed-paginator {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  background: #fff;
-  z-index: 100;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
-  padding: 8px 0;
 }
 
 

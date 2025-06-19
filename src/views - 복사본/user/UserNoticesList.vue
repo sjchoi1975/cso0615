@@ -3,8 +3,8 @@
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
-        <span>통합 검색</span>
-        <span class="p-input-icon-left">
+        <span class="search-label">통합 검색</span>
+        <span class="p-input-icon-left search-input-container">
           <input v-model="search" placeholder="제목, 내용 검색" class="input-search" />
         </span>
       </div>
@@ -12,8 +12,9 @@
 
     <!-- 중간: 기능카드 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount }}건</div>
-      <router-link to="/admin/notices/create" class="btn-add">공지 작성</router-link>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="total-count">총 {{ totalCount }}건</div>
+      </div>
     </div>
 
     <!-- 하단: 테이블카드 -->
@@ -27,7 +28,7 @@
         :totalRecords="totalCount"
         @page="onPageChange"
         scrollable
-        :scrollHeight="'calc(100vh - 220px)'"
+        :scrollHeight="'calc(100vh - 238px)'"
       >
         <Column 
           header="순번" 
@@ -76,48 +77,10 @@
           :class="columnAligns.author"
           :sortable="columnSortables.author"
         />
-        <Column 
-          field="status" 
-          header="상태"
-          :style="{ width: columnWidths.status }"
-          :class="columnAligns.status"
-          :sortable="columnSortables.status"
-        >
-          <template #body="{ data }">
-            <div class="custom-toggle-wrap">
-              <input
-                type="checkbox"
-                :id="'status-' + data.id"
-                :checked="data.status === 'active'"
-                @change="toggleStatus(data.id, data.status)"
-                class="custom-toggle-checkbox"
-              />
-              <label :for="'status-' + data.id" class="custom-toggle-label"></label>
-            </div>
-          </template>
-        </Column>
-        <Column 
-          header="수정"
-          :style="{ width: columnWidths.edit }"
-          :class="columnAligns.edit"
-        >
-          <template #body="{ data }">
-            <button class="btn-edit-sm" @click="goEdit(data.id)">수정</button>
-          </template>
-        </Column>
-        <Column 
-          header="삭제"
-          :style="{ width: columnWidths.delete }"
-          :class="columnAligns.delete"
-        >
-          <template #body="{ data }">
-            <button class="btn-delete-sm" @click="deleteNotice(data.id)">삭제</button>
-          </template>
-        </Column>
       </DataTable>
     </div>
 
-    <div v-if="showPaginator" class="fixed-paginator">
+    <div class="fixed-paginator">
       <Paginator
         :rows="pageSize"
         :totalRecords="totalCount"
@@ -143,43 +106,28 @@ const notices = ref([]);
 const pageSize = ref(20);
 const first = ref(0);
 
-// 컬럼 너비 한 곳에서 관리
 const columnWidths = {
   index: '4%',
   title: '26%',
   content: '40%',
   created_at: '8%',
-  author: '10%',
-  status: '4%',
-  edit: '4%',
-  delete: '4%'
+  author: '10%'
 };
-
-// 컬럼별 정렬 여부 한 곳에서 관리
 const columnSortables = {
   index: false,
-  title: false,
-  content: false,
-  created_at: false,
-  author: false,
-  status: false,
-  edit: false,
-  delete: false
+  title: true,
+  content: true,
+  created_at: true,
+  author: true
 };
-
-// 컬럼별 정렬 방식 한 곳에서 관리
 const columnAligns = {
   index: 'text-center',
   title: 'text-left',
   content: 'text-left',
   created_at: 'text-center',
-  author: 'text-center',
-  status: 'text-center',
-  edit: 'text-center',
-  delete: 'text-center'
+  author: 'text-center'
 };
 
-// 공지 불러오기 (전체 데이터)
 const fetchNotices = async () => {
   const { data, error } = await supabase
     .from('notices')
@@ -198,7 +146,6 @@ const onPageChange = (event) => {
   first.value = event.first;
 };
 
-// 검색 등 필터링 및 중요 공지 상단 고정 (slice로 페이지 데이터만 반환)
 const filteredAll = computed(() => {
   let filtered = notices.value;
   if (search.value) {
@@ -220,57 +167,52 @@ const filterednotice = computed(() => {
 
 const totalCount = computed(() => filteredAll.value.length);
 
-// 날짜 포맷팅 (한국시각)
 const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   const koreanTime = new Date(date.getTime() + (9 * 60 * 60 * 1000)); // UTC+9
-  // YYYY-MM-DD HH:MM
   return koreanTime.toISOString().slice(0, 16).replace('T', ' ');
 };
 
-// 상태 토글
-const toggleStatus = async (id, currentStatus) => {
-  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-  const { error } = await supabase
-    .from('notices')
-    .update({ status: newStatus })
-    .eq('id', id);
-  
-  if (!error) {
-    await fetchNotices(); // 목록 새로고침
-  } else {
-    alert('상태 변경 실패: ' + error.message);
-  }
-};
-
-// 상세 화면으로 이동
 const goDetail = (id) => {
-  router.push(`/admin/notices/detail/${id}`);
+  router.push(`/notice/detail/${id}`);
 };
-
-// 수정 화면으로 이동
-const goEdit = (id) => {
-  router.push(`/admin/notices/edit/${id}`);
-};
-
-// 삭제
-const deleteNotice = async (id) => {
-  if (!confirm('삭제하시겠습니까?')) return;
-  
-  const { error } = await supabase
-    .from('notices')
-    .delete()
-    .eq('id', id);
-  
-  if (!error) {
-    alert('삭제되었습니다.');
-    await fetchNotices(); // 목록 새로고침
-  } else {
-    alert('삭제 실패: ' + error.message);
-  }
-};
-
-// 페이지네이터 표시 여부(예시: 전체 데이터가 1페이지 초과일 때만 true)
-const showPaginator = ref(true); // 실제로는 데이터 개수로 판단
 </script>
+
+<style scoped>
+/* 모바일용 스타일 */
+@media (max-width: 768px) {
+  .search-label {
+    display: none;
+  }
+  
+  .search-input-container {
+    width: 100%;
+    padding: 0 0.5rem;
+  }
+  
+  .input-search {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .filter-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.fixed-paginator {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  z-index: 100;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  padding: 8px 0;
+}
+</style>

@@ -12,9 +12,7 @@
 
     <!-- 중간: 기능카드 -->
     <div class="function-card">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="total-count">총 {{ totalCount }}건</div>
-      </div>
+      <div class="total-count">총 {{ totalCount }}건</div>
     </div>
 
     <!-- 하단: 테이블카드 -->
@@ -28,7 +26,7 @@
         :totalRecords="totalCount"
         @page="onPageChange"
         scrollable
-        :scrollHeight="'calc(100vh - 238px)'"
+        :scrollHeight="'calc(100vh - 220px)'"
       >
         <Column 
           header="순번" 

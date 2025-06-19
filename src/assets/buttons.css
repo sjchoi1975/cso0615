@@ -26,8 +26,7 @@
 .btn-select-none,
 .file-upload-label,
 .file-label {
-  padding: 0.3rem 1rem !important;
-  margin: 0 0.5rem !important;
+  padding: 0.5rem 1rem !important;
   font-size: var(--font-size-base) !important;
   font-weight: 400 !important;
   line-height: 1.5 !important;
@@ -120,7 +119,6 @@
   border: none !important;
   color: var(--text-dark) !important;
   padding: 0.25rem !important;
-  margin: 0 !important;
   box-shadow: none !important;
 }
 
@@ -181,7 +179,6 @@
 .btn-upload-sm,
 .btn-download-sm {  
   padding: 0.15rem 0.4rem !important;
-  margin: 0 0.2rem !important;
   font-size: var(--font-size-90) !important;
   font-weight: 400 !important;
   line-height: 1.25 !important;
