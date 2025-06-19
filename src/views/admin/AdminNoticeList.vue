@@ -3,7 +3,6 @@
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
-        <span>통합 검색</span>
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="제목, 내용 검색" class="input-search" />
         </span>
@@ -146,13 +145,13 @@ const first = ref(0);
 // 컬럼 너비 한 곳에서 관리
 const columnWidths = {
   index: '4%',
-  title: '26%',
-  content: '40%',
-  created_at: '8%',
-  author: '10%',
-  status: '4%',
-  edit: '4%',
-  delete: '4%'
+  title: '24%',
+  content: '32%',
+  created_at: '10%',
+  author: '12%',
+  status: '6%',
+  edit: '6%',
+  delete: '6%'
 };
 
 // 컬럼별 정렬 여부 한 곳에서 관리
@@ -178,6 +177,18 @@ const columnAligns = {
   edit: 'text-center',
   delete: 'text-center'
 };
+
+// 모바일
+// 제목과 날짜만 표시하는 설정
+const noticeConfig = {
+  scroll: false,        // 스크롤 없음
+  compact: true,        // 컴팩트 모드 사용
+  columns: {
+    title: { visible: true, width: '70%' },
+    date: { visible: true, width: '30%' },
+    // 나머지는 숨김
+  }
+}
 
 // 공지 불러오기 (전체 데이터)
 const fetchNotices = async () => {

@@ -795,6 +795,29 @@ nav a:first-of-type {
   max-height: 4.2rem !important;
 }
 
+@media (max-width: 600px) {
+  .filter-card,
+  .function-card {
+    padding: 1rem 1rem !important;   /* 위아래, 좌우 여백 */
+    min-height: unset !important;
+    max-height: unset !important;
+    height: auto !important;
+  }
+  .filter-row {
+    margin-bottom: 1rem !important;    /* 필터와 버튼 사이 간격 */
+  }
+}
+
+@media (max-width: 600px) {
+  .filter-card {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+  }
+  .filter-row {
+    flex-wrap: nowrap !important;
+  }
+}
+
 .filter-card {
   padding: 0 1rem !important;
   border-bottom: 1px solid var(--border-secondary) !important;
@@ -809,6 +832,59 @@ nav a:first-of-type {
 .table-card {
   padding-bottom: 48px !important;
 }
+
+
+
+/* 모바일 테이블 스크롤 처리 */
+@media (max-width: 600px) {
+  .table-card {
+    overflow-x: auto;
+    width: 100vw;
+    /* 필요시 min-width: 100vw; */
+  }
+.table-card .p-datatable-table {
+  min-width: 1280px;
+}
+}
+
+/* 개별 화면별 모바일 테이블 스크롤 지정 */
+@media (max-width: 600px) {
+  .admin-products-view-table .p-datatable-table {
+    min-width: 1800px;
+  }
+}
+
+
+
+
+
+
+
+.filter-hide-mobile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem; /* 필요시 조정 */
+}
+
+@media (max-width: 600px) {
+  .filter-hide-mobile {
+    display: none !important;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .hide-mobile {
+    gap: 1rem !important;
+    display: none !important;
+  }
+}
+
+
+
+
+
 
 
 
@@ -859,6 +935,28 @@ nav a:first-of-type {
 .input-search { width: var(--input-search-width) !important; }
 
 
+
+/* 모바일 통합 검색용 */
+@media (max-width: 600px) {
+  .input-search {
+    width: 93vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 0.8rem 0.5rem !important;
+    margin: 0 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .filter-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+
+
 /* filter-dropdown 스타일 */
 .filter-dropdown {
   min-width: 80px !important; color: #333333 !important; background-color: #ffffff !important;
@@ -876,6 +974,10 @@ nav a:first-of-type {
   font-size: var(--font-size-base) !important;
   text-align: center !important;
   color: var(--text-primary) !important;
+}
+
+.total-count-nowrap {
+  white-space: nowrap !important;
 }
 
 .modai-title {

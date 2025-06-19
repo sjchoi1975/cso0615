@@ -3,29 +3,30 @@
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
-        <span>통합 검색</span>
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="회사명, 사업자등록번호, 대표자명 검색" class="input-search" />
         </span>
-        <span>인증</span>
-        <select v-model="approval" class="input-120">
-          <option value="">전체</option>
-          <option value="approved">인증 회원</option>
-          <option value="unapproved">미인증 회원</option>
-        </select>
-        <span>등급</span>
-        <select v-model="grade" class="input-120">
-          <option value="">전체</option>
-          <option value="A">A</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-        </select>
-        <button class="filter-reset-btn"
-          @click="resetFilters"
-          style="margin-left: 1rem; display: flex; align-items: center; gap: 0.2rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 2px;"><path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
-          초기화
-        </button>
+        <div class="filter-hide-mobile">
+          <span>인증</span>
+          <select v-model="approval" class="input-120">
+            <option value="">전체</option>
+            <option value="approved">인증 회원</option>
+            <option value="unapproved">미인증 회원</option>
+          </select>
+          <span>등급</span>
+          <select v-model="grade" class="input-120">
+            <option value="">전체</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+          <button class="filter-reset-btn"
+            @click="resetFilters"
+            style="margin-left: 1rem; display: flex; align-items: center; gap: 0.2rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 2px;"><path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
+            초기화
+          </button>
+        </div>
       </div>
     </div>
 
@@ -141,8 +142,8 @@ const columnWidths = {
   company_name: '12%',
   biz_no: '8%',
   ceo_name: '8%',
-  address: '26%',
-  cso_regist_no: '10%',
+  address: '22%',
+  cso_regist_no: '16%',
   approval: '8%',
   grade: '6%',
   created_at: '8%'

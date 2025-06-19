@@ -3,23 +3,22 @@
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
-        <span>기준월</span>
+        <span class="hide-mobile">기준월</span>
         <select v-model="currentMonth.value" class="filter-dropdown">
           <option v-for="m in monthOptions" :key="m" :value="m">
             {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
           </option>
         </select>
-        <span>통합 검색</span>
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 검색" class="input-search" />
         </span>
-        <span>급여</span>
+        <span class="hide-mobile">급여</span>
         <select v-model="reimbursement" class="filter-dropdown">
           <option value="">전체</option>
           <option value="급여">급여</option>
           <option value="비급여">비급여</option>
         </select>
-        <span>상태</span>
+        <span class="hide-mobile">상태</span>
         <select v-model="status" class="filter-dropdown">
           <option value="">전체</option>
           <option value="active">활성</option>
@@ -40,7 +39,7 @@
 
     <!-- 중간: 기능카드 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
+      <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}개 제품</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
         <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
         <button class="btn-add" @click="downloadTemplate">템플릿</button>
@@ -54,7 +53,7 @@
     </div>
 
     <!-- 하단: 테이블카드 -->
-    <div class="table-card">
+    <div class="table-card admin-products-view-table">
       <DataTable
         :value="products"
         :loading="loading"
