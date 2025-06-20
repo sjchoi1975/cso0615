@@ -10,25 +10,34 @@
           v-for="item in menuItems"
           :key="item.label"
           class="menu-group-wrapper"
-          @mouseenter="item.items ? onGroupEnter(item.label) : null"
-          @mouseleave="item.items ? onGroupLeave() : null"
+          @mouseenter="!isMobile && item.items ? onGroupEnter(item.label) : null"
+          @mouseleave="!isMobile && item.items ? onGroupLeave() : null"
         >
           <div
             class="menu-item menu-group-label clickable"
             v-if="item.items"
+            @click="isMobile ? toggleGroup(item.label) : null"
           >
             <div class="menu-item-content">
               <i :class="item.icon"></i>
               <span class="menu-label">{{ item.label }}</span>
+              <i 
+                v-if="isMobile" 
+                :class="expandedGroup === item.label ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                style="margin-left: auto;"
+              ></i>
             </div>
           </div>
-          <div v-if="item.items && hoveredGroup === item.label">
+          <div 
+            v-if="item.items && (hoveredGroup === item.label || (isMobile && expandedGroup === item.label))"
+            class="sub-menu-container"
+          >
             <RouterLink
               v-for="sub in item.items"
               :key="sub.label"
               :to="sub.to"
               class="sub-menu-item menu-item"
-              @click="$emit('menu-click')"
+              @click="handleSubMenuClick"
             >
               <div class="menu-item-content">
                 <i :class="sub.icon"></i>
@@ -86,6 +95,10 @@ const adminMenu = [
       { label: '요율표 관리', icon: 'pi pi-list', to: '/admin/products/list' },
     ]
   },
+  { label: '병의원 관리', icon: 'pi pi-hospital', items: [
+      { label: '병의원 목록', icon: 'pi pi-list', to: '/admin/hospitals/list' },
+    ]
+  },
   { label: '필터링 관리', icon: 'pi pi-filter', items: [
       { label: '필터링 요청 목록', icon: 'pi pi-list', to: '/admin/filter/list' },
       { label: '제약사 관리', icon: 'pi pi-building', to: '/admin/pharmaceutical-companies' },
@@ -103,6 +116,7 @@ const adminMenu = [
 const userMenu = [
   { label: '공지사항', icon: 'pi pi-bell', to: '/notice/list' },
   { label: '요율표', icon: 'pi pi-list', to: '/products/list' },
+  { label: '병의원', icon: 'pi pi-hospital', to: '/hospitals/list' },
   { label: '필터링', icon: 'pi pi-filter', items: [
       { label: '신규 요청', icon: 'pi pi-plus', to: '/filter/create' },
       { label: '요청 내역', icon: 'pi pi-list', to: '/filter/list' },
@@ -118,11 +132,30 @@ const userMenu = [
 const menuItems = computed(() => props.userInfo?.role === 'admin' ? adminMenu : userMenu);
 
 const hoveredGroup = ref(null);
+const expandedGroup = ref(null);
+
 const onGroupEnter = (label) => {
   hoveredGroup.value = label;
 };
+
 const onGroupLeave = () => {
   hoveredGroup.value = null;
+};
+
+const toggleGroup = (label) => {
+  if (expandedGroup.value === label) {
+    expandedGroup.value = null;
+  } else {
+    expandedGroup.value = label;
+  }
+};
+
+const handleSubMenuClick = () => {
+  emit('menu-click');
+  // 모바일에서 하위 메뉴 클릭 시 메뉴 닫기
+  if (isMobile.value) {
+    expandedGroup.value = null;
+  }
 };
 
 const sidebarHover = ref(false);
@@ -130,10 +163,16 @@ const sidebarHover = ref(false);
 const isMobile = ref(window.innerWidth <= 900);
 const handleResize = () => {
   isMobile.value = window.innerWidth <= 900;
+  // 데스크톱으로 변경 시 확장된 그룹 초기화
+  if (!isMobile.value) {
+    expandedGroup.value = null;
+  }
 };
+
 onMounted(() => {
   window.addEventListener('resize', handleResize);
 });
+
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
 });
@@ -146,4 +185,27 @@ const onLogout = async () => {
 
 const isAdmin = computed(() => props.userInfo?.role === 'admin');
 </script>
+
+<style scoped>
+.sub-menu-container {
+  transition: all 0.3s ease;
+}
+
+.menu-group-label .menu-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menu-group-label .pi-chevron-right,
+.menu-group-label .pi-chevron-down {
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 900px) {
+  .sub-menu-item {
+    padding-left: 2rem;
+  }
+}
+</style>
 

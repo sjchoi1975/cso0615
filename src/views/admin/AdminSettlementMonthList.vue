@@ -4,7 +4,7 @@
       <div class="filter-row">
         <span>정산월</span>
         <select v-model="selectedMonth" class="input-120">
-          <option value="">전체</option>
+          <option value="">- 전체 -</option>
           <option v-for="m in monthOptions" :key="m" :value="m">{{ m }}</option>
         </select>
       </div>

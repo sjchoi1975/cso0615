@@ -14,13 +14,13 @@
         </span>
         <span class="hide-mobile">급여</span>
         <select v-model="reimbursement" class="filter-dropdown">
-          <option value="">전체</option>
+          <option value="">- 전체 -</option>
           <option value="급여">급여</option>
           <option value="비급여">비급여</option>
         </select>
         <span class="hide-mobile">상태</span>
         <select v-model="status" class="filter-dropdown">
-          <option value="">전체</option>
+          <option value="">- 전체 -</option>
           <option value="active">활성</option>
           <option value="inactive">비활성</option>
         </select>

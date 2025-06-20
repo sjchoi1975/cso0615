@@ -1,177 +1,129 @@
 <template>
   <div class="admin-filter-list-view page-container">
-    <!-- 필터카드 -->
-    <div class="filter-card">
+    <!-- Filter Card -->
+    <div class="filter-card custom-auto-height">
       <div class="filter-row">
-        <span>상태</span>
-        <select v-model="selectedStatus" class="input-120">
-          <option value="">전체</option>
-          <option value="pending">대기중</option>
-          <option value="approved">승인</option>
-          <option value="rejected">거절</option>
+        <span>업체</span>
+        <select v-model="selectedMember" class="filter-dropdown">
+          <option value="">- 전체 -</option>
+          <option v-for="member in memberOptions" :key="member.uid" :value="member.uid">{{ member.company_name }}</option>
         </select>
-      </div>
-      <div class="filter-row">
-        <span>필터링 구분</span>
-        <select v-model="selectedFilterType" class="input-120">
-          <option value="">전체</option>
+        <span>병원명</span>
+        <select v-model="selectedHospital" class="filter-dropdown">
+          <option value="">- 전체 -</option>
+          <option v-for="hospital in hospitalOptions" :key="hospital.id" :value="hospital.id">{{ hospital.hospital_name }}</option>
+        </select>
+        <span>제약사</span>
+        <select v-model="selectedPharma" class="filter-dropdown">
+          <option value="">- 전체 -</option>
+          <option v-for="pharma in pharmaOptions" :key="pharma.id" :value="pharma.id">{{ pharma.company_name }}</option>
+        </select>
+        <span>구분</span>
+        <select v-model="selectedFilterType" class="filter-dropdown">
+          <option value="">- 전체 -</option>
           <option value="new">신규</option>
           <option value="transfer">이관</option>
         </select>
+        <span>상태</span>
+        <select v-model="selectedStatus" class="filter-dropdown">
+          <option value="">- 전체 -</option>
+          <option value="pending">대기</option>
+          <option value="approved">승인</option>
+          <option value="rejected">반려</option>
+        </select>
+        <button class="filter-reset-btn" @click="resetFilters" style="margin-left: 1rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 2px;"><path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
+            초기화
+        </button>
       </div>
     </div>
 
-    <!-- 기능카드 -->
-    <div class="function-card">
-      <div class="total-count">총 {{ totalCount }}건</div>
-      <div style="display: flex; gap: 0.5rem;">
-        <button class="btn-add" @click="downloadExcel">엑셀 다운로드</button>
+    <!-- Function Card -->
+    <div class="function-card custom-auto-height">
+      <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}건의 요청</div>
+      <div style="display: flex; gap:0.5rem; align-items:center;">
+        <button class="btn-excell-download" @click="downloadExcel">엑셀 다운</button>
       </div>
     </div>
 
-    <!-- 테이블카드 -->
-    <div class="table-card">
-      <DataTable :value="filteredList" :loading="loading" :paginator="false" scrollable :scrollHeight="'calc(100vh - 220px)'">
-        <template #empty>
-          <div v-if="!loading">조회된 데이터가 없습니다.</div>
-        </template>
-        <Column header="순번" :style="{ width: columnWidths.index, textAlign: columnAligns.index }">
+    <!-- Table Card -->
+    <div class="table-card admin-filter-list-table">
+      <DataTable :value="requests" :loading="loading" :paginator="false" scrollable :scrollHeight="'calc(100vh - 220px)'">
+        <Column header="순번" :style="{ width: columnWidths.index }" :bodyStyle="{ textAlign: columnAligns.index }">
+          <template #body="slotProps">{{ first + slotProps.index + 1 }}</template>
+        </Column>
+        <Column field="request_date" header="요청일시" :style="{ width: columnWidths.request_date }" :bodyStyle="{ textAlign: columnAligns.request_date }">
           <template #body="slotProps">
-            {{ slotProps.index + 1 }}
+            {{ slotProps.data.request_date ? new Date(slotProps.data.request_date).toLocaleString('sv-SE').slice(0, 16) : '' }}
           </template>
         </Column>
-        <Column
-          v-for="col in columns"
-          :key="col.field"
-          :field="col.field"
-          :header="col.header"
-          :sortable="columnSortables[col.field] || false"
-          :headerStyle="{ width: columnWidths[col.field], textAlign: columnAligns[col.field] }"
-          :bodyStyle="{ textAlign: columnAligns[col.field] }"
-        >
-          <template v-if="col.field === 'status'" #body="slotProps">
-            <span :class="getStatusClass(slotProps.data.status)">
-              {{ getStatusText(slotProps.data.status) }}
-            </span>
+        <Column field="member_name" header="업체명" :style="{ width: columnWidths.member_name }" :bodyStyle="{ textAlign: columnAligns.member_name }"></Column>
+        <Column field="filter_type" header="구분" :style="{ width: columnWidths.filter_type }" :bodyStyle="{ textAlign: columnAligns.filter_type }">
+          <template #body="slotProps">{{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}</template>
+        </Column>
+        <Column field="hospital_name" header="병원명" :style="{ width: columnWidths.hospital_name }" :bodyStyle="{ textAlign: columnAligns.hospital_name }"></Column>
+        <Column field="pharmaceutical_company_name" header="제약사" :style="{ width: columnWidths.pharmaceutical_company_name }" :bodyStyle="{ textAlign: columnAligns.pharmaceutical_company_name }"></Column>
+        <Column field="user_remarks" header="요청비고" :style="{ width: columnWidths.user_remarks }" :bodyStyle="{ textAlign: columnAligns.user_remarks }">
+          <template #body="slotProps">
+            <span class="link" @click="openRemarksModal(slotProps.data.user_remarks)">{{ slotProps.data.user_remarks }}</span>
           </template>
-          <template v-if="col.field === 'user_remarks'" #body="slotProps">
-            <span
-              v-if="slotProps.data.user_remarks"
-              class="link"
-              :title="slotProps.data.user_remarks"
-              @click="openRemarksPopup(slotProps.data)"
-            >
-              {{ slotProps.data.user_remarks }}
-            </span>
+        </Column>
+        <Column field="status" header="처리결과" :style="{ width: columnWidths.status }" :bodyStyle="{ textAlign: columnAligns.status }">
+          <template #body="slotProps">
+            <select v-model="slotProps.data.status" 
+                    @change="updateStatus(slotProps.data)" 
+                    :class="['status-select', `status-select-${slotProps.data.status}`]">
+              <option value="pending">대기</option>
+              <option value="approved">승인</option>
+              <option value="rejected">반려</option>
+            </select>
           </template>
-          <template v-if="col.field === 'admin_comments'" #body="slotProps">
-            <span
-              v-if="slotProps.data.admin_comments"
-              class="link"
-              :title="slotProps.data.admin_comments"
-              @click="openCommentsPopup(slotProps.data)"
-            >
-              {{ slotProps.data.admin_comments }}
+        </Column>
+        <Column field="admin_comments" header="전달사항" :style="{ width: columnWidths.admin_comments }" :bodyStyle="{ textAlign: columnAligns.admin_comments }">
+          <template #body="slotProps">
+            <span class="link" @click="openAdminCommentsModal(slotProps.data)">
+              {{ slotProps.data.admin_comments || '작성' }}
             </span>
           </template>
         </Column>
-        <Column header="관리" :style="{ width: columnWidths.manage, textAlign: columnAligns.manage }">
-          <template #body="slotProps">
-            <button 
-              v-if="slotProps.data.status === 'pending'"
-              class="btn-detail" 
-              @click="openManageModal(slotProps.data)"
-            >
-              관리
-            </button>
-            <span v-else style="color: var(--text-light);">완료</span>
+        <Column field="updated_at" header="처리일시" :style="{ width: columnWidths.updated_at }" :bodyStyle="{ textAlign: columnAligns.updated_at }">
+           <template #body="slotProps">
+            <span v-if="slotProps.data.updated_at && new Date(slotProps.data.updated_at).getTime() !== new Date(slotProps.data.request_date).getTime()">
+              {{ new Date(slotProps.data.updated_at).toLocaleString('sv-SE').slice(0, 16) }}
+            </span>
+            <span v-else>-</span>
           </template>
         </Column>
       </DataTable>
-    </div>
-
-    <!-- 비고 팝업 -->
-    <div v-if="showRemarksDialog" class="custom-modal-overlay">
-      <div class="custom-modal">
-        <label class="modai-title">비고</label>
-        <div class="modal-body">
-          <div style="white-space: pre-line;">{{ remarksValue }}</div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-primary" @click="closeRemarksDialog">확인</button>
-        </div>
+      <div v-if="loading" class="table-loading-spinner-center">
+        <img src="/spinner.svg" alt="로딩중" />
       </div>
     </div>
-
-    <!-- 관리자 코멘트 팝업 -->
-    <div v-if="showCommentsDialog" class="custom-modal-overlay">
-      <div class="custom-modal">
-        <label class="modai-title">관리자 코멘트</label>
-        <div class="modal-body">
-          <div style="white-space: pre-line;">{{ commentsValue }}</div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-primary" @click="closeCommentsDialog">확인</button>
-        </div>
-      </div>
+    
+    <!-- Paginator -->
+    <div class="fixed-paginator">
+      <Paginator :rows="pageSize" :totalRecords="totalCount" :first="first" @page="onPageChange" />
     </div>
 
-    <!-- 관리 모달 -->
-    <div v-if="showManageModal" class="custom-modal-overlay">
+    <!-- Remarks Modal -->
+    <div v-if="showRemarksModal" class="custom-modal-overlay">
       <div class="custom-modal">
-        <div class="modal-footer">
-          <h3 class="modai-title">필터링 요청 관리</h3>
-          <button class="btn-close-nobg" @click="closeManageModal">×</button>
-        </div>
+        <div class="modal-header"><h3 class="modal-title">요청 비고</h3><button @click="closeRemarksModal" class="btn-close">×</button></div>
+        <div class="modal-body"><div style="white-space: pre-line;">{{ currentRemark }}</div></div>
+        <div class="modal-footer"><button @click="closeRemarksModal" class="btn-secondary">닫기</button></div>
+      </div>
+    </div>
+    
+    <!-- Admin Comments Modal -->
+    <div v-if="showAdminCommentsModal" class="custom-modal-overlay">
+      <div class="custom-modal">
+        <div class="modal-header"><h3 class="modal-title">전달사항 작성/수정</h3><button @click="closeAdminCommentsModal" class="btn-close">×</button></div>
         <div class="modal-body">
-          <div class="filter-row">
-            <label class="form-label">요청자</label>
-            <div>{{ selectedRequest?.member_name || '' }}</div>
-          </div>
-          <div class="filter-row">
-            <label class="form-label">병원명</label>
-            <div>{{ selectedRequest?.hospital_name || '' }}</div>
-          </div>
-          <div class="filter-row">
-            <label class="form-label">제약사</label>
-            <div>{{ selectedRequest?.pharmaceutical_company_name || '' }}</div>
-          </div>
-          <div class="filter-row">
-            <label class="form-label">필터링 구분</label>
-            <div>{{ getFilterTypeText(selectedRequest?.filter_type) }}</div>
-          </div>
-          <div class="filter-row">
-            <label class="form-label">비고</label>
-            <div style="white-space: pre-line;">{{ selectedRequest?.user_remarks || '' }}</div>
-          </div>
-          <div class="filter-row">
-            <label class="form-label">상태 변경</label>
-            <select v-model="newStatus" class="input">
-              <option value="pending">대기중</option>
-              <option value="approved">승인</option>
-              <option value="rejected">거절</option>
-            </select>
-          </div>
-          <div class="filter-row">
-            <label class="form-label">관리자 코멘트</label>
-            <textarea 
-              v-model="newComments" 
-              class="input" 
-              placeholder="관리자 코멘트를 입력하세요"
-              rows="4"
-              style="resize: vertical;"
-            ></textarea>
-          </div>
+          <textarea v-model="adminComments" class="input-field" rows="5" placeholder="전달사항을 입력하세요."></textarea>
         </div>
         <div class="modal-footer">
-          <button class="btn-cancel" @click="closeManageModal">취소</button>
-          <button 
-            class="btn-save" 
-            @click="updateRequest"
-            :disabled="loading"
-          >
-            {{ loading ? '저장 중...' : '저장' }}
-          </button>
+          <button @click="closeAdminCommentsModal" class="btn-secondary">취소</button>
+          <button @click="saveAdminComments" class="btn-primary">저장</button>
         </div>
       </div>
     </div>
@@ -179,514 +131,188 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import { supabase } from '@/supabase';
+import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 
-const filterList = ref([]); // 필터링 요청 목록
-const loading = ref(false);
-const totalCount = ref(0);
-
-const selectedStatus = ref('');
-const selectedFilterType = ref('');
-
-// 팝업 상태
-const showRemarksDialog = ref(false);
-const showCommentsDialog = ref(false);
-const showManageModal = ref(false);
-const remarksValue = ref('');
-const commentsValue = ref('');
-
-// 관리 모달 상태
-const selectedRequest = ref(null);
-const newStatus = ref('pending');
-const newComments = ref('');
-
-// 컬럼 너비 한 곳에서 관리
 const columnWidths = {
-  index: '4%',
-  created_at: '8%',
+  index: '5%',
+  request_date: '12%',
   member_name: '10%',
-  filter_type: '6%',
-  hospital_name: '12%',
-  pharmaceutical_company_name: '12%',
-  status: '6%',
-  user_remarks: '12%',
-  admin_comments: '12%',
-  manage: '8%'
+  filter_type: '7%',
+  hospital_name: '13%',
+  pharmaceutical_company_name: '13%',
+  user_remarks: '10%',
+  status: '10%',
+  admin_comments: '10%',
+  updated_at: '12%',
 };
 
-// 컬럼별 정렬 방식 한 곳에서 관리
 const columnAligns = {
   index: 'center',
-  created_at: 'center',
+  request_date: 'center',
   member_name: 'left',
   filter_type: 'center',
   hospital_name: 'left',
   pharmaceutical_company_name: 'left',
-  status: 'center',
   user_remarks: 'left',
+  status: 'center',
   admin_comments: 'left',
-  manage: 'center'
+  updated_at: 'center',
 };
 
-// 컬럼별 정렬 여부 한 곳에서 관리
-const columnSortables = {
-  created_at: true,
-  member_name: true,
-  filter_type: true,
-  hospital_name: true,
-  pharmaceutical_company_name: true,
-  status: true
+const requests = ref([]);
+const loading = ref(false);
+const first = ref(0);
+const totalCount = ref(0);
+const pageSize = ref(100);
+
+// Filter states
+const selectedMember = ref('');
+const selectedHospital = ref('');
+const selectedPharma = ref('');
+const selectedStatus = ref('');
+const selectedFilterType = ref('');
+
+// Dropdown options
+const memberOptions = ref([]);
+const hospitalOptions = ref([]);
+const pharmaOptions = ref([]);
+
+// Modals state
+const showRemarksModal = ref(false);
+const currentRemark = ref('');
+const showAdminCommentsModal = ref(false);
+const adminComments = ref('');
+const selectedRequest = ref(null);
+
+// Fetch dropdown options
+const fetchDropdownOptions = async () => {
+  const { data: membersData } = await supabase.from('members').select('uid, company_name').eq('role', 'user').order('company_name');
+  if (membersData) memberOptions.value = membersData;
+
+  const { data: hospitalsData } = await supabase.from('hospitals').select('id, hospital_name').order('hospital_name');
+  if (hospitalsData) hospitalOptions.value = hospitalsData;
+
+  const { data: pharmaData } = await supabase.from('pharmaceutical_companies').select('id, company_name').order('company_name');
+  if (pharmaData) pharmaOptions.value = pharmaData;
 };
 
-// 컬럼 배열 한 곳에서 관리
-const columns = [
-  { field: 'created_at', header: '요청일' },
-  { field: 'member_name', header: '요청자' },
-  { field: 'filter_type', header: '구분' },
-  { field: 'hospital_name', header: '병원명' },
-  { field: 'pharmaceutical_company_name', header: '제약사' },
-  { field: 'status', header: '상태' },
-  { field: 'user_remarks', header: '비고' },
-  { field: 'admin_comments', header: '관리자 코멘트' }
-];
-
-// 필터링된 리스트
-const filteredList = computed(() => {
-  let filtered = filterList.value;
-  
-  if (selectedStatus.value) {
-    filtered = filtered.filter(item => item.status === selectedStatus.value);
-  }
-  
-  if (selectedFilterType.value) {
-    filtered = filtered.filter(item => item.filter_type === selectedFilterType.value);
-  }
-  
-  return filtered;
-});
-
-// 필터링 요청 목록 불러오기
-const fetchFilterList = async () => {
+// Fetch data
+const fetchRequests = async () => {
   loading.value = true;
-  filterList.value = [];
-  
-  try {
-    const { data, error } = await supabase
-      .from('filtering_requests')
-      .select(`
-        *,
-        members (
-          company_name
-        ),
-        hospitals (
-          hospital_name
-        ),
-        pharmaceutical_companies (
-          company_name
-        )
-      `)
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    if (data) {
-      filterList.value = data.map(item => ({
-        ...item,
-        member_name: item.members?.company_name || '',
-        hospital_name: item.hospitals?.hospital_name || '',
-        pharmaceutical_company_name: item.pharmaceutical_companies?.company_name || '',
-        created_at: new Date(item.created_at).toLocaleDateString('ko-KR')
-      }));
-    }
-    
-    totalCount.value = filterList.value.length;
-  } catch (e) {
-    alert('필터링 요청 목록 조회 실패: ' + e.message);
+  let query = supabase
+    .from('admin_filter_list_view')
+    .select(`*`, { count: 'exact' });
+
+  if (selectedMember.value) query = query.eq('member_id', selectedMember.value);
+  if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
+  if (selectedPharma.value) query = query.eq('pharmaceutical_company_id', selectedPharma.value);
+  if (selectedStatus.value) query = query.eq('status', selectedStatus.value);
+  if (selectedFilterType.value) query = query.eq('filter_type', selectedFilterType.value);
+
+  const from = first.value;
+  const to = from + pageSize.value - 1;
+  query = query.range(from, to).order('is_processed', { ascending: true }).order('sort_date', { ascending: false });
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    alert('데이터 조회 실패: ' + error.message);
+  } else {
+    requests.value = data;
+    totalCount.value = count || 0;
   }
-  
   loading.value = false;
 };
 
-// 상태별 클래스 반환
-const getStatusClass = (status) => {
-  switch (status) {
-    case 'pending': return 'badge-warning';
-    case 'approved': return 'badge-success';
-    case 'rejected': return 'badge-danger';
-    default: return 'badge-secondary';
-  }
-};
-
-// 상태별 텍스트 반환
-const getStatusText = (status) => {
-  switch (status) {
-    case 'pending': return '대기중';
-    case 'approved': return '승인';
-    case 'rejected': return '거절';
-    default: return '알 수 없음';
-  }
-};
-
-// 필터링 구분 텍스트 반환
-const getFilterTypeText = (type) => {
-  switch (type) {
-    case 'new': return '신규';
-    case 'transfer': return '이관';
-    default: return type;
-  }
-};
-
-// 비고 팝업
-const openRemarksPopup = (row) => {
-  remarksValue.value = row.user_remarks;
-  showRemarksDialog.value = true;
-};
-
-const closeRemarksDialog = () => {
-  showRemarksDialog.value = false;
-};
-
-// 관리자 코멘트 팝업
-const openCommentsPopup = (row) => {
-  commentsValue.value = row.admin_comments;
-  showCommentsDialog.value = true;
-};
-
-const closeCommentsDialog = () => {
-  showCommentsDialog.value = false;
-};
-
-// 관리 모달
-const openManageModal = (row) => {
-  selectedRequest.value = row;
-  newStatus.value = row.status;
-  newComments.value = row.admin_comments || '';
-  showManageModal.value = true;
-};
-
-const closeManageModal = () => {
-  showManageModal.value = false;
-  selectedRequest.value = null;
-  newStatus.value = 'pending';
-  newComments.value = '';
-};
-
-// 요청 업데이트
-const updateRequest = async () => {
-  if (!selectedRequest.value) return;
-  
-  loading.value = true;
-  
-  try {
-    const { error } = await supabase
-      .from('filtering_requests')
-      .update({
-        status: newStatus.value,
-        admin_comments: newComments.value,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', selectedRequest.value.id);
-    
-    if (error) throw error;
-    
-    alert('요청이 성공적으로 업데이트되었습니다.');
-    closeManageModal();
-    await fetchFilterList();
-    
-  } catch (e) {
-    alert('요청 업데이트 실패: ' + e.message);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 엑셀 다운로드
-const downloadExcel = () => {
-  if (!filterList.value.length) {
-    alert('다운로드할 데이터가 없습니다.');
-    return;
-  }
-  
-  const headers = [
-    '요청일', '요청자', '구분', '병원명', '제약사', '상태', '비고', '관리자 코멘트'
-  ];
-  
-  const data = filterList.value.map(item => [
-    item.created_at,
-    item.member_name,
-    getFilterTypeText(item.filter_type),
-    item.hospital_name,
-    item.pharmaceutical_company_name,
-    getStatusText(item.status),
-    item.user_remarks ? item.user_remarks.replace(/\n/g, '\\n') : '',
-    item.admin_comments ? item.admin_comments.replace(/\n/g, '\\n') : ''
-  ]);
-  
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, '필터링요청관리');
-  const fileName = `필터링요청관리_${new Date().toISOString().slice(0,10)}.xlsx`;
-  XLSX.writeFile(wb, fileName);
-};
-
-onMounted(async () => {
-  await fetchFilterList();
+onMounted(() => {
+    fetchRequests();
+    fetchDropdownOptions();
 });
+
+watch([selectedMember, selectedHospital, selectedPharma, selectedStatus, selectedFilterType], () => {
+  first.value = 0;
+  fetchRequests();
+});
+
+const onPageChange = (event) => {
+  first.value = event.first;
+  pageSize.value = event.rows;
+  fetchRequests();
+};
+
+const updateStatus = async (request) => {
+  const { error } = await supabase
+    .from('filtering_requests')
+    .update({ status: request.status, updated_at: new Date().toISOString() })
+    .eq('id', request.id);
+  if (error) {
+    alert('상태 업데이트 실패: ' + error.message);
+  } else {
+    alert('처리결과가 변경되었습니다.');
+    fetchRequests();
+  }
+};
+
+const openRemarksModal = (remarks) => {
+  currentRemark.value = remarks;
+  showRemarksModal.value = true;
+};
+const closeRemarksModal = () => showRemarksModal.value = false;
+
+const openAdminCommentsModal = (request) => {
+  selectedRequest.value = request;
+  adminComments.value = request.admin_comments || '';
+  showAdminCommentsModal.value = true;
+};
+const closeAdminCommentsModal = () => {
+  showAdminCommentsModal.value = false;
+  selectedRequest.value = null;
+  adminComments.value = '';
+};
+const saveAdminComments = async () => {
+  if (!selectedRequest.value) return;
+  const { error } = await supabase
+    .from('filtering_requests')
+    .update({ admin_comments: adminComments.value, updated_at: new Date().toISOString() })
+    .eq('id', selectedRequest.value.id);
+
+  if (error) {
+    alert('전달사항 저장 실패: ' + error.message);
+  } else {
+    alert('전달사항이 저장되었습니다.');
+    closeAdminCommentsModal();
+    fetchRequests();
+  }
+};
+
+const downloadExcel = () => {
+  const exportData = requests.value.map(row => ({
+    '요청일': new Date(row.request_date).toLocaleDateString(),
+    '요청자': row.member_name,
+    '병원명': row.hospital_name,
+    '제약사': row.pharmaceutical_company_name,
+    '구분': row.filter_type === 'new' ? '신규' : '이관',
+    '처리결과': row.status,
+    '요청 비고': row.user_remarks,
+    '전달사항': row.admin_comments,
+  }));
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '필터링요청목록');
+  XLSX.writeFile(wb, `filtering_requests_${new Date().toISOString().slice(0, 10)}.xlsx`);
+};
+
+const resetFilters = () => {
+  selectedMember.value = '';
+  selectedHospital.value = '';
+  selectedPharma.value = '';
+  selectedStatus.value = '';
+  selectedFilterType.value = '';
+};
+
 </script>
-
-<style scoped>
-.admin-filter-list-view {
-  padding: 2rem;
-}
-
-.filter-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.filter-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.filter-row:last-child {
-  margin-bottom: 0;
-}
-
-.filter-row span {
-  font-weight: 500;
-  min-width: 80px;
-}
-
-.input-120 {
-  width: 120px;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.input-200 {
-  width: 200px;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.function-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.total-count {
-  font-weight: 500;
-  color: #333;
-}
-
-.btn-add {
-  padding: 0.5rem 1rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s;
-}
-
-.btn-add:hover {
-  background: #0056b3;
-}
-
-.table-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.status-select {
-  padding: 0.25rem 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  background: white;
-}
-
-.link {
-  color: #007bff;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.link:hover {
-  color: #0056b3;
-}
-
-.btn-edit {
-  padding: 0.25rem 0.5rem;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.btn-edit:hover {
-  background: #218838;
-}
-
-/* 모달 스타일 */
-.custom-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.custom-modal {
-  background: white;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid #eee;
-}
-
-.modal-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
-}
-
-.modal-body {
-  padding: 1rem;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #333;
-}
-
-.request-info {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-.request-info div {
-  margin-bottom: 0.5rem;
-}
-
-.request-info div:last-child {
-  margin-bottom: 0;
-}
-
-.textarea-field {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  resize: vertical;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding: 1rem;
-  border-top: 1px solid #eee;
-}
-
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-primary {
-  padding: 0.5rem 1rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-primary:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
-}
-
-@media (max-width: 768px) {
-  .filter-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  
-  .function-card {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-  
-  .function-card > div {
-    display: flex;
-    gap: 0.5rem;
-  }
-}
-</style>

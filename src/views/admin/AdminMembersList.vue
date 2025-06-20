@@ -11,13 +11,13 @@
         <div class="filter-hide-mobile">
           <span>인증</span>
           <select v-model="approval" class="input-120">
-            <option value="">전체</option>
+            <option value="">- 전체 -</option>
             <option value="approved">인증 회원</option>
             <option value="unapproved">미인증 회원</option>
           </select>
           <span>등급</span>
           <select v-model="grade" class="input-120">
-            <option value="">전체</option>
+            <option value="">- 전체 -</option>
             <option value="A">A</option>
             <option value="B">B</option>
             <option value="C">C</option>

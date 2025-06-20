@@ -18,7 +18,7 @@
     </div>
 
     <!-- 테이블카드 -->
-    <div class="table-card">
+    <div class="table-card user-settlement-month">
       <DataTable :value="filteredMonthList" :loading="loading" :paginator="false" scrollable :scrollHeight="'calc(100vh - 220px)'">
         <template #empty>
           <div v-if="!loading">조회된 데이터가 없습니다.</div>

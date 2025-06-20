@@ -1,15 +1,12 @@
 <template>
   <div class="admin-pharmaceutical-companies-view page-container">
     <!-- 필터카드 -->
-    <div class="filter-card">
+    
+    <div class="filter-card search-center-card">
       <div class="filter-row">
-        <span>검색</span>
-        <input 
-          v-model="searchKeyword" 
-          type="text" 
-          class="input-200" 
-          placeholder="제약사명으로 검색"
-        />
+        <span class="p-input-icon-left">
+          <input v-model="search" placeholder="제약사명 검색" class="input-search wide-mobile-search" />
+        </span>
       </div>
     </div>
 
@@ -24,7 +21,13 @@
 
     <!-- 테이블카드 -->
     <div class="table-card">
-      <DataTable :value="filteredCompanies" :loading="loading" :paginator="false" scrollable :scrollHeight="'calc(100vh - 220px)'">
+      <DataTable 
+        :value="filteredCompanies" 
+        :loading="loading" 
+        :paginator="false" 
+        scrollable 
+        :scrollHeight="'calc(100vh - 220px)'"
+        >
         <template #empty>
           <div v-if="!loading">조회된 데이터가 없습니다.</div>
         </template>
@@ -44,13 +47,13 @@
         >
           <template v-if="col.field === 'actions'" #body="slotProps">
             <button 
-              class="btn-edit" 
+              class="btn-edit-sm" 
               @click="openEditModal(slotProps.data)"
             >
               수정
             </button>
             <button 
-              class="btn-delete" 
+              class="btn-delete-sm" 
               @click="deleteCompany(slotProps.data)"
             >
               삭제
@@ -117,10 +120,10 @@ const formData = ref({
 
 // 컬럼 너비 한 곳에서 관리
 const columnWidths = {
-  index: '8%',
-  company_name: '70%',
+  index: '4%',
+  company_name: '72%',
   created_at: '12%',
-  actions: '10%'
+  actions: '12%'
 };
 
 // 컬럼별 정렬 방식 한 곳에서 관리
@@ -298,205 +301,3 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
-.admin-pharmaceutical-companies-view {
-  padding: 2rem;
-}
-
-.filter-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.filter-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.filter-row span {
-  font-weight: 500;
-  min-width: 60px;
-}
-
-.input-200 {
-  width: 200px;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.function-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.total-count {
-  font-weight: 500;
-  color: #333;
-}
-
-.btn-add {
-  padding: 0.5rem 1rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s;
-}
-
-.btn-add:hover {
-  background: #0056b3;
-}
-
-.table-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.btn-edit {
-  padding: 0.25rem 0.5rem;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  margin-right: 0.5rem;
-}
-
-.btn-edit:hover {
-  background: #218838;
-}
-
-.btn-delete {
-  padding: 0.25rem 0.5rem;
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.btn-delete:hover {
-  background: #c82333;
-}
-
-/* 모달 스타일 */
-.custom-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.custom-modal {
-  background: white;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding: 1rem;
-  border-top: 1px solid #eee;
-}
-
-.btn-cancel {
-  padding: 0.5rem 1rem;
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-save {
-  padding: 0.5rem 1rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-save:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
-}
-
-.btn-close-nobg {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
-}
-
-.modal-body {
-  padding: 1rem;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.form-label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #333;
-}
-
-.input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-@media (max-width: 768px) {
-  .filter-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  
-  .function-card {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-  
-  .function-card > div {
-    display: flex;
-    gap: 0.5rem;
-  }
-}
-</style> 

@@ -121,11 +121,11 @@ const onPageChange = (event) => {
 
 const columnWidths = {
   index: '4%',
-  hospital_name: '14%',
-  hospital_reg_no: '7%',
-  prescription_month: '5%',
-  pharma_name: '8%',
-  product_name: '14%',
+  hospital_name: '12%',
+  hospital_reg_no: '9%',
+  prescription_month: '6%',
+  pharma_name: '9%',
+  product_name: '12%',
   insurance_code: '7%',
   price: '5%',
   quantity: '5%',

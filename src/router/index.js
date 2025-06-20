@@ -155,6 +155,18 @@ const router = createRouter({
       name: 'UserNoticesDatail',
       component: UserNoticesDatail,
     },
+    {
+      path: '/admin/hospitals/list',
+      name: 'AdminHospitalsList',
+      component: () => import('@/views/admin/AdminHospitalsList.vue'),
+      meta: { requiresAuth: true, admin: true }
+    },
+    {
+      path: '/hospitals/list',
+      name: 'UserHospitalsList',
+      component: () => import('@/views/user/UserHospitalsList.vue'),
+      meta: { requiresAuth: true }
+    },
   ],
 })
 
