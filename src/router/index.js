@@ -14,18 +14,14 @@ import AdminEdiList from '../views/admin/AdminEdiList.vue'
 import AdminSettlementList from '../views/admin/AdminSettlementList.vue'
 import AdminProductsCreate from '../views/admin/AdminProductsCreate.vue'
 import AdminNoticeCreate from '../views/admin/AdminNoticeCreate.vue'
-import AdminSettlementMonthList from '../views/admin/AdminSettlementMonthList.vue'
 
 import UserFilterList from '../views/user/UserFilterList.vue'
 import UserFilterCreate from '../views/user/UserFilterCreate.vue'
 import UserEdiList from '../views/user/UserEdiList.vue'
-import UserEdiUpload from '../views/user/UserEdiUpload.vue'
 import UserSettlementList from '../views/user/UserSettlementList.vue'
 import UserProductsList from '../views/user/UserProductsList.vue'
 import UserNoticesList from '../views/user/UserNoticesList.vue'
 import UserNoticesDatail from '../views/user/UserNoticesDatail.vue'
-import UserSettlementMonthList from '../views/user/UserSettlementMonthList.vue'
-// (유저용 컴포넌트도 나중에 추가 가능)
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -66,14 +62,14 @@ const router = createRouter({
       component: AdminEdiList,
     },
     {
+      path: '/admin/edi/months',
+      name: 'admin-edi-months',
+      component: () => import('@/views/admin/AdminEdiMonths.vue'),
+    },
+    {
       path: '/admin/settlement/list',
       name: 'admin-settlement-list',
       component: AdminSettlementList,
-    },
-    {
-      path: '/admin/settlement/month',
-      name: 'admin-settlement-month-list',
-      component: AdminSettlementMonthList,
     },
     {
       path: '/admin/products/create',
@@ -126,19 +122,14 @@ const router = createRouter({
       component: UserEdiList,
     },
     {
-      path: '/edi/upload',
-      name: 'user-edi-upload',
-      component: UserEdiUpload,
+      path: '/edi/submit',
+      name: 'user-edi-submit',
+      component: () => import('@/views/user/UserEdiSubmitView.vue'),
     },
     {
       path: '/settlement/list',
       name: 'user-settlement-list',
       component: UserSettlementList,
-    },
-    {
-      path: '/settlement/month',
-      name: 'user-settlement-month-list',
-      component: UserSettlementMonthList,
     },
     {
       path: '/products/list',

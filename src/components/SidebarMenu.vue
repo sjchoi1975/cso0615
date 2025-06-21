@@ -104,12 +104,13 @@ const adminMenu = [
       { label: '제약사 관리', icon: 'pi pi-building', to: '/admin/pharmaceutical-companies' },
     ]
   },
-  { label: 'EDI 파일 관리', icon: 'pi pi-file', items: [
-      { label: 'EDI 제출 내역', icon: 'pi pi-list', to: '/admin/edi/list' },
+  { label: 'EDI 파일 관리', icon: 'pi pi-file-excel', items: [
+      { label: 'EDI 제출월 설정', icon: 'pi pi-calendar-plus', to: '/admin/edi/months' },
+      { label: 'EDI 제출 목록', icon: 'pi pi-list', to: '/admin/edi/list' },
     ]
   },
   { label: '정산 관리', icon: 'pi pi-wallet', items: [
-      { label: '월별 정산 현황', icon: 'pi pi-list', to: '/admin/settlement/month' },
+      { label: '월별 정산 현황', icon: 'pi pi-list', to: '/admin/settlement/list' },
     ]
   },
 ];
@@ -122,12 +123,12 @@ const userMenu = [
       { label: '요청 내역', icon: 'pi pi-list', to: '/filter/list' },
     ]
   },
-  { label: 'EDI 등록', icon: 'pi pi-upload', items: [
-      { label: '신규 등록', icon: 'pi pi-plus', to: '/edi/upload' },
-      { label: '등록 내역', icon: 'pi pi-list', to: '/edi/list' },
+  { label: 'EDI 제출', icon: 'pi pi-upload', items: [
+      { label: '제출하기', icon: 'pi pi-upload', to: '/edi/submit' },
+      { label: '제출 내역', icon: 'pi pi-list', to: '/edi/list' },
     ]
   },
-  { label: '정산내역서', icon: 'pi pi-wallet', to: '/settlement/month' },
+  { label: '정산내역서', icon: 'pi pi-wallet', to: '/settlement/list' },
 ];
 const menuItems = computed(() => props.userInfo?.role === 'admin' ? adminMenu : userMenu);
 

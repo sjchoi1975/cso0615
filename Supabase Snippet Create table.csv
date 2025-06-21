@@ -1,0 +1,112 @@
+table_name,column_name,ordinal_position,data_type,is_nullable,column_default
+admin_filter_list_view,id,1,integer,YES,null
+admin_filter_list_view,request_date,2,timestamp with time zone,YES,null
+admin_filter_list_view,updated_at,3,timestamp with time zone,YES,null
+admin_filter_list_view,member_id,4,uuid,YES,null
+admin_filter_list_view,hospital_id,5,integer,YES,null
+admin_filter_list_view,pharmaceutical_company_id,6,integer,YES,null
+admin_filter_list_view,filter_type,7,character varying,YES,null
+admin_filter_list_view,status,8,character varying,YES,null
+admin_filter_list_view,user_remarks,9,text,YES,null
+admin_filter_list_view,admin_comments,10,text,YES,null
+admin_filter_list_view,member_name,11,text,YES,null
+admin_filter_list_view,hospital_name,12,character varying,YES,null
+admin_filter_list_view,pharmaceutical_company_name,13,character varying,YES,null
+admin_filter_list_view,is_processed,14,integer,YES,null
+admin_filter_list_view,sort_date,15,timestamp with time zone,YES,null
+filtering_requests,id,1,integer,NO,nextval('filtering_requests_id_seq'::regclass)
+filtering_requests,member_id,2,uuid,YES,null
+filtering_requests,hospital_id,3,integer,YES,null
+filtering_requests,pharmaceutical_company_id,4,integer,YES,null
+filtering_requests,filter_type,5,character varying,NO,null
+filtering_requests,user_remarks,6,text,YES,null
+filtering_requests,request_date,7,timestamp with time zone,YES,now()
+filtering_requests,status,8,character varying,NO,'checking'::character varying
+filtering_requests,admin_remarks,9,text,YES,null
+filtering_requests,updated_at,10,timestamp with time zone,YES,now()
+filtering_requests,admin_comments,11,text,YES,null
+filtering_requests,created_at,12,timestamp with time zone,YES,now()
+hospital_member_mappings,id,1,integer,NO,nextval('hospital_member_mappings_id_seq'::regclass)
+hospital_member_mappings,hospital_id,2,integer,YES,null
+hospital_member_mappings,member_id,3,uuid,YES,null
+hospital_member_mappings,created_at,4,timestamp with time zone,YES,now()
+hospitals,id,1,integer,NO,nextval('hospitals_id_seq'::regclass)
+hospitals,hospital_name,2,character varying,NO,null
+hospitals,business_registration_number,3,character varying,NO,null
+hospitals,director_name,4,character varying,NO,null
+hospitals,address,5,text,NO,null
+hospitals,business_license_file,6,character varying,YES,null
+hospitals,created_at,7,timestamp with time zone,YES,now()
+members,id,1,uuid,NO,uuid_generate_v4()
+members,id_email,2,text,NO,null
+members,company_name,4,text,NO,null
+members,ceo_name,5,text,NO,null
+members,biz_no,6,text,NO,null
+members,address,7,text,YES,null
+members,cso_regist_no,8,text,NO,null
+members,manager_name,9,text,YES,null
+members,handphone,10,text,YES,null
+members,email,11,text,YES,null
+members,approval,12,text,NO,'unapproved'::text
+members,biz_license_url,13,text,YES,null
+members,cso_license_url,14,text,YES,null
+members,created_at,15,timestamp with time zone,NO,now()
+members,role,16,text,YES,'user'::text
+members,grade,17,text,NO,'A'::text
+notices,id,1,bigint,NO,null
+notices,title,2,text,NO,null
+notices,content,3,text,NO,null
+notices,created_at,4,timestamp with time zone,NO,now()
+notices,author,5,text,NO,null
+notices,status,6,text,NO,'active'::text
+notices,updated_at,7,timestamp with time zone,NO,now()
+notices,is_important,8,boolean,NO,false
+pharmaceutical_companies,id,1,integer,NO,nextval('pharmaceutical_companies_id_seq'::regclass)
+pharmaceutical_companies,company_name,2,character varying,NO,null
+pharmaceutical_companies,created_at,3,timestamp with time zone,YES,now()
+product_months,base_month,1,text,YES,null
+products,id,1,uuid,NO,uuid_generate_v4()
+products,product_name,2,text,YES,null
+products,insurance_code,3,text,YES,null
+products,price,4,integer,YES,null
+products,commission_rate_a,5,numeric,YES,null
+products,commission_rate_b,6,numeric,YES,null
+products,commission_rate_c,7,numeric,YES,null
+products,base_month,8,text,YES,null
+products,remarks,9,text,YES,null
+products,status,10,text,YES,null
+products,registered_at,11,timestamp with time zone,YES,now()
+products,registered_by,12,uuid,YES,null
+products,updated_at,13,timestamp with time zone,YES,null
+products,updated_by,14,uuid,YES,null
+products,Ingredient,15,text,NO,null
+products,pharmacist,16,text,YES,null
+products,classification,17,text,NO,null
+products,reimbursement,18,text,NO,null
+products,bioequivalence,19,text,NO,null
+products,Inhouse,20,text,NO,null
+products,comparator,21,text,YES,null
+settlement_months,id,1,bigint,NO,nextval('settlement_months_id_seq'::regclass)
+settlement_months,settlement_month,2,text,NO,null
+settlement_months,note,3,text,YES,null
+settlement_months,created_at,4,timestamp with time zone,YES,now()
+settlement_months,created_by,5,text,YES,null
+settlement_months,updated_at,6,timestamp with time zone,YES,null
+settlement_months,updated_by,7,text,YES,null
+settlements,id,1,bigint,NO,null
+settlements,settlement_month,2,text,NO,null
+settlements,company_name,3,text,NO,null
+settlements,company_reg_no,4,text,NO,null
+settlements,hospital_name,5,text,NO,null
+settlements,hospital_reg_no,6,text,NO,null
+settlements,pharma_name,7,text,NO,null
+settlements,product_name,8,text,NO,null
+settlements,insurance_code,9,text,YES,null
+settlements,price,10,numeric,YES,null
+settlements,quantity,11,integer,YES,null
+settlements,prescription_amount,12,numeric,YES,null
+settlements,commission_rate,13,numeric,YES,null
+settlements,payment_amount,14,numeric,YES,null
+settlements,remarks,15,text,YES,null
+settlements,created_at,16,timestamp with time zone,YES,now()
+settlements,prescription_month,17,text,YES,null

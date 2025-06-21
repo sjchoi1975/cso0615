@@ -113,4 +113,76 @@ INSERT INTO pharmaceutical_companies (company_name) VALUES
 ('대전제약'),
 ('울산제약'),
 ('세종제약')
-ON CONFLICT (company_name) DO NOTHING; 
+ON CONFLICT (company_name) DO NOTHING;
+
+-- EDI 파일 테이블
+CREATE TABLE edi_files (
+  id SERIAL PRIMARY KEY,
+  settlement_month VARCHAR(7) NOT NULL, -- 제출월 (정산월)
+  company_id INTEGER REFERENCES companies(id) NOT NULL, -- 제출자 (업체)
+  user_id UUID REFERENCES auth.users(id) NOT NULL, -- 회원 id
+  client_id INTEGER REFERENCES clients(id) NOT NULL, -- 병의원id
+  file_url TEXT NOT NULL, -- 파일url
+  file_name TEXT NOT NULL, -- 원본 파일명
+  file_size INTEGER, -- 파일 크기
+  is_deleted BOOLEAN DEFAULT FALSE, -- 삭제여부 (소프트 삭제)
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(), -- 등록일자
+  created_by UUID REFERENCES auth.users(id), -- 등록자
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(), -- 수정일자
+  updated_by UUID REFERENCES auth.users(id), -- 수정자
+  UNIQUE(settlement_month, company_id, client_id, is_deleted)
+);
+
+-- RLS 정책
+ALTER TABLE edi_files ENABLE ROW LEVEL SECURITY;
+
+-- 관리자는 모든 EDI 파일 조회 가능
+CREATE POLICY "관리자는 모든 EDI 파일 조회" ON edi_files
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM companies c 
+      WHERE c.id = edi_files.company_id 
+      AND c.user_id = auth.uid() 
+      AND c.role = 'admin'
+    )
+  );
+
+-- 사용자는 자신의 회사 EDI 파일만 조회 가능
+CREATE POLICY "사용자는 자신의 회사 EDI 파일 조회" ON edi_files
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM companies c 
+      WHERE c.id = edi_files.company_id 
+      AND c.user_id = auth.uid()
+    )
+  );
+
+-- 사용자는 자신의 회사 EDI 파일만 삽입 가능
+CREATE POLICY "사용자는 자신의 회사 EDI 파일 삽입" ON edi_files
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM companies c 
+      WHERE c.id = edi_files.company_id 
+      AND c.user_id = auth.uid()
+    )
+  );
+
+-- 사용자는 자신의 회사 EDI 파일만 수정 가능
+CREATE POLICY "사용자는 자신의 회사 EDI 파일 수정" ON edi_files
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM companies c 
+      WHERE c.id = edi_files.company_id 
+      AND c.user_id = auth.uid()
+    )
+  );
+
+-- 사용자는 자신의 회사 EDI 파일만 삭제 가능
+CREATE POLICY "사용자는 자신의 회사 EDI 파일 삭제" ON edi_files
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM companies c 
+      WHERE c.id = edi_files.company_id 
+      AND c.user_id = auth.uid()
+    )
+  ); 

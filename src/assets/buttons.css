@@ -452,7 +452,16 @@ button:focus,
   white-space: nowrap;
 }
 
-
+.remove-badge {
+  background: none;
+  border: none;
+  color: #fa5252;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
 
 /* ========================================== */
 /* 액션 셀 스타일 (테이블용)                */
