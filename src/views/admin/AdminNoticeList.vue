@@ -104,7 +104,7 @@
           :class="columnAligns.edit"
         >
           <template #body="{ data }">
-            <button class="btn-edit-sm" @click="goEdit(data.id)">수정</button>
+            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goEdit(data.id)" />
           </template>
         </Column>
         <Column 
@@ -113,7 +113,7 @@
           :class="columnAligns.delete"
         >
           <template #body="{ data }">
-            <button class="btn-delete-sm" @click="deleteNotice(data.id)">삭제</button>
+            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteNotice(data.id)" />
           </template>
         </Column>
 
@@ -145,6 +145,7 @@ import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
+import Button from 'primevue/button';
 
 const router = useRouter();
 const search = ref('');

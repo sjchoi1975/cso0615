@@ -77,6 +77,11 @@ const router = createRouter({
       component: AdminProductsCreate,
     },
     {
+      path: '/admin/products/edit/:id',
+      name: 'admin-products-edit',
+      component: () => import('@/views/admin/AdminProductsEdit.vue'),
+    },
+    {
       path: '/admin/notices/list',
       name: 'AdminNoticeList',
       component: AdminNoticeList,

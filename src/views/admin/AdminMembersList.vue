@@ -257,21 +257,24 @@ const onChangeGrade = async (member, newGrade) => {
 
 // 엑셀 다운로드
 const downloadExcel = () => {
-  const exportData = filteredMembers.value.map(row => ({
-    '아이디': row.id_email,
-    '회사명': row.company_name,
-    '사업자등록번호': row.biz_no,
-    '대표자명': row.ceo_name,
-    '주소': row.address,
-    'CSO 신고번호': row.cso_regist_no,
-    '인증': row.approval === 'approved' ? '인증' : '미인증',
-    '등급': row.grade,
-    '가입일자': row.created_at ? new Date(row.created_at).toISOString().split('T')[0] : ''
+  const data = filteredMembers.value.map(member => ({
+    '아이디': member.id_email,
+    '회사명': member.company_name,
+    '사업자등록번호': member.biz_no,
+    '대표자명': member.ceo_name,
+    '주소': member.address,
+    'CSO 신고번호': member.cso_regist_no,
+    '인증': member.approval === 'approved' ? 'Y' : 'N',
+    '등급': member.grade,
+    '가입일자': member.created_at ? new Date(member.created_at).toISOString().split('T')[0] : ''
   }));
-  const ws = XLSX.utils.json_to_sheet(exportData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, '회원목록');
-  XLSX.writeFile(wb, 'members.xlsx');
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, '회원목록');
+  
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  XLSX.writeFile(workbook, `회원목록_${dateString}.xlsx`);
 };
 
 const resetFilters = () => {

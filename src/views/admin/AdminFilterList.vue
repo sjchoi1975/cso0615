@@ -8,7 +8,7 @@
           <option value="">- 전체 -</option>
           <option v-for="member in memberOptions" :key="member.uid" :value="member.uid">{{ member.company_name }}</option>
         </select>
-        <span>병원명</span>
+        <span>거래처명</span>
         <select v-model="selectedHospital" class="filter-dropdown">
           <option value="">- 전체 -</option>
           <option v-for="hospital in hospitalOptions" :key="hospital.id" :value="hospital.id">{{ hospital.hospital_name }}</option>
@@ -61,7 +61,7 @@
         <Column field="filter_type" header="구분" :style="{ width: columnWidths.filter_type }" :bodyStyle="{ textAlign: columnAligns.filter_type }">
           <template #body="slotProps">{{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}</template>
         </Column>
-        <Column field="hospital_name" header="병원명" :style="{ width: columnWidths.hospital_name }" :bodyStyle="{ textAlign: columnAligns.hospital_name }"></Column>
+        <Column field="hospital_name" header="거래처명" :style="{ width: columnWidths.hospital_name }" :bodyStyle="{ textAlign: columnAligns.hospital_name }"></Column>
         <Column field="pharmaceutical_company_name" header="제약사" :style="{ width: columnWidths.pharmaceutical_company_name }" :bodyStyle="{ textAlign: columnAligns.pharmaceutical_company_name }"></Column>
         <Column field="user_remarks" header="요청비고" :style="{ width: columnWidths.user_remarks }" :bodyStyle="{ textAlign: columnAligns.user_remarks }">
           <template #body="slotProps">
@@ -292,19 +292,18 @@ const saveAdminComments = async () => {
 
 const downloadExcel = () => {
   const exportData = requests.value.map(row => ({
-    '요청일': new Date(row.request_date).toLocaleDateString(),
-    '요청자': row.member_name,
-    '병원명': row.hospital_name,
-    '제약사': row.pharmaceutical_company_name,
+    '요청일시': new Date(row.request_date).toLocaleString('sv-SE').slice(0, 16),
+    '업체명': row.member_name,
     '구분': row.filter_type === 'new' ? '신규' : '이관',
-    '처리결과': row.status,
-    '요청 비고': row.user_remarks,
-    '전달사항': row.admin_comments,
+    '거래처명': row.hospital_name,
+    '제약사': row.pharmaceutical_company_name,
+    '요청비고': row.user_remarks,
+    '처리결과': row.status === 'pending' ? '대기' : row.status === 'approved' ? '승인' : '반려',
   }));
   const ws = XLSX.utils.json_to_sheet(exportData);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '필터링요청목록');
-  XLSX.writeFile(wb, `filtering_requests_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  XLSX.writeFile(wb, `필터링목록_${new Date().toISOString().slice(0, 10)}.xlsx`);
 };
 
 const resetFilters = () => {

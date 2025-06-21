@@ -95,8 +95,8 @@ const adminMenu = [
       { label: '요율표 관리', icon: 'pi pi-list', to: '/admin/products/list' },
     ]
   },
-  { label: '병의원 관리', icon: 'pi pi-hospital', items: [
-      { label: '병의원 목록', icon: 'pi pi-list', to: '/admin/hospitals/list' },
+  { label: '거래처 관리', icon: 'pi pi-hospital', items: [
+      { label: '거래처 목록', icon: 'pi pi-list', to: '/admin/hospitals/list' },
     ]
   },
   { label: '필터링 관리', icon: 'pi pi-filter', items: [
@@ -117,7 +117,7 @@ const adminMenu = [
 const userMenu = [
   { label: '공지사항', icon: 'pi pi-bell', to: '/notice/list' },
   { label: '요율표', icon: 'pi pi-list', to: '/products/list' },
-  { label: '병의원', icon: 'pi pi-hospital', to: '/hospitals/list' },
+  { label: '거래처', icon: 'pi pi-hospital', to: '/hospitals/list' },
   { label: '필터링', icon: 'pi pi-filter', items: [
       { label: '신규 요청', icon: 'pi pi-plus', to: '/filter/create' },
       { label: '요청 내역', icon: 'pi pi-list', to: '/filter/list' },

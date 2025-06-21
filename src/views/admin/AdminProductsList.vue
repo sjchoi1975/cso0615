@@ -179,6 +179,20 @@
             <span :title="slotProps.data.remarks">{{ slotProps.data.remarks }}</span>
           </template>
         </Column>
+        <Column header="수정"
+          :style="{ width: columnWidths.edit }"
+          :bodyStyle="{ textAlign: columnAligns.edit }">
+          <template #body="slotProps">
+            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToProductEdit(slotProps.data.id)" />
+          </template>
+        </Column>
+        <Column header="삭제"
+          :style="{ width: columnWidths.delete }"
+          :bodyStyle="{ textAlign: columnAligns.delete }">
+          <template #body="slotProps">
+            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteProduct(slotProps.data.id)" />
+          </template>
+        </Column>
         <Column field="status" header="상태"
           :sortable="columnSortables.status"
           :style="{ width: columnWidths.status }"
@@ -215,7 +229,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, onUnmounted, nextTick } from 'vue';
+import { ref, computed, onMounted, watch, onUnmounted, nextTick, onActivated } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -223,25 +237,28 @@ import dayjs from 'dayjs';
 import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
 import Paginator from 'primevue/paginator';
+import Button from 'primevue/button';
 
 // 컬럼 너비 한 곳에서 관리
 const columnWidths = {
   index: '4%',
   pharmacist: '6%',
-  classification: '8%',
-  product_name: '11%',
+  classification: '7%',
+  product_name: '10%',
   insurance_code: '5%',
   price: '4%',
   commission_rate_a: '4%',
   commission_rate_b: '4%',
   commission_rate_c: '4%',
-  Ingredient: '13%',
+  Ingredient: '10%',
   comparator: '10%',
   reimbursement: '4%',
   bioequivalence: '4%',
   Inhouse: '4%',
-  remarks: '10%',
-  status: '5%'
+  remarks: '8%',
+  edit: '4%',
+  delete: '4%',
+  status: '4%'
 };
 
 // 컬럼별 정렬 여부 한 곳에서 관리
@@ -259,9 +276,11 @@ const columnSortables = {
   comparator: false,
   reimbursement: false,
   bioequivalence: false,
-  Inhouse: false,
-  remarks: false,
-  status: false
+  Inhouse: true,
+  remarks: true,
+  edit: false,
+  delete: false,
+  status: true
 };
 
 // 컬럼별 정렬 방식 한 곳에서 관리
@@ -281,6 +300,8 @@ const columnAligns = {
   bioequivalence: 'center',
   Inhouse: 'center',
   remarks: 'left',
+  edit: 'center',
+  delete: 'center',
   status: 'center'
 };
 
@@ -314,8 +335,13 @@ const fetchMonthOptions = async () => {
   }
 };
 
-onMounted(() => {
-  fetchMonthOptions();
+onMounted(async () => {
+  await fetchMonthOptions();
+  await fetchProducts(first.value, pageSize.value);
+});
+
+onActivated(async () => {
+  await fetchProducts(first.value, pageSize.value);
 });
 
 watch(monthOptions, (newOptions) => {
@@ -330,10 +356,17 @@ const tableRef = ref(null);
 
 const fetchProducts = async (pageFirst = 0, pageRows = 100) => {
   loading.value = true;
+  const month = currentMonth.value;
+
   let query = supabase
     .from('products')
-    .select('*', { count: 'exact' })
-    .eq('base_month', currentMonth.value);
+    .select('*', { count: 'exact' });
+
+  // 월 필터 적용
+  if (month) {
+    query = query.eq('base_month', month);
+  }
+
   if (appliedSearch.value) {
     const keyword = appliedSearch.value.toLowerCase();
     query = query.or(`pharmacist.ilike.%${keyword}%,product_name.ilike.%${keyword}%,insurance_code.ilike.%${keyword}%,Ingredient.ilike.%${keyword}%`);
@@ -388,6 +421,28 @@ const goToProductCreate = () => {
   router.push('/admin/products/create');
 };
 
+const goToProductEdit = (id) => {
+  router.push(`/admin/products/edit/${id}`);
+};
+
+const deleteProduct = async (id) => {
+  if (!confirm('정말로 이 제품을 삭제하시겠습니까?')) {
+    return;
+  }
+  
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    alert('제품 삭제 중 오류가 발생했습니다: ' + error.message);
+  } else {
+    alert('제품이 성공적으로 삭제되었습니다.');
+    await fetchProducts(first.value, pageSize.value);
+  }
+};
+
 const onHtmlToggleStatus = async (product, checked) => {
   const toActive = checked;
   const msg = toActive ? '활성화 하시겠습니까?' : '비활성화 하시겠습니까?';
@@ -421,7 +476,7 @@ const downloadExcel = () => {
   const ws = XLSX.utils.json_to_sheet(exportData);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '제품목록');
-  XLSX.writeFile(wb, `products_${todayStr}.xlsx`);
+  XLSX.writeFile(wb, `요율표_${todayStr}.xlsx`);
 };
 
 const downloadTemplate = () => {
@@ -440,7 +495,7 @@ const downloadTemplate = () => {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '템플릿');
   const todayStr = dayjs().format('YYYY-MM-DD');
-  XLSX.writeFile(wb, `products_template_${todayStr}.xlsx`);
+  XLSX.writeFile(wb, `요율표_template_${todayStr}.xlsx`);
 };
 
 const uploadExcel = async (e) => {
@@ -490,7 +545,7 @@ const uploadExcel = async (e) => {
 };
 
 const deleteAllProducts = async () => {
-  if (!confirm('현재 조건에 맞는 모든 제품을 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+  if (!confirm(`현재 조건에 맞는 모든 제품(${totalCount.value}개)을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
   loading.value = true;
 
   let query = supabase.from('products').delete().eq('base_month', currentMonth.value);

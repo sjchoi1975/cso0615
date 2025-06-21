@@ -36,12 +36,12 @@
         <Column field="remarks" header="비고" headerStyle="width: 25%" />
         <Column header="수정" headerStyle="width: 7.5%" bodyStyle="text-align: center">
           <template #body="slotProps">
-            <Button icon="pi pi-pencil" class="p-button-rounded p-button-info p-button-text" @click="openModal(slotProps.data)" />
+            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="openModal(slotProps.data)" />
           </template>
         </Column>
         <Column header="삭제" headerStyle="width: 7.5%" bodyStyle="text-align: center">
           <template #body="slotProps">
-            <Button icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" @click="confirmDelete(slotProps.data.id)" />
+            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDelete(slotProps.data.id)" />
           </template>
         </Column>
       </DataTable>

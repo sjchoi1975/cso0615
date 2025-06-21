@@ -18,7 +18,7 @@
             </td>
           </tr>
 
-          <!-- 병원 선택 -->
+          <!-- 거래처 선택 -->
           <tr>
             <th>거래처 선택</th>
             <td>
@@ -28,7 +28,7 @@
               </div>
               <div>
                 <button v-if="hospitalSelectionType === 'existing'" type="button" class="btn-add-sm" 
-                @click="openHospitalModal" style="margin-left: 1.6rem; margin-top: 0.5rem;">병원 선택</button>
+                @click="openHospitalModal" style="margin-left: 1.6rem; margin-top: 0.5rem;">거래처 선택</button>
               </div>
             </td>
           </tr>
@@ -90,7 +90,7 @@
             <input v-model="modalSearch" type="text" class="input-search" :placeholder="modalSearchPlaceholder" />
           </div>
           <div class="selection-list-container">
-            <!-- 병원 목록 -->
+            <!-- 거래처 목록 -->
             <template v-if="modalType === 'hospital'">
               <div v-for="hospital in filteredModalItems" :key="hospital.id" 
                    class="hospital-item" 
@@ -130,7 +130,7 @@ const router = useRouter();
 
 // 폼 데이터
 const filterType = ref('new');
-const hospitalSelectionType = ref('existing'); // '내 병원'을 기본값으로
+const hospitalSelectionType = ref('existing'); // '내 거래처'을 기본값으로
 const hospitalInfo = ref({
   id: null,
   hospital_name: '',
@@ -184,8 +184,8 @@ const filteredModalItems = computed(() => {
 // 모달 열기
 const openHospitalModal = () => {
   modalType.value = 'hospital';
-  modalTitle.value = '내 병원 선택';
-  modalSearchPlaceholder.value = '병원명으로 검색';
+  modalTitle.value = '내 거래처 선택';
+  modalSearchPlaceholder.value = '거래처명으로 검색';
   tempSelectedHospital.value = hospitalInfo.value.id ? { ...hospitalInfo.value } : null;
   showModal.value = true;
 };

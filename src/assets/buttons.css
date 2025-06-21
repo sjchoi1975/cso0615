@@ -147,6 +147,16 @@
   box-shadow: none !important;
 }
 
+/* 아이콘 버튼용 위험 색상 */
+.btn-icon-danger .p-button-icon {
+  color: var(--danger) !important;
+}
+
+/* 아이콘 버튼용 수정 색상 */
+.btn-icon-edit .p-button-icon {
+  color: var(--warning-dark) !important;
+}
+
 
 
 /* ========================================== */
@@ -487,4 +497,9 @@ button:focus,
   background: var(--gray-100) !important;
   opacity: 0.5 !important;
 }
+
+
+
+
+
 

@@ -112,26 +112,14 @@ const signup = async () => {
     loading.value = true;
     const { data, error } = await supabase.auth.signUp({
       email: idEmail.value,
-      password: password.value,
-      options: { data: {
-        company_name: companyName.value,
-        ceo_name: ceoName.value,
-        biz_no: bizNo.value,
-        address: address.value || null,
-        cso_regist_no: csoRegistNo.value || null,
-        manager_name: managerName.value || null,
-        handphone: handphone.value || null,
-        contact_email: contactEmail.value || null,
-        role: 'user'
-      } }
+      password: password.value
     });
     if (error) throw error;
-
-    const { data: user_data } = await supabase.auth.getUser();
+    if (!data.user) throw new Error("사용자 생성에 실패했습니다.");
 
     // members 테이블에도 insert
     const { error: insertError } = await supabase.from('members').insert({
-      id: user_data.user.id, // auth.users.id와 members.id를 동기화
+      id: data.user.id, // auth.users.id와 members.id를 동기화
       id_email: idEmail.value,
       company_name: companyName.value,
       ceo_name: ceoName.value,

@@ -808,7 +808,18 @@ nav a:first-of-type {
 }
 
 .table-card {
-  padding-bottom: 48px !important;
+  position: relative;
+  overflow: visible; /* 드롭다운 메뉴가 테이블 밖으로 보이도록 */
+}
+
+@media (max-width: 600px) {
+  .table-card {
+    padding-bottom: 48px !important;
+  }
+}
+
+.table-card .p-datatable-table {
+    border-collapse: separate;
 }
 
 
@@ -871,9 +882,9 @@ nav a:first-of-type {
 
 /* 필터링 요청 병원 선택 - 내 거래처, 신규 거래처 */
 .selection-hoapital {
+  margin-bottom: 0.5rem;
   display: flex;
-  align-items: center;
-  gap: 1rem; /* 라디오 버튼 사이의 간격 */
+  gap: 1.5rem;
 }
 
 /* 필터링 요청 - 거래처명, 원장명 입력 인풋 박스 */
@@ -919,18 +930,14 @@ nav a:first-of-type {
 
 /* 인라인 선택 목록 스타일 */
 .selection-list-container {
-  max-height: 250px;
+  max-height: 400px;
   overflow-y: auto;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  margin-top: 0.5rem;
 }
 
 .hospital-item, .pharma-modal-item {
-  padding: 0.75rem;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
   cursor: pointer;
-  transition: background-color 0.2s;
 }
 
 .hospital-item:hover, .pharma-modal-item:hover { background-color: #f8f9fa; }
@@ -1796,84 +1803,6 @@ button.p-paginator-page:hover {
     background-color: #fef2f2; /* red-50 */
     color: #b91c1c; /* red-700 */
     border-color: #f87171; /* red-400 */
-}
-
-/* -- Filter Layout & Elements -- */
-.filter-row-single-line {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  overflow-x: auto;
-  flex-wrap: nowrap;
-  padding-bottom: 1rem; /* 스크롤바에 가려지지 않도록 여백 추가 */
-}
-
-.filter-row-single-line > * {
-    flex-shrink: 0; /* 필터 요소들이 줄어들지 않도록 설정 */
-}
-
-.filter-dropdown {
-    min-width: 180px; /* 드롭다운 최소 너비 설정 */
-    height: 42px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    padding: 0.5rem 0.75rem;
-}
-
-.filter-reset-btn {
-  padding: 0.5rem 1rem;
-  background-color: #6b7280; /* gray-500 */
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.2rem;
-  height: 42px; /* 다른 드롭다운과 높이 맞춤 */
-}
-
-/* -- Link Style -- */
-.link {
-  text-decoration: underline;
-  cursor: pointer;
-  color: #3b82f6; /* blue-500 */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-}
-
-/* -- Status Badge Styles -- */
-.status-badge {
-    display: inline-block;
-    padding: 0.25em 0.6em;
-    font-size: 0.875rem;
-    font-weight: 600;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: 0.375rem;
-}
-
-/* Pending: Yellow */
-.status-badge.status-badge-pending {
-    color: #a16207; /* yellow-700 */
-    background-color: #fef9c3; /* yellow-200 */
-}
-
-/* Approved: Blue */
-.status-badge.status-badge-approved {
-    color: #1e40af; /* blue-800 */
-    background-color: #dbeafe; /* blue-200 */
-}
-
-/* Rejected: Red */
-.status-badge.status-badge-rejected {
-    color: #991b1b; /* red-800 */
-    background-color: #fee2e2; /* red-200 */
 }
 
 
