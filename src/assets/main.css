@@ -60,10 +60,11 @@ a,
 :root {
   
   /* 브랜드 색상 - 사용중 */
-  --primary: #03c75a;           /* 네이버 그린 */
-  --primary-dark: #028a3d;      /* 네이버 그린(어두운) */
-  --primary-light: #4be18e;     /* 네이버 그린(밝은) */
-  --primary-lightest: #e6f9ee;  /* 네이버 그린(아주 연한) */
+  --primary: #1976d2; /* 포인트 파랑 */
+  --primary-light: #e3f2fd; /* 아주 밝은 파랑 */
+  --primary-lightest: #f1f8ff; /* 거의 흰색에 가까운 파랑 */
+  --primary-dark: #1565c0; /* 어두운 파랑 */
+  --primary-hover: #1565c0; /* 호버 시 파랑 */
 
   
   /* 브랜드 색상 - 후보군 */
@@ -818,28 +819,26 @@ nav a:first-of-type {
 
 /* 필터링 요청 =============================================================================================== */
 
-
-
 .filter-table-card {
+  align-items: center !important;
   background: #fff;
   border-radius: var(--border-radius);
-  border: 1px solid #d1d5db;
-  padding: 0;
-  min-width: 640px;
+  border: none;
   max-width: 900px;
-  margin-top: 4rem;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%; /* 너비를 100%로 설정 */
+  margin: 3rem 0 0 0;
+  margin-left: auto; /* 좌우 자동 정렬 */
+  margin-right: auto; /* 좌우 자동 정렬 */
+  box-sizing: border-box; /* 패딩과 테두리를 너비에 포함 */
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .filter-table-card {
-    margin-top: 4rem;
-    min-width: auto !important;
-    max-width: 900px !important;
-    border-right: none !important;
-    border-left: none !important;
-    border-bottom: none !important;
+    margin-top: 3rem;
+    margin-bottom: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
 }
 
@@ -847,12 +846,14 @@ nav a:first-of-type {
   width: 100%;
   border-collapse: collapse;
 }
+
 .filter-table th, .filter-table td {
   border: 1px solid #e5e7eb;
-  padding: 0.75rem;
+  padding: 0.5rem;
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
 }
+
 .filter-table th {
   background: #f1f3f5;
   font-weight: 500;
@@ -861,16 +862,27 @@ nav a:first-of-type {
 }
 
 
+/* 필터링 요청 구분 선택 - 신규, 이관 */
+.selection-filter-type {
+  display: flex;
+  align-items: center;
+  gap: 3.1rem; /* 라디오 버튼 사이의 간격 */
+}
+
+/* 필터링 요청 병원 선택 - 내 거래처, 신규 거래처 */
+.selection-hoapital {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* 라디오 버튼 사이의 간격 */
+}
+
+/* 필터링 요청 - 거래처명, 원장명 입력 인풋 박스 */
 .input-table, .input-search {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-.selection-group {
-  display: flex;
-  align-items: center;
+  border-radius: 2px;
+  font-size: var(--font-size-base);
 }
 
 .selected-pharmas-list {
@@ -904,15 +916,6 @@ nav a:first-of-type {
   display: flex; justify-content: flex-end; gap: 1rem;
   padding: 1.5rem 1rem; border-top: 1px solid #e5e7eb;
 }
-.btn-cancel, .btn-save, .btn-add, .btn-change {
-  padding: 0.5rem 1.5rem; border: none; border-radius: 4px;
-  font-size: 1rem; cursor: pointer; color: white;
-}
-.btn-cancel { background: #b0b0b0; }
-.btn-save { background: #22c55e; }
-.btn-add { background: #1976d2; }
-.btn-change { background: #f59e0b; padding: 0.25rem 0.75rem; font-size: 0.9rem; }
-.btn-save:disabled { background: #b0b0b0; cursor: not-allowed; }
 
 /* 인라인 선택 목록 스타일 */
 .selection-list-container {
@@ -922,12 +925,14 @@ nav a:first-of-type {
   border-radius: 4px;
   margin-top: 0.5rem;
 }
+
 .hospital-item, .pharma-modal-item {
   padding: 0.75rem;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: background-color 0.2s;
 }
+
 .hospital-item:hover, .pharma-modal-item:hover { background-color: #f8f9fa; }
 .hospital-item:last-child, .pharma-modal-item:last-child { border-bottom: none; }
 
@@ -939,11 +944,6 @@ nav a:first-of-type {
 .check-icon { color: #1976d2; font-weight: bold; }
 .no-data { padding: 1rem; text-align: center; color: #888; }
 .selected-item-display { margin-top: 0.5rem; }
-
-
-
-
-
 
 
 
@@ -1126,21 +1126,6 @@ label {
 /* 모달 스타일
 /* ========================================================================================================= */
 
-.custom-modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.2);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* PrimeVue 캘린더가 커스텀 모달 위에 오도록 z-index 설정 */
-.p-datepicker {
-  z-index: 2001 !important;
-}
-
 .custom-modal {
   position: relative;
   background: #fff;
@@ -1164,10 +1149,15 @@ label {
   }
 }
 
+.modal-body label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
 .modal-footer {
   position: absolute;
   right: 2rem;
-  bottom: 1.5rem;
+  bottom: 2rem;
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
@@ -1175,10 +1165,45 @@ label {
   background: none;
 }
 
-.modal-body label {
-  display: block;
-  margin-bottom: 0.5rem;
+/* 모달 배경 투명도 */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+
+/* PrimeVue 캘린더가 커스텀 모달 위에 오도록 z-index 설정 */
+.p-datepicker {
+  z-index: 2001 !important;
+}
+
+.mordal-table {
+  margin: 0 !important;
+  padding: 0 0 0 0 !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+
+.mordal-table th, .mordal-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.mordal-table th {
+  background: var(--primary-lightest) !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+}
+
+
+
 
 
 
@@ -1849,6 +1874,40 @@ button.p-paginator-page:hover {
 .status-badge.status-badge-rejected {
     color: #991b1b; /* red-800 */
     background-color: #fee2e2; /* red-200 */
+}
+
+
+
+
+
+/* 공지사항 확장 스타일 */
+.notice-expansion {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+.content-text {
+  background-color: white;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 60px;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .notice-expansion {
+    padding: 1rem;
+  }
+  
+  .content-text {
+    padding: 0.75rem;
+    font-size: var(--font-size-95);
+  }
 }
 
 

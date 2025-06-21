@@ -11,25 +11,30 @@
           <tr>
             <th>구분</th>
             <td>
-              <label class="radio-inline"><input type="radio" v-model="filterType" value="new" /> 신규</label>
-              <label class="radio-inline"><input type="radio" v-model="filterType" value="transfer" /> 이관</label>
+              <div class="selection-filter-type">
+                <label class="radio-inline"><input type="radio" v-model="filterType" value="new" /> 신규</label>
+                <label class="radio-inline"><input type="radio" v-model="filterType" value="transfer" /> 이관</label>
+              </div>
             </td>
           </tr>
 
           <!-- 병원 선택 -->
           <tr>
-            <th>병원 선택</th>
+            <th>거래처 선택</th>
             <td>
-              <div class="selection-group">
-                <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="existing" /> 내 병원</label>
-                <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="new" /> 신규 병원</label>
-                <button v-if="hospitalSelectionType === 'existing'" type="button" class="btn-add" @click="openHospitalModal" style="margin-left: 1rem;">병원 선택</button>
+              <div class="selection-hoapital">
+                <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="existing" /> 내 거래처</label>
+                <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="new" /> 신규 거래처</label>
+              </div>
+              <div>
+                <button v-if="hospitalSelectionType === 'existing'" type="button" class="btn-add-sm" 
+                @click="openHospitalModal" style="margin-left: 1.6rem; margin-top: 0.5rem;">병원 선택</button>
               </div>
             </td>
           </tr>
           <tr>
-            <th>병원명</th>
-            <td><input v-model="hospitalInfo.hospital_name" type="text" class="input-table" placeholder="병원명" :disabled="hospitalSelectionType === 'existing'" /></td>
+            <th>거래처명</th>
+            <td><input v-model="hospitalInfo.hospital_name" type="text" class="input-table" placeholder="거래처명" :disabled="hospitalSelectionType === 'existing'" /></td>
           </tr>
           <tr>
             <th>사업자등록번호</th>
@@ -48,7 +53,7 @@
           <tr>
             <th>제약사 선택</th>
             <td>
-              <button type="button" class="btn-add" @click="openPharmaModal">제약사 추가</button>
+              <button type="button" class="btn-add-sm" @click="openPharmaModal">제약사 추가</button>
               <div v-if="selectedPharmas.length > 0" class="selected-pharmas-list">
                 <div v-for="pharma in selectedPharmas" :key="pharma.id" class="selected-pharma-item">
                   <span>{{ pharma.company_name }}</span>
@@ -62,7 +67,7 @@
           <tr>
             <th>메모</th>
             <td>
-              <textarea v-model="userRemarks" class="input-table" placeholder="요청 메모를 입력해 주세요." rows="3"></textarea>
+              <textarea v-model="userRemarks" class="input-table" placeholder="요청 메모를 입력해 주세요." rows="5"></textarea>
             </td>
           </tr>
         </tbody>
@@ -235,6 +240,30 @@ const removePharma = (pharmaId) => {
 
 watch(hospitalSelectionType, (type) => {
   hospitalInfo.value = { id: null, hospital_name: '', business_registration_number: '', director_name: '', address: '' };
+});
+
+// 사업자등록번호 자동 하이픈 추가
+watch(() => hospitalInfo.value.business_registration_number, (newValue) => {
+  // 숫자 이외의 문자를 모두 제거
+  const digits = (newValue || '').replace(/\D/g, '');
+  
+  // 길이에 따라 하이픈 추가
+  let formatted = '';
+  if (digits.length > 0) {
+    if (digits.length <= 3) {
+      formatted = digits;
+    } else if (digits.length <= 5) {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      // 10자리까지만 입력받음
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5, 10)}`;
+    }
+  }
+  
+  // 값이 변경되었을 때만 업데이트하여 무한 루프 방지
+  if (formatted !== hospitalInfo.value.business_registration_number) {
+    hospitalInfo.value.business_registration_number = formatted;
+  }
 });
 
 // --- 기존 로직 (fetch, submit 등) ---

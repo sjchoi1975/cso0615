@@ -28,6 +28,8 @@
         @page="onPageChange"
         scrollable
         :scrollHeight="'calc(100vh - 220px)'"
+        v-model:expandedRows="expandedRows"
+        dataKey="id"
       >
         <Column 
           header="순번" 
@@ -45,7 +47,7 @@
           <template #body="{ data }">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <span v-if="data.is_important" class="important-badge">중요</span>
-              <a @click="goDetail(data.id)" style="cursor: pointer; color: #2196f3; text-decoration: underline;">
+              <a @click="toggleExpand(data.id)" style="cursor: pointer; color: #2196f3; text-decoration: underline;">
                 {{ data.title }}
               </a>
             </div>
@@ -114,6 +116,13 @@
             <button class="btn-delete-sm" @click="deleteNotice(data.id)">삭제</button>
           </template>
         </Column>
+
+        <!-- 확장된 행 내용 -->
+        <template #expansion="{ data }">
+          <div class="notice-expansion">
+            <div class="content-text">{{ data.content }}</div>
+          </div>
+        </template>
       </DataTable>
     </div>
 
@@ -142,6 +151,7 @@ const search = ref('');
 const notices = ref([]);
 const pageSize = ref(20);
 const first = ref(0);
+const expandedRows = ref({});
 
 // 컬럼 너비 한 곳에서 관리
 const columnWidths = {
@@ -285,4 +295,13 @@ const deleteNotice = async (id) => {
 
 // 페이지네이터 표시 여부(예시: 전체 데이터가 1페이지 초과일 때만 true)
 const showPaginator = ref(true); // 실제로는 데이터 개수로 판단
+
+// 확장 토글 함수
+const toggleExpand = (id) => {
+  if (expandedRows.value[id]) {
+    delete expandedRows.value[id];
+  } else {
+    expandedRows.value[id] = true;
+  }
+};
 </script>

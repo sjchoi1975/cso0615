@@ -115,14 +115,14 @@ import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 
 const columnWidths = {
-  index: '6%',
-  filter_type: '8%',
-  hospital_name: '16%',
+  index: '4%',
+  filter_type: '4%',
+  hospital_name: '18%',
   pharmaceutical_company_name: '10%',
   status: '8%',
-  admin_comments: '16%',
+  admin_comments: '18%',
   updated_at: '10%',
-  user_remarks: '16%',
+  user_remarks: '18%',
   request_date: '10%'
 };
 

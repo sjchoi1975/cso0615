@@ -51,33 +51,52 @@
     <div v-if="isModalVisible" class="custom-modal-overlay" @click.self="isModalVisible = false">
       <div class="custom-modal">
         <div class="modal-header">
-          <h3>{{ modalTitle }}</h3>
-          <button @click="isModalVisible = false" class="close-button">&times;</button>
+          <div class="modal-title">{{ modalTitle }}</div>
         </div>
         <div class="modal-body">
-          <div class="field">
-            <label for="settlementMonth">정산월</label>
-            <div style="display: flex; gap: 0.5rem;">
-              <Dropdown v-model="selectedYear" :options="yearOptions" placeholder="연도 선택" style="flex: 1;" />
-              <Dropdown v-model="selectedMonth" :options="monthOptions" placeholder="월 선택" style="flex: 1;" />
-            </div>
-          </div>
-          <div class="field">
-            <label for="startDate">제출 시작일</label>
-            <Calendar id="startDate" v-model="currentItem.start_date" dateFormat="yy-mm-dd" showIcon />
-          </div>
-          <div class="field">
-            <label for="endDate">제출 마감일</label>
-            <Calendar id="endDate" v-model="currentItem.end_date" dateFormat="yy-mm-dd" showIcon />
-          </div>
-          <div class="field">
-            <label for="remarks">비고</label>
-            <Textarea id="remarks" v-model="currentItem.remarks" rows="3" class="p-inputtext p-component" />
-          </div>
+          <table class="mordal-table">
+            <colgroup>
+              <col style="width: 120px;">
+              <col>
+            </colgroup>
+            <tbody>
+              <tr>
+                <th>정산월</th>
+                <td>
+                  <div class="radio-group-row">
+                    <Dropdown v-model="selectedYear"
+                      :options="yearOptions" placeholder="연도 선택" style="flex: 1;" />
+                    <Dropdown v-model="selectedMonth"
+                      :options="monthOptions" placeholder="월 선택" style="flex: 1;" />
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th>제출 시작일</th>
+                <td><Calendar id="startDate" 
+                  v-model="currentItem.start_date" 
+                  dateFormat="yy-mm-dd" 
+                  showIcon style="width: 100%;" /></td>
+              </tr>
+              <tr>
+                <th>제출 마감일</th>
+                <td><Calendar id="endDate" 
+                  v-model="currentItem.end_date" 
+                  dateFormat="yy-mm-dd" 
+                  showIcon style="width: 100%;" /></td>
+              </tr>
+              <tr>
+                <th>비고</th>
+                <td><Textarea id="remarks"
+                  v-model="currentItem.remarks" rows="4" 
+                  class="input-table" style="width: 100%;" /></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div class="modal-footer">
-          <Button label="취소" severity="secondary" @click="isModalVisible = false" />
-          <Button label="저장" @click="saveItem" />
+          <Button label="취소" severity="secondary" @click="isModalVisible = false" class="btn-cancel"/>
+          <Button label="저장" @click="saveItem" class="btn-add"/>
         </div>
       </div>
     </div>
