@@ -6,7 +6,7 @@
     <div class="filter-card">
       <div class="filter-row flex-row">
         <span class="p-input-icon-left">
-          <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 검색" class="input-search" />
+          <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 검색" class="input-search" @keyup.enter="searchProducts" />
           <button class="btn-add search-btn" @click="searchProducts" :disabled="!isSearchActive">검색</button>
         </span>
         <button class="filter-reset-btn icon-reset"
@@ -32,14 +32,9 @@
     <!-- 하단: 테이블카드 -->
     <div class="table-card">
       <DataTable
-        :value="filteredProducts"
+        :value="products"
         :loading="loading"
         :paginator="false"
-        :rows="100"
-        :rowsPerPageOptions="[100, 200, 500]"
-        :totalRecords="totalCount"
-        :first="first"
-        @page="onPageChange"
         scrollable
         :scrollHeight="'calc(100vh - 220px)'"
         ref="tableRef"
@@ -77,7 +72,7 @@
         </Column>
         <Column field="commission_rate" header="수수료율" :style="{ width: columnWidths.commission_rate }" :bodyStyle="{ textAlign: columnAligns.commission_rate }">
           <template #body="slotProps">
-            {{ getUserCommission(slotProps.data) }}
+            {{ formatCommissionRate(getUserCommission(slotProps.data)) }}
           </template>
         </Column>
         <Column field="Ingredient" header="성분" :style="{ width: columnWidths.Ingredient }" :bodyStyle="{ textAlign: columnAligns.Ingredient }">
@@ -139,9 +134,7 @@ const first = ref(0);
 const pageSize = ref(100);
 const totalCount = ref(0);
 const tableRef = ref(null);
-
-// 사용자 등급 예시 (실제 로그인 정보 연동시 교체)
-const userGrade = ref('A');
+const userGrade = ref('');
 
 const columnWidths = {
   index: '4%',
@@ -158,6 +151,7 @@ const columnWidths = {
   Inhouse: '5%',
   remarks: '8%'
 };
+
 const columnAligns = {
   index: 'center',
   pharmacist: 'left',
@@ -178,43 +172,67 @@ let latestMonth = null;
 
 const fetchProducts = async (pageFirst = 0, pageRows = 100) => {
   loading.value = true;
-  // 최신 월 구하기 (최초 1회만)
   if (!latestMonth) {
-    const { data: monthData } = await supabase
+    const { data: monthData, error: monthError } = await supabase
       .from('product_months')
       .select('base_month')
       .order('base_month', { ascending: false })
       .limit(1);
+    if (monthError) {
+      console.error('Error fetching latest month:', monthError);
+      loading.value = false;
+      return;
+    }
     latestMonth = monthData && monthData.length > 0 ? monthData[0].base_month : null;
   }
+
   if (!latestMonth) {
     products.value = [];
     totalCount.value = 0;
     loading.value = false;
     return;
   }
-  // 서버 페이지네이션 + 검색
+
   let query = supabase
     .from('products')
     .select('*', { count: 'exact' })
     .eq('base_month', latestMonth)
     .eq('status', 'active');
+
   if (search.value.trim()) {
     const keyword = search.value.trim();
     query = query.or(
       `pharmacist.ilike.%${keyword}%,product_name.ilike.%${keyword}%,insurance_code.ilike.%${keyword}%,Ingredient.ilike.%${keyword}%`
     );
   }
-  query = query.range(pageFirst, pageFirst + pageRows - 1);
+
+  query = query.range(pageFirst, pageFirst + pageRows - 1).order('pharmacist', { ascending: true });
+
   const { data, error, count } = await query;
-  if (!error) {
+
+  if (error) {
+    console.error('Error fetching products:', error);
+    products.value = [];
+    totalCount.value = 0;
+  } else {
     products.value = data;
     totalCount.value = count || 0;
   }
+
   loading.value = false;
 };
 
-onMounted(() => {
+onMounted(async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { data: memberData, error: memberError } = await supabase
+      .from('members')
+      .select('grade')
+      .eq('id', user.id)
+      .single();
+    if (memberError) console.error('Error fetching user grade:', memberError);
+    else userGrade.value = memberData.grade;
+  }
   fetchProducts(first.value, pageSize.value);
 });
 
@@ -223,25 +241,6 @@ const onPageChange = (event) => {
   pageSize.value = event.rows;
   fetchProducts(event.first, event.rows);
 };
-
-const filteredProductsAll = computed(() => {
-  let filtered = products.value;
-  if (search.value) {
-    const keyword = search.value.toLowerCase();
-    filtered = filtered.filter(
-      p =>
-        (p.pharmacist && p.pharmacist.toLowerCase().includes(keyword)) ||
-        (p.product_name && p.product_name.toLowerCase().includes(keyword)) ||
-        (p.insurance_code && p.insurance_code.toLowerCase().includes(keyword)) ||
-        (p.Ingredient && p.Ingredient.toLowerCase().includes(keyword))
-    );
-  }
-  return filtered;
-});
-
-const filteredProducts = computed(() => {
-  return filteredProductsAll.value.slice(first.value, first.value + pageSize.value);
-});
 
 const isSearchActive = computed(() => search.value.trim().length > 0);
 
@@ -256,14 +255,25 @@ const resetFilters = () => {
   fetchProducts(first.value, pageSize.value);
 };
 
-function getUserCommission(row) {
-  if (userGrade.value === 'A') return row.commission_rate_a != null ? (row.commission_rate_a * 100).toFixed(1).replace(/\.0$/, '') + '%' : '';
-  if (userGrade.value === 'B') return row.commission_rate_b != null ? (row.commission_rate_b * 100).toFixed(1).replace(/\.0$/, '') + '%' : '';
-  if (userGrade.value === 'C') return row.commission_rate_c != null ? (row.commission_rate_c * 100).toFixed(1).replace(/\.0$/, '') + '%' : '';
-  return '';
+function getUserCommission(product) {
+  if (!userGrade.value) return null;
+  switch (userGrade.value.toUpperCase()) {
+    case 'A': return product.commission_rate_a;
+    case 'B': return product.commission_rate_b;
+    case 'C': return product.commission_rate_c;
+    default: return null;
+  }
 }
 
+const formatCommissionRate = (rate) => {
+  if (rate === null || typeof rate === 'undefined' || isNaN(rate)) {
+    return '';
+  }
+  const percentage = parseFloat(rate) * 100;
+  return `${Number(percentage.toFixed(1))}%`;
+};
+
 function downloadExcel() {
-  // 엑셀 다운로드 로직은 기존과 동일하게 구현
+  // 엑셀 다운로드 로직
 }
 </script>

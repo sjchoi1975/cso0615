@@ -158,9 +158,27 @@ const router = createRouter({
       meta: { requiresAuth: true, admin: true }
     },
     {
+      path: '/admin/hospitals/create',
+      name: 'AdminHospitalsCreate',
+      component: () => import('@/views/admin/AdminHospitalsCreate.vue'),
+      meta: { requiresAuth: true, admin: true }
+    },
+    {
       path: '/hospitals/list',
       name: 'UserHospitalsList',
       component: () => import('@/views/user/UserHospitalsList.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/hospitals/create',
+      name: 'UserHospitalsCreate',
+      component: () => import('@/views/user/UserHospitalsCreate.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/hospitals/edit/:id',
+      name: 'UserHospitalsEdit',
+      component: () => import('@/views/user/UserHospitalsEdit.vue'),
       meta: { requiresAuth: true }
     },
   ],

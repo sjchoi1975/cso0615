@@ -19,7 +19,7 @@
           엑셀 등록
           <input type="file" accept=".xlsx,.xls" @change="uploadExcel" style="display:none;" />
         </label>
-        <button class="btn-add" @click="openCreateModal">거래처 등록</button>
+        <button class="btn-add" @click="goToCreatePage">거래처 등록</button>
         <button class="btn-danger" @click="deleteAllHospitals">전체 삭제</button>
       </div>
     </div>
@@ -89,7 +89,7 @@
         </Column>
         <Column header="수정" :style="{ width: columnWidths.edit }" :bodyStyle="{ textAlign: columnAligns.edit }">
           <template #body="slotProps">
-            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="openEditModal(slotProps.data)" />
+            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToEditPage(slotProps.data.id)" />
           </template>
         </Column>
         <Column header="삭제" :style="{ width: columnWidths.delete }" :bodyStyle="{ textAlign: columnAligns.delete }">
@@ -114,104 +114,11 @@
       />
     </div>
 
-    <!-- 거래처 등록, 수정 모달 -->
-    <div v-if="showModal" class="custom-modal-overlay">
-      <div class="custom-modal">
-        <div class="modal-header">
-          <h3 class="modal-title">{{ isEdit ? '거래처 수정' : '거래처 등록' }}</h3>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">거래처명 *</label>
-            <input v-model="formData.hospital_name" type="text" class="input-mordal" placeholder="거래처명을 입력하세요" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">사업자등록번호 *</label>
-            <input v-model="formData.business_registration_number" type="text" class="input-mordal" placeholder="사업자등록번호를 입력하세요" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">원장명 *</label>
-            <input v-model="formData.director_name" type="text" class="input-mordal" placeholder="원장명을 입력하세요" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">주소 *</label>
-            <input v-model="formData.address" type="text" class="input-mordal" placeholder="주소를 입력하세요" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">사업자등록증</label>
-            <input type="file" @change="onFileChange" style="position: relative; z-index: 1;" />
-            <a v-if="isEdit && formData.business_license_file" :href="getPublicUrl(formData.business_license_file)" target="_blank" class="link">
-              현재 파일 보기
-            </a>
-          </div>
-          <div class="form-group">
-            <label class="form-label">연결할 회원 (선택사항)</label>
-            <div class="member-selection">
-              <div class="member-search">
-                <input 
-                  v-model="memberSearch" 
-                  type="text" 
-                  class="input-field" 
-                  placeholder="회원명 또는 회사명으로 검색" 
-                  @input="searchMembers"
-                />
-              </div>
-              <div class="member-list" v-if="filteredMembers.length > 0">
-                <div 
-                  v-for="member in filteredMembers" 
-                  :key="member.id"
-                  class="member-item"
-                  :class="{ 'selected': selectedMembers.includes(member.id) }"
-                  @click="toggleMemberSelection(member.id)"
-                >
-                  <div class="member-info">
-                    <div class="member-name">{{ member.company_name }}</div>
-                    <div class="member-details">{{ member.manager_name }} ({{ member.id_email }})</div>
-                  </div>
-                  <div class="member-checkbox">
-                    <input 
-                      type="checkbox" 
-                      :checked="selectedMembers.includes(member.id)"
-                      @click.stop="toggleMemberSelection(member.id)"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div v-if="memberSearch && filteredMembers.length === 0" class="no-results">
-                검색 결과가 없습니다.
-              </div>
-            </div>
-            <div v-if="selectedMembers.length > 0" class="selected-members">
-              <div class="selected-title">선택된 회원 ({{ selectedMembers.length }}명):</div>
-              <div class="selected-list">
-                <div 
-                  v-for="memberId in selectedMembers" 
-                  :key="memberId"
-                  class="selected-member"
-                >
-                  {{ getMemberName(memberId) }}
-                  <button type="button" @click="removeMember(memberId)" class="remove-member">×</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">취소</button>
-          <button class="btn-primary" @click="saveHospital" :disabled="!isFormValid || loading">
-            {{ loading ? '저장 중...' : (isEdit ? '수정' : '등록') }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-
     <!-- 사업자등록증 보기, 다운로드 모달 -->
     <div v-if="showFileModal" class="custom-modal-overlay">
       <div class="custom-modal">
         <div class="modal-header">
-          <h3 class="modal-title">거래처 사업자등록증</h3>
+          <h3 class="modal-title" style="text-align: center;">사업자등록증</h3>
         </div>
         <div class="modal-body">
           <object v-if="isPdfFile" :data="fileUrl" type="application/pdf" style="width: 100%; height: 70vh;">
@@ -255,40 +162,52 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
+import * as XLSX from 'xlsx';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import * as XLSX from 'xlsx';
 import Paginator from 'primevue/paginator';
-import { v4 as uuidv4 } from 'uuid';
+import { formatDate } from '@/utils/dateFormatter.js';
 
-// Column definitions
+const router = useRouter();
+const hospitals = ref([]);
+const loading = ref(false);
+const search = ref('');
+const appliedSearch = ref('');
+const totalCount = ref(0);
+const pageSize = ref(100);
+const first = ref(0);
+const tableRef = ref(null);
+
+// State for file viewer modal
+const showFileModal = ref(false);
+const fileUrl = ref('');
+const isPdfFile = ref(false);
+const currentHospitalForFile = ref(null);
+
+// State for delete confirmation modal
+const showDeleteModal = ref(false);
+const hospitalToDelete = ref(null);
+const hasMappings = ref(false);
+
 const columnWidths = {
   index: '4%',
-  hospital_name: '10%',
+  hospital_name: '12%',
   business_registration_number: '8%',
   director_name: '6%',
   address: '12%',
-  license: '5%',
-  member_count: '5%',
-  mapped_members: '10%',
-  registered_at: '6%',
-  creator_name: '8%',
-  updated_at: '6%',
-  updater_name: '8%',
-  edit: '6%',
-  delete: '6%',
-};
-
-const columnSortables = {
-  hospital_name: true,
-  business_registration_number: true,
-  director_name: true,
-  address: true,
-  registered_at: true,
-  updated_at: true,
+  license: '8%',
+  member_count: '6%',
+  mapped_members: '8%',
+  registered_at: '8%',
+  creator_name: '6%',
+  updated_at: '8%',
+  updater_name: '6%',
+  edit: '4%',
+  delete: '4%',
 };
 
 const columnAligns = {
@@ -305,180 +224,26 @@ const columnAligns = {
   updated_at: 'center',
   updater_name: 'center',
   edit: 'center',
-  delete: 'center'
+  delete: 'center',
 };
 
-// Component state
-const hospitals = ref([]);
-const loading = ref(false);
-const search = ref('');
-const first = ref(0);
-const totalCount = ref(0);
-const pageSize = ref(100);
-const tableRef = ref(null);
-const appliedSearch = ref('');
-const currentFilePath = ref(null);
-
-// 회원 매핑 관련 상태
-const members = ref([]);
-const filteredMembers = ref([]);
-const selectedMembers = ref([]);
-const memberSearch = ref('');
-
-// 날짜 포맷팅 함수
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = ('0' + (date.getMonth() + 1)).slice(-2);
-  const day = ('0' + date.getDate()).slice(-2);
-  return `${year}-${month}-${day}`;
+const columnSortables = {
+  hospital_name: true,
+  business_registration_number: true,
+  director_name: true,
+  address: true,
+  registered_at: true,
+  updated_at: true,
 };
 
-// Modal state
-const showModal = ref(false);
-const showDeleteModal = ref(false);
-const showFileModal = ref(false);
-const isEdit = ref(false);
-const hasMappings = ref(false);
-const hospitalToDelete = ref(null);
-const fileUrl = ref('');
-const selectedFile = ref(null);
-const currentHospital = ref(null);
-const formData = ref({
-  id: null,
-  hospital_name: '',
-  business_registration_number: '',
-  director_name: '',
-  address: '',
-  business_license_file: null
-});
-const isFormValid = computed(() => {
-  return formData.value.hospital_name.trim() &&
-         formData.value.business_registration_number.trim() &&
-         formData.value.director_name.trim() &&
-         formData.value.address.trim();
-});
-
-const isPdfFile = computed(() => {
-  if (!currentFilePath.value) return false;
-  const extension = currentFilePath.value.split('.').pop()?.toLowerCase();
-  return extension === 'pdf';
-});
-
-// Data fetching
-const fetchHospitals = async (pageFirst = 0, pageRows = 100) => {
-  loading.value = true;
-  try {
-    let countQuery = supabase.from('hospitals').select('*', { count: 'exact', head: true });
-    let dataQuery = supabase.from('hospitals').select(`
-      *,
-      creator:registered_by ( company_name ),
-      updater:updated_by ( company_name )
-    `);
-
-    if (appliedSearch.value) {
-      const keyword = `%${appliedSearch.value}%`;
-      const orFilter = `hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword},address.ilike.${keyword}`;
-      countQuery = countQuery.or(orFilter);
-      dataQuery = dataQuery.or(orFilter);
-    }
-
-    // 1. Fetch total count
-    const { count, error: countError } = await countQuery;
-    if (countError) throw countError;
-    totalCount.value = count;
-
-    if (totalCount.value === 0) {
-      hospitals.value = [];
-      loading.value = false;
-      return;
-    }
-
-    // 2. Fetch paginated data
-    const from = pageFirst;
-    const to = from + pageRows - 1;
-
-    dataQuery = dataQuery.range(from, to).order('registered_at', { ascending: false });
-    const { data, error } = await dataQuery;
-
-    if (error) throw error;
-    
-    // 3. 각 거래처의 연결된 회원 수 계산 및 데이터 변환
-    const hospitalsWithDetails = await Promise.all(
-      data.map(async (hospital) => {
-        // 1. 해당 거래처에 연결된 회원 ID 목록 조회
-        const { data: mappings, error: mappingError } = await supabase
-          .from('hospital_member_mappings')
-          .select('member_id')
-          .eq('hospital_id', hospital.id);
-
-        if (mappingError) {
-          console.error(`Error fetching mappings for hospital ${hospital.id}:`, mappingError);
-          return {
-            ...hospital,
-            creator_name: hospital.creator ? hospital.creator.company_name : '-',
-            updater_name: hospital.updater ? hospital.updater.company_name : '-',
-            member_count: 0,
-            mapped_members: []
-          };
-        }
-
-        const memberIds = mappings.map(m => m.member_id);
-        let mapped_members = [];
-
-        // 2. 조회된 회원 ID로 업체명 목록 조회
-        if (memberIds.length > 0) {
-          const { data: memberDetails, error: memberError } = await supabase
-            .from('members')
-            .select('company_name')
-            .in('id', memberIds);
-
-          if (memberError) {
-            console.error(`Error fetching member details for hospital ${hospital.id}:`, memberError);
-          } else if (memberDetails) {
-            mapped_members = memberDetails.map(m => m.company_name).filter(Boolean);
-          }
-        }
-
-        return {
-          ...hospital,
-          creator_name: hospital.creator ? hospital.creator.company_name : '-',
-          updater_name: hospital.updater ? hospital.updater.company_name : '-',
-          member_count: mapped_members.length,
-          mapped_members
-        };
-      })
-    );
-    hospitals.value = hospitalsWithDetails;
-
-  } catch (error) {
-    console.error('Error fetching hospitals:', error);
-    alert('데이터 로드 실패: ' + error.message);
-    hospitals.value = [];
-    totalCount.value = 0;
-  } finally {
-    loading.value = false;
-  }
+const goToCreatePage = () => {
+  router.push('/admin/hospitals/create');
 };
 
-onMounted(() => {
-  fetchHospitals(0, pageSize.value);
-  fetchMembers();
-});
+const goToEditPage = (id) => {
+  router.push(`/admin/hospitals/edit/${id}`);
+};
 
-// 실시간 검색을 위한 watch 추가
-let debounceTimer = null;
-watch(search, (newValue) => {
-  if (debounceTimer) clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    first.value = 0;
-    appliedSearch.value = newValue.trim();
-    fetchHospitals(0, pageSize.value);
-  }, 300); // 300ms 디바운스
-});
-
-// Event handlers
 const onPageChange = (event) => {
   first.value = event.first;
   pageSize.value = event.rows;
@@ -600,156 +365,6 @@ const deleteAllHospitals = async () => {
   }
 };
 
-// CRUD operations
-const openCreateModal = () => {
-  isEdit.value = false;
-  formData.value = {
-    id: null,
-    hospital_name: '',
-    business_registration_number: '',
-    director_name: '',
-    address: '',
-    business_license_file: null
-  };
-  selectedMembers.value = [];
-  memberSearch.value = '';
-  filteredMembers.value = members.value;
-  showModal.value = true;
-};
-
-const openEditModal = async (hospital) => {
-  isEdit.value = true;
-  formData.value = { ...hospital };
-  selectedMembers.value = [];
-  memberSearch.value = '';
-  filteredMembers.value = members.value;
-  
-  // 기존 매핑된 회원들 가져오기
-  try {
-    const { data: mappings, error } = await supabase
-      .from('hospital_member_mappings')
-      .select('member_id')
-      .eq('hospital_id', hospital.id);
-    
-    if (!error && mappings) {
-      selectedMembers.value = mappings.map(m => m.member_id);
-    }
-  } catch (error) {
-    console.error('Error fetching existing mappings:', error);
-  }
-  
-  showModal.value = true;
-};
-
-const closeModal = () => {
-  showModal.value = false;
-  selectedFile.value = null;
-  selectedMembers.value = [];
-  memberSearch.value = '';
-  filteredMembers.value = members.value;
-};
-
-const saveHospital = async () => {
-  if (!formData.value.hospital_name) {
-    alert('거래처명을 입력해주세요.');
-    return;
-  }
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    alert('로그인이 필요합니다.');
-    return;
-  }
-
-  loading.value = true;
-  let filePath = (isEdit.value && formData.value.business_license_file) ? formData.value.business_license_file : null;
-
-  if (selectedFile.value) {
-    const file = selectedFile.value;
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${uuidv4()}.${fileExt}`;
-    
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('hospital-biz-licenses')
-      .upload(fileName, file);
-
-    if (uploadError) {
-      alert('파일 업로드에 실패했습니다: ' + uploadError.message);
-      loading.value = false;
-      return;
-    }
-    filePath = uploadData.path;
-  }
-
-  try {
-    let hospitalId;
-    
-    if (isEdit.value) {
-      const dataToUpdate = {
-        hospital_name: formData.value.hospital_name,
-        business_registration_number: formData.value.business_registration_number,
-        director_name: formData.value.director_name,
-        address: formData.value.address,
-        business_license_file: filePath,
-        updated_at: new Date().toISOString(),
-        updated_by: user.id
-      };
-      const { error } = await supabase.from('hospitals').update(dataToUpdate).eq('id', formData.value.id);
-      if (error) throw error;
-      hospitalId = formData.value.id;
-      alert('거래처 정보가 수정되었습니다.');
-    } else {
-      const dataToInsert = {
-        hospital_name: formData.value.hospital_name,
-        business_registration_number: formData.value.business_registration_number,
-        director_name: formData.value.director_name,
-        address: formData.value.address,
-        business_license_file: filePath,
-        registered_at: new Date().toISOString(),
-        registered_by: user.id
-      };
-      const { data: newHospital, error } = await supabase.from('hospitals').insert(dataToInsert).select('id').single();
-      if (error) throw error;
-      hospitalId = newHospital.id;
-      alert('새로운 거래처가 등록되었습니다.');
-    }
-
-    // 회원 매핑 처리
-    if (selectedMembers.value.length > 0) {
-      // 기존 매핑 삭제 (수정 시)
-      if (isEdit.value) {
-        const { error: deleteError } = await supabase
-          .from('hospital_member_mappings')
-          .delete()
-          .eq('hospital_id', hospitalId);
-        if (deleteError) throw deleteError;
-      }
-
-      // 새로운 매핑 추가
-      const mappingsToInsert = selectedMembers.value.map(memberId => ({
-        hospital_id: hospitalId,
-        member_id: memberId
-      }));
-
-      const { error: mappingError } = await supabase
-        .from('hospital_member_mappings')
-        .insert(mappingsToInsert);
-      
-      if (mappingError) throw mappingError;
-      
-      alert(`거래처와 ${selectedMembers.value.length}명의 회원이 연결되었습니다.`);
-    }
-    
-    closeModal();
-    fetchHospitals(first.value, pageSize.value);
-  } catch (error) {
-    console.error('Error saving hospital:', error);
-    alert('저장 실패: ' + error.message);
-  } finally {
-    loading.value = false;
-  }
-};
-
 const deleteHospital = async (hospital) => {
   if (!confirm(`'${hospital.hospital_name}' 거래처을 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
 
@@ -777,26 +392,13 @@ const deleteHospital = async (hospital) => {
   }
 };
 
-const onFileChange = (event) => {
-  const files = event.target.files;
-  if (files.length > 0) {
-    selectedFile.value = files[0];
-  }
-};
-
-const getPublicUrl = (filePath) => {
-  if (!filePath) return '';
-  const { data } = supabase.storage.from('hospital-biz-licenses').getPublicUrl(filePath);
-  return data.publicUrl;
-};
-
 const openFileModal = async (hospital) => {
   if (!hospital.business_license_file) {
     alert('파일이 존재하지 않습니다.');
     return;
   }
   
-  currentHospital.value = hospital;
+  currentHospitalForFile.value = hospital;
   currentFilePath.value = hospital.business_license_file;
 
   // DB에 저장된 파일 경로를 사용하여 임시 URL 생성
@@ -816,7 +418,7 @@ const openFileModal = async (hospital) => {
 const closeFileModal = () => {
   showFileModal.value = false;
   fileUrl.value = '';
-  currentHospital.value = null;
+  currentHospitalForFile.value = null;
 };
 
 const closeDeleteModal = () => {
@@ -843,7 +445,7 @@ async function showLicenseModal(hospital) {
 }
 
 const downloadFile = async () => {
-  if (!currentFilePath.value || !currentHospital.value) {
+  if (!currentFilePath.value || !currentHospitalForFile.value) {
     alert('다운로드할 파일 정보가 없습니다.');
     return;
   }
@@ -863,7 +465,7 @@ const downloadFile = async () => {
     a.href = url;
     
     const fileExtension = currentFilePath.value.split('.').pop();
-    a.download = `${currentHospital.value.hospital_name}_사업자등록증.${fileExtension}`;
+    a.download = `${currentHospitalForFile.value.hospital_name}_사업자등록증.${fileExtension}`;
     
     document.body.appendChild(a);
     a.click();
@@ -875,55 +477,115 @@ const downloadFile = async () => {
   }
 };
 
-// 회원 관련 함수들
-const fetchMembers = async () => {
+// Data fetching
+const fetchHospitals = async (pageFirst = 0, pageRows = 100) => {
+  loading.value = true;
   try {
-    const { data, error } = await supabase
-      .from('members')
-      .select('id, company_name, manager_name, id_email')
-      .eq('approval', 'approved')
-      .order('company_name');
+    let countQuery = supabase.from('hospitals').select('*', { count: 'exact', head: true });
+    let dataQuery = supabase.from('hospitals').select(`
+      *,
+      creator:registered_by ( company_name ),
+      updater:updated_by ( company_name )
+    `);
+
+    if (appliedSearch.value) {
+      const keyword = `%${appliedSearch.value}%`;
+      const orFilter = `hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword},address.ilike.${keyword}`;
+      countQuery = countQuery.or(orFilter);
+      dataQuery = dataQuery.or(orFilter);
+    }
+
+    // 1. Fetch total count
+    const { count, error: countError } = await countQuery;
+    if (countError) throw countError;
+    totalCount.value = count;
+
+    if (totalCount.value === 0) {
+      hospitals.value = [];
+      loading.value = false;
+      return;
+    }
+
+    // 2. Fetch paginated data
+    const from = pageFirst;
+    const to = from + pageRows - 1;
+
+    dataQuery = dataQuery.range(from, to).order('registered_at', { ascending: false });
+    const { data, error } = await dataQuery;
 
     if (error) throw error;
-    members.value = data;
-    filteredMembers.value = data;
+    
+    // 3. 각 거래처의 연결된 회원 수 계산 및 데이터 변환
+    const hospitalsWithDetails = await Promise.all(
+      data.map(async (hospital) => {
+        // 1. 해당 거래처에 연결된 회원 ID 목록 조회
+        const { data: mappings, error: mappingError } = await supabase
+          .from('hospital_member_mappings')
+          .select('member_id')
+          .eq('hospital_id', hospital.id);
+
+        if (mappingError) {
+          console.error(`Error fetching mappings for hospital ${hospital.id}:`, mappingError);
+          return {
+            ...hospital,
+            creator_name: hospital.creator ? hospital.creator.company_name : '-',
+            updater_name: hospital.updater ? hospital.updater.company_name : '-',
+            member_count: 0,
+            mapped_members: []
+          };
+        }
+
+        const memberIds = mappings.map(m => m.member_id);
+        let mapped_members = [];
+
+        // 2. 조회된 회원 ID로 업체명 목록 조회
+        if (memberIds.length > 0) {
+          const { data: memberDetails, error: memberError } = await supabase
+            .from('members')
+            .select('company_name')
+            .in('id', memberIds);
+
+          if (memberError) {
+            console.error(`Error fetching member details for hospital ${hospital.id}:`, memberError);
+          } else if (memberDetails) {
+            mapped_members = memberDetails.map(m => m.company_name).filter(Boolean);
+          }
+        }
+
+        return {
+          ...hospital,
+          creator_name: hospital.creator ? hospital.creator.company_name : '-',
+          updater_name: hospital.updater ? hospital.updater.company_name : '-',
+          member_count: mapped_members.length,
+          mapped_members
+        };
+      })
+    );
+    hospitals.value = hospitalsWithDetails;
+
   } catch (error) {
-    console.error('Error fetching members:', error);
+    console.error('Error fetching hospitals:', error);
+    alert('데이터 로드 실패: ' + error.message);
+    hospitals.value = [];
+    totalCount.value = 0;
+  } finally {
+    loading.value = false;
   }
 };
 
-const searchMembers = () => {
-  if (!memberSearch.value.trim()) {
-    filteredMembers.value = members.value;
-    return;
-  }
+onMounted(() => {
+  fetchHospitals(0, pageSize.value);
+});
 
-  const searchTerm = memberSearch.value.toLowerCase();
-  filteredMembers.value = members.value.filter(member => 
-    member.company_name.toLowerCase().includes(searchTerm) ||
-    member.manager_name.toLowerCase().includes(searchTerm) ||
-    member.id_email.toLowerCase().includes(searchTerm)
-  );
-};
+// 실시간 검색을 위한 watch 추가
+let debounceTimer = null;
+watch(search, (newValue) => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    first.value = 0;
+    appliedSearch.value = newValue.trim();
+    fetchHospitals(0, pageSize.value);
+  }, 300); // 300ms 디바운스
+});
 
-const toggleMemberSelection = (memberId) => {
-  const index = selectedMembers.value.indexOf(memberId);
-  if (index > -1) {
-    selectedMembers.value.splice(index, 1);
-  } else {
-    selectedMembers.value.push(memberId);
-  }
-};
-
-const removeMember = (memberId) => {
-  const index = selectedMembers.value.indexOf(memberId);
-  if (index > -1) {
-    selectedMembers.value.splice(index, 1);
-  }
-};
-
-const getMemberName = (memberId) => {
-  const member = members.value.find(m => m.id === memberId);
-  return member ? member.company_name : 'Unknown';
-};
 </script>

@@ -4,7 +4,7 @@
     <div class="filter-card">
       <div class="filter-row">
         <span class="p-input-icon-left">
-          <input v-model="search" placeholder="회사명, 사업자등록번호, 대표자명 검색" class="input-search wide-mobile-search" />
+          <input v-model="search" placeholder="아이디, 회사명, 사업자등록번호, 대표자명 검색" class="input-search wide-mobile-search" />
         </span>
           <span>인증</span>
           <select v-model="approval" class="input-120">
@@ -136,13 +136,13 @@ import * as XLSX from 'xlsx';
 // 컬럼 너비 한 곳에서 관리
 const columnWidths = {
   index: '4%',
-  id_email: '10%',
   company_name: '12%',
+  id_email: '10%',
   biz_no: '8%',
   ceo_name: '8%',
-  address: '22%',
-  cso_regist_no: '16%',
-  approval: '8%',
+  address: '20%',
+  cso_regist_no: '12%',
+  approval: '6%',
   grade: '6%',
   created_at: '8%'
 };
@@ -150,8 +150,8 @@ const columnWidths = {
 // 컬럼별 정렬 여부 한 곳에서 관리
 const columnSortables = {
   index: false,
-  id_email: true,
   company_name: true,
+  id_email: true,
   biz_no: true,
   ceo_name: true,
   address: true,
@@ -164,8 +164,8 @@ const columnSortables = {
 // 컬럼별 정렬 방식 한 곳에서 관리
 const columnAligns = {
   index: 'center',
-  id_email: 'left',
   company_name: 'left',
+  id_email: 'left',
   biz_no: 'center',
   ceo_name: 'center',
   address: 'left',
@@ -209,6 +209,7 @@ const filteredMembers = computed(() => {
   if (search.value) {
     const keyword = search.value.toLowerCase();
     result = result.filter(m =>
+      (m.id_email && m.id_email.toLowerCase().includes(keyword)) ||
       (m.company_name && m.company_name.toLowerCase().includes(keyword)) ||
       (m.biz_no && m.biz_no.toLowerCase().includes(keyword)) ||
       (m.ceo_name && m.ceo_name.toLowerCase().includes(keyword))

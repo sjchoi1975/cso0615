@@ -15,11 +15,11 @@
       <label>약가</label>
       <input v-model.number="price" type="number" placeholder="약가" class="input" />
       <label>수수료 등급 A(%)</label>
-      <input v-model.number="commissionA" type="number" step="0.01" placeholder="수수료 A" class="input" />
+      <input v-model.number="commissionA" type="number" step="0.1" placeholder="수수료 A" class="input" />
       <label>수수료 등급 B(%)</label>
-      <input v-model.number="commissionB" type="number" step="0.01" placeholder="수수료 B" class="input" />
+      <input v-model.number="commissionB" type="number" step="0.1" placeholder="수수료 B" class="input" />
       <label>수수료 등급 C(%)</label>
-      <input v-model.number="commissionC" type="number" step="0.01" placeholder="수수료 C" class="input" />
+      <input v-model.number="commissionC" type="number" step="0.1" placeholder="수수료 C" class="input" />
       <label>성분</label>
       <input v-model="ingredient" placeholder="성분" class="input" />
       <label>대조약</label>

@@ -116,28 +116,28 @@
             {{ slotProps.data.price?.toLocaleString() }}
           </template>
         </Column>
-        <Column field="commission_rate_a" header="A등급수수료"
+        <Column field="commission_rate_a" header="수수료 A"
           :sortable="columnSortables.commission_rate_a"
           :style="{ width: columnWidths.commission_rate_a }"
           :bodyStyle="{ textAlign: columnAligns.commission_rate_a }">
           <template #body="slotProps">
-            {{ slotProps.data.commission_rate_a !== null ? `${slotProps.data.commission_rate_a}%` : '' }}
+            {{ formatCommissionRate(slotProps.data.commission_rate_a) }}
           </template>
         </Column>
-        <Column field="commission_rate_b" header="B등급수수료"
+        <Column field="commission_rate_b" header="수수료 B"
           :sortable="columnSortables.commission_rate_b"
           :style="{ width: columnWidths.commission_rate_b }"
           :bodyStyle="{ textAlign: columnAligns.commission_rate_b }">
           <template #body="slotProps">
-            {{ slotProps.data.commission_rate_b !== null ? `${slotProps.data.commission_rate_b}%` : '' }}
+            {{ formatCommissionRate(slotProps.data.commission_rate_b) }}
           </template>
         </Column>
-        <Column field="commission_rate_c" header="C등급수수료"
+        <Column field="commission_rate_c" header="수수료 C"
           :sortable="columnSortables.commission_rate_c"
           :style="{ width: columnWidths.commission_rate_c }"
           :bodyStyle="{ textAlign: columnAligns.commission_rate_c }">
           <template #body="slotProps">
-            {{ slotProps.data.commission_rate_c !== null ? `${slotProps.data.commission_rate_c}%` : '' }}
+            {{ formatCommissionRate(slotProps.data.commission_rate_c) }}
           </template>
         </Column>
         <Column field="Ingredient" header="성분명"
@@ -238,6 +238,8 @@ import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
 import Paginator from 'primevue/paginator';
 import Button from 'primevue/button';
+import AdminProductsCreate from './AdminProductsCreate.vue';
+import AdminProductsEdit from './AdminProductsEdit.vue';
 
 // 컬럼 속성 정의
 const columnWidths = {
@@ -289,9 +291,9 @@ const columnAligns = {
   product_name: 'left',
   insurance_code: 'center',
   price: 'right',
-  commission_rate_a: 'right',
-  commission_rate_b: 'right',
-  commission_rate_c: 'right',
+  commission_rate_a: 'center',
+  commission_rate_b: 'center',
+  commission_rate_c: 'center',
   Ingredient: 'left',
   comparator: 'left',
   reimbursement: 'center',
@@ -582,5 +584,14 @@ const isSearchActive = computed(() => {
 
 const getStatusClass = (status) => {
   return status === 'active' ? 'active' : 'inactive';
+};
+
+const formatCommissionRate = (rate) => {
+  if (rate === null || typeof rate === 'undefined' || isNaN(rate)) {
+    return '';
+  }
+  const percentage = parseFloat(rate) * 100;
+  // 소수점 1자리까지 반올림하고 불필요한 0을 제거
+  return `${Number(percentage.toFixed(1))}%`;
 };
 </script>

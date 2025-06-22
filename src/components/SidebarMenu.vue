@@ -208,5 +208,6 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
     padding-left: 2rem;
   }
 }
+
 </style>
 
