@@ -1,11 +1,12 @@
 <template>
-  <div class="admin-hospitals-view page-container">
+  <div class="page-container">
     <!-- Filter Card -->
     <div class="filter-card custom-auto-height">
       <div class="filter-row">
         <span class="p-input-icon-left">
-          <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search" />
+          <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search" @keyup.enter="applySearch" />
         </span>
+        <button class="btn-search" @click="applySearch">조회</button>
       </div>
     </div>
 
@@ -13,12 +14,13 @@
     <div class="function-card custom-auto-height">
       <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}개 거래처</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
+        <button class="btn-add" @click="downloadExcel">엑셀 다운로드</button>
         <button class="btn-add" @click="openCreateModal">거래처 등록</button>
       </div>
     </div>
 
     <!-- Table Card -->
-    <div class="table-card admin-hospitals-view-table">
+    <div class="table-card user-hospitals-view-table">
       <DataTable
         :value="hospitals"
         :loading="loading"
@@ -33,7 +35,7 @@
           </template>
         </Column>
         <Column field="hospital_name" header="거래처명" :sortable="columnSortables.hospital_name" :style="{ width: columnWidths.hospital_name }" :bodyStyle="{ textAlign: columnAligns.hospital_name }"></Column>
-        <Column field="business_registration_number" header="사업자등록번호" :sortable="columnSortables.business_registration_number" :style="{ width: columnWidths.business_registration_number }" :bodyStyle="{ textAlign: columnAligns.business_registration_number }"></Column>
+        <Column field="business_registration_number" header="사업자번호" :sortable="columnSortables.business_registration_number" :style="{ width: columnWidths.business_registration_number }" :bodyStyle="{ textAlign: columnAligns.business_registration_number }"></Column>
         <Column field="director_name" header="원장명" :sortable="columnSortables.director_name" :style="{ width: columnWidths.director_name }" :bodyStyle="{ textAlign: columnAligns.director_name }"></Column>
         <Column field="address" header="주소" :sortable="columnSortables.address" :style="{ width: columnWidths.address }" :bodyStyle="{ textAlign: columnAligns.address }"></Column>
         <Column header="사업자등록증" :style="{ width: columnWidths.license }" :bodyStyle="{ textAlign: columnAligns.license }">
@@ -42,14 +44,24 @@
             <span v-else>-</span>
           </template>
         </Column>
-        <Column field="registered_at" header="등록일자" :sortable="columnSortables.registered_at" :style="{ width: columnWidths.created_at }" :bodyStyle="{ textAlign: columnAligns.created_at }">
+        <Column field="registered_at" header="등록일자" :sortable="columnSortables.registered_at" :style="{ width: columnWidths.registered_at }" :bodyStyle="{ textAlign: columnAligns.registered_at }">
           <template #body="slotProps">
             {{ formatDate(slotProps.data.registered_at) }}
           </template>
         </Column>
-        <Column header="등록자" :style="{ width: columnWidths.registrar }" :bodyStyle="{ textAlign: columnAligns.registrar }">
+        <Column field="creator_name" header="등록자" :style="{ width: columnWidths.creator_name }" :bodyStyle="{ textAlign: columnAligns.creator_name }">
           <template #body="slotProps">
-            {{ slotProps.data.registrar?.name }}
+            {{ slotProps.data.creator_name || '-' }}
+          </template>
+        </Column>
+        <Column field="updated_at" header="수정일자" :sortable="columnSortables.updated_at" :style="{ width: columnWidths.updated_at }" :bodyStyle="{ textAlign: columnAligns.updated_at }">
+          <template #body="slotProps">
+            {{ slotProps.data.updated_at ? formatDate(slotProps.data.updated_at) : '-' }}
+          </template>
+        </Column>
+        <Column field="updater_name" header="수정자" :style="{ width: columnWidths.updater_name }" :bodyStyle="{ textAlign: columnAligns.updater_name }">
+          <template #body="slotProps">
+            {{ slotProps.data.updater_name || '-' }}
           </template>
         </Column>
         <Column header="수정" :style="{ width: columnWidths.edit }" :bodyStyle="{ textAlign: columnAligns.edit }">
@@ -57,9 +69,9 @@
             <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="openEditModal(slotProps.data)" />
           </template>
         </Column>
-        <Column header="연결 해제" :style="{ width: columnWidths.delete }" :bodyStyle="{ textAlign: columnAligns.delete }">
+        <Column header="삭제" :style="{ width: columnWidths.delete }" :bodyStyle="{ textAlign: columnAligns.delete }">
           <template #body="slotProps">
-            <Button icon="pi pi-unlink" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteHospital(slotProps.data)" />
+            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDeleteMapping(slotProps.data)" />
           </template>
         </Column>
       </DataTable>
@@ -67,7 +79,7 @@
         <img src="/spinner.svg" alt="로딩중" />
       </div>
     </div>
-    
+
     <!-- Paginator -->
     <div class="fixed-paginator">
       <Paginator
@@ -79,46 +91,42 @@
       />
     </div>
 
-    <!-- Hospital Create/Edit Modal -->
-    <div v-if="showModal" class="custom-modal-overlay">
-      <div class="custom-modal">
-        <div class="modal-header">
-          <h3 class="modal-title">{{ isEdit ? '거래처 수정' : '거래처 등록' }}</h3>
-          <button class="btn-close" @click="closeModal">×</button>
+    <!-- Hospital Create/Edit Dialog -->
+    <Dialog v-model:visible="showModal" :header="isEdit ? '거래처 수정' : '거래처 등록'" :modal="true" :style="{ width: '500px' }">
+      <div class="p-fluid">
+        <div class="p-field">
+          <label for="hospital_name">거래처명 *</label>
+          <InputText id="hospital_name" v-model="formData.hospital_name" required />
         </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">거래처명 *</label>
-            <input v-model="formData.hospital_name" type="text" class="input-field" placeholder="거래처명을 입력하세요" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">사업자등록번호 *</label>
-            <input v-model="formData.business_registration_number" type="text" class="input-field" placeholder="사업자등록번호를 입력하세요" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">원장명 *</label>
-            <input v-model="formData.director_name" type="text" class="input-field" placeholder="원장명을 입력하세요" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">주소 *</label>
-            <input v-model="formData.address" type="text" class="input-field" placeholder="주소를 입력하세요" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">사업자등록증</label>
-            <input type="file" @change="onFileChange" style="position: relative; z-index: 1;" />
-            <a v-if="isEdit && formData.business_license_file" :href="getPublicUrl(formData.business_license_file)" target="_blank" class="file-link">
-              현재 파일 보기
-            </a>
-          </div>
+        <div class="p-field">
+          <label for="biz_no">사업자등록번호 *</label>
+          <InputText id="biz_no" v-model="formData.business_registration_number" required />
         </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">취소</button>
-          <button class="btn-primary" @click="saveHospital" :disabled="!isFormValid || loading">
-            {{ loading ? '저장 중...' : (isEdit ? '수정' : '등록') }}
-          </button>
+        <div class="p-field">
+          <label for="director">원장명 *</label>
+          <InputText id="director" v-model="formData.director_name" required />
+        </div>
+        <div class="p-field">
+          <label for="address">주소 *</label>
+          <InputText id="address" v-model="formData.address" required />
+        </div>
+        <div class="p-field">
+          <label for="license">사업자등록증</label>
+          <FileUpload name="licenseFile" @select="onFileChange" :showUploadButton="false" :showCancelButton="false" :customUpload="true" accept="image/*,application/pdf">
+             <template #empty>
+                <p>파일을 여기에 끌어다 놓거나 선택하세요.</p>
+             </template>
+          </FileUpload>
+          <a v-if="isEdit && formData.business_license_file" :href="getPublicUrl(formData.business_license_file)" target="_blank" class="file-link">
+            현재 파일 보기
+          </a>
         </div>
       </div>
-    </div>
+      <template #footer>
+        <Button label="취소" icon="pi pi-times" @click="closeModal" class="p-button-text"/>
+        <Button :label="isEdit ? '수정' : '등록'" icon="pi pi-check" @click="saveHospital" :loading="loading" />
+      </template>
+    </Dialog>
 
     <!-- File Viewer Modal -->
     <div v-if="showFileModal" class="custom-modal-overlay">
@@ -128,12 +136,14 @@
           <button class="btn-close" @click="closeFileModal">×</button>
         </div>
         <div class="modal-body">
-          <img v-if="fileUrl" :src="fileUrl" alt="사업자등록증" style="width: 100%;" />
-          <p v-else>이미지를 불러올 수 없습니다.</p>
+          <object v-if="isPdfFile" :data="fileUrl" type="application/pdf" style="width: 100%; height: 70vh;">
+            <p>PDF 뷰어를 로드할 수 없습니다. <a :href="fileUrl" target="_blank">여기서 다운로드</a>하여 확인해주세요.</p>
+          </object>
+          <img v-else :src="fileUrl" alt="사업자등록증" style="width: 100%; max-height: 70vh; object-fit: contain;" />
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" @click="closeFileModal">닫기</button>
-          <a :href="fileUrl" download class="btn-primary" style="text-decoration: none;">다운로드</a>
+          <button class="btn-primary" @click="downloadFile">다운로드</button>
         </div>
       </div>
     </div>
@@ -153,12 +163,13 @@
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" @click="closeDeleteModal">취소</button>
-          <button class="btn-danger" @click="confirmDelete" :disabled="loading">
+          <button class="btn-danger" @click="deleteMapping" :disabled="loading">
             {{ loading ? '해제 중...' : '연결 해제' }}
           </button>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -168,30 +179,38 @@ import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import * as XLSX from 'xlsx';
 import Paginator from 'primevue/paginator';
+import Dialog from 'primevue/dialog';
+import InputText from 'primevue/inputtext';
+import FileUpload from 'primevue/fileupload';
+import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 
 // Column definitions
 const columnWidths = {
-  index: '5%',
-  hospital_name: '15%',
-  business_registration_number: '10%',
-  director_name: '10%',
-  address: '19%',
-  license: '8%',
-  created_at: '10%',
-  registrar: '10%',
-  edit: '8%',
-  delete: '8%'
+  index: '4%',
+  hospital_name: '16%',
+  business_registration_number: '8%',
+  director_name: '8%',
+  address: '18%',
+  license: '6%',
+  registered_at: '6%',
+  creator_name: '8%',
+  updated_at: '6%',
+  updater_name: '8%',
+  edit: '6%',
+  delete: '6%',
 };
+
 const columnSortables = {
   hospital_name: true,
   business_registration_number: true,
   director_name: true,
   address: true,
   registered_at: true,
+  updated_at: true,
 };
+
 const columnAligns = {
   index: 'center',
   hospital_name: 'left',
@@ -199,8 +218,10 @@ const columnAligns = {
   director_name: 'center',
   address: 'left',
   license: 'center',
-  created_at: 'center',
-  registrar: 'center',
+  registered_at: 'center',
+  creator_name: 'center',
+  updated_at: 'center',
+  updater_name: 'center',
   edit: 'center',
   delete: 'center'
 };
@@ -212,7 +233,8 @@ const search = ref('');
 const first = ref(0);
 const totalCount = ref(0);
 const pageSize = ref(100);
-const tableRef = ref(null);
+const appliedSearch = ref('');
+const currentFilePath = ref(null);
 
 // Modal state
 const showModal = ref(false);
@@ -221,8 +243,8 @@ const showFileModal = ref(false);
 const isEdit = ref(false);
 const hospitalToDelete = ref(null);
 const fileUrl = ref('');
-const currentFilePath = ref(null);
 const selectedFile = ref(null);
+const currentHospital = ref(null);
 const formData = ref({
   id: null,
   hospital_name: '',
@@ -236,6 +258,12 @@ const isFormValid = computed(() => {
   return formData.value.hospital_name && formData.value.business_registration_number && formData.value.director_name && formData.value.address;
 });
 
+const isPdfFile = computed(() => {
+  if (!currentFilePath.value) return false;
+  const extension = currentFilePath.value.split('.').pop()?.toLowerCase();
+  return extension === 'pdf';
+});
+
 // 날짜 포맷팅 함수
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -246,66 +274,94 @@ const formatDate = (dateString) => {
   return `${year}-${month}-${day}`;
 };
 
-const fetchHospitals = async (page = 0, rows = pageSize.value) => {
-  loading.value = true;
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    loading.value = false;
-    return;
-  }
+// 데이터 조회
+const fetchHospitals = async (pageFirst = 0, pageRows = 100) => {
+    loading.value = true;
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            hospitals.value = [];
+            totalCount.value = 0;
+            loading.value = false;
+            return;
+        }
 
-  try {
-    // 1. 사용자와 연결된 '매핑'을 먼저 조회합니다.
-    const columnsToSelect = `
-      mapping_id:id,
-      hospitals (
-        id,
-        hospital_name,
-        business_registration_number,
-        director_name,
-        address,
-        business_license_file,
-        registered_at,
-        registrar:members!hospitals_registered_by_fkey(name)
-      )
-    `;
+        let query = supabase
+            .from('hospital_member_mappings')
+            .select(`
+                id,
+                hospital:hospitals!inner (
+                    *,
+                    creator:registered_by ( company_name ),
+                    updater:updated_by ( company_name )
+                )
+            `, { count: 'exact' })
+            .eq('member_id', user.id);
 
-    let query = supabase
-      .from('hospital_member_mappings')
-      .select(columnsToSelect, { count: 'exact' })
-      .eq('member_id', user.id);
+        if (appliedSearch.value) {
+            const keyword = `%${appliedSearch.value}%`;
+            query = query.or(
+                `hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword},address.ilike.${keyword}`,
+                { referencedTable: 'hospitals' }
+            );
+        }
 
-    // 2. 검색어가 있는 경우, 연결된 hospitals 테이블을 기준으로 필터링합니다.
-    if (search.value) {
-      const keyword = `%${search.value}%`;
-      query.or(
-        `hospitals.hospital_name.ilike.${keyword},` +
-        `hospitals.business_registration_number.ilike.${keyword},` +
-        `hospitals.director_name.ilike.${keyword},` +
-        `hospitals.address.ilike.${keyword}`
-      );
+        const from = pageFirst;
+        const to = from + pageRows - 1;
+
+        const { data, error, count } = await query.range(from, to).order('created_at', { ascending: false });
+
+        if (error) throw error;
+        
+        hospitals.value = data.map(item => ({
+            ...item.hospital,
+            creator_name: item.hospital.creator ? item.hospital.creator.company_name : '-',
+            updater_name: item.hospital.updater ? item.hospital.updater.company_name : '-',
+            mapping_id: item.id
+        }));
+        totalCount.value = count || 0;
+
+    } catch (error) {
+        console.error('Error fetching hospitals:', error);
+        alert('데이터를 불러오는 데 실패했습니다: ' + error.message);
+        hospitals.value = [];
+        totalCount.value = 0;
+    } finally {
+        loading.value = false;
     }
-    
-    // 3. 페이지네이션 및 정렬 적용
-    const { data, error, count } = await query
-      .order('registered_at', { foreignTable: 'hospitals', ascending: false })
-      .range(page * rows, (page + 1) * rows - 1);
+};
 
-    if (error) throw error;
+const getPublicUrl = (filePath) => {
+  if (!filePath) return '';
+  const { data } = supabase.storage.from('hospital-biz-licenses').getPublicUrl(filePath);
+  return data.publicUrl;
+};
 
-    // 4. 받아온 데이터를 화면에 맞는 형식으로 가공합니다.
-    hospitals.value = data.map(item => ({
-      ...item.hospitals,
-      mapping_id: item.mapping_id // 연결 해제를 위해 매핑 ID도 저장
-    }));
-    totalCount.value = count || 0;
-
-  } catch (error) {
-    console.error('Error fetching hospitals:', error);
-    alert('데이터를 불러오는 데 실패했습니다: ' + error.message);
-  } finally {
-    loading.value = false;
+// 모달 및 파일 관련 함수
+const onFileChange = (event) => {
+  // PrimeVue FileUpload의 event.files는 배열입니다.
+  const files = event.files;
+  if (files.length > 0) {
+    selectedFile.value = files[0];
   }
+};
+
+const openCreateModal = () => {
+  isEdit.value = false;
+  formData.value = { id: null, hospital_name: '', business_registration_number: '', director_name: '', address: '', business_license_file: null };
+  selectedFile.value = null;
+  showModal.value = true;
+};
+
+const openEditModal = (hospital) => {
+  isEdit.value = true;
+  formData.value = { ...hospital };
+  selectedFile.value = null;
+  showModal.value = true;
+};
+
+const closeModal = () => {
+  showModal.value = false;
 };
 
 const saveHospital = async () => {
@@ -329,7 +385,7 @@ const saveHospital = async () => {
     }
     const file = selectedFile.value;
     const fileExt = file.name.split('.').pop();
-    const fileName = `${uuidv4()}.${fileExt}`;
+    const fileName = `${user.id}/${uuidv4()}.${fileExt}`;
     const { data: uploadData, error: uploadError } = await supabase.storage.from('hospital-biz-licenses').upload(fileName, file);
 
     if (uploadError) {
@@ -342,7 +398,7 @@ const saveHospital = async () => {
 
   try {
     if (isEdit.value) {
-      const dataToUpdate = {
+      const { error } = await supabase.from('hospitals').update({
         hospital_name: formData.value.hospital_name,
         business_registration_number: formData.value.business_registration_number,
         director_name: formData.value.director_name,
@@ -350,31 +406,30 @@ const saveHospital = async () => {
         business_license_file: filePath,
         updated_at: new Date().toISOString(),
         updated_by: user.id
-      };
-      const { error } = await supabase.from('hospitals').update(dataToUpdate).eq('id', formData.value.id);
+      }).eq('id', formData.value.id);
       if (error) throw error;
       alert('거래처 정보가 수정되었습니다.');
     } else {
-      const dataToInsert = {
+      const { data: newHospital, error: insertError } = await supabase.from('hospitals').insert({
         hospital_name: formData.value.hospital_name,
         business_registration_number: formData.value.business_registration_number,
         director_name: formData.value.director_name,
         address: formData.value.address,
         business_license_file: filePath,
-        registered_at: new Date().toISOString(),
         registered_by: user.id
-      };
-      const { data: newHospital, error: insertError } = await supabase.from('hospitals').insert(dataToInsert).select();
+      }).select('id').single();
       if (insertError) throw insertError;
 
-      const { error: mappingError } = await supabase.from('hospital_member_mappings').insert({ hospital_id: newHospital[0].id, member_id: user.id });
+      const { error: mappingError } = await supabase.from('hospital_member_mappings').insert({
+        hospital_id: newHospital.id,
+        member_id: user.id
+      });
       if (mappingError) throw mappingError;
 
-      alert('새로운 거래처가 등록되었습니다.');
+      alert('새로운 거래처가 등록 및 연결되었습니다.');
     }
-    
     closeModal();
-    fetchHospitals(first.value, pageSize.value);
+    fetchHospitals();
   } catch (error) {
     console.error('Error saving hospital:', error);
     alert('저장 실패: ' + error.message);
@@ -383,56 +438,24 @@ const saveHospital = async () => {
   }
 };
 
-const openCreateModal = () => {
-  isEdit.value = false;
-  formData.value = { id: null, hospital_name: '', business_registration_number: '', director_name: '', address: '', business_license_file: null };
-  selectedFile.value = null;
-  showModal.value = true;
+// 검색 적용
+const applySearch = () => {
+  first.value = 0;
+  appliedSearch.value = search.value;
+  fetchHospitals(0, pageSize.value);
 };
 
-const openEditModal = (hospital) => {
-  isEdit.value = true;
-  formData.value = { ...hospital };
-  selectedFile.value = null;
-  showModal.value = true;
+// 페이지 변경
+const onPageChange = (event) => {
+  first.value = event.first;
+  pageSize.value = event.rows;
+  fetchHospitals(event.first, event.rows);
 };
 
-const closeModal = () => {
-  showModal.value = false;
-};
-
-const deleteHospital = async (hospital) => {
-  hospitalToDelete.value = hospital;
-  showDeleteModal.value = true;
-};
-
-const confirmDelete = async () => {
-  if (!hospitalToDelete.value || !hospitalToDelete.value.mapping_id) {
-    alert('삭제할 항목의 정보가 올바르지 않습니다.');
-    return;
-  }
-  loading.value = true;
-  try {
-    // 이제 hospitalToDelete.value에 있는 mapping_id를 사용합니다.
-    await supabase.from('hospital_member_mappings').delete().eq('id', hospitalToDelete.value.mapping_id);
-    alert('거래처와의 연결이 해제되었습니다.');
-    fetchHospitals(first.value, pageSize.value);
-  } catch (error) {
-    console.error('Error unmapping hospital:', error);
-    alert('연결 해제 실패: ' + error.message);
-  } finally {
-    loading.value = false;
-    closeDeleteModal();
-  }
-};
-
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-  hospitalToDelete.value = null;
-};
-
+// 파일 모달 열기
 const openFileModal = async (hospital) => {
   if (!hospital.business_license_file) return;
+  currentHospital.value = hospital;
   currentFilePath.value = hospital.business_license_file;
   const { data, error } = await supabase.storage.from('hospital-biz-licenses').createSignedUrl(currentFilePath.value, 60);
   if (error) {
@@ -443,21 +466,31 @@ const openFileModal = async (hospital) => {
   showFileModal.value = true;
 };
 
+// 파일 모달 닫기
 const closeFileModal = () => {
   showFileModal.value = false;
   fileUrl.value = '';
   currentFilePath.value = null;
+  currentHospital.value = null;
 };
 
+// 파일 다운로드
 const downloadFile = async () => {
-  if (!currentFilePath.value) return;
+  if (!currentFilePath.value || !currentHospital.value) {
+    alert('다운로드할 파일 정보가 없습니다.');
+    return;
+  }
   try {
     const { data: blob, error } = await supabase.storage.from('hospital-biz-licenses').download(currentFilePath.value);
     if (error) throw error;
+
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = currentFilePath.value.split('/').pop();
+    
+    const fileExtension = currentFilePath.value.split('.').pop();
+    a.download = `${currentHospital.value.hospital_name}_사업자등록증.${fileExtension}`;
+    
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -468,37 +501,83 @@ const downloadFile = async () => {
   }
 };
 
-const onFileChange = (event) => {
-  const files = event.target.files;
-  if (files.length > 0) {
-    selectedFile.value = files[0];
+const downloadExcel = async () => {
+    loading.value = true;
+    try {
+        const { data: allData, error } = await supabase
+            .from('user_hospitals_view')
+            .select('*')
+            .order('registered_at', { ascending: false });
+
+        if (error) throw error;
+
+        const formattedData = allData.map((item, index) => ({
+            '순번': index + 1,
+            '거래처명': item.hospital_name,
+            '사업자등록번호': item.business_registration_number,
+            '원장명': item.director_name,
+            '주소': item.address,
+            '등록일자': formatDate(item.registered_at),
+            '등록자': item.creator_name || 'N/A',
+            '수정일자': item.updated_at ? formatDate(item.updated_at) : '-',
+            '수정자': item.updater_name || 'N/A'
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(formattedData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, '거래처 목록');
+        XLSX.writeFile(workbook, `거래처목록_${formatDate(new Date())}.xlsx`);
+
+    } catch (err) {
+        alert('엑셀 다운로드 중 오류가 발생했습니다: ' + err.message);
+    } finally {
+        loading.value = false;
+    }
+};
+
+// 삭제 확인 모달 열기
+const confirmDeleteMapping = (hospital) => {
+  hospitalToDelete.value = hospital;
+  showDeleteModal.value = true;
+};
+
+// 삭제 모달 닫기
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+  hospitalToDelete.value = null;
+};
+
+// 매핑 삭제
+const deleteMapping = async () => {
+  if (!hospitalToDelete.value) return;
+  loading.value = true;
+  try {
+    const { error } = await supabase
+      .from('hospital_member_mappings')
+      .delete()
+      .eq('id', hospitalToDelete.value.mapping_id);
+    
+    if (error) throw error;
+    
+    alert('거래처 연결이 해제되었습니다.');
+    fetchHospitals();
+
+  } catch (error) {
+    alert('연결 해제 중 오류가 발생했습니다: ' + error.message);
+  } finally {
+    loading.value = false;
+    closeDeleteModal();
   }
 };
 
-const onPageChange = (event) => {
-  first.value = event.first;
-  pageSize.value = event.rows;
-  fetchHospitals(event.page, event.rows);
-};
-
-let searchTimeout;
-watch(search, (newValue) => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    fetchHospitals(0, pageSize.value);
-  }, 500);
-});
-
 onMounted(() => {
-  fetchHospitals(0, pageSize.value);
+  fetchHospitals();
 });
-</script>
 
-<style>
-.file-link {
-  display: inline-block;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #007bff;
-}
-</style>
+watch(search, (newValue) => {
+  if (newValue === '') {
+    applySearch();
+  }
+});
+
+</script>

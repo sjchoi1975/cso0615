@@ -1025,14 +1025,6 @@ nav a:first-of-type {
   white-space: nowrap !important;
 }
 
-.modai-title {
-  color: var(--text-primary) !important;
-  font-size: var(--font-size-140) !important;
-  font-weight: 600 !important;
-  margin-bottom: 1rem !important;
-  padding: 0 !important;
-}
-
 label {
   font-size: var(--font-size-base) !important;
   display: block !important;
@@ -1133,22 +1125,23 @@ label {
 /* 모달 스타일
 /* ========================================================================================================= */
 
+
 .custom-modal {
   position: relative;
   background: #fff;
   border-radius: var(--border-radius) !important;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 2rem !important;
+  padding: 0 !important;
   min-width: 640px;
   max-width: 90vw;
   min-height: 180px;
   max-height: 90vh;
-  padding-bottom: 4rem; /* 버튼 높이만큼 여유 */
 }
 
 @media (max-width: 768px) {
   .custom-modal {
-    padding: 2rem !important;
+    padding: 0 !important;
+    border-radius: var(--border-radius) !important;
     min-width: 320px !important;
     max-width: 90vw !important;
     min-height: 240px !important;
@@ -1156,20 +1149,55 @@ label {
   }
 }
 
+.modal-header {
+  display: block;
+  padding: 0 !important;
+  padding: 0.75rem 2rem !important;
+  border-top-left-radius: var(--border-radius) !important;
+  border-top-right-radius: var(--border-radius) !important;
+  margin-bottom: 2rem !important;
+  background-color: var(--primary) !important;
+  
+ }
+
+.modal-title {
+  font-size: var(--font-size-140) !important;
+  font-weight: 500 !important;
+  color: #fff !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .modal-body label {
   display: block;
-  margin-bottom: 1rem;
+  padding: 0.5rem 2rem 1rem 2rem!important;
+}
+
+.input-mordal {
+  width: calc(100% - 4rem) !important;
+  align-items: center !important;
+  margin-top: 0rem !important;
+  margin-bottom: 0.5rem !important;
+  margin-left: 2rem !important;
+  margin-right: 2rem !important;
+  padding: 0.75rem 1rem !important;
+  border: 1px solid #888 !important;
+  border-radius: var(--border-radius-) !important;
+  font-size: var(--font-size-base) !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important; /* 부드러운 전환 효과 (선택사항) */
+}
+
+.input-mordal:focus {
+  border-color: var(--primary) !important; /* 테두리 색상을 primary 색상으로 변경 */
+  outline: 2px solid var(--primary-light) !important; /* 외곽선 추가 */
 }
 
 .modal-footer {
-  position: absolute;
-  right: 2rem;
-  bottom: 2rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  width: calc(100% - 4rem);
-  background: none;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 1rem !important; 
+  padding: 2rem !important;
+  background: none !important;
 }
 
 /* 모달 배경 투명도 */
@@ -1182,6 +1210,7 @@ label {
   align-items: center;
   justify-content: center;
 }
+
 
 
 /* PrimeVue 캘린더가 커스텀 모달 위에 오도록 z-index 설정 */
@@ -1811,7 +1840,7 @@ button.p-paginator-page:hover {
 
 /* 공지사항 확장 스타일 */
 .notice-expansion {
-  padding: 1.5rem;
+  padding: 1rem;
   background-color: #f8f9fa;
   border-top: 1px solid #dee2e6;
 }
@@ -1838,5 +1867,150 @@ button.p-paginator-page:hover {
     font-size: var(--font-size-95);
   }
 }
+
+
+
+/* ========================================================================================================= */
+/* 거래처 관리 - 회원 선택 관련 스타일
+/* ========================================================================================================= */
+
+
+/* 회원 선택 관련 스타일 */
+.member-selection {
+  margin-top: 0.5rem;
+}
+
+.member-search {
+  margin-bottom: 0.5rem;
+}
+
+.member-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+}
+
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.member-item:hover {
+  background-color: #e9ecef;
+}
+
+.member-item.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.member-info {
+  flex: 1;
+}
+
+.member-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.member-details {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.2rem;
+}
+
+.member-item.selected .member-details {
+  color: #ccc;
+}
+
+.member-checkbox {
+  margin-left: 0.5rem;
+}
+
+.no-results {
+  padding: 1rem;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.selected-members {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.selected-title {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.selected-member {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  background-color: #007bff;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+.remove-member {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-member:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+}
+
+.member-count {
+  background-color: #007bff;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.mapped-members {
+  background-color: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+
 
 

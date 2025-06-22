@@ -4,17 +4,17 @@
     <div class="filter-card custom-auto-height">
       <div class="filter-row">
         <span>업체</span>
-        <select v-model="selectedMember" class="filter-dropdown">
+        <select v-model="selectedMember" class="input-240">
           <option value="">- 전체 -</option>
           <option v-for="member in memberOptions" :key="member.uid" :value="member.uid">{{ member.company_name }}</option>
         </select>
         <span>거래처명</span>
-        <select v-model="selectedHospital" class="filter-dropdown">
+        <select v-model="selectedHospital" class="input-240">
           <option value="">- 전체 -</option>
           <option v-for="hospital in hospitalOptions" :key="hospital.id" :value="hospital.id">{{ hospital.hospital_name }}</option>
         </select>
         <span>제약사</span>
-        <select v-model="selectedPharma" class="filter-dropdown">
+        <select v-model="selectedPharma" class="input-240">
           <option value="">- 전체 -</option>
           <option v-for="pharma in pharmaOptions" :key="pharma.id" :value="pharma.id">{{ pharma.company_name }}</option>
         </select>

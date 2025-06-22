@@ -49,12 +49,44 @@
             <span v-else>-</span>
           </template>
         </Column>
-        <Column field="registered_at" header="등록일자" :sortable="columnSortables.registered_at" :style="{ width: columnWidths.created_at }" :bodyStyle="{ textAlign: columnAligns.created_at }">
+        <Column header="연결회원" :style="{ width: columnWidths.member_count }" :bodyStyle="{ textAlign: columnAligns.member_count }">
+          <template #body="slotProps">
+            <span v-if="slotProps.data.member_count > 0" class="member-count">
+              {{ slotProps.data.member_count }}명
+            </span>
+            <span v-else>-</span>
+          </template>
+        </Column>
+        <Column header="연결 업체" :style="{ width: columnWidths.mapped_members }" :bodyStyle="{ textAlign: columnAligns.mapped_members }">
+          <template #body="slotProps">
+            <div v-if="slotProps.data.mapped_members && slotProps.data.mapped_members.length > 0">
+              <div v-for="(company, index) in slotProps.data.mapped_members" :key="index">
+                {{ company }}
+              </div>
+            </div>
+            <span v-else>-</span>
+          </template>
+        </Column>
+        <Column field="registered_at" header="등록일자" :sortable="columnSortables.registered_at" :style="{ width: columnWidths.registered_at }" :bodyStyle="{ textAlign: columnAligns.registered_at }">
           <template #body="slotProps">
             {{ formatDate(slotProps.data.registered_at) }}
           </template>
         </Column>
-        <Column field="registrar" header="등록자" :style="{ width: columnWidths.registrar }" :bodyStyle="{ textAlign: columnAligns.registrar }"></Column>
+        <Column field="creator_name" header="등록자" :style="{ width: columnWidths.creator_name }" :bodyStyle="{ textAlign: columnAligns.creator_name }">
+          <template #body="slotProps">
+            {{ slotProps.data.creator_name || '-' }}
+          </template>
+        </Column>
+        <Column field="updated_at" header="수정일자" :sortable="columnSortables.updated_at" :style="{ width: columnWidths.updated_at }" :bodyStyle="{ textAlign: columnAligns.updated_at }">
+          <template #body="slotProps">
+            {{ slotProps.data.updated_at ? formatDate(slotProps.data.updated_at) : '-' }}
+          </template>
+        </Column>
+        <Column field="updater_name" header="수정자" :style="{ width: columnWidths.updater_name }" :bodyStyle="{ textAlign: columnAligns.updater_name }">
+          <template #body="slotProps">
+            {{ slotProps.data.updater_name || '-' }}
+          </template>
+        </Column>
         <Column header="수정" :style="{ width: columnWidths.edit }" :bodyStyle="{ textAlign: columnAligns.edit }">
           <template #body="slotProps">
             <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="openEditModal(slotProps.data)" />
@@ -82,36 +114,87 @@
       />
     </div>
 
-    <!-- Hospital Create/Edit Modal -->
+    <!-- 거래처 등록, 수정 모달 -->
     <div v-if="showModal" class="custom-modal-overlay">
       <div class="custom-modal">
         <div class="modal-header">
           <h3 class="modal-title">{{ isEdit ? '거래처 수정' : '거래처 등록' }}</h3>
-          <button class="btn-close" @click="closeModal">×</button>
         </div>
+
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label">거래처명 *</label>
-            <input v-model="formData.hospital_name" type="text" class="input-field" placeholder="거래처명을 입력하세요" required />
+            <input v-model="formData.hospital_name" type="text" class="input-mordal" placeholder="거래처명을 입력하세요" required />
           </div>
           <div class="form-group">
             <label class="form-label">사업자등록번호 *</label>
-            <input v-model="formData.business_registration_number" type="text" class="input-field" placeholder="사업자등록번호를 입력하세요" required />
+            <input v-model="formData.business_registration_number" type="text" class="input-mordal" placeholder="사업자등록번호를 입력하세요" required />
           </div>
           <div class="form-group">
             <label class="form-label">원장명 *</label>
-            <input v-model="formData.director_name" type="text" class="input-field" placeholder="원장명을 입력하세요" required />
+            <input v-model="formData.director_name" type="text" class="input-mordal" placeholder="원장명을 입력하세요" required />
           </div>
           <div class="form-group">
             <label class="form-label">주소 *</label>
-            <input v-model="formData.address" type="text" class="input-field" placeholder="주소를 입력하세요" required />
+            <input v-model="formData.address" type="text" class="input-mordal" placeholder="주소를 입력하세요" required />
           </div>
           <div class="form-group">
             <label class="form-label">사업자등록증</label>
             <input type="file" @change="onFileChange" style="position: relative; z-index: 1;" />
-            <a v-if="isEdit && formData.business_license_file" :href="getPublicUrl(formData.business_license_file)" target="_blank" class="file-link">
+            <a v-if="isEdit && formData.business_license_file" :href="getPublicUrl(formData.business_license_file)" target="_blank" class="link">
               현재 파일 보기
             </a>
+          </div>
+          <div class="form-group">
+            <label class="form-label">연결할 회원 (선택사항)</label>
+            <div class="member-selection">
+              <div class="member-search">
+                <input 
+                  v-model="memberSearch" 
+                  type="text" 
+                  class="input-field" 
+                  placeholder="회원명 또는 회사명으로 검색" 
+                  @input="searchMembers"
+                />
+              </div>
+              <div class="member-list" v-if="filteredMembers.length > 0">
+                <div 
+                  v-for="member in filteredMembers" 
+                  :key="member.id"
+                  class="member-item"
+                  :class="{ 'selected': selectedMembers.includes(member.id) }"
+                  @click="toggleMemberSelection(member.id)"
+                >
+                  <div class="member-info">
+                    <div class="member-name">{{ member.company_name }}</div>
+                    <div class="member-details">{{ member.manager_name }} ({{ member.id_email }})</div>
+                  </div>
+                  <div class="member-checkbox">
+                    <input 
+                      type="checkbox" 
+                      :checked="selectedMembers.includes(member.id)"
+                      @click.stop="toggleMemberSelection(member.id)"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div v-if="memberSearch && filteredMembers.length === 0" class="no-results">
+                검색 결과가 없습니다.
+              </div>
+            </div>
+            <div v-if="selectedMembers.length > 0" class="selected-members">
+              <div class="selected-title">선택된 회원 ({{ selectedMembers.length }}명):</div>
+              <div class="selected-list">
+                <div 
+                  v-for="memberId in selectedMembers" 
+                  :key="memberId"
+                  class="selected-member"
+                >
+                  {{ getMemberName(memberId) }}
+                  <button type="button" @click="removeMember(memberId)" class="remove-member">×</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -123,15 +206,18 @@
       </div>
     </div>
 
+
     <!-- File Viewer Modal -->
     <div v-if="showFileModal" class="custom-modal-overlay">
       <div class="custom-modal">
         <div class="modal-header">
-          <h3 class="modal-title">사업자등록증 보기</h3>
-          <button class="btn-close" @click="closeFileModal">×</button>
+          <h3 class="modal-title">거래처 사업자등록증</h3>
         </div>
         <div class="modal-body">
-          <img :src="fileUrl" alt="사업자등록증" style="width: 100%; max-height: 70vh; object-fit: contain;" />
+          <object v-if="isPdfFile" :data="fileUrl" type="application/pdf" style="width: 100%; height: 70vh;">
+            <p>PDF 뷰어를 로드할 수 없습니다. <a :href="fileUrl" target="_blank">여기서 다운로드</a>하여 확인해주세요.</p>
+          </object>
+          <img v-else :src="fileUrl" alt="사업자등록증" style="width: 100%; max-height: 70vh; object-fit: contain;" />
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" @click="closeFileModal">닫기</button>
@@ -180,24 +266,31 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Column definitions
 const columnWidths = {
-  index: '5%',
-  hospital_name: '15%',
-  business_registration_number: '10%',
-  director_name: '10%',
-  address: '19%',
-  license: '8%',
-  created_at: '10%',
-  registrar: '10%',
-  edit: '8%',
-  delete: '8%'
+  index: '4%',
+  hospital_name: '10%',
+  business_registration_number: '8%',
+  director_name: '6%',
+  address: '12%',
+  license: '5%',
+  member_count: '5%',
+  mapped_members: '10%',
+  registered_at: '6%',
+  creator_name: '8%',
+  updated_at: '6%',
+  updater_name: '8%',
+  edit: '6%',
+  delete: '6%',
 };
+
 const columnSortables = {
   hospital_name: true,
   business_registration_number: true,
   director_name: true,
   address: true,
   registered_at: true,
+  updated_at: true,
 };
+
 const columnAligns = {
   index: 'center',
   hospital_name: 'left',
@@ -205,8 +298,12 @@ const columnAligns = {
   director_name: 'center',
   address: 'left',
   license: 'center',
-  created_at: 'center',
-  registrar: 'center',
+  member_count: 'center',
+  mapped_members: 'left',
+  registered_at: 'center',
+  creator_name: 'center',
+  updated_at: 'center',
+  updater_name: 'center',
   edit: 'center',
   delete: 'center'
 };
@@ -221,6 +318,12 @@ const pageSize = ref(100);
 const tableRef = ref(null);
 const appliedSearch = ref('');
 const currentFilePath = ref(null);
+
+// 회원 매핑 관련 상태
+const members = ref([]);
+const filteredMembers = ref([]);
+const selectedMembers = ref([]);
+const memberSearch = ref('');
 
 // 날짜 포맷팅 함수
 const formatDate = (dateString) => {
@@ -241,6 +344,7 @@ const hasMappings = ref(false);
 const hospitalToDelete = ref(null);
 const fileUrl = ref('');
 const selectedFile = ref(null);
+const currentHospital = ref(null);
 const formData = ref({
   id: null,
   hospital_name: '',
@@ -256,46 +360,111 @@ const isFormValid = computed(() => {
          formData.value.address.trim();
 });
 
+const isPdfFile = computed(() => {
+  if (!currentFilePath.value) return false;
+  const extension = currentFilePath.value.split('.').pop()?.toLowerCase();
+  return extension === 'pdf';
+});
+
 // Data fetching
 const fetchHospitals = async (pageFirst = 0, pageRows = 100) => {
   loading.value = true;
-  let query = supabase
-    .from('hospitals')
-    .select(`
+  try {
+    let countQuery = supabase.from('hospitals').select('*', { count: 'exact', head: true });
+    let dataQuery = supabase.from('hospitals').select(`
       *,
-      registered_by_member:members!registered_by (
-        company_name,
-        role
-      )
-    `, { count: 'exact' });
+      creator:registered_by ( company_name ),
+      updater:updated_by ( company_name )
+    `);
 
-  if (appliedSearch.value) {
-    const keyword = `%${appliedSearch.value}%`;
-    query = query.or(`hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword},address.ilike.${keyword}`);
-  }
+    if (appliedSearch.value) {
+      const keyword = `%${appliedSearch.value}%`;
+      const orFilter = `hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword},address.ilike.${keyword}`;
+      countQuery = countQuery.or(orFilter);
+      dataQuery = dataQuery.or(orFilter);
+    }
 
-  const from = pageFirst;
-  const to = from + pageRows - 1;
-  query = query.range(from, to).order('registered_at', { ascending: false });
+    // 1. Fetch total count
+    const { count, error: countError } = await countQuery;
+    if (countError) throw countError;
+    totalCount.value = count;
 
-  const { data, error, count } = await query;
-  
-  if (!error) {
-    hospitals.value = data.map(hospital => ({
-      ...hospital,
-      registrar: hospital.registered_by_member
-        ? (hospital.registered_by_member.role === 'admin' ? '관리자' : hospital.registered_by_member.company_name)
-        : '정보 없음'
-    }));
-    totalCount.value = count || 0;
-  } else {
+    if (totalCount.value === 0) {
+      hospitals.value = [];
+      loading.value = false;
+      return;
+    }
+
+    // 2. Fetch paginated data
+    const from = pageFirst;
+    const to = from + pageRows - 1;
+
+    dataQuery = dataQuery.range(from, to).order('registered_at', { ascending: false });
+    const { data, error } = await dataQuery;
+
+    if (error) throw error;
+    
+    // 3. 각 거래처의 연결된 회원 수 계산 및 데이터 변환
+    const hospitalsWithDetails = await Promise.all(
+      data.map(async (hospital) => {
+        // 1. 해당 거래처에 연결된 회원 ID 목록 조회
+        const { data: mappings, error: mappingError } = await supabase
+          .from('hospital_member_mappings')
+          .select('member_id')
+          .eq('hospital_id', hospital.id);
+
+        if (mappingError) {
+          console.error(`Error fetching mappings for hospital ${hospital.id}:`, mappingError);
+          return {
+            ...hospital,
+            creator_name: hospital.creator ? hospital.creator.company_name : '-',
+            updater_name: hospital.updater ? hospital.updater.company_name : '-',
+            member_count: 0,
+            mapped_members: []
+          };
+        }
+
+        const memberIds = mappings.map(m => m.member_id);
+        let mapped_members = [];
+
+        // 2. 조회된 회원 ID로 업체명 목록 조회
+        if (memberIds.length > 0) {
+          const { data: memberDetails, error: memberError } = await supabase
+            .from('members')
+            .select('company_name')
+            .in('id', memberIds);
+
+          if (memberError) {
+            console.error(`Error fetching member details for hospital ${hospital.id}:`, memberError);
+          } else if (memberDetails) {
+            mapped_members = memberDetails.map(m => m.company_name).filter(Boolean);
+          }
+        }
+
+        return {
+          ...hospital,
+          creator_name: hospital.creator ? hospital.creator.company_name : '-',
+          updater_name: hospital.updater ? hospital.updater.company_name : '-',
+          member_count: mapped_members.length,
+          mapped_members
+        };
+      })
+    );
+    hospitals.value = hospitalsWithDetails;
+
+  } catch (error) {
+    console.error('Error fetching hospitals:', error);
     alert('데이터 로드 실패: ' + error.message);
+    hospitals.value = [];
+    totalCount.value = 0;
+  } finally {
+    loading.value = false;
   }
-  loading.value = false;
 };
 
 onMounted(() => {
   fetchHospitals(0, pageSize.value);
+  fetchMembers();
 });
 
 // 실시간 검색을 위한 watch 추가
@@ -394,21 +563,40 @@ const deleteAllHospitals = async () => {
   if (!confirm(`현재 조건에 맞는 모든 거래처 데이터를 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
   
   loading.value = true;
-  let query = supabase.from('hospitals').delete();
+  try {
+    let hospitalsQuery = supabase.from('hospitals').select('id');
+    if (appliedSearch.value) {
+        const keyword = `%${appliedSearch.value}%`;
+        hospitalsQuery = hospitalsQuery.or(`hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword},address.ilike.${keyword}`);
+    }
+    const { data: hospitalsToDelete, error: getHospitalsError } = await hospitalsQuery;
+    if(getHospitalsError) throw getHospitalsError;
 
-  if (appliedSearch.value) {
-    const keyword = `%${appliedSearch.value}%`;
-    query = query.or(`hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword},address.ilike.${keyword}`);
-  }
-  
-  const { error } = await query;
-  loading.value = false;
+    if (hospitalsToDelete && hospitalsToDelete.length > 0) {
+      const hospitalIds = hospitalsToDelete.map(h => h.id);
 
-  if (error) {
-    alert('삭제 실패: ' + error.message);
-  } else {
+      // 1. Delete mappings
+      const { error: mappingError } = await supabase
+        .from('hospital_member_mappings')
+        .delete()
+        .in('hospital_id', hospitalIds);
+      if (mappingError) throw mappingError;
+
+      // 2. Delete hospitals
+      const { error: hospitalError } = await supabase
+        .from('hospitals')
+        .delete()
+        .in('id', hospitalIds);
+      if(hospitalError) throw hospitalError;
+    }
+
     alert('삭제 완료!');
     fetchHospitals(0, pageSize.value);
+  } catch (error) {
+    console.error('Error deleting all hospitals:', error);
+    alert('삭제 실패: ' + error.message);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -423,18 +611,42 @@ const openCreateModal = () => {
     address: '',
     business_license_file: null
   };
+  selectedMembers.value = [];
+  memberSearch.value = '';
+  filteredMembers.value = members.value;
   showModal.value = true;
 };
 
-const openEditModal = (hospital) => {
+const openEditModal = async (hospital) => {
   isEdit.value = true;
   formData.value = { ...hospital };
+  selectedMembers.value = [];
+  memberSearch.value = '';
+  filteredMembers.value = members.value;
+  
+  // 기존 매핑된 회원들 가져오기
+  try {
+    const { data: mappings, error } = await supabase
+      .from('hospital_member_mappings')
+      .select('member_id')
+      .eq('hospital_id', hospital.id);
+    
+    if (!error && mappings) {
+      selectedMembers.value = mappings.map(m => m.member_id);
+    }
+  } catch (error) {
+    console.error('Error fetching existing mappings:', error);
+  }
+  
   showModal.value = true;
 };
 
 const closeModal = () => {
   showModal.value = false;
   selectedFile.value = null;
+  selectedMembers.value = [];
+  memberSearch.value = '';
+  filteredMembers.value = members.value;
 };
 
 const saveHospital = async () => {
@@ -470,6 +682,8 @@ const saveHospital = async () => {
   }
 
   try {
+    let hospitalId;
+    
     if (isEdit.value) {
       const dataToUpdate = {
         hospital_name: formData.value.hospital_name,
@@ -482,6 +696,7 @@ const saveHospital = async () => {
       };
       const { error } = await supabase.from('hospitals').update(dataToUpdate).eq('id', formData.value.id);
       if (error) throw error;
+      hospitalId = formData.value.id;
       alert('거래처 정보가 수정되었습니다.');
     } else {
       const dataToInsert = {
@@ -493,9 +708,36 @@ const saveHospital = async () => {
         registered_at: new Date().toISOString(),
         registered_by: user.id
       };
-      const { error } = await supabase.from('hospitals').insert(dataToInsert);
+      const { data: newHospital, error } = await supabase.from('hospitals').insert(dataToInsert).select('id').single();
       if (error) throw error;
+      hospitalId = newHospital.id;
       alert('새로운 거래처가 등록되었습니다.');
+    }
+
+    // 회원 매핑 처리
+    if (selectedMembers.value.length > 0) {
+      // 기존 매핑 삭제 (수정 시)
+      if (isEdit.value) {
+        const { error: deleteError } = await supabase
+          .from('hospital_member_mappings')
+          .delete()
+          .eq('hospital_id', hospitalId);
+        if (deleteError) throw deleteError;
+      }
+
+      // 새로운 매핑 추가
+      const mappingsToInsert = selectedMembers.value.map(memberId => ({
+        hospital_id: hospitalId,
+        member_id: memberId
+      }));
+
+      const { error: mappingError } = await supabase
+        .from('hospital_member_mappings')
+        .insert(mappingsToInsert);
+      
+      if (mappingError) throw mappingError;
+      
+      alert(`거래처와 ${selectedMembers.value.length}명의 회원이 연결되었습니다.`);
     }
     
     closeModal();
@@ -512,14 +754,26 @@ const deleteHospital = async (hospital) => {
   if (!confirm(`'${hospital.hospital_name}' 거래처을 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
 
   loading.value = true;
-  const { error } = await supabase.from('hospitals').delete().eq('id', hospital.id);
-  loading.value = false;
+  try {
+    // 1. 먼저 연결된 매핑 삭제
+    const { error: mappingError } = await supabase
+      .from('hospital_member_mappings')
+      .delete()
+      .eq('hospital_id', hospital.id);
+    
+    if (mappingError) throw mappingError;
 
-  if (error) {
-    alert('삭제 실패: ' + error.message);
-  } else {
-    alert('삭제 완료!');
+    // 2. 거래처 삭제
+    const { error } = await supabase.from('hospitals').delete().eq('id', hospital.id);
+    if (error) throw error;
+
+    alert('거래처와 연결된 모든 정보가 삭제되었습니다.');
     fetchHospitals(first.value, pageSize.value);
+  } catch (error) {
+    console.error('Error deleting hospital:', error);
+    alert('삭제 실패: ' + error.message);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -542,6 +796,7 @@ const openFileModal = async (hospital) => {
     return;
   }
   
+  currentHospital.value = hospital;
   currentFilePath.value = hospital.business_license_file;
 
   // DB에 저장된 파일 경로를 사용하여 임시 URL 생성
@@ -561,6 +816,7 @@ const openFileModal = async (hospital) => {
 const closeFileModal = () => {
   showFileModal.value = false;
   fileUrl.value = '';
+  currentHospital.value = null;
 };
 
 const closeDeleteModal = () => {
@@ -587,7 +843,7 @@ async function showLicenseModal(hospital) {
 }
 
 const downloadFile = async () => {
-  if (!currentFilePath.value) {
+  if (!currentFilePath.value || !currentHospital.value) {
     alert('다운로드할 파일 정보가 없습니다.');
     return;
   }
@@ -605,7 +861,10 @@ const downloadFile = async () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = currentFilePath.value.split('/').pop(); // 파일 이름 추출
+    
+    const fileExtension = currentFilePath.value.split('.').pop();
+    a.download = `${currentHospital.value.hospital_name}_사업자등록증.${fileExtension}`;
+    
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -615,33 +874,56 @@ const downloadFile = async () => {
     alert('파일 다운로드에 실패했습니다: ' + error.message);
   }
 };
+
+// 회원 관련 함수들
+const fetchMembers = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('members')
+      .select('id, company_name, manager_name, id_email')
+      .eq('approval', 'approved')
+      .order('company_name');
+
+    if (error) throw error;
+    members.value = data;
+    filteredMembers.value = data;
+  } catch (error) {
+    console.error('Error fetching members:', error);
+  }
+};
+
+const searchMembers = () => {
+  if (!memberSearch.value.trim()) {
+    filteredMembers.value = members.value;
+    return;
+  }
+
+  const searchTerm = memberSearch.value.toLowerCase();
+  filteredMembers.value = members.value.filter(member => 
+    member.company_name.toLowerCase().includes(searchTerm) ||
+    member.manager_name.toLowerCase().includes(searchTerm) ||
+    member.id_email.toLowerCase().includes(searchTerm)
+  );
+};
+
+const toggleMemberSelection = (memberId) => {
+  const index = selectedMembers.value.indexOf(memberId);
+  if (index > -1) {
+    selectedMembers.value.splice(index, 1);
+  } else {
+    selectedMembers.value.push(memberId);
+  }
+};
+
+const removeMember = (memberId) => {
+  const index = selectedMembers.value.indexOf(memberId);
+  if (index > -1) {
+    selectedMembers.value.splice(index, 1);
+  }
+};
+
+const getMemberName = (memberId) => {
+  const member = members.value.find(m => m.id === memberId);
+  return member ? member.company_name : 'Unknown';
+};
 </script>
-
-<style>
-.btn-primary:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-.btn-danger {
-  padding: 0.5rem 1rem;
-  border: none;
-  background-color: #dc3545;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.btn-danger:hover {
-  background-color: #c82333;
-}
-.btn-danger:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-.file-link {
-  display: inline-block;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #007bff;
-}
-</style>

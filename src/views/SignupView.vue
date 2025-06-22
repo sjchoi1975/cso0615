@@ -2,7 +2,7 @@
   <div class="auth-root">
     <h2 class="Signup-title">회원가입</h2>
     <form @submit.prevent="signup" class="auth-form">
-      <label>아이디(이메일) <span class="required">*</span></label>
+      <label>아이디<span class="required">*</span></label>
       <input v-model="idEmail" type="email" placeholder="이메일" class="input" required />
       <label>비밀번호 <span class="required">*</span></label>
       <input v-model="password" type="password" placeholder="비밀번호" class="input" required />

@@ -31,52 +31,49 @@
         <template #empty>
           <div v-if="!loading">조회된 데이터가 없습니다.</div>
         </template>
-        <Column header="순번" :style="{ width: columnWidths.index, textAlign: columnAligns.index }">
+        <Column header="순번" :style="{ width: columnWidths.index }" :headerStyle="{ textAlign: columnAligns.index }" :bodyStyle="{ textAlign: columnAligns.index }">
           <template #body="slotProps">
-            {{ slotProps.index + 1 }}
+            {{ slotProps.index + 1 + first }}
           </template>
         </Column>
-        <Column
-          v-for="col in columns"
-          :key="col.field"
-          :field="col.field"
-          :header="col.header"
-          :sortable="columnSortables[col.field] || false"
-          :headerStyle="{ width: columnWidths[col.field], textAlign: columnAligns[col.field] }"
-          :bodyStyle="{ textAlign: columnAligns[col.field] }"
-        >
-          <template v-if="col.field === 'actions'" #body="slotProps">
-            <button 
-              class="btn-edit-sm" 
-              @click="openEditModal(slotProps.data)"
-            >
-              수정
-            </button>
-            <button 
-              class="btn-delete-sm" 
-              @click="deleteCompany(slotProps.data)"
-            >
-              삭제
-            </button>
+        <Column field="company_name" header="제약사명" :sortable="columnSortables.company_name" :style="{ width: columnWidths.company_name }" :headerStyle="{ textAlign: columnAligns.company_name }" :bodyStyle="{ textAlign: columnAligns.company_name }"></Column>
+        <Column field="created_at" header="등록일" :sortable="columnSortables.created_at" :style="{ width: columnWidths.created_at }" :headerStyle="{ textAlign: columnAligns.created_at }" :bodyStyle="{ textAlign: columnAligns.created_at }">
+          <template #body="slotProps">
+            {{ formatDate(slotProps.data.created_at) }}
+          </template>
+        </Column>
+        <Column header="수정" :style="{ width: columnWidths.edit }" :headerStyle="{ textAlign: columnAligns.edit }" :bodyStyle="{ textAlign: columnAligns.edit }">
+          <template #body="slotProps">
+            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text" @click="openEditModal(slotProps.data)" />
+          </template>
+        </Column>
+        <Column header="삭제" :style="{ width: columnWidths.delete }" :headerStyle="{ textAlign: columnAligns.delete }" :bodyStyle="{ textAlign: columnAligns.delete }">
+          <template #body="slotProps">
+            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteCompany(slotProps.data)" />
           </template>
         </Column>
       </DataTable>
     </div>
 
+    <!-- Paginator -->
+    <div class="fixed-paginator">
+      <Paginator :rows="pageSize" :totalRecords="totalCount" :first="first" @page="onPageChange" />
+    </div>
+
     <!-- 제약사 추가/수정 모달 -->
     <div v-if="showModal" class="custom-modal-overlay">
       <div class="custom-modal">
-        <div class="modal-footer">
-          <h3 class="modai-title">{{ isEdit ? '제약사 수정' : '제약사 추가' }}</h3>
-          <button class="btn-close-nobg" @click="closeModal">×</button>
+        <div class="modal-header">
+          <h3 class="modal-title">{{ isEdit ? '제약사 수정' : '제약사 추가' }}</h3>
         </div>
+
         <div class="modal-body">
-          <div class="filter-row">
+          <div class="form-group">
             <label class="form-label">제약사명 *</label>
             <input 
               v-model="formData.company_name" 
               type="text" 
-              class="input" 
+              class="input-mordal" 
               placeholder="제약사명을 입력하세요"
               required
             />
@@ -99,18 +96,24 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { supabase } from '@/supabase';
+import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import { supabase } from '@/supabase';
 import * as XLSX from 'xlsx';
+import Paginator from 'primevue/paginator';
+import Dialog from 'primevue/dialog';
 
-const companies = ref([]); // 제약사 데이터
-const loading = ref(false);
+const companies = ref([]);
+const loading = ref(true);
+const search = ref('');
 const totalCount = ref(0);
+const pageSize = 10;
+const first = ref(0);
 
-const searchKeyword = ref('');
+const isModalVisible = ref(false);
+const modalTitle = ref('');
 
-// 모달 상태
 const showModal = ref(false);
 const isEdit = ref(false);
 const formData = ref({
@@ -121,9 +124,10 @@ const formData = ref({
 // 컬럼 너비 한 곳에서 관리
 const columnWidths = {
   index: '4%',
-  company_name: '72%',
-  created_at: '12%',
-  actions: '12%'
+  company_name: '76%',
+  created_at: '8%',
+  edit: '6%',
+  delete: '6%'
 };
 
 // 컬럼별 정렬 방식 한 곳에서 관리
@@ -131,7 +135,8 @@ const columnAligns = {
   index: 'center',
   company_name: 'left',
   created_at: 'center',
-  actions: 'center'
+  edit: 'center',
+  delete: 'center'
 };
 
 // 컬럼별 정렬 여부 한 곳에서 관리
@@ -139,13 +144,6 @@ const columnSortables = {
   company_name: true,
   created_at: true
 };
-
-// 컬럼 배열 한 곳에서 관리
-const columns = [
-  { field: 'company_name', header: '제약사명' },
-  { field: 'created_at', header: '등록일' },
-  { field: 'actions', header: '작업' }
-];
 
 // 제약사 데이터 불러오기
 const fetchCompanies = async () => {
@@ -172,9 +170,9 @@ const fetchCompanies = async () => {
 
 // 필터링된 리스트
 const filteredCompanies = computed(() => {
-  if (!searchKeyword.value) return companies.value;
+  if (!search.value) return companies.value;
   
-  const keyword = searchKeyword.value.toLowerCase();
+  const keyword = search.value.toLowerCase();
   return companies.value.filter(company => 
     company.company_name.toLowerCase().includes(keyword)
   );
@@ -294,6 +292,20 @@ const downloadExcel = () => {
   XLSX.utils.book_append_sheet(wb, ws, '제약사목록');
   const fileName = `제약사목록_${new Date().toISOString().slice(0,10)}.xlsx`;
   XLSX.writeFile(wb, fileName);
+};
+
+const onPageChange = (event) => {
+  first.value = event.first;
+  fetchCompanies();
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = ('0' + (date.getMonth() + 1)).slice(-2);
+  const day = ('0' + date.getDate()).slice(-2);
+  return `${year}-${month}-${day}`;
 };
 
 onMounted(async () => {

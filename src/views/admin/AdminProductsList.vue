@@ -55,7 +55,7 @@
     <!-- 하단: 테이블카드 -->
     <div class="table-card admin-products-view-table">
       <DataTable
-        :value="products"
+        :value="filteredProducts"
         :loading="loading"
         :paginator="false"
         :rows="100"
@@ -66,7 +66,7 @@
         lazy
         responsiveLayout="scroll"
         scrollable
-        :scrollHeight="'calc(100vh - 220px)'"
+        :scrollHeight="'calc(100vh - 270px)'"
         ref="tableRef"
       >
         <Column header="순번"
@@ -76,7 +76,7 @@
             {{ first + slotProps.index + 1 }}
           </template>
         </Column>
-        <Column field="pharmacist" header="제약사 *"
+        <Column field="pharmacist" header="제약사"
           :sortable="columnSortables.pharmacist"
           :style="{ width: columnWidths.pharmacist }"
           :bodyStyle="{ textAlign: columnAligns.pharmacist }">
@@ -84,7 +84,7 @@
             <span :title="slotProps.data.pharmacist">{{ slotProps.data.pharmacist }}</span>
           </template>
         </Column>
-        <Column field="classification" header="분류명"
+        <Column field="classification" header="분류"
           :sortable="columnSortables.classification"
           :style="{ width: columnWidths.classification }"
           :bodyStyle="{ textAlign: columnAligns.classification }">
@@ -92,7 +92,7 @@
             <span :title="slotProps.data.classification">{{ slotProps.data.classification }}</span>
           </template>
         </Column>
-        <Column field="product_name" header="제품명 *"
+        <Column field="product_name" header="제품명"
           :sortable="columnSortables.product_name"
           :style="{ width: columnWidths.product_name }"
           :bodyStyle="{ textAlign: columnAligns.product_name }">
@@ -108,39 +108,39 @@
             {{ slotProps.data.insurance_code || '' }}
           </template>
         </Column>
-        <Column field="price" header="약가"
+        <Column field="price" header="단가"
           :sortable="columnSortables.price"
           :style="{ width: columnWidths.price }"
           :bodyStyle="{ textAlign: columnAligns.price }">
           <template #body="slotProps">
-            {{ slotProps.data.price != null ? slotProps.data.price.toLocaleString() : '' }}
+            {{ slotProps.data.price?.toLocaleString() }}
           </template>
         </Column>
-        <Column field="commission_rate_a" header="수수료 A"
+        <Column field="commission_rate_a" header="A등급수수료"
           :sortable="columnSortables.commission_rate_a"
           :style="{ width: columnWidths.commission_rate_a }"
           :bodyStyle="{ textAlign: columnAligns.commission_rate_a }">
           <template #body="slotProps">
-            {{ slotProps.data.commission_rate_a != null ? (slotProps.data.commission_rate_a * 100).toFixed(1).replace(/\.0$/, '') + '%' : '' }}
+            {{ slotProps.data.commission_rate_a !== null ? `${slotProps.data.commission_rate_a}%` : '' }}
           </template>
         </Column>
-        <Column field="commission_rate_b" header="수수료 B"
+        <Column field="commission_rate_b" header="B등급수수료"
           :sortable="columnSortables.commission_rate_b"
           :style="{ width: columnWidths.commission_rate_b }"
           :bodyStyle="{ textAlign: columnAligns.commission_rate_b }">
           <template #body="slotProps">
-            {{ slotProps.data.commission_rate_b != null ? (slotProps.data.commission_rate_b * 100).toFixed(1).replace(/\.0$/, '') + '%' : '' }}
+            {{ slotProps.data.commission_rate_b !== null ? `${slotProps.data.commission_rate_b}%` : '' }}
           </template>
         </Column>
-        <Column field="commission_rate_c" header="수수료 C"
+        <Column field="commission_rate_c" header="C등급수수료"
           :sortable="columnSortables.commission_rate_c"
           :style="{ width: columnWidths.commission_rate_c }"
           :bodyStyle="{ textAlign: columnAligns.commission_rate_c }">
           <template #body="slotProps">
-            {{ slotProps.data.commission_rate_c != null ? (slotProps.data.commission_rate_c * 100).toFixed(1).replace(/\.0$/, '') + '%' : '' }}
+            {{ slotProps.data.commission_rate_c !== null ? `${slotProps.data.commission_rate_c}%` : '' }}
           </template>
         </Column>
-        <Column field="Ingredient" header="성분"
+        <Column field="Ingredient" header="성분명"
           :sortable="columnSortables.Ingredient"
           :style="{ width: columnWidths.Ingredient }"
           :bodyStyle="{ textAlign: columnAligns.Ingredient }">
@@ -166,7 +166,7 @@
           :style="{ width: columnWidths.bioequivalence }"
           :bodyStyle="{ textAlign: columnAligns.bioequivalence }">
         </Column>
-        <Column field="Inhouse" header="자사/위탁"
+        <Column field="Inhouse" header="인하우스"
           :sortable="columnSortables.Inhouse"
           :style="{ width: columnWidths.Inhouse }"
           :bodyStyle="{ textAlign: columnAligns.Inhouse }">
@@ -199,14 +199,14 @@
           :bodyStyle="{ textAlign: columnAligns.status }">
           <template #body="slotProps">
             <div class="custom-toggle-wrap">
-              <input
-                type="checkbox"
-                :id="'toggle-' + slotProps.data.id"
+              <input 
+                type="checkbox" 
+                :id="'status-' + slotProps.data.id" 
+                :checked="slotProps.data.status === 'active'" 
+                @change="updateProductStatus(slotProps.data)"
                 class="custom-toggle-checkbox"
-                :checked="slotProps.data.status === 'active'"
-                @change="e => onHtmlToggleStatus(slotProps.data, e.target.checked)"
               />
-              <label :for="'toggle-' + slotProps.data.id" class="custom-toggle-label"></label>
+              <label :for="'status-' + slotProps.data.id" class="custom-toggle-label"></label>
             </div>
           </template>
         </Column>
@@ -239,7 +239,7 @@ import * as XLSX from 'xlsx';
 import Paginator from 'primevue/paginator';
 import Button from 'primevue/button';
 
-// 컬럼 너비 한 곳에서 관리
+// 컬럼 속성 정의
 const columnWidths = {
   index: '4%',
   pharmacist: '6%',
@@ -261,29 +261,27 @@ const columnWidths = {
   status: '4%'
 };
 
-// 컬럼별 정렬 여부 한 곳에서 관리
 const columnSortables = {
   index: false,
-  pharmacist: false,
-  classification: false,
-  product_name: false,
-  insurance_code: false,
-  price: false,
-  commission_rate_a: false,
-  commission_rate_b: false,
-  commission_rate_c: false,
+  pharmacist: true,
+  classification: true,
+  product_name: true,
+  insurance_code: true,
+  price: true,
+  commission_rate_a: true,
+  commission_rate_b: true,
+  commission_rate_c: true,
   Ingredient: false,
   comparator: false,
-  reimbursement: false,
-  bioequivalence: false,
+  reimbursement: true,
+  bioequivalence: true,
   Inhouse: true,
-  remarks: true,
+  remarks: false,
   edit: false,
   delete: false,
-  status: true
+  status: true,
 };
 
-// 컬럼별 정렬 방식 한 곳에서 관리
 const columnAligns = {
   index: 'center',
   pharmacist: 'left',
@@ -291,9 +289,9 @@ const columnAligns = {
   product_name: 'left',
   insurance_code: 'center',
   price: 'right',
-  commission_rate_a: 'center',
-  commission_rate_b: 'center',
-  commission_rate_c: 'center',
+  commission_rate_a: 'right',
+  commission_rate_b: 'right',
+  commission_rate_c: 'right',
   Ingredient: 'left',
   comparator: 'left',
   reimbursement: 'center',
@@ -443,15 +441,19 @@ const deleteProduct = async (id) => {
   }
 };
 
-const onHtmlToggleStatus = async (product, checked) => {
-  const toActive = checked;
-  const msg = toActive ? '활성화 하시겠습니까?' : '비활성화 하시겠습니까?';
-  if (!confirm(msg)) {
-    fetchProducts(first.value, pageSize.value);
-    return;
+const updateProductStatus = async (product) => {
+  const newStatus = product.status === 'active' ? 'inactive' : 'active';
+  try {
+    const { error } = await supabase
+      .from('products')
+      .update({ status: newStatus })
+      .eq('id', product.id);
+    if (error) throw error;
+    product.status = newStatus;
+  } catch (err) {
+    console.error('상태 업데이트 오류:', err);
+    alert(`오류가 발생했습니다: ${err.message}`);
   }
-  await supabase.from('products').update({ status: toActive ? 'active' : 'inactive' }).eq('id', product.id);
-  fetchProducts(first.value, pageSize.value);
 };
 
 const downloadExcel = () => {
@@ -577,4 +579,8 @@ const isSearchActive = computed(() => {
     currentMonth.value !== appliedMonth.value
   );
 });
+
+const getStatusClass = (status) => {
+  return status === 'active' ? 'active' : 'inactive';
+};
 </script>
