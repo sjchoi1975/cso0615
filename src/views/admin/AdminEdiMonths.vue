@@ -23,7 +23,7 @@
         v-model:filters="filters"
         :globalFilterFields="['settlement_month']"
         scrollable 
-        scrollHeight="calc(100vh - 220px)"
+        scrollHeight="calc(100vh - 204px)"
       >
         <Column header="No." headerStyle="width: 5%" bodyStyle="text-align: center">
           <template #body="slotProps">

@@ -46,7 +46,7 @@
           :loading="loading" 
           :paginator="false"
           scrollable 
-          :scrollHeight="'calc(100vh - 220px)'">
+          :scrollHeight="'calc(100vh - 204px)'">
           <template #empty>
             <div v-if="!loading">조회된 데이터가 없습니다.</div>
           </template>

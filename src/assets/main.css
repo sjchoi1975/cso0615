@@ -395,7 +395,7 @@ nav a:first-of-type {
   top: 3rem !important; /* 탑바 아래에서 시작 */
   min-height: calc(100vh - 3.0rem) !important;
   background: #fff !important;
-  border-right: 1px solid var(--gray-300) !important;
+  border-right: 1px solid var(--gray-500) !important;
   box-shadow: 2px 0 8px rgba(0,0,0,0.04) !important;
   z-index: 900 !important;
   transition: width 0.2s cubic-bezier(.4,0,.2,1) !important;
@@ -537,7 +537,7 @@ nav a:first-of-type {
   background: #fff !important;
   padding: 0.5rem 1rem !important;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
-  border-bottom: 1px solid var(--gray-300) !important;
+  border-bottom: 1px solid var(--gray-500) !important;
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
@@ -808,12 +808,12 @@ nav a:first-of-type {
   display: flex !important;
   align-items: center !important;
   min-height: 3.0rem !important;
-  max-height: 4.0rem !important;
+  max-height: 3.8rem !important;
 }
 
 .filter-card {
   padding: 0 1rem !important;
-  border-bottom: 1px solid var(--border-secondary) !important;
+  border-bottom: 1px solid var(--gray-500) !important;
   background: #f7fafd !important; /* 작업 구분용 */
 }
 
@@ -1111,7 +1111,7 @@ nav a:first-of-type {
 .input-search,
 .filter-dropdown {
   font-size: var(--font-size-base) !important;
-  padding: 0.75rem 1.0rem !important;
+  padding: 0.65rem 1.0rem !important;
   border: 1px solid var(--border-primary) !important;
   border-radius: var(--border-radius-md) !important;
   background: var(--bg-content) !important;
@@ -1535,6 +1535,7 @@ nav a:first-of-type {
   background: #fff;
   border: 1px solid var(--border-primary);
   border-left: none !important;
+  border-bottom: none !important;
   overflow: hidden;
   font-size: var(--font-size-base) !important;
 }
@@ -1607,8 +1608,8 @@ nav a:first-of-type {
 }
 
 .p-datatable .p-datatable-footer .p-paginator {
-  background: #f7fafd;
-  border-top: 1.5px solid #e0e4ea;
+  background: #fff;
+  border-top: 1.5px solid var(--gray-500) !important;
 }
 
 /* ===== PrimeVue DataTable 페이지네이터(하단) 외곽선/검은 선 완전 제거 ===== */
@@ -1619,16 +1620,13 @@ nav a:first-of-type {
 .p-datatable .p-paginator-bottom,
 .p-datatable-paginator-bottom {
   padding: 0.25rem 0.5rem !important;
-  border: none !important;
-  border-width: 0 !important;
-  border-style: none !important;
   box-shadow: none !important;
   background: transparent !important;
+  border-top: 1px solid var(--gray-500) !important;
 }
 
 .p-datatable-paginator-bottom {
-  background: #f7fafd !important;
-  border-top: 1px solid #e0e4ea !important;
+  border-top: 1px solid var(--gray-500) !important;
 }
 
 /* 스크롤 모드 푸터(페이지네이터) 내부 테이블/셀 */
@@ -1638,9 +1636,6 @@ nav a:first-of-type {
 .p-datatable-scrollable-footer-box table,
 .p-datatable-scrollable-footer td,
 .p-datatable-scrollable-footer th {
-  border: none !important;
-  border-width: none !important;
-  border-style: none !important;
   box-shadow: none !important;
   background: transparent !important;
 }
@@ -1651,7 +1646,7 @@ nav a:first-of-type {
 .p-paginator .p-paginator-prev,
 .p-paginator .p-paginator-first,
 .p-paginator .p-paginator-last {
-  border: 1px solid #c0c0c0;
+  border: 1px solid var(--gray-500);
   border-radius: 0px;
   background: #fff;
   min-width: 2.4rem;
@@ -1688,7 +1683,8 @@ nav a:first-of-type {
   left: 0 !important;
   bottom: 0 !important;
   width: 100% !important;
-  background: #f7fafd !important;
+  background: #fff !important; /* 페이지네이터 하단 배경색 변경 */
+  border-top: 1px solid var(--gray-500) !important;
   z-index: 100 !important;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.04) !important;
   padding: 8px 0 !important;

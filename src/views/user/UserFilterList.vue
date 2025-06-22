@@ -43,7 +43,13 @@
 
     <!-- Table Card -->
     <div class="table-card user-filter-list-table">
-      <DataTable :value="requests" :loading="loading" :paginator="false" scrollable :scrollHeight="'calc(100vh - 220px)'">
+      <DataTable 
+        :value="requests" 
+        :loading="loading" 
+        :paginator="false" 
+        scrollable 
+        :scrollHeight="'calc(100vh - 204px)'"
+        >
         <Column header="순번" :style="{ width: columnWidths.index }" :bodyStyle="{ textAlign: columnAligns.index }">
           <template #body="slotProps">{{ first + slotProps.index + 1 }}</template>
         </Column>

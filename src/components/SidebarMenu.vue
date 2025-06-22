@@ -95,7 +95,7 @@ const adminMenu = [
       { label: '요율표 관리', icon: 'pi pi-list', to: '/admin/products/list' },
     ]
   },
-  { label: '거래처 관리', icon: 'pi pi-hospital', items: [
+  { label: '거래처 관리', icon: 'pi pi-building', items: [
       { label: '거래처 목록', icon: 'pi pi-list', to: '/admin/hospitals/list' },
     ]
   },

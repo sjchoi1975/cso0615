@@ -58,7 +58,7 @@
         :value="filteredProducts"
         :loading="loading"
         :paginator="false"
-        :rows="100"
+        :rows="200"
         :rowsPerPageOptions="[100, 200, 500]"
         :totalRecords="totalCount"
         :first="first"
@@ -66,7 +66,7 @@
         lazy
         responsiveLayout="scroll"
         scrollable
-        :scrollHeight="'calc(100vh - 220px)'"
+        :scrollHeight="'calc(100vh - 204px)'"
         ref="tableRef"
       >
         <Column header="순번"
@@ -314,7 +314,7 @@ const first = ref(0);
 const reimbursement = ref('');
 const status = ref('');
 const totalCount = ref(0);
-const pageSize = ref(100);
+const pageSize = ref(200);
 const monthOptions = ref([]);
 const appliedMonth = ref('');
 const appliedSearch = ref('');
@@ -354,7 +354,7 @@ watch(monthOptions, (newOptions) => {
 
 const tableRef = ref(null);
 
-const fetchProducts = async (pageFirst = 0, pageRows = 100) => {
+const fetchProducts = async (pageFirst = 0, pageRows = 200) => {
   loading.value = true;
   const month = currentMonth.value;
 

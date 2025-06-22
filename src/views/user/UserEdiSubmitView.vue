@@ -31,7 +31,12 @@
       </div>
 
       <div class="table-card">
-        <DataTable :value="mappedHospitals" :loading="loading" scrollable scrollHeight="calc(100vh - 250px)">
+        <DataTable 
+          :value="mappedHospitals" 
+          :loading="loading" 
+          scrollable 
+          :scrollHeight="'calc(100vh - 204px)'"
+          >
           <Column header="No." headerStyle="width: 5%" bodyStyle="text-align: center">
             <template #body="slotProps">{{ slotProps.index + 1 }}</template>
           </Column>

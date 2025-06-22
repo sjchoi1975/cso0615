@@ -36,7 +36,7 @@
         :loading="loading"
         :paginator="false"
         scrollable
-        :scrollHeight="'calc(100vh - 220px)'"
+        :scrollHeight="'calc(100vh - 204px)'"
         ref="tableRef"
         lazy
       >

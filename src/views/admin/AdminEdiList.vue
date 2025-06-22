@@ -27,7 +27,7 @@
         :totalRecords="totalCount"
         @page="onPageChange"
         scrollable
-        :scrollHeight="'calc(100vh - 220px)'"
+        :scrollHeight="'calc(100vh - 204px)'"
       >
         <Column 
           header="순번" 
