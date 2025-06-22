@@ -111,11 +111,8 @@ watch(
       :visible="sidebarVisible"
       :user-info="userInfo"
       @menu-click="handleMenuClick"
-    >
-      <div v-if="visible" class="sidebar-container">
-        <aside class="sidebar"> ... </aside>
-      </div>
-    </SidebarMenu>
+    />
+    <div v-if="sidebarVisible" class="sidebar-overlay" @click="sidebarVisible = false"></div>
     <TopbarMenu
       v-if="!['/login','/signup'].includes(route.path)"
       :menu-name="menuName"
