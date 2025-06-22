@@ -4,7 +4,7 @@
     <div class="filter-card search-center-card">
       <div class="filter-row">
         <span class="p-input-icon-left">
-          <InputText v-model="filters['global'].value" placeholder="정산월 검색" class="input-search wide-mobile-search" />
+          <InputText v-model="filters['global'].value" placeholder="정산월 검색" class="input-search" />
         </span>
       </div>
     </div>

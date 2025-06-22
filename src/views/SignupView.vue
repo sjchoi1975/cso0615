@@ -5,25 +5,25 @@
       <label>아이디<span class="required">*</span></label>
       <input v-model="idEmail" type="email" placeholder="이메일" class="input" required />
       <label>비밀번호 <span class="required">*</span></label>
-      <input v-model="password" type="password" placeholder="비밀번호" class="input" required />
+      <input v-model="password" type="password" placeholder="" class="input" required />
       <label>비밀번호 확인 <span class="required">*</span></label>
-      <input v-model="confirmPassword" type="password" placeholder="비밀번호 확인" class="input" required />
+      <input v-model="confirmPassword" type="password" placeholder="" class="input" required />
       <label>회사명 <span class="required">*</span></label>
-      <input v-model="companyName" placeholder="회사명" class="input" required />
+      <input v-model="companyName" placeholder="" class="input" required />
       <label>대표자명 <span class="required">*</span></label>
-      <input v-model="ceoName" placeholder="대표자명" class="input" required />
+      <input v-model="ceoName" placeholder="" class="input" required />
       <label>사업자등록번호 <span class="required">*</span></label>
-      <input v-model="bizNo" placeholder="사업자등록번호" class="input" required />
+      <input v-model="bizNo" placeholder="" class="input" required />
       <label>주소</label>
-      <input v-model="address" placeholder="주소" class="input" />
+      <input v-model="address" placeholder="" class="input" />
       <label>CSO 신고번호</label>
-      <input v-model="csoRegistNo" placeholder="CSO 신고번호" class="input" />
+      <input v-model="csoRegistNo" placeholder="" class="input" />
       <label>담당자명</label>
-      <input v-model="managerName" placeholder="담당자명" class="input" />
+      <input v-model="managerName" placeholder="" class="input" />
       <label>휴대폰 번호</label>
-      <input v-model="handphone" placeholder="휴대폰 번호" class="input" />
+      <input v-model="handphone" placeholder="" class="input" />
       <label>이메일(연락용)</label>
-      <input v-model="contactEmail" type="email" placeholder="이메일(연락용)" class="input" />
+      <input v-model="contactEmail" type="email" placeholder="" class="input" />
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
         <button type="button" class="cancel-btn" @click="goLogin" style="flex:1;">취소</button>
         <button type="submit" class="signup-btn" :disabled="loading" style="flex:1;">회원가입</button>

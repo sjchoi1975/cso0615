@@ -1,20 +1,20 @@
 <template>
   <div class="admin-filter-list-view page-container">
     <!-- Filter Card -->
-    <div class="filter-card custom-auto-height">
+    <div class="filter-card">
       <div class="filter-row">
         <span>업체</span>
-        <select v-model="selectedMember" class="input-240">
+        <select v-model="selectedMember" class="input-180">
           <option value="">- 전체 -</option>
           <option v-for="member in memberOptions" :key="member.uid" :value="member.uid">{{ member.company_name }}</option>
         </select>
-        <span>거래처명</span>
-        <select v-model="selectedHospital" class="input-240">
+        <span>거래처</span>
+        <select v-model="selectedHospital" class="input-180">
           <option value="">- 전체 -</option>
           <option v-for="hospital in hospitalOptions" :key="hospital.id" :value="hospital.id">{{ hospital.hospital_name }}</option>
         </select>
         <span>제약사</span>
-        <select v-model="selectedPharma" class="input-240">
+        <select v-model="selectedPharma" class="input-180">
           <option value="">- 전체 -</option>
           <option v-for="pharma in pharmaOptions" :key="pharma.id" :value="pharma.id">{{ pharma.company_name }}</option>
         </select>
@@ -39,8 +39,8 @@
     </div>
 
     <!-- Function Card -->
-    <div class="function-card custom-auto-height">
-      <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}건의 요청</div>
+    <div class="function-card">
+      <div class="total-count">총 {{ totalCount.toLocaleString() }}건의 요청</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
         <button class="btn-excell-download" @click="downloadExcel">엑셀 다운</button>
       </div>

@@ -1,10 +1,10 @@
 <template>
   <div class="admin-products-view page-container">
     <!-- 모바일 필터 카드 스크롤 처리 -->
-    <div class="filter-card custom-auto-height">
+    <div class="filter-card">
       <div class="filter-row">
-        <span class="hide-mobile">기준월</span>
-        <select v-model="currentMonth.value" class="filter-dropdown">
+        <span>기준월</span>
+        <select v-model="currentMonth.value" class="input-120">
           <option v-for="m in monthOptions" :key="m" :value="m">
             {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
           </option>
@@ -12,14 +12,14 @@
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 검색" class="input-search" />
         </span>
-        <span class="hide-mobile">급여</span>
-        <select v-model="reimbursement" class="filter-dropdown">
+        <span>급여</span>
+        <select v-model="reimbursement" class="input-100">
           <option value="">- 전체 -</option>
           <option value="급여">급여</option>
           <option value="비급여">비급여</option>
         </select>
-        <span class="hide-mobile">상태</span>
-        <select v-model="status" class="filter-dropdown">
+        <span>상태</span>
+        <select v-model="status" class="input-100">
           <option value="">- 전체 -</option>
           <option value="active">활성</option>
           <option value="inactive">비활성</option>
@@ -38,9 +38,9 @@
     </div>
 
     <!-- 모바일 기능카드 스크롤 처리 -->
-    <div class="function-card custom-auto-height">
-      <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}개 제품</div>
-      <div style="display: flex; gap:0.5rem; align-items:center;">
+    <div class="function-card">
+      <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
+      <div style="display: flex; gap:1rem; align-items:center;">
         <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
         <button class="btn-add" @click="downloadTemplate">템플릿</button>
         <label class="btn-add" style="margin-bottom:0; cursor:pointer;">
@@ -66,7 +66,7 @@
         lazy
         responsiveLayout="scroll"
         scrollable
-        :scrollHeight="'calc(100vh - 270px)'"
+        :scrollHeight="'calc(100vh - 220px)'"
         ref="tableRef"
       >
         <Column header="순번"

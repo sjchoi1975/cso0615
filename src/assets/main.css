@@ -143,20 +143,20 @@ a,
 
 
   /* 테두리 색상 */
-  --border-primary: #dee2e6; /* 주요 구분선 */
-  --border-secondary: #d1dbe6; /* 연한 구분선 */
+  --border-primary: #aaa; /* 주요 구분선 */
+  --border-secondary: #ccc; /* 연한 구분선 */
   --border-input: #ced4da; /* 입력 필드 */
   --border-focus: var(--primary-color); /* 포커스 */
 
 
   /* border-radius */
-  --border-radius: 4px; /* 모서리 둥글기 */
-  --border-radius-sm: 2px; /* 모서리 둥글기 */
-  --border-radius-md: 4px; /* 모서리 둥글기 */
-  --border-radius-lg: 6px; /* 모서리 둥글기 */
-  --border-radius-2xl: 8px; /* 모서리 둥글기 */
-  --border-radius-3xl: 12px; /* 모서리 둥글기 */
-  --border-radius-4xl: 16px; /* 모서리 둥글기 */
+  --border-radius: 2px; /* 모서리 둥글기 */
+  --border-radius-sm: 1px; /* 모서리 둥글기 */
+  --border-radius-md: 2px; /* 모서리 둥글기 */
+  --border-radius-lg: 3px; /* 모서리 둥글기 */
+  --border-radius-2xl: 4px; /* 모서리 둥글기 */
+  --border-radius-3xl: 6px; /* 모서리 둥글기 */
+  --border-radius-4xl: 8px; /* 모서리 둥글기 */
   
   
   /* 폰트 크기 */
@@ -177,7 +177,7 @@ a,
 
 
   /* 인풋박스 크기 */
-  --input-search-width: 320px; /* 검색 입력창 너비 */
+  --input-search-width: 360px; /* 검색 입력창 너비 */
   --input-search-height: 36px; /* 검색 입력창 높이 */
 
 
@@ -793,7 +793,7 @@ nav a:first-of-type {
   display: flex !important;
   align-items: center !important;
   min-height: 3.0rem !important;
-  max-height: 4.2rem !important;
+  max-height: 4.0rem !important;
 }
 
 .filter-card {
@@ -821,6 +821,135 @@ nav a:first-of-type {
 .table-card .p-datatable-table {
     border-collapse: separate;
 }
+
+
+
+
+/* ========================================================================================================= */
+/* 모바일 카드 스타일
+/* ========================================================================================================= */
+
+
+/* 모바일 필터 카드 스크롤 처리 */
+@media (max-width: 600px) {
+  .filter-card {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* 필터 행 */
+.filter-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1.5rem !important;
+}
+
+
+/* ========================================================================================================= */
+/* 미사용 
+/* ========================================================================================================= */
+
+/* 모바일 요율표 필터 카드 높이 */
+/*
+@media (max-width: 600px) {
+  .mobile-products-filter-card {
+    min-height: 230px !important;
+    max-height: 230px !important;
+  }
+}
+
+/* 모바일 요율표 기능 카드 높이 */
+/*
+@media (max-width: 600px) {
+  .mobile-products-function-card {
+    min-height: 4.2rem !important;
+    max-height: 4.2rem !important;
+  }
+}
+*/
+
+
+
+/* 모바일 테이블 스크롤 처리 - 기본 너비 1280 */
+@media (max-width: 600px) {
+  .table-card {
+    overflow-x: auto;
+    width: 100vw;
+    /* 필요시 min-width: 100vw; */
+  }
+.table-card .p-datatable-table {
+  min-width: 1280px;
+}
+}
+
+
+/* 개별 화면별 모바일 테이블 너비 설정 */
+@media (max-width: 600px) {
+  .admin-products-view-table .p-datatable-table {
+    min-width: 1800px;
+  }
+}
+
+/* 개별 화면별 모바일 테이블 너비 설정 */
+@media (max-width: 600px) {
+  .table-card user-filter-list-table .p-datatable-table,
+  .user-settlement-month .p-datatable-table {
+    min-width: 900px;
+  }
+}
+
+
+.filter-hide-mobile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem; /* 필요시 조정 */
+}
+
+@media (max-width: 600px) {
+  .filter-hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .hide-mobile {
+    gap: 1rem !important;
+    display: none !important;
+  }
+}
+
+
+
+
+/* ========================================================================================================= */
+/* 모바일 통합 검색용 처리 (가운데 꽉 차게)
+/* ========================================================================================================= */
+
+
+/* <input class="input-search wide-mobile-search"> 추가 */
+@media (max-width: 600px) {
+  .wide-mobile-search {
+    width: 93vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 0.8rem 0.5rem !important;
+    margin: 0 !important;
+  }
+}
+
+/* <div class="filter-card search-center-card"> 추가 */
+@media (max-width: 600px) {
+  .mobile-search-center-card {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+}
+
+
 
 
 
@@ -958,24 +1087,16 @@ nav a:first-of-type {
 /* 인풋 + TXT 스타일
 /* ========================================================================================================= */
 
-/* 필터 카드 입력창 */
-
-/* 필터 행 */
-.filter-row {
-  display: flex !important;
-  align-items: center !important;
-  gap: 1.5rem !important;
-  flex-wrap: wrap !important;
-}
-
 /* 인풋, 검색, 드롭다운 공통 스타일 */
 .input,
+.input-100,
 .input-120,
+.input-180,
 .input-240,
 .input-search,
 .filter-dropdown {
   font-size: var(--font-size-base) !important;
-  padding: 0.8rem 1.0rem !important;
+  padding: 0.75rem 1.0rem !important;
   border: 1px solid var(--border-primary) !important;
   border-radius: var(--border-radius-md) !important;
   background: var(--bg-content) !important;
@@ -985,7 +1106,9 @@ nav a:first-of-type {
 
 /* 인풋, 검색, 드롭다운 포커스 처리 */
 .input:focus,
+.input-100:focus,
 .input-120:focus,
+.input-180:focus,
 .input-240:focus,
 .input-search:focus,
 .filter-dropdown:focus {
@@ -996,7 +1119,9 @@ nav a:first-of-type {
 
 /* 인풋 width */
 .input { width: 100% !important; }
+.input-100 { width: 100px !important; }
 .input-120 { width: 120px !important; }
+.input-180 { width: 180px !important; }
 .input-240 { width: 240px !important; }
 .input-search { width: var(--input-search-width) !important; }
 
@@ -1019,13 +1144,10 @@ nav a:first-of-type {
   font-size: var(--font-size-base) !important;
   text-align: center !important;
   color: var(--text-primary) !important;
-}
-
-.total-count-nowrap {
   white-space: nowrap !important;
 }
 
-label {
+  label {
   font-size: var(--font-size-base) !important;
   display: block !important;
 }
@@ -1170,7 +1292,7 @@ label {
 
 .modal-body label {
   display: block;
-  padding: 0.5rem 2rem 1rem 2rem!important;
+  padding: 1rem 2rem 1rem 2rem!important;
 }
 
 .input-mordal {
@@ -1396,14 +1518,14 @@ label {
 .p-datatable {
   border-radius: var(--border-radius);
   background: #fff;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-primary);
   border-left: none !important;
   overflow: hidden;
   font-size: var(--font-size-base) !important;
 }
 
 .p-datatable .p-datatable-header {
-  background: #f7fafd;
+  background: var(--border-primary) !important;
 }
 
 .p-datatable .p-datatable-thead > tr > th {
@@ -1442,7 +1564,7 @@ label {
 
 /* 헤더 하단 테이블 선 명확하게 */
 .p-datatable .p-datatable-thead > tr > th {
-  border-bottom: 1px solid #c0c4ca !important;
+  border-bottom: 1px solid var(--border-primary) !important;
   background: #f0f0f0;
   color: #222;
   font-weight: 500;
@@ -1535,7 +1657,7 @@ label {
 }
 
 .p-paginator .p-paginator-page:hover {
-  background: var(--gray-400) !important;
+  background: var(--primary-light) !important;
 }
 
 /* 페이지네이터 rows-per-page 드롭다운 숨기기 */
@@ -1690,109 +1812,7 @@ button.p-paginator-page:hover {
 
 
 
-/* ========================================================================================================= */
-/* 모바일 테이블 스크롤 처리
-/* ========================================================================================================= */
 
-/* 모바일 필터 카드 스크롤 처리 */
-@media (max-width: 600px) {
-  .custom-auto-height {
-    min-height: unset !important;
-    max-height: unset !important;
-    height: auto !important;
-  }
-}
-
-/* 모바일 필터 카드 스크롤 처리 */
-@media (max-width: 600px) {
-  .filter-card {
-    overflow-x: auto !important;
-    white-space: nowrap !important;
-  }
-  .filter-row {
-    flex-wrap: nowrap !important;
-  }
-}
-
-
-/* 모바일 테이블 스크롤 처리 - 기본 너비 1280 */
-@media (max-width: 600px) {
-  .table-card {
-    overflow-x: auto;
-    width: 100vw;
-    /* 필요시 min-width: 100vw; */
-  }
-.table-card .p-datatable-table {
-  min-width: 1280px;
-}
-}
-
-/* 개별 화면별 모바일 테이블 너비 설정 */
-@media (max-width: 600px) {
-  .admin-products-view-table .p-datatable-table {
-    min-width: 1800px;
-  }
-}
-
-
-/* 개별 화면별 모바일 테이블 너비 설정 */
-@media (max-width: 600px) {
-  .table-card user-filter-list-table .p-datatable-table,
-  .user-settlement-month .p-datatable-table {
-    min-width: 900px;
-  }
-}
-
-
-
-
-.filter-hide-mobile {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem; /* 필요시 조정 */
-}
-
-@media (max-width: 600px) {
-  .filter-hide-mobile {
-    display: none !important;
-  }
-}
-
-@media (max-width: 600px) {
-  .hide-mobile {
-    gap: 1rem !important;
-    display: none !important;
-  }
-}
-
-
-
-
-/* ========================================================================================================= */
-/* 모바일 통합 검색용 처리 (가운데 꽉 차게)
-/* ========================================================================================================= */
-
-
-/* <input class="input-search wide-mobile-search"> 추가 */
-@media (max-width: 600px) {
-  .wide-mobile-search {
-    width: 93vw !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    padding: 0.8rem 0.5rem !important;
-    margin: 0 !important;
-  }
-}
-
-/* <div class="filter-card search-center-card"> 추가 */
-@media (max-width: 600px) {
-  .search-center-card {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-}
 
 /* -- Status Select Box Styles -- */
 .status-select {

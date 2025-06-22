@@ -9,12 +9,12 @@
           <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
         </select>
         <span>병의원</span>
-        <select v-model="selectedHospital" class="input-240" :disabled="!selectedMonth">
+        <select v-model="selectedHospital" class="input-180" :disabled="!selectedMonth">
           <option value="">전체</option>
           <option v-for="h in hospitalOptions" :key="h" :value="h">{{ h }}</option>
         </select>
         <span>제품</span>
-        <select v-model="selectedProduct" class="input-240" :disabled="!selectedMonth">
+        <select v-model="selectedProduct" class="input-180" :disabled="!selectedMonth">
           <option value="">전체</option>
           <option v-for="p in productOptions" :key="p" :value="p">{{ p }}</option>
         </select>

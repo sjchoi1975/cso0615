@@ -1,7 +1,7 @@
 <template>
   <div class="admin-hospitals-view page-container">
     <!-- Filter Card -->
-    <div class="filter-card custom-auto-height">
+    <div class="filter-card">
       <div class="filter-row">
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search" />
@@ -10,8 +10,8 @@
     </div>
 
     <!-- Function Card -->
-    <div class="function-card custom-auto-height">
-      <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}개 거래처</div>
+    <div class="function-card">
+      <div class="total-count">총 {{ totalCount.toLocaleString() }}개 거래처</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
         <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
         <button class="btn-add" @click="downloadTemplate">템플릿</button>
@@ -207,7 +207,7 @@
     </div>
 
 
-    <!-- File Viewer Modal -->
+    <!-- 사업자등록증 보기, 다운로드 모달 -->
     <div v-if="showFileModal" class="custom-modal-overlay">
       <div class="custom-modal">
         <div class="modal-header">

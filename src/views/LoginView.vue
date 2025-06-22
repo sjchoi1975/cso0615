@@ -3,9 +3,9 @@
     <h2 class="login-title">Company</h2>
     <form @submit.prevent="login" class="auth-form">
       <label>ID</label>
-      <input v-model="email" type="email" placeholder="이메일" class="input" required autofocus />
+      <input v-model="email" type="email" placeholder="" class="input" required autofocus />
       <label>PW</label>
-      <input v-model="password" type="password" placeholder="비밀번호" class="input" required />
+      <input v-model="password" type="password" placeholder="" class="input" required />
       <button type="submit" class="login-btn" :disabled="loading">로그인</button>
       <span class="link" style="text-align: center; margin-top: 1rem;" @click="goSignup">회원가입</span>
     </form>
