@@ -145,16 +145,16 @@ import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 
 const columnWidths = {
-  index: '5%',
-  request_date: '12%',
-  member_name: '10%',
-  filter_type: '7%',
-  hospital_name: '13%',
-  pharmaceutical_company_name: '13%',
-  user_remarks: '10%',
-  status: '10%',
-  admin_comments: '10%',
-  updated_at: '12%',
+  index: '4%',
+  request_date: '10%',
+  member_name: '12%',
+  filter_type: '6%',
+  hospital_name: '16%',
+  pharmaceutical_company_name: '10%',
+  user_remarks: '12%',
+  status: '8%',
+  admin_comments: '12%',
+  updated_at: '10%',
 };
 
 const columnAligns = {

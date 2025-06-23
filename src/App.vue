@@ -36,17 +36,18 @@ supabase.auth.getUser().then(async ({ data }) => {
 const menuNameMap = {
   '/admin/notice/list': '공지사항 목록',
   '/admin/members/list': '회원 목록',
-  '/admin/products/list': '요율표 관리',
+  '/admin/products/list': '수수료율 관리',
   '/admin/filter/list': '필터링 요청 목록',
   '/admin/pharmaceutical-companies': '제약사 관리',
   '/admin/edi/list': 'EDI 제출 내역',
   '/admin/settlement/list': '정산내역서',
   '/notice/list': '공지사항',
-  '/products/list': '요율표',
-  '/filter/list': '요청 목록',
+  '/products/list': '수수료율',
+  '/hospitals/list': '거래처',
   '/filter/create': '필터링 요청',
+  '/filter/list': '요청 내역',
+  '/edi/submit': 'EDI 제출',
   '/edi/list': '제출 내역',
-  '/edi/upload': 'EDI 제출',
   '/settlement/list': '정산내역서',
 }
 const menuName = computed(() => menuNameMap[route.path] || '')
@@ -119,11 +120,9 @@ watch(
       :company-name="userInfo?.company_name || ''"
       @logout="handleLogout"
       @profile="handleProfile"
+      @toggle-sidebar="sidebarVisible = !sidebarVisible"
     />
     <div class="main-content main-margin">
-      <button v-if="!['/login','/signup'].includes(route.path)" class="menu-toggle" @click="sidebarVisible = !sidebarVisible">
-        <i class="pi pi-bars"></i>
-      </button>
       <RouterView />
     </div>
   </div>

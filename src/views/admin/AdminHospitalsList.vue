@@ -31,7 +31,7 @@
         :loading="loading"
         :paginator="false"
         scrollable
-        :scrollHeight="'calc(100vh - 204px)'"
+        :scrollHeight="'calc(100vh - 220px)'"
         ref="tableRef"
       >
         <Column header="순번" :style="{ width: columnWidths.index }" :bodyStyle="{ textAlign: columnAligns.index }">
