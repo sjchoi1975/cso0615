@@ -1,5 +1,6 @@
 <template>
-  <div class="admin-products-view page-container">
+
+<div class="admin-products-view page-container">
     <!-- 모바일 필터 카드 스크롤 처리 -->
     <div class="filter-card">
       <div class="filter-row">

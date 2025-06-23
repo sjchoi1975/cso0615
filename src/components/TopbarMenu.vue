@@ -95,7 +95,7 @@ const companyInitial = computed(() => getFirstChar(props.companyName));
   background: #fff !important;
   padding: 0.5rem 1rem !important;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
-  border-bottom: 1px solid var(--gray-300) !important;
+  border-bottom: 1px solid var(--gray-400) !important;
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
@@ -195,7 +195,7 @@ const companyInitial = computed(() => getFirstChar(props.companyName));
 
 /* 탑바 메뉴명 ======================================== */
 .topbar .menu-title {
-  font-size: var(--font-size-140) !important;
+  font-size: var(--font-size-130) !important;
   color: #222 !important;
   font-weight: 600 !important;
   padding-left: 0rem !important;

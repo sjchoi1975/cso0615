@@ -4,24 +4,27 @@ import LoginView from '../views/LoginView.vue'
 import SignupView from '../views/SignupView.vue'
 
 import AdminNoticeList from '../views/admin/AdminNoticeList.vue'
-import AdminNoticeDetail from '../views/admin/AdminNoticeDetail.vue'
+import AdminNoticeCreate from '../views/admin/AdminNoticeCreate.vue'
 import AdminNoticeEdit from '../views/admin/AdminNoticeEdit.vue'
+import AdminNoticeDetail from '../views/admin/AdminNoticeDetail.vue' /* 공지사항 상세 미사용 */
 import AdminMembersList from '../views/admin/AdminMembersList.vue'
 import AdminProductsList from '../views/admin/AdminProductsList.vue'
+import AdminProductsCreate from '../views/admin/AdminProductsCreate.vue'
 import AdminFilterList from '../views/admin/AdminFilterList.vue'
 import AdminPharmaceuticalCompanies from '../views/admin/AdminPharmaceuticalCompanies.vue'
 import AdminEdiList from '../views/admin/AdminEdiList.vue'
-import AdminSettlementList from '../views/admin/AdminSettlementList.vue'
-import AdminProductsCreate from '../views/admin/AdminProductsCreate.vue'
-import AdminNoticeCreate from '../views/admin/AdminNoticeCreate.vue'
+import AdminSettlementMonth from '../views/admin/AdminSettlementMonth.vue'
+import AdminSettlementMonthDetail from '../views/admin/AdminSettlementMonthDetail.vue'
 
-import UserFilterList from '../views/user/UserFilterList.vue'
-import UserFilterCreate from '../views/user/UserFilterCreate.vue'
-import UserEdiList from '../views/user/UserEdiList.vue'
-import UserSettlementList from '../views/user/UserSettlementList.vue'
-import UserProductsList from '../views/user/UserProductsList.vue'
 import UserNoticesList from '../views/user/UserNoticesList.vue'
 import UserNoticesDatail from '../views/user/UserNoticesDatail.vue'
+import UserProductsList from '../views/user/UserProductsList.vue'
+import UserFilterCreate from '../views/user/UserFilterCreate.vue'
+import UserFilterList from '../views/user/UserFilterList.vue'
+import UserEdiList from '../views/user/UserEdiList.vue'
+import UserSettlementList from '../views/user/UserSettlementList.vue'
+
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -67,9 +70,14 @@ const router = createRouter({
       component: () => import('@/views/admin/AdminEdiMonths.vue'),
     },
     {
-      path: '/admin/settlement/list',
-      name: 'admin-settlement-list',
-      component: AdminSettlementList,
+      path: '/admin/settlement/month',
+      name: 'admin-settlement-month',
+      component: AdminSettlementMonth,
+    },
+    {
+      path: '/admin/settlement/month/:year_month',
+      name: 'admin-settlement-month-detail',
+      component: AdminSettlementMonthDetail,
     },
     {
       path: '/admin/products/create',

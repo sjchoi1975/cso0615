@@ -66,10 +66,10 @@
         <div class="modal-header">
           <h3 class="modal-title">{{ isEdit ? '제약사 수정' : '제약사 추가' }}</h3>
         </div>
-
+        
         <div class="modal-body">
           <div class="form-group">
-            <label class="form-label">제약사명 *</label>
+            <label>제약사명 *</label>
             <input 
               v-model="formData.company_name" 
               type="text" 

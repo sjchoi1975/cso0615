@@ -15,6 +15,7 @@ const sidebarVisible = ref(false)
 const userInfo = ref(null)
 const route = useRoute()
 const router = useRouter()
+const isSidebarHovered = ref(false);
 
 // 로그인 후 userInfo를 세팅하는 예시(실제 구현에서는 로그인 성공 시 setUserInfo 호출)
 function setUserInfo(info) {
@@ -34,15 +35,17 @@ supabase.auth.getUser().then(async ({ data }) => {
   }
 })
 
-// 현재 라우트에 따른 메뉴명 추출(간단 예시)
+// 현재 라우트에 따른 메뉴명 추출
 const menuNameMap = {
   '/admin/notice/list': '공지사항 목록',
   '/admin/members/list': '회원 목록',
   '/admin/products/list': '수수료율 관리',
   '/admin/filter/list': '필터링 요청 목록',
   '/admin/pharmaceutical-companies': '제약사 관리',
-  '/admin/edi/list': 'EDI 제출 내역',
-  '/admin/settlement/list': '정산내역서',
+  '/admin/edi/months': 'EDI 제출월 설정',
+  '/admin/edi/list': 'EDI 제출 목록',
+  '/admin/settlement/month': '월별 정산 현황',
+     
   '/notice/list': '공지사항',
   '/products/list': '수수료율',
   '/hospitals/list': '거래처',
@@ -52,7 +55,17 @@ const menuNameMap = {
   '/edi/list': '제출 내역',
   '/settlement/list': '정산내역서',
 }
-const menuName = computed(() => menuNameMap[route.path] || '')
+const menuName = computed(() => {
+  const path = route.path;
+  const params = route.params;
+
+  if (path.startsWith('/admin/settlement/month/') && params.year_month) {
+    const [year, month] = params.year_month.split('-');
+    return `월별 정산 현황 > ${year}년 ${parseInt(month, 10)}월`;
+  }
+  
+  return menuNameMap[path] || '';
+});
 
 const handleLogout = async () => {
   await supabase.auth.signOut()
@@ -116,8 +129,10 @@ watch(
       :visible="sidebarVisible"
       :user-info="userInfo"
       @menu-click="handleMenuClick"
+      @sidebar-hover="isSidebarHovered = $event"
     />
     <div v-if="sidebarVisible" class="sidebar-overlay" @click="sidebarVisible = false"></div>
+    <div v-if="isSidebarHovered" class="content-overlay"></div>
     <TopbarMenu
       v-if="!['/login','/signup'].includes(route.path)"
       :menu-name="menuName"
@@ -131,3 +146,22 @@ watch(
     </div>
   </div>
 </template>
+
+<style scoped>
+.content-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 800; /* 사이드바(900)보다는 낮고, 콘텐츠보다는 높게 */
+  display: none; /* 모바일에서는 보이지 않음 */
+}
+
+@media (min-width: 901px) {
+  .content-overlay {
+    display: block; /* PC에서만 보임 */
+  }
+}
+</style>

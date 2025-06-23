@@ -5,7 +5,9 @@
         <span>정산월</span>
         <select v-model="selectedMonth" class="input-120">
           <option value="">- 전체 -</option>
-          <option v-for="m in monthOptions" :key="m" :value="m">{{ m }}</option>
+          <option v-for="m in monthOptions" :key="m" :value="m">
+            {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
+          </option>
         </select>
       </div>
     </div>
@@ -54,40 +56,96 @@
             </span>
           </template>
         </Column>
-        <Column header="상세" :style="{ width: columnWidths.detail, textAlign: columnAligns.detail }">
+        <!-- 상세 컬럼 -->
+        <Column 
+          header="상세" 
+          :style="{ width: columnWidths.detail, textAlign: columnAligns.detail }"
+          :sortable="columnSortables.detail"
+        >
           <template #body="slotProps">
-            <button class="btn-detail" @click="goDetail(slotProps.data)">상세</button>
+            <button 
+              class="p-button p-button-text p-button-rounded icon-only-btn"
+              @click="goDetail(slotProps.data)" 
+              v-tooltip.top="'상세보기'"
+            >
+              <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
+            </button>
           </template>
         </Column>
-        <Column header="삭제" :style="{ width: columnWidths.delete, textAlign: columnAligns.delete }">
+        <!-- 수정 컬럼 -->
+        <Column 
+          header="수정" 
+          :style="{ width: columnWidths.edit, textAlign: columnAligns.edit }"
+          :sortable="columnSortables.edit"
+        >
           <template #body="slotProps">
-            <button class="btn-delete-sm" @click="deleteMonth(slotProps.data)">삭제</button>
+            <Button 
+              icon="pi pi-pencil" 
+              class="p-button-rounded p-button-text btn-icon-edit" 
+              @click="openNotePopup(slotProps.data)"
+              v-tooltip.top="'전달사항 수정'"
+            />
+          </template>
+        </Column>
+        <!-- 삭제 컬럼 -->
+        <Column 
+          header="삭제" 
+          :style="{ width: columnWidths.delete, textAlign: columnAligns.delete }"
+          :sortable="columnSortables.delete"
+        >
+          <template #body="slotProps">
+            <Button 
+              icon="pi pi-trash" 
+              class="p-button-rounded p-button-text btn-icon-danger" 
+              @click="deleteMonth(slotProps.data)"
+            />
           </template>
         </Column>
       </DataTable>
     </div>
 
-    <!-- 정산월 등록 -->
-    <div v-if="showRegisterDialog" class="custom-modal-overlay">
+    <!-- 정산월 등록/수정 모달 -->
+    <div v-if="showRegisterDialog" class="custom-modal-overlay" @click.self="closeRegisterDialog">
       <div class="custom-modal">
-        <label class="modai-title">정산월 등록</label>
+        <div class="modal-header">
+          <div class="modal-title">정산월 등록</div>
+        </div>
         <div class="modal-body">
-          <label>정산월</label>
-          <input type="month" v-model="newMonth" />
-          <label style="margin-top:1rem;">전달사항</label>
-          <textarea v-model="newNote" rows="12" style="width:100%; margin-bottom: 2.5rem;"></textarea>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="form-label">정산월 *</label>
+              <date-picker 
+                v-model:value="newMonth" 
+                type="month" 
+                format="YYYY-MM"
+                value-type="format"
+                class="input-mordal-datepicker"
+              />
+            </div>
+            <div class="form-group">
+              <label for="form-label">비고</label>
+              <textarea 
+                v-model="newNote"
+                rows="8"
+                class="input-mordal"
+                placeholder="회원 전달 사항을 입력하세요"
+              />
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn-cancel" @click="closeRegisterDialog">취소</button>
-          <button class="btn-add" @click="registerMonth" :disabled="registerLoading">등록</button>
+          <button class="btn-add" @click="registerMonth" :disabled="registerLoading">저장</button>
         </div>
       </div>
     </div>
 
-    <!-- 전달사항 팝업 -->
-    <div v-if="showNoteDialog" class="custom-modal-overlay">
+    <!-- 전달사항(비고) 수정 모달 -->
+    <div v-if="showNoteDialog" class="custom-modal-overlay" @click.self="closeNoteDialog">
       <div class="custom-modal">
-        <label class="modai-title">전달사항</label>
+        <div class="modal-header">
+          <div class="modal-title">전달사항</div>
+        </div>
         <div class="modal-body">
           <div v-if="!noteEditMode" style="white-space: pre-line;">{{ noteValue }}</div>
           <textarea v-else v-model="noteValue" rows="12" style="width:100%; margin-bottom:2.5rem;"></textarea>
@@ -110,6 +168,10 @@ import Column from 'primevue/column';
 import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
+import Button from 'primevue/button';
+import DatePicker from 'vue-datepicker-next';
+import 'vue-datepicker-next/index.css';
+import 'vue-datepicker-next/locale/ko';
 
 const router = useRouter();
 
@@ -136,14 +198,15 @@ const noteOrigin = ref('');
 const columnWidths = {
   index: '4%',
   settlement_month: '8%',
-  note: '32%',
+  note: '30%',
   company_name: '8%',
   hospital_name: '8%',
   prescription_count: '8%',
   prescription_amount: '8%',
   payment_amount: '8%',
-  detail: '8%',
-  delete: '8%'
+  detail: '6%',
+  edit: '6%',
+  delete: '6%'
 };
 
 // 컬럼별 정렬 방식 한 곳에서 관리
@@ -157,6 +220,7 @@ const columnAligns = {
   prescription_amount: 'right',
   payment_amount: 'right',
   detail: 'center',
+  edit: 'center',
   delete: 'center'
 };
 
@@ -168,7 +232,10 @@ const columnSortables = {
   hospital_name: true,
   prescription_count: true,
   prescription_amount: true,
-  payment_amount: true
+  payment_amount: true,
+  detail: false,
+  edit: false,
+  delete: false
 };
 
 // 컬럼 배열 한 곳에서 관리
@@ -336,9 +403,12 @@ const saveNote = async () => {
   }
   noteEditMode.value = false;
 };
-const goDetail = (row) => {
-  // 상세화면(월별 상세)로 이동, 정산월 파라미터 전달
-  router.push({ path: '/admin/settlement/list', query: { month: row.settlement_month } });
+const goDetail = (data) => {
+  router.push(`/admin/settlement/month/${data.settlement_month}`);
+};
+const openUploadDialog = (data) => {
+  // TODO: 등록(업로드) 관련 로직 구현
+  alert(`${data.settlement_month} 정산 데이터 등록 로직을 여기에 추가해야 합니다.`);
 };
 const deleteMonth = async (row) => {
   if (!confirm(`${row.settlement_month} 정산월을 삭제하시겠습니까?`)) return;
@@ -370,5 +440,16 @@ const deleteMonth = async (row) => {
 .blue-underline {
   border-bottom: 1.5px solid #1976d2;
   color: #1976d2;
+}
+.icon-only-btn,
+.icon-only-btn:enabled:hover,
+.icon-only-btn:enabled:focus {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.p-button.icon-only-btn:disabled {
+  opacity: 0.4;
 }
 </style>

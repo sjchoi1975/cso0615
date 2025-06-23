@@ -1,5 +1,10 @@
 <template>
-  <div class="sidebar-container" :class="{ 'mobile-visible': visible }">
+  <div 
+    class="sidebar-container" 
+    :class="{ 'mobile-visible': visible }"
+    @mouseenter="$emit('sidebar-hover', true)"
+    @mouseleave="$emit('sidebar-hover', false)"
+  >
     <aside
       class="sidebar"
       :class="{ 'sidebar-mobile-open': visible }"
@@ -83,7 +88,7 @@ const props = defineProps({
     default: () => ({})
   }
 });
-const emit = defineEmits(['toggle', 'menu-click']);
+const emit = defineEmits(['toggle', 'menu-click', 'sidebar-hover']);
 
 const route = useRoute();
 
@@ -116,7 +121,7 @@ const adminMenu = [
     ]
   },
   { label: '정산 관리', icon: 'pi pi-wallet', items: [
-      { label: '월별 정산 현황', icon: 'pi pi-list', to: '/admin/settlement/list' },
+      { label: '월별 정산 현황', icon: 'pi pi-list', to: '/admin/settlement/month' },
     ]
   },
 ];
