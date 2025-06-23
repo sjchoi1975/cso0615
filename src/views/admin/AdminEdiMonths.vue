@@ -75,7 +75,6 @@
                 format="YYYY-MM"
                 value-type="format"
                 class="input-mordal-datepicker"
-                :lang="lang"
               />
             </div>
             <div class="form-group">
