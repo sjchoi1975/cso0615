@@ -4,10 +4,8 @@
     <form @submit.prevent="login" class="auth-form">
       <label>ID</label>
       <input v-model="email" type="email" placeholder="" class="input" required autofocus />
-      <div class="login-error" style="min-height:1.6em;">
-        <span v-if="email && !isEmailValid">이메일 형식으로 입력해 주세요.</span>
-      </div>
-      <label>PW</label>
+      
+      <label class="pw-label">PW</label>
       <div class="input-eye-wrap">
         <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="" class="input" required />
         <button type="button" class="eye-btn" @click="showPassword = !showPassword" :aria-label="showPassword ? '비밀번호 숨기기' : '비밀번호 보기'">
@@ -21,10 +19,8 @@
           </span>
         </button>
       </div>
-      <div class="login-error" style="min-height:1.6em;">
-        <span v-if="password && !isPasswordValid">비밀번호는 최소 6자 이상 입력해 주세요.</span>
-      </div>
-      <button type="submit" class="login-btn" :disabled="!isLoginEnabled">로그인</button>
+      
+      <button type="submit" class="login-btn">로그인</button>
       <span class="link" style="text-align: center; margin-top: 1rem;" @click="goSignup">회원가입</span>
     </form>
   </div>
@@ -41,17 +37,12 @@ const loading = ref(false);
 const router = useRouter();
 const showPassword = ref(false);
 
-// 이메일 형식 검증
-const isEmailValid = computed(() => {
-  const re = /^(([^<>()\[\]\\.,;:\s@\"]+(\.[^<>()\[\]\\.,;:\s@\"]+)*)|(".+"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
-  return re.test(email.value);
-});
-// 비밀번호 6글자 이상
-const isPasswordValid = computed(() => password.value.length >= 6);
-// 둘 다 만족해야 로그인 버튼 활성화
-const isLoginEnabled = computed(() => isEmailValid.value && isPasswordValid.value && !loading.value);
-
 const login = async () => {
+  if (!email.value || !password.value) {
+    alert('아이디와 비밀번호를 모두 입력해주세요.');
+    return;
+  }
+
   loading.value = true;
   try {
     // 1. 아이디(이메일) 존재 여부 확인 및 로그인 시도
@@ -96,20 +87,22 @@ const goSignup = () => {
 </script>
 
 <style scoped>
-.login-error {
-  color: #dc3545;
-  font-size: 0.9rem;
-  margin: -0.5rem 0 -0.25rem 0.1rem;
+
+.pw-label {
+  margin-top: 1.2rem !important;
 }
+
 .input-eye-wrap {
   position: relative;
   display: flex;
   align-items: center;
 }
+
 .input-eye-wrap .input {
   flex: 1;
   padding-right: 2.2rem !important;
 }
+
 .eye-btn {
   position: absolute;
   right: 1rem !important;
@@ -119,4 +112,5 @@ const goSignup = () => {
   color: #666 !important;
   padding: 0 !important;
 }
+
 </style>
