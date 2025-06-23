@@ -29,7 +29,7 @@
 .login-btn,
 .signup-btn,
 .cancel-btn {
-  padding: 0.3rem 1rem !important;
+  padding: 0.5rem 1rem !important;
   font-size: var(--font-size-base) !important;
   font-weight: 400 !important;
   line-height: 1.5 !important;
@@ -41,6 +41,30 @@
   transition: all 0.2s ease-in-out !important;
   box-shadow: var(--shadow-sm) !important;
 }
+
+
+/* 필터 카드 검색 */
+.btn-search-filter {
+  font-size: var(--font-size-base) !important;
+  padding: 0.65rem 1.0rem !important;
+  border: 1px solid var(--primary) !important;
+  border-radius: 0 2px 2px 0 !important;
+  background: var(--primary) !important;
+  color: var(--text-white) !important;
+  transition: border 0.2s !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  line-height: 1.28 !important;
+}
+
+.btn-search-filter:disabled {
+  background: #e0e0e0 !important;
+  color: #aaa !important;
+  border: 1px solid var(--border-primary) !important;
+  cursor: not-allowed !important;
+}
+
+
 
 /* 로그인 */
 .login-btn {

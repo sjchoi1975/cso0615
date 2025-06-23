@@ -290,7 +290,8 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
     min-width: 0 !important;
     max-width: 0 !important;
     overflow: hidden !important;
-    transition: width 0.2s;
+    transition: width 0.2s !important;
+    padding-left: 0 !important;
   }
   .sidebar.sidebar-mobile-open {
     top: 0 !important;
@@ -301,6 +302,16 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
     position: fixed !important;
     z-index: 2000 !important;
   }
+  .menu-item {
+    padding: 0.8rem 1rem 0.8rem 1.5rem !important;
+  }
+  .menu-item i {
+    margin-right: 0.5rem !important;
+  }
+  .sub-menu-item {
+  padding-left: 3.2rem !important;
+  font-size: var(--font-size-base) !important;
+}
 }
 
 .sub-menu-container {
@@ -315,6 +326,7 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
 
 .menu-group-label .pi-chevron-right,
 .menu-group-label .pi-chevron-down {
+  font-size: var(--font-size-90) !important;
   transition: transform 0.3s ease;
 }
 

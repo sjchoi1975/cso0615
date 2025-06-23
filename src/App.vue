@@ -6,6 +6,8 @@ import SidebarMenu from './components/SidebarMenu.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '@/supabase'
 import TopbarMenu from './components/TopbarMenu.vue'
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 
 // 임시: 관리자/회원 구분 (추후 로그인 연동)
 const isAdmin = ref(true) // true: 관리자, false: 회원
@@ -107,6 +109,8 @@ watch(
 
 <template>
   <div class="layout">
+    <Toast />
+    <ConfirmDialog />
     <SidebarMenu
       v-if="!['/login','/signup'].includes(route.path)"
       :visible="sidebarVisible"

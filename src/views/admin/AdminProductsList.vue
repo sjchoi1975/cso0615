@@ -24,7 +24,11 @@
           <option value="active">활성</option>
           <option value="inactive">비활성</option>
         </select>
-        <button class="btn-add" @click="searchProducts" :disabled="!isSearchActive" style="margin-left: 2rem; margin: 0rem">검색</button>
+        <button class="btn-search-filter"
+          @click="searchProducts" 
+          :disabled="!isSearchActive" 
+          style="margin-left: 2rem; 
+          margin: 0rem">검색</button>
         <button class="filter-reset-btn"
           @click="resetFilters"
           style="margin-left: 0.5rem; display: flex; align-items: center; gap: 0.2rem;">
@@ -55,7 +59,7 @@
     <!-- 하단: 테이블카드 -->
     <div class="table-card admin-products-view-table">
       <DataTable
-        :value="filteredProducts"
+        :value="products"
         :loading="loading"
         :paginator="false"
         :rows="200"
@@ -82,14 +86,6 @@
           :bodyStyle="{ textAlign: columnAligns.pharmacist }">
           <template #body="slotProps">
             <span :title="slotProps.data.pharmacist">{{ slotProps.data.pharmacist }}</span>
-          </template>
-        </Column>
-        <Column field="classification" header="분류"
-          :sortable="columnSortables.classification"
-          :style="{ width: columnWidths.classification }"
-          :bodyStyle="{ textAlign: columnAligns.classification }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.classification">{{ slotProps.data.classification }}</span>
           </template>
         </Column>
         <Column field="product_name" header="제품명"
@@ -146,6 +142,14 @@
           :bodyStyle="{ textAlign: columnAligns.Ingredient }">
           <template #body="slotProps">
             <span :title="slotProps.data.Ingredient">{{ slotProps.data.Ingredient }}</span>
+          </template>
+        </Column>
+        <Column field="classification" header="분류"
+          :sortable="columnSortables.classification"
+          :style="{ width: columnWidths.classification }"
+          :bodyStyle="{ textAlign: columnAligns.classification }">
+          <template #body="slotProps">
+            <span :title="slotProps.data.classification">{{ slotProps.data.classification }}</span>
           </template>
         </Column>
         <Column field="comparator" header="대조약"
@@ -245,7 +249,6 @@ import AdminProductsEdit from './AdminProductsEdit.vue';
 const columnWidths = {
   index: '4%',
   pharmacist: '6%',
-  classification: '7%',
   product_name: '10%',
   insurance_code: '5%',
   price: '4%',
@@ -253,6 +256,7 @@ const columnWidths = {
   commission_rate_b: '4%',
   commission_rate_c: '4%',
   Ingredient: '10%',
+  classification: '7%',
   comparator: '10%',
   reimbursement: '4%',
   bioequivalence: '4%',
@@ -266,7 +270,6 @@ const columnWidths = {
 const columnSortables = {
   index: false,
   pharmacist: true,
-  classification: true,
   product_name: true,
   insurance_code: true,
   price: true,
@@ -274,6 +277,7 @@ const columnSortables = {
   commission_rate_b: true,
   commission_rate_c: true,
   Ingredient: false,
+  classification: true,
   comparator: false,
   reimbursement: true,
   bioequivalence: true,
@@ -287,7 +291,6 @@ const columnSortables = {
 const columnAligns = {
   index: 'center',
   pharmacist: 'left',
-  classification: 'left',
   product_name: 'left',
   insurance_code: 'center',
   price: 'right',
@@ -295,6 +298,7 @@ const columnAligns = {
   commission_rate_b: 'center',
   commission_rate_c: 'center',
   Ingredient: 'left',
+  classification: 'left',
   comparator: 'left',
   reimbursement: 'center',
   bioequivalence: 'center',
@@ -305,88 +309,116 @@ const columnAligns = {
   status: 'center'
 };
 
-const products = ref([]);
-const loading = ref(false);
-const search = ref('');
-const currentMonth = ref('');
 const router = useRouter();
-const first = ref(0);
+
+const currentMonth = ref({ value: '' });
+const monthOptions = ref([]);
+
+const search = ref('');
 const reimbursement = ref('');
 const status = ref('');
-const totalCount = ref(0);
-const pageSize = ref(200);
-const monthOptions = ref([]);
+
 const appliedMonth = ref('');
 const appliedSearch = ref('');
 const appliedReimbursement = ref('');
 const appliedStatus = ref('');
 
+const products = ref([]);
+const loading = ref(false);
+const totalCount = ref(0);
+const first = ref(0);
+const pageSize = ref(200);
+
 const fetchMonthOptions = async () => {
   const { data, error } = await supabase
-    .from('product_months')
-    .select('base_month');
-  if (!error && data) {
-    const uniqueMonths = data.map(row => row.base_month);
+    .from('products')
+    .select('base_month')
+    .order('base_month', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching month options:", error);
+  } else {
+    const uniqueMonths = [...new Set(data.map(row => row.base_month).filter(m => m))];
     monthOptions.value = uniqueMonths;
-    if (uniqueMonths.length > 0 && !currentMonth.value) {
-      currentMonth.value = uniqueMonths[0];
-      searchProducts();
+    if (uniqueMonths.length > 0 && !currentMonth.value.value) {
+      currentMonth.value.value = uniqueMonths[0];
+      appliedMonth.value = uniqueMonths[0];
     }
   }
 };
 
 onMounted(async () => {
   await fetchMonthOptions();
-  await fetchProducts(first.value, pageSize.value);
+  fetchProducts(0, pageSize.value);
 });
 
 onActivated(async () => {
   await fetchProducts(first.value, pageSize.value);
 });
 
-watch(monthOptions, (newOptions) => {
-  if (newOptions && newOptions.length > 0 && !currentMonth.value) {
-    currentMonth.value = newOptions[0];
-    fetchProducts(0, pageSize.value);
-    appliedMonth.value = newOptions[0];
+watch(
+  () => currentMonth.value.value,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      fetchProducts(0, pageSize.value);
+    }
   }
-});
+);
 
 const tableRef = ref(null);
+const scrollPosition = ref(0);
 
 const fetchProducts = async (pageFirst = 0, pageRows = 200) => {
   loading.value = true;
-  const month = currentMonth.value;
-
   let query = supabase
     .from('products')
     .select('*', { count: 'exact' });
 
-  // 월 필터 적용
-  if (month) {
-    query = query.eq('base_month', month);
+  // 기준월 필터
+  if (appliedMonth.value) {
+    query = query.eq('base_month', appliedMonth.value);
   }
-
-  if (appliedSearch.value) {
-    const keyword = appliedSearch.value.toLowerCase();
-    query = query.or(`pharmacist.ilike.%${keyword}%,product_name.ilike.%${keyword}%,insurance_code.ilike.%${keyword}%,Ingredient.ilike.%${keyword}%`);
-  }
-  if (appliedReimbursement.value) {
-    query = query.eq('reimbursement', appliedReimbursement.value);
-  }
+  
+  // 상태 필터
   if (appliedStatus.value) {
     query = query.eq('status', appliedStatus.value);
   }
-  const from = pageFirst;
-  const to = from + pageRows - 1;
-  query = query.range(from, to);
-  const { data, error, count } = await query.order('registered_at', { ascending: false });
-  console.log('data:', data, 'error:', error, 'count:', count);
-  if (!error) {
-    products.value = data;
-    totalCount.value = count || 0;
+
+  // 급여 필터
+  if (appliedReimbursement.value) {
+    query = query.eq('reimbursement', appliedReimbursement.value);
+  }
+
+  // 쉼표로 구분된 AND 조건 검색
+  if (appliedSearch.value) {
+    const searchTerms = appliedSearch.value.split(',').map(term => term.trim()).filter(term => term);
+    if (searchTerms.length > 0) {
+      const orConditions = searchTerms.map(term => 
+        `pharmacist.ilike.%${term}%,product_name.ilike.%${term}%,insurance_code.ilike.%${term}%,Ingredient.ilike.%${term}%`
+      ).join(',');
+      
+      searchTerms.forEach(term => {
+        const orFilter = `or(pharmacist.ilike.%${term}%,product_name.ilike.%${term}%,insurance_code.ilike.%${term}%,Ingredient.ilike.%${term}%)`;
+        query = query.or(orFilter);
+      });
+    }
+  }
+
+  // 페이지네이션
+  query = query.range(pageFirst, pageFirst + pageRows - 1);
+
+  // 데이터 정렬 (옵션)
+  query = query.order('id', { ascending: false });
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    console.error("Error fetching products:", error);
+    products.value = [];
+    totalCount.value = 0;
   } else {
-    alert('데이터 로드 실패: ' + error.message);
+    products.value = data;
+    totalCount.value = count;
   }
   loading.value = false;
 };
@@ -395,27 +427,43 @@ const onPageChange = (event) => {
   first.value = event.first;
   pageSize.value = event.rows;
   fetchProducts(event.first, event.rows);
+  search.value = '';
+  reimbursement.value = '';
+  status.value = '';
+  searchProducts();
 };
 
+const isSearchActive = computed(() => {
+  const value = search.value.trim();
+  let searchValid = false;
+  if (/[가-힣]/.test(value)) {
+    searchValid = value.length >= 2;
+  } else if (value.length > 0) {
+    searchValid = value.length >= 3;
+  }
+  return (
+    searchValid ||
+    reimbursement.value !== appliedReimbursement.value ||
+    status.value !== appliedStatus.value ||
+    currentMonth.value.value !== appliedMonth.value
+  );
+});
+
 const searchProducts = () => {
-  appliedMonth.value = currentMonth.value;
-  appliedSearch.value = search.value.trim();
+  appliedMonth.value = currentMonth.value.value;
+  appliedSearch.value = search.value;
   appliedReimbursement.value = reimbursement.value;
   appliedStatus.value = status.value;
   fetchProducts(0, pageSize.value);
 };
 
-const resetFilters = () => {
+const resetFilters = async () => {
+  currentMonth.value.value = monthOptions.value[0] || '';
   search.value = '';
   reimbursement.value = '';
   status.value = '';
-  first.value = 0;
-  fetchProducts(0, pageSize.value);
+  searchProducts();
 };
-
-const filteredProducts = computed(() => {
-  return products.value;
-});
 
 const goToProductCreate = () => {
   router.push('/admin/products/create');
@@ -460,7 +508,7 @@ const updateProductStatus = async (product) => {
 
 const downloadExcel = () => {
   const todayStr = dayjs().format('YYYY-MM-DD');
-  const exportData = filteredProducts.value.map(row => ({
+  const exportData = products.value.map(row => ({
     '제약사': row.pharmacist,
     '분류명': row.classification,
     '제품명': row.product_name,
@@ -513,7 +561,7 @@ const uploadExcel = async (e) => {
     const sheet = workbook.Sheets[sheetName];
     const json = XLSX.utils.sheet_to_json(sheet);
     const rows = json.map(row => ({
-      base_month: row['기준월'] ? String(row['기준월']).slice(0, 7) : currentMonth.value,
+      base_month: row['기준월'] ? String(row['기준월']).slice(0, 7) : currentMonth.value.value,
       pharmacist: row['제약사'] || '',
       classification: row['분류명'] || '',
       product_name: row['제품명'] || '',
@@ -552,7 +600,7 @@ const deleteAllProducts = async () => {
   if (!confirm(`현재 조건에 맞는 모든 제품(${totalCount.value}개)을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
   loading.value = true;
 
-  let query = supabase.from('products').delete().eq('base_month', currentMonth.value);
+  let query = supabase.from('products').delete().eq('base_month', currentMonth.value.value);
   if (appliedSearch.value) {
     const keyword = appliedSearch.value.toLowerCase();
     query = query.or(`pharmacist.ilike.%${keyword}%,product_name.ilike.%${keyword}%,insurance_code.ilike.%${keyword}%,Ingredient.ilike.%${keyword}%`);
@@ -573,17 +621,8 @@ const deleteAllProducts = async () => {
   }
 };
 
-const isSearchActive = computed(() => {
-  return (
-    search.value.trim() !== appliedSearch.value ||
-    reimbursement.value !== appliedReimbursement.value ||
-    status.value !== appliedStatus.value ||
-    currentMonth.value !== appliedMonth.value
-  );
-});
-
 const getStatusClass = (status) => {
-  return status === 'active' ? 'active' : 'inactive';
+  return status === 'active' ? 'status-active' : 'status-inactive';
 };
 
 const formatCommissionRate = (rate) => {

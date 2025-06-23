@@ -79,6 +79,7 @@
             />
           </div>
         </div>
+
         <div class="modal-footer">
           <button class="btn-cancel" @click="closeModal">취소</button>
           <button 

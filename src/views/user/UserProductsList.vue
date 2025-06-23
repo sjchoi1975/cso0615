@@ -6,8 +6,23 @@
     <div class="filter-card">
       <div class="filter-row flex-row">
         <span class="p-input-icon-left">
-          <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 검색" class="input-search" @keyup.enter="searchProducts" />
-          <button class="btn-add search-btn" @click="searchProducts" :disabled="!isSearchActive">검색</button>
+          <input
+            :value="search"
+            @input="onInput"
+            @compositionstart="onCompositionStart"
+            @compositionupdate="onCompositionUpdate"
+            @compositionend="onCompositionEnd"
+            @keyup.enter="searchProducts"
+            class="input-search"
+            style="border-radius: 2px 0 0 2px !important; border-right: none !important;"
+            placeholder="제약사, 제품명, 보험코드, 성분명 검색"
+          />
+          <button
+            class="btn-search-filter" 
+            style="border-radius: 0 2px 2px 0 !important;"
+            @click="searchProducts" 
+            :disabled="!isSearchActive"
+            >검색</button>
         </span>
         <button class="filter-reset-btn icon-reset"
           @click="resetFilters"
@@ -50,11 +65,6 @@
             <span :title="slotProps.data.pharmacist">{{ slotProps.data.pharmacist }}</span>
           </template>
         </Column>
-        <Column field="classification" header="분류명" :style="{ width: columnWidths.classification }" :bodyStyle="{ textAlign: columnAligns.classification }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.classification">{{ slotProps.data.classification }}</span>
-          </template>
-        </Column>
         <Column field="product_name" header="제품명" :style="{ width: columnWidths.product_name }" :bodyStyle="{ textAlign: columnAligns.product_name }">
           <template #body="slotProps">
             <span :title="slotProps.data.product_name">{{ slotProps.data.product_name }}</span>
@@ -78,6 +88,11 @@
         <Column field="Ingredient" header="성분" :style="{ width: columnWidths.Ingredient }" :bodyStyle="{ textAlign: columnAligns.Ingredient }">
           <template #body="slotProps">
             <span :title="slotProps.data.Ingredient">{{ slotProps.data.Ingredient }}</span>
+          </template>
+        </Column>
+        <Column field="classification" header="분류명" :style="{ width: columnWidths.classification }" :bodyStyle="{ textAlign: columnAligns.classification }">
+          <template #body="slotProps">
+            <span :title="slotProps.data.classification">{{ slotProps.data.classification }}</span>
           </template>
         </Column>
         <Column field="comparator" header="대조약" :style="{ width: columnWidths.comparator }" :bodyStyle="{ textAlign: columnAligns.comparator }">
@@ -128,6 +143,9 @@ import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
 
 const search = ref('');
+const composingValue = ref('');
+const isComposing = ref(false);
+const appliedSearch = ref('');
 const products = ref([]);
 const loading = ref(false);
 const first = ref(0);
@@ -139,12 +157,12 @@ const userGrade = ref('');
 const columnWidths = {
   index: '4%',
   pharmacist: '8%',
-  classification: '10%',
-  product_name: '13%',
+  product_name: '12%',
   insurance_code: '6%',
   price: '5%',
   commission_rate: '5%',
   Ingredient: '14%',
+  classification: '11%',
   comparator: '12%',
   reimbursement: '5%',
   bioequivalence: '5%',
@@ -155,12 +173,12 @@ const columnWidths = {
 const columnAligns = {
   index: 'center',
   pharmacist: 'left',
-  classification: 'left',
   product_name: 'left',
   insurance_code: 'center',
   price: 'right',
   commission_rate: 'center',
   Ingredient: 'left',
+  classification: 'left',
   comparator: 'left',
   reimbursement: 'center',
   bioequivalence: 'center',
@@ -174,7 +192,7 @@ const fetchProducts = async (pageFirst = 0, pageRows = 100) => {
   loading.value = true;
   if (!latestMonth) {
     const { data: monthData, error: monthError } = await supabase
-      .from('product_months')
+      .from('products')
       .select('base_month')
       .order('base_month', { ascending: false })
       .limit(1);
@@ -199,11 +217,14 @@ const fetchProducts = async (pageFirst = 0, pageRows = 100) => {
     .eq('base_month', latestMonth)
     .eq('status', 'active');
 
-  if (search.value.trim()) {
-    const keyword = search.value.trim();
-    query = query.or(
-      `pharmacist.ilike.%${keyword}%,product_name.ilike.%${keyword}%,insurance_code.ilike.%${keyword}%,Ingredient.ilike.%${keyword}%`
-    );
+  if (appliedSearch.value) {
+    const searchTerms = appliedSearch.value.split(',').map(term => term.trim()).filter(term => term);
+    if (searchTerms.length > 0) {
+      searchTerms.forEach(term => {
+        const orFilter = `or(pharmacist.ilike.%${term}%,product_name.ilike.%${term}%,insurance_code.ilike.%${term}%,Ingredient.ilike.%${term}%)`;
+        query = query.or(orFilter);
+      });
+    }
   }
 
   query = query.range(pageFirst, pageFirst + pageRows - 1).order('pharmacist', { ascending: true });
@@ -242,17 +263,23 @@ const onPageChange = (event) => {
   fetchProducts(event.first, event.rows);
 };
 
-const isSearchActive = computed(() => search.value.trim().length > 0);
+const isSearchActive = computed(() => {
+  const value = search.value.trim();
+  if (/[가-힣]/.test(value)) {
+    return value.length >= 2;
+  }
+  return value.length >= 3;
+});
 
 const searchProducts = () => {
+  appliedSearch.value = search.value.trim();
   first.value = 0;
   fetchProducts(first.value, pageSize.value);
 };
 
 const resetFilters = () => {
   search.value = '';
-  first.value = 0;
-  fetchProducts(first.value, pageSize.value);
+  searchProducts();
 };
 
 function getUserCommission(product) {
@@ -275,5 +302,25 @@ const formatCommissionRate = (rate) => {
 
 function downloadExcel() {
   // 엑셀 다운로드 로직
+}
+
+function onInput(e) {
+  if (!isComposing.value) {
+    search.value = e.target.value;
+  }
+}
+
+function onCompositionStart() {
+  isComposing.value = true;
+}
+
+function onCompositionUpdate(e) {
+  composingValue.value = e.target.value;
+}
+
+function onCompositionEnd(e) {
+  isComposing.value = false;
+  search.value = e.target.value;
+  composingValue.value = '';
 }
 </script>

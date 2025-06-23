@@ -4,7 +4,7 @@
     <div class="filter-card search-center-card">
       <div class="filter-row">
         <span class="p-input-icon-left">
-          <InputText v-model="filters['global'].value" placeholder="정산월 검색" class="input-search" />
+          <InputText v-model="filters['global'].value" placeholder="비고 내용 검색" class="input-search" />
         </span>
       </div>
     </div>
@@ -21,27 +21,39 @@
         :value="tableData" 
         :loading="loading"
         v-model:filters="filters"
-        :globalFilterFields="['settlement_month']"
+        :globalFilterFields="['remarks']"
         scrollable 
         scrollHeight="calc(100vh - 204px)"
+        sortMode="multiple"
       >
-        <Column header="No." headerStyle="width: 5%" bodyStyle="text-align: center">
+        <Column 
+          v-for="col in columns"
+          :key="col.field"
+          :field="col.field"
+          :header="col.header"
+          :sortable="col.sortable"
+          :headerStyle="{ width: col.width }"
+          :bodyStyle="{ 'text-align': col.align }"
+        >
           <template #body="slotProps">
-            {{ totalRecords - slotProps.index }}
-          </template>
-        </Column>
-        <Column field="settlement_month" header="정산월" headerStyle="width: 15%" bodyStyle="text-align: center" />
-        <Column field="start_date" header="제출 시작일" headerStyle="width: 20%" bodyStyle="text-align: center" />
-        <Column field="end_date" header="제출 마감일" headerStyle="width: 20%" bodyStyle="text-align: center" />
-        <Column field="remarks" header="비고" headerStyle="width: 25%" />
-        <Column header="수정" headerStyle="width: 7.5%" bodyStyle="text-align: center">
-          <template #body="slotProps">
-            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="openModal(slotProps.data)" />
-          </template>
-        </Column>
-        <Column header="삭제" headerStyle="width: 7.5%" bodyStyle="text-align: center">
-          <template #body="slotProps">
-            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDelete(slotProps.data.id)" />
+            <div v-if="col.field === 'index'">
+              {{ totalRecords - slotProps.index }}
+            </div>
+            <div v-else-if="col.field === 'edit'">
+              <Button icon="pi pi-pencil"
+                class="p-button-rounded p-button-text btn-icon-edit"
+                @click="openModal(slotProps.data)"
+              />
+            </div>
+            <div v-else-if="col.field === 'delete'">
+              <Button icon="pi pi-trash"
+                class="p-button-rounded p-button-text btn-icon-danger"
+                @click="confirmDelete(slotProps.data.id)"
+              />
+            </div>
+            <div v-else>
+              {{ slotProps.data[col.field] }}
+            </div>
           </template>
         </Column>
       </DataTable>
@@ -54,45 +66,45 @@
           <div class="modal-title">{{ modalTitle }}</div>
         </div>
         <div class="modal-body">
-          <table class="mordal-table">
-            <colgroup>
-              <col style="width: 120px;">
-              <col>
-            </colgroup>
-            <tbody>
-              <tr>
-                <th>정산월</th>
-                <td>
-                  <div class="radio-group-row">
-                    <Dropdown v-model="selectedYear"
-                      :options="yearOptions" placeholder="연도 선택" style="flex: 1;" />
-                    <Dropdown v-model="selectedMonth"
-                      :options="monthOptions" placeholder="월 선택" style="flex: 1;" />
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th>제출 시작일</th>
-                <td><Calendar id="startDate" 
-                  v-model="currentItem.start_date" 
-                  dateFormat="yy-mm-dd" 
-                  showIcon style="width: 100%;" /></td>
-              </tr>
-              <tr>
-                <th>제출 마감일</th>
-                <td><Calendar id="endDate" 
-                  v-model="currentItem.end_date" 
-                  dateFormat="yy-mm-dd" 
-                  showIcon style="width: 100%;" /></td>
-              </tr>
-              <tr>
-                <th>비고</th>
-                <td><Textarea id="remarks"
-                  v-model="currentItem.remarks" rows="4" 
-                  class="input-table" style="width: 100%;" /></td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="form-label">정산월 *</label>
+              <date-picker 
+                v-model:value="settlementMonth" 
+                type="month" 
+                format="YYYY-MM"
+                value-type="format"
+                class="input-mordal-datepicker"
+              />
+            </div>
+            <div class="form-group">
+              <label for="form-label">제출 시작일 *</label>
+              <date-picker 
+                v-model:value="currentItem.start_date" 
+                type="date" 
+                format="YYYY-MM-DD" 
+                class="input-mordal-datepicker" 
+              />
+            </div>
+            <div class="form-group">
+              <label for="form-label">제출 마감일 *</label>
+              <date-picker 
+                v-model:value="currentItem.end_date" 
+                type="date" 
+                format="YYYY-MM-DD" 
+                class="input-mordal-datepicker" 
+              />
+            </div>
+            <div class="form-group">
+              <label for="form-label">비고</label>
+              <Textarea id="remarks"
+                v-model="currentItem.remarks"
+                rows="8"
+                class="input-mordal"
+                placeholder="회원 전달 사항을 입력하세요"
+              />
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <Button label="취소" severity="secondary" @click="isModalVisible = false" class="btn-cancel"/>
@@ -104,38 +116,80 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
-import Calendar from 'primevue/calendar';
 import Textarea from 'primevue/textarea';
-import Dropdown from 'primevue/dropdown';
-import { useConfirm } from "primevue/useconfirm";
-import { useToast } from "primevue/usetoast";
-
-const confirm = useConfirm();
-const toast = useToast();
+import DatePicker from 'vue-datepicker-next';
+import 'vue-datepicker-next/index.css';
+import 'vue-datepicker-next/locale/ko';
 
 const data = ref([]);
 const loading = ref(false);
 const totalRecords = ref(0);
 const filters = ref({ 'global': { value: null, matchMode: 'contains' } });
 
+const columnDefs = [
+  { field: 'index', header: '순번' },
+  { field: 'settlement_month', header: '정산월' },
+  { field: 'start_date', header: '제출 시작일' },
+  { field: 'end_date', header: '제출 마감일' },
+  { field: 'remarks', header: '비고' },
+  { field: 'edit', header: '수정' },
+  { field: 'delete', header: '삭제' },
+];
+
+const columnWidths = {
+  index: '4%',
+  settlement_month: '10%',
+  start_date: '10%',
+  end_date: '10%',
+  remarks: '50%',
+  edit: '8%',
+  delete: '8%',
+};
+
+const columnAligns = {
+  index: 'center',
+  settlement_month: 'center',
+  start_date: 'center',
+  end_date: 'center',
+  remarks: 'left',
+  edit: 'center',
+  delete: 'center',
+};
+
+const columnSortables = {
+  settlement_month: false,
+  start_date: false,
+  end_date: false,
+};
+
+const columns = computed(() => {
+  return columnDefs.map(col => ({
+    ...col,
+    width: columnWidths[col.field],
+    align: columnAligns[col.field],
+    sortable: columnSortables[col.field] || false,
+  }));
+});
+
 const isModalVisible = ref(false);
 const currentItem = ref({});
 const isEditMode = ref(false);
+const settlementMonth = ref('');
 
-const selectedYear = ref(null);
-const selectedMonth = ref(null);
-
-const yearOptions = computed(() => {
-  const currentYear = new Date().getFullYear();
-  return Array.from({ length: 5 }, (_, i) => currentYear - i);
+// 모달 표시 상태에 따라 body에 클래스를 토글
+watch(isModalVisible, (isVisible) => {
+  if (isVisible) {
+    document.body.classList.add('modal-open');
+  } else {
+    document.body.classList.remove('modal-open');
+  }
 });
-const monthOptions = computed(() => Array.from({ length: 12 }, (_, i) => i + 1));
 
 const modalTitle = computed(() => isEditMode.value ? 'EDI 제출월 수정' : 'EDI 제출월 등록');
 
@@ -144,7 +198,7 @@ const tableData = computed(() => data.value);
 const fetchData = async () => {
   loading.value = true;
   const { data: records, error, count } = await supabase
-    .from('edi_submission_periods')
+    .from('edi_months')
     .select('*', { count: 'exact' })
     .order('settlement_month', { ascending: false });
 
@@ -163,22 +217,20 @@ const openModal = (item) => {
   if (item) {
     isEditMode.value = true;
     currentItem.value = { 
-        ...item,
-        start_date: new Date(item.start_date),
-        end_date: new Date(item.end_date),
+      ...item,
+      start_date: new Date(item.start_date),
+      end_date: new Date(item.end_date),
     };
     if (item.settlement_month) {
-        const [year, month] = item.settlement_month.split('-').map(Number);
-        selectedYear.value = year;
-        selectedMonth.value = month;
+        settlementMonth.value = item.settlement_month;
     }
   } else {
     isEditMode.value = false;
     const today = new Date();
     const nextMonthDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-    
-    selectedYear.value = nextMonthDate.getFullYear();
-    selectedMonth.value = nextMonthDate.getMonth() + 1;
+    const year = nextMonthDate.getFullYear();
+    const month = String(nextMonthDate.getMonth() + 1).padStart(2, '0');
+    settlementMonth.value = `${year}-${month}`;
     
     currentItem.value = {
       start_date: new Date(),
@@ -199,16 +251,27 @@ const formatDateToSupabase = (date) => {
 };
 
 const saveItem = async () => {
-  if (!selectedYear.value || !selectedMonth.value) {
-    toast.add({ severity: 'warn', summary: '경고', detail: '정산월의 연도와 월을 모두 선택하세요.', life: 3000 });
+  if (!settlementMonth.value) {
+    alert('정산월이 지정되지 않았습니다.');
+    return;
+  }
+  if (!currentItem.value.start_date) {
+    alert('제출 시작일이 지정되지 않았습니다.');
+    return;
+  }
+  if (!currentItem.value.end_date) {
+    alert('제출 마감일이 지정되지 않았습니다.');
+    return;
+  }
+  
+  const confirmMessage = isEditMode.value ? '해당 정산월 정보를 수정하시겠습니까?' : '신규 정산월 정보를 등록하시겠습니까?';
+  if (!window.confirm(confirmMessage)) {
     return;
   }
 
-  const settlementMonthStr = `${selectedYear.value}-${String(selectedMonth.value).padStart(2, '0')}`;
-  
   const itemToSave = {
     ...currentItem.value,
-    settlement_month: settlementMonthStr,
+    settlement_month: settlementMonth.value,
     start_date: formatDateToSupabase(currentItem.value.start_date),
     end_date: formatDateToSupabase(currentItem.value.end_date),
   };
@@ -216,38 +279,39 @@ const saveItem = async () => {
   let error;
   if (isEditMode.value) {
     // Update
-    ({ error } = await supabase.from('edi_submission_periods').update(itemToSave).eq('id', itemToSave.id));
+    ({ error } = await supabase.from('edi_months').update(itemToSave).eq('id', itemToSave.id));
   } else {
     // Create
     const { id, ...newItem } = itemToSave;
-    ({ error } = await supabase.from('edi_submission_periods').insert([newItem]));
+    ({ error } = await supabase.from('edi_months').insert([newItem]));
   }
 
   if (error) {
-    toast.add({ severity: 'error', summary: '오류', detail: `저장 실패: ${error.message}`, life: 3000 });
+    if (error.message.includes('edi_months_settlement_month_key')) {
+      alert('이미 동일한 정산월이 등록되어 있습니다.');
+    } else {
+      alert(`저장 실패: ${error.message}`);
+    }
   } else {
-    toast.add({ severity: 'success', summary: '성공', detail: '성공적으로 저장되었습니다.', life: 3000 });
+    alert('성공적으로 저장되었습니다.');
     isModalVisible.value = false;
     fetchData();
   }
 };
 
 const confirmDelete = (id) => {
-  confirm.require({
-    message: '이 항목을 삭제하시겠습니까?',
-    header: '삭제 확인',
-    icon: 'pi pi-exclamation-triangle',
-    acceptLabel: '삭제',
-    rejectLabel: '취소',
-    accept: async () => {
-      const { error } = await supabase.from('edi_submission_periods').delete().eq('id', id);
-      if (error) {
-        toast.add({ severity: 'error', summary: '오류', detail: '삭제 실패', life: 3000 });
-      } else {
-        toast.add({ severity: 'info', summary: '성공', detail: '삭제되었습니다.', life: 3000 });
-        fetchData();
-      }
-    },
-  });
+  if (window.confirm('해당 정산월 정보를 삭제하시겠습니까?')) {
+    deleteItem(id);
+  }
 };
+
+const deleteItem = async (id) => {
+  const { error } = await supabase.from('edi_months').delete().eq('id', id);
+  if (error) {
+    alert(`삭제 실패: ${error.message}`);
+  } else {
+    alert('삭제되었습니다.');
+    fetchData();
+  }
+}
 </script>
