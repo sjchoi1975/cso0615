@@ -84,7 +84,6 @@
                 type="date" 
                 format="YYYY-MM-DD" 
                 class="input-mordal-datepicker" 
-                :lang="lang"
               />
             </div>
             <div class="form-group">
@@ -94,7 +93,6 @@
                 type="date" 
                 format="YYYY-MM-DD" 
                 class="input-mordal-datepicker" 
-                :lang="lang"
               />
             </div>
             <div class="form-group">
