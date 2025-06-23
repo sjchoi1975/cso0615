@@ -27,7 +27,7 @@
         :totalRecords="totalCount"
         @page="onPageChange"
         scrollable
-        :scrollHeight="'calc(100vh - 204px)'"
+        :scrollHeight="'calc(100vh - 194px)'"
         v-model:expandedRows="expandedRows"
         dataKey="id"
       >

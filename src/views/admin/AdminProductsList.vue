@@ -70,7 +70,7 @@
         lazy
         responsiveLayout="scroll"
         scrollable
-        :scrollHeight="'calc(100vh - 204px)'"
+        :scrollHeight="'calc(100vh - 194px)'"
         ref="tableRef"
       >
         <Column header="순번"
@@ -104,7 +104,7 @@
             {{ slotProps.data.insurance_code || '' }}
           </template>
         </Column>
-        <Column field="price" header="단가"
+        <Column field="price" header="약가"
           :sortable="columnSortables.price"
           :style="{ width: columnWidths.price }"
           :bodyStyle="{ textAlign: columnAligns.price }">
@@ -170,7 +170,7 @@
           :style="{ width: columnWidths.bioequivalence }"
           :bodyStyle="{ textAlign: columnAligns.bioequivalence }">
         </Column>
-        <Column field="Inhouse" header="인하우스"
+        <Column field="Inhouse" header="자사/위탁"
           :sortable="columnSortables.Inhouse"
           :style="{ width: columnWidths.Inhouse }"
           :bodyStyle="{ textAlign: columnAligns.Inhouse }">

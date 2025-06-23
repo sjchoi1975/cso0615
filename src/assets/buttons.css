@@ -71,6 +71,13 @@
   background: var(--primary) !important;
   color: var(--text-white) !important;
   margin-top: 1.2rem !important;
+  border: 1px solid var(--border-secondary) !important;
+}
+.login-btn:disabled {
+  background: var(--primary-light) !important;
+  color: var(--text-primary) !important;
+  margin-top: 1.2rem !important;
+  border: 1px solid var(--border-secondary) !important;
 }
 
 /* 회원가입 */
@@ -78,6 +85,14 @@
   background: var(--primary-blue) !important;
   color: var(--text-white) !important;
 }
+.signup-btn:disabled {
+  background: var(--primary-blue-light) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-secondary) !important;
+}
+
+
+
 
 /* 취소 */
 .cancel-btn {
@@ -417,9 +432,6 @@ button:focus,
 .btn-select-all:disabled,
 .btn-select-none:disabled,
 .file-label[disabled],
-.login-btn:disabled,
-.signup-btn:disabled,
-.cancel-btn:disabled,
 .btn-primary-sm:disabled,
 .btn-add-sm:disabled,
 .btn-approve-sm:disabled,

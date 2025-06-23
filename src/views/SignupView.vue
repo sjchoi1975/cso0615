@@ -5,9 +5,36 @@
       <label>아이디<span class="required">*</span></label>
       <input v-model="idEmail" type="email" placeholder="이메일" class="input" required />
       <label>비밀번호 <span class="required">*</span></label>
-      <input v-model="password" type="password" placeholder="" class="input" required />
+      <div class="input-eye-wrap">
+        <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="최소 6자 이상" class="input" required minlength="6" />
+        <button type="button" class="eye-btn" @click="showPassword = !showPassword" :aria-label="showPassword ? '비밀번호 숨기기' : '비밀번호 보기'">
+          <span v-if="showPassword">
+            <!-- eye-off SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 20C7 20 2.73 16.11 1 12c.74-1.61 1.81-3.06 3.11-4.24M9.53 9.53A3.5 3.5 0 0 1 12 8.5c1.93 0 3.5 1.57 3.5 3.5 0 .47-.09.92-.26 1.33M14.47 14.47A3.5 3.5 0 0 1 12 15.5c-1.93 0-3.5-1.57-3.5-3.5 0-.47.09-.92.26-1.33"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </span>
+          <span v-else>
+            <!-- eye SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3.5"/></svg>
+          </span>
+        </button>
+      </div>
       <label>비밀번호 확인 <span class="required">*</span></label>
-      <input v-model="confirmPassword" type="password" placeholder="" class="input" required />
+      <div class="input-eye-wrap">
+        <input :type="showConfirmPassword ? 'text' : 'password'" v-model="confirmPassword" placeholder="비밀번호 재입력" class="input" required minlength="6" :class="{ 'password-mismatch': showPasswordMismatch }" />
+        <button type="button" class="eye-btn" @click="showConfirmPassword = !showConfirmPassword" :aria-label="showConfirmPassword ? '비밀번호 숨기기' : '비밀번호 보기'">
+          <span v-if="showConfirmPassword">
+            <!-- eye-off SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 20C7 20 2.73 16.11 1 12c.74-1.61 1.81-3.06 3.11-4.24M9.53 9.53A3.5 3.5 0 0 1 12 8.5c1.93 0 3.5 1.57 3.5 3.5 0 .47-.09.92-.26 1.33M14.47 14.47A3.5 3.5 0 0 1 12 15.5c-1.93 0-3.5-1.57-3.5-3.5 0-.47.09-.92.26-1.33"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </span>
+          <span v-else>
+            <!-- eye SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3.5"/></svg>
+          </span>
+        </button>
+      </div>
+      <div v-if="showPasswordMismatch" class="password-error">
+        비밀번호가 일치하지 않습니다.
+      </div>
       <label>회사명 <span class="required">*</span></label>
       <input v-model="companyName" placeholder="" class="input" required />
       <label>대표자명 <span class="required">*</span></label>
@@ -32,8 +59,9 @@
   </div>
 </template>
 
+
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
 
@@ -50,6 +78,9 @@ const handphone = ref('');
 const contactEmail = ref('');
 const loading = ref(false);
 const router = useRouter();
+const showPasswordMismatch = ref(false);
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 
 // 사업자등록번호 자동 하이픈 추가
 watch(bizNo, (newValue) => {
@@ -96,9 +127,31 @@ watch(handphone, (newValue) => {
   }
 });
 
+// 비밀번호 확인 실시간 검증
+watch([password, confirmPassword], ([newPassword, newConfirmPassword]) => {
+  if (newConfirmPassword && newPassword !== newConfirmPassword) {
+    showPasswordMismatch.value = true;
+  } else {
+    showPasswordMismatch.value = false;
+  }
+});
+
 const signup = async () => {
   if (password.value !== confirmPassword.value) {
-    alert('비밀번호가 일치하지 않습니다.');
+    showPasswordMismatch.value = true;
+    return;
+  }
+  
+  // 비밀번호 길이 검증
+  if (password.value.length < 6) {
+    alert('비밀번호는 최소 6자 이상이어야 합니다.');
+    return;
+  }
+
+  // 사업자등록번호 10자리 검증
+  const bizNoDigits = bizNo.value.replace(/\D/g, '');
+  if (bizNoDigits.length !== 10) {
+    alert('사업자등록번호는 10자리 숫자여야 합니다.');
     return;
   }
   
@@ -150,3 +203,36 @@ const goLogin = () => {
   router.push('/login');
 };
 </script>
+
+<style scoped>
+.password-mismatch {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.0) !important;
+}
+
+.password-error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.input-eye-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-eye-wrap .input {
+  flex: 1;
+  padding-right: 2rem !important;
+}
+.eye-btn {
+  position: absolute;
+  right: 1rem !important;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666 !important;
+  padding: 0 !important;
+}
+</style>
