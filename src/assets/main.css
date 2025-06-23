@@ -1767,10 +1767,92 @@ button.p-paginator-page:hover {
 }
 
 .custom-dialog .p-dialog-footer {
-  padding: 0 1.5rem 1.5rem 1.5rem;
-  border: none;
+  padding: 1rem 1.5rem;
 }
 
 
 
+
+/* ========================================================================================================= */
+/* 미사용!!! - vue3-datepicker 스타일
+/* ========================================================================================================= */
+
+/* AdminEdiMonths.vue 파일의 <style scoped> 또는 <style>에 추가 */
+/*
+.vc-popover-content {
+  min-width: 240px;
+  max-width: 320px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* vue3-datepicker 스타일 */
+/* 선택된 날짜를 파란 동그라미로 */
+
+.dp__active_date {
+  background: #1976d2 !important;
+  border-radius: 50% !important;
+  color: #fff !important;
+}
+
+/* vue3-datepicker 인풋박스 스타일 */
+.dp__input {
+  border: 1px solid #1976d2 !important;   /* 테두리 색상 */
+  border-radius: 2px !important;          /* 모서리 둥글기 */
+  height: 40px !important;                /* 높이 */
+  font-size: 1.1rem !important;           /* 폰트 크기 */
+  color: #222 !important;                 /* 글자색 */
+  background: #f8fbff !important;         /* 배경색 */
+  padding: 0 1rem !important;             /* 좌우 여백 */
+  box-shadow: none !important;            /* 그림자 제거 */
+}
+
+
+
+
+
+/* ========================================================================== */
+/* PrimeVue 컴포넌트 스타일 덮어쓰기 (전역) */
+/* ========================================================================== */
+
+/* --- PrimeVue Calendar --- */
+
+/* 달력 전체 컨테이너 (크기, 배경, 폰트) */
+body .p-datepicker { /* body 추가로 우선순위 강화 */
+  width: 320px !important;
+  font-size: 1.2rem !important;
+  background: #fff !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+/* 달력 헤더 ('7월 2025') */
+body .p-datepicker .p-datepicker-header { /* body 추가 */
+  font-size: 1.2rem !important;
+  padding: 1rem !important;
+}
+
+/* 요일 이름 (일,월,화...) */
+body .p-datepicker table th { /* body 추가 */
+  font-size: 0.8rem !important;
+  padding: 0.5rem !important;  
+}
+
+/* 날짜 숫자 (1, 2, 3...) */
+body .p-datepicker table td span { /* body 추가 */
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  font-size: 1rem !important;
+}
+
+/* 선택된 날짜 (파란 동그라미) */
+body .p-datepicker .p-highlight { /* body 추가 */
+   background: #1976d2 !important;
+   border-radius: 50% !important;
+}
+
+/* 선택된 날짜의 숫자 (흰색) */
+body .p-datepicker .p-highlight a { /* body 추가 */
+   color: #fff !important;
+}
 

@@ -8,6 +8,7 @@ import { supabase } from '@/supabase'
 import TopbarMenu from './components/TopbarMenu.vue'
 import ConfirmDialog from 'primevue/confirmdialog';
 import Toast from 'primevue/toast';
+import '@/assets/main.css';
 
 // 임시: 관리자/회원 구분 (추후 로그인 연동)
 const isAdmin = ref(true) // true: 관리자, false: 회원
@@ -118,6 +119,10 @@ watch(
   },
   { immediate: true }
 );
+
+const handleSidebarHover = (hovered) => {
+  isSidebarHovered.value = hovered;
+};
 </script>
 
 <template>
@@ -129,7 +134,7 @@ watch(
       :visible="sidebarVisible"
       :user-info="userInfo"
       @menu-click="handleMenuClick"
-      @sidebar-hover="isSidebarHovered = $event"
+      @sidebar-hover="handleSidebarHover"
     />
     <div v-if="sidebarVisible" class="sidebar-overlay" @click="sidebarVisible = false"></div>
     <div v-if="isSidebarHovered" class="content-overlay"></div>

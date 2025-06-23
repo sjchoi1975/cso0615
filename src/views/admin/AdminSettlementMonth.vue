@@ -114,11 +114,11 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="form-label">정산월 *</label>
-              <date-picker 
-                v-model:value="newMonth" 
-                type="month" 
-                format="YYYY-MM"
-                value-type="format"
+              <Datepicker 
+                v-model="newMonth"
+                type="month"
+                format="yyyy-MM"
+                :clearable="false"
                 class="input-mordal-datepicker"
               />
             </div>
@@ -169,9 +169,7 @@ import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
 import Button from 'primevue/button';
-import DatePicker from 'vue-datepicker-next';
-import 'vue-datepicker-next/index.css';
-import ko from 'vue-datepicker-next/locale/ko';
+import Datepicker from 'vue3-datepicker';
 
 const router = useRouter();
 
@@ -180,7 +178,7 @@ const loading = ref(false);
 const totalCount = ref(0);
 
 const showRegisterDialog = ref(false);
-const newMonth = ref('');
+const newMonth = ref(new Date());
 const newNote = ref('');
 const registerLoading = ref(false);
 
@@ -248,8 +246,6 @@ const columns = [
   { field: 'prescription_amount', header: '처방액' },
   { field: 'payment_amount', header: '지급액' }
 ];
-
-const lang = ko;
 
 // 정산월 목록 불러오기 (settlement_months 테이블)
 const fetchMonthOptions = async () => {
@@ -343,7 +339,7 @@ const downloadExcel = () => {
 };
 const openRegisterMonth = () => {
   showRegisterDialog.value = true;
-  newMonth.value = '';
+  newMonth.value = new Date();
   newNote.value = '';
 };
 const closeRegisterDialog = () => {
@@ -356,9 +352,11 @@ const registerMonth = async () => {
   }
   registerLoading.value = true;
   try {
+    const formattedMonth = newMonth.value.toISOString().slice(0, 7);
+
     // settlement_months 테이블에 insert
     const { error } = await supabase.from('settlement_months').insert({
-      settlement_month: newMonth.value,
+      settlement_month: formattedMonth,
       note: newNote.value || null,
       created_at: new Date().toISOString(),
       // created_by: (추후 로그인 연동 시 추가)

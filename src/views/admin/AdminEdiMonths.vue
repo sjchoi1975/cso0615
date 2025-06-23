@@ -69,30 +69,26 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="form-label">정산월 *</label>
-              <date-picker 
-                v-model:value="settlementMonth" 
-                type="month" 
-                format="YYYY-MM"
-                value-type="format"
+              <select v-model="settlementMonth" class="input-mordal-datepicker">
+                <option v-for="opt in monthOptions" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="form-label">제출 시작일 *</label>
+              <Datepicker 
+                v-model="currentItem.start_date"
+                :locale="ko"
                 class="input-mordal-datepicker"
               />
             </div>
             <div class="form-group">
-              <label for="form-label">제출 시작일 *</label>
-              <date-picker 
-                v-model:value="currentItem.start_date" 
-                type="date" 
-                format="YYYY-MM-DD" 
-                class="input-mordal-datepicker" 
-              />
-            </div>
-            <div class="form-group">
               <label for="form-label">제출 마감일 *</label>
-              <date-picker 
-                v-model:value="currentItem.end_date" 
-                type="date" 
-                format="YYYY-MM-DD" 
-                class="input-mordal-datepicker" 
+              <Datepicker 
+                v-model="currentItem.end_date"
+                :locale="ko"
+                class="input-mordal-datepicker"
               />
             </div>
             <div class="form-group">
@@ -123,9 +119,8 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
-import DatePicker from 'vue-datepicker-next';
-import 'vue-datepicker-next/index.css';
-import ko from 'vue-datepicker-next/locale/ko';
+import Datepicker from 'vue3-datepicker';
+import ko from 'date-fns/locale/ko';
 
 const data = ref([]);
 const loading = ref(false);
@@ -180,9 +175,28 @@ const columns = computed(() => {
 const isModalVisible = ref(false);
 const currentItem = ref({});
 const isEditMode = ref(false);
-const settlementMonth = ref('');
 
-const lang = ko;
+// 오늘 날짜 기준
+const today = new Date()
+
+// 다음달(기본값)
+const defaultMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+
+// 5개월치(다다음달~지지난달)
+const monthOptions = computed(() => {
+  const arr = []
+  for (let i = 2; i >= -2; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth() + i, 1)
+    arr.push({
+      value: d.toISOString().slice(0, 7), // 'YYYY-MM'
+      label: `${d.getFullYear()}년 ${d.getMonth() + 1}월`
+    })
+  }
+  return arr
+})
+
+// v-model
+const settlementMonth = ref(defaultMonth.toISOString().slice(0, 7))
 
 // 모달 표시 상태에 따라 body에 클래스를 토글
 watch(isModalVisible, (isVisible) => {
@@ -224,19 +238,15 @@ const openModal = (item) => {
       end_date: new Date(item.end_date),
     };
     if (item.settlement_month) {
-        settlementMonth.value = item.settlement_month;
+      settlementMonth.value = item.settlement_month;
     }
   } else {
     isEditMode.value = false;
+    settlementMonth.value = defaultMonth.toISOString().slice(0, 7);
     const today = new Date();
-    const nextMonthDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-    const year = nextMonthDate.getFullYear();
-    const month = String(nextMonthDate.getMonth() + 1).padStart(2, '0');
-    settlementMonth.value = `${year}-${month}`;
-    
     currentItem.value = {
-      start_date: new Date(),
-      end_date: new Date(),
+      start_date: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 3),
+      end_date: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 17),
       remarks: '',
     };
   }
