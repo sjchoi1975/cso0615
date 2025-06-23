@@ -120,6 +120,7 @@
                 format="YYYY-MM"
                 value-type="format"
                 class="input-mordal-datepicker"
+                :lang="lang"
               />
             </div>
             <div class="form-group">
@@ -171,7 +172,7 @@ import * as XLSX from 'xlsx';
 import Button from 'primevue/button';
 import DatePicker from 'vue-datepicker-next';
 import 'vue-datepicker-next/index.css';
-import 'vue-datepicker-next/locale/ko';
+import ko from 'vue-datepicker-next/locale/ko';
 
 const router = useRouter();
 
@@ -248,6 +249,8 @@ const columns = [
   { field: 'prescription_amount', header: '처방액' },
   { field: 'payment_amount', header: '지급액' }
 ];
+
+const lang = ko;
 
 // 정산월 목록 불러오기 (settlement_months 테이블)
 const fetchMonthOptions = async () => {

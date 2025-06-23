@@ -75,6 +75,7 @@
                 format="YYYY-MM"
                 value-type="format"
                 class="input-mordal-datepicker"
+                :lang="lang"
               />
             </div>
             <div class="form-group">
@@ -84,6 +85,7 @@
                 type="date" 
                 format="YYYY-MM-DD" 
                 class="input-mordal-datepicker" 
+                :lang="lang"
               />
             </div>
             <div class="form-group">
@@ -93,6 +95,7 @@
                 type="date" 
                 format="YYYY-MM-DD" 
                 class="input-mordal-datepicker" 
+                :lang="lang"
               />
             </div>
             <div class="form-group">
@@ -125,7 +128,7 @@ import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import DatePicker from 'vue-datepicker-next';
 import 'vue-datepicker-next/index.css';
-import 'vue-datepicker-next/locale/ko';
+import ko from 'vue-datepicker-next/locale/ko';
 
 const data = ref([]);
 const loading = ref(false);
@@ -181,6 +184,8 @@ const isModalVisible = ref(false);
 const currentItem = ref({});
 const isEditMode = ref(false);
 const settlementMonth = ref('');
+
+const lang = ko;
 
 // 모달 표시 상태에 따라 body에 클래스를 토글
 watch(isModalVisible, (isVisible) => {
