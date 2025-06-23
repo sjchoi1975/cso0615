@@ -21,7 +21,7 @@
       </div>
       
       <button type="submit" class="login-btn">로그인</button>
-      <span class="link" style="text-align: center; margin-top: 1rem;" @click="goSignup">회원가입</span>
+      <span class="link" style="text-align: center; margin-top: 1.6rem;" @click="goSignup">회원가입</span>
     </form>
   </div>
 </template>

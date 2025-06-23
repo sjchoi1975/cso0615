@@ -346,7 +346,7 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
   padding: 0.5rem 1rem;
   text-align: center;
   border-bottom: 1px solid rgba(222, 226, 230, 0.5);
-  background: var(--gray-200) !important;
+  background: none !important;
   height: 3rem;
   display: flex;
   align-items: center;

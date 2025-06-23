@@ -158,8 +158,8 @@ const expandedRows = ref({});
 const columnWidths = {
   index: '4%',
   title: '24%',
-  content: '32%',
-  created_at: '10%',
+  content: '34%',
+  created_at: '8%',
   author: '12%',
   status: '6%',
   edit: '6%',
@@ -248,8 +248,8 @@ const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   const koreanTime = new Date(date.getTime() + (9 * 60 * 60 * 1000)); // UTC+9
-  // YYYY-MM-DD HH:MM
-  return koreanTime.toISOString().slice(0, 16).replace('T', ' ');
+  // YYYY-MM-DD
+  return koreanTime.toISOString().slice(0, 10);
 };
 
 // 상태 토글

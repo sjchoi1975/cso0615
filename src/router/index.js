@@ -193,8 +193,8 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  // 로그인 페이지는 항상 허용
-  if (to.path === '/login') {
+  // 로그인, 회원가입 페이지는 항상 허용
+  if (to.path === '/login' || to.path === '/signup') {
     return next();
   }
   // Supabase 인증 체크

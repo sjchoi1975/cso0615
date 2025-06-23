@@ -57,6 +57,13 @@
   line-height: 1.15 !important;
 }
 
+@media (max-width: 768px) {
+  .btn-search-filter {
+    padding: 0.65rem 1rem !important;
+  }
+}
+
+
 .btn-search-filter:disabled {
   background: #e0e0e0 !important;
   color: #aaa !important;

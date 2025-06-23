@@ -41,6 +41,7 @@ const menuNameMap = {
   '/admin/notice/list': '공지사항 목록',
   '/admin/members/list': '회원 목록',
   '/admin/products/list': '수수료율 관리',
+  '/admin/hospitals/list': '거래처 목록',
   '/admin/filter/list': '필터링 요청 목록',
   '/admin/pharmaceutical-companies': '제약사 관리',
   '/admin/edi/months': 'EDI 제출월 설정',

@@ -677,6 +677,23 @@ body.login-page .main-content.main-margin {
   transition: border 0.2s !important;
 }
 
+@media (max-width: 768px) {
+  .input,
+  .input-100,
+  .input-120,
+  .input-180,
+  .input-240,
+  .input-search,
+  .filter-dropdown {
+    padding: 0.65rem 0.5rem !important;
+  }
+}
+
+
+
+
+
+
 /* 인풋, 검색, 드롭다운 포커스 처리 */
 .input:focus,
 .input-100:focus,

@@ -116,10 +116,10 @@ const expandedRows = ref({});
 
 const columnWidths = {
   index: '4%',
-  title: '26%',
-  content: '40%',
+  title: '30%',
+  content: '46%',
   created_at: '8%',
-  author: '10%'
+  author: '12%'
 };
 const columnSortables = {
   index: false,
@@ -179,7 +179,8 @@ const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   const koreanTime = new Date(date.getTime() + (9 * 60 * 60 * 1000)); // UTC+9
-  return koreanTime.toISOString().slice(0, 16).replace('T', ' ');
+  // YYYY-MM-DD
+  return koreanTime.toISOString().slice(0, 10);
 };
 
 const goDetail = (id) => {
