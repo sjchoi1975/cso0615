@@ -3,9 +3,13 @@
     <!-- 상단: 필터 -->
     <div class="filter-card search-center-card">
       <div class="filter-row">
-        <span class="p-input-icon-left">
-          <InputText v-model="filters['global'].value" placeholder="비고 내용 검색" class="input-search" />
-        </span>
+        <span>정산월</span>
+        <select v-model="selectedFilterMonth" class="input-120">
+          <option value="">- 전체 -</option>
+          <option v-for="m in filterMonthOptions" :key="m" :value="m">
+            {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
+          </option>
+        </select>
       </div>
     </div>
 
@@ -69,7 +73,8 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="form-label">정산월 *</label>
-              <select v-model="settlementMonth" class="input-mordal-datepicker">
+              <select v-model="settlementMonth"
+                class="input-mordal-datepicker">
                 <option v-for="opt in monthOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
                 </option>
@@ -92,7 +97,7 @@
               />
             </div>
             <div class="form-group">
-              <label for="form-label">비고</label>
+              <label for="form-label">공지사항</label>
               <Textarea id="remarks"
                 v-model="currentItem.remarks"
                 rows="8"
@@ -132,19 +137,19 @@ const columnDefs = [
   { field: 'settlement_month', header: '정산월' },
   { field: 'start_date', header: '제출 시작일' },
   { field: 'end_date', header: '제출 마감일' },
-  { field: 'remarks', header: '비고' },
+  { field: 'remarks', header: '공지사항' },
   { field: 'edit', header: '수정' },
   { field: 'delete', header: '삭제' },
 ];
 
 const columnWidths = {
   index: '4%',
-  settlement_month: '10%',
+  settlement_month: '8%',
   start_date: '10%',
   end_date: '10%',
-  remarks: '50%',
-  edit: '8%',
-  delete: '8%',
+  remarks: '56%',
+  edit: '6%',
+  delete: '6%',
 };
 
 const columnAligns = {
@@ -209,7 +214,26 @@ watch(isModalVisible, (isVisible) => {
 
 const modalTitle = computed(() => isEditMode.value ? 'EDI 제출월 수정' : 'EDI 제출월 등록');
 
-const tableData = computed(() => data.value);
+const filterMonthOptions = ref([]);
+const selectedFilterMonth = ref('');
+
+const fetchFilterMonthOptions = async () => {
+  const { data, error } = await supabase
+    .from('edi_months')
+    .select('settlement_month')
+    .order('settlement_month', { ascending: false });
+  if (!error && data) {
+    // 중복 제거 + 최신순
+    const unique = Array.from(new Set(data.map(row => row.settlement_month)));
+    filterMonthOptions.value = unique;
+    selectedFilterMonth.value = '';
+  }
+};
+
+const tableData = computed(() => {
+  if (!selectedFilterMonth.value) return data.value;
+  return data.value.filter(item => item.settlement_month === selectedFilterMonth.value);
+});
 
 const fetchData = async () => {
   loading.value = true;
@@ -227,7 +251,10 @@ const fetchData = async () => {
   loading.value = false;
 };
 
-onMounted(fetchData);
+onMounted(() => {
+  fetchData();
+  fetchFilterMonthOptions();
+});
 
 const openModal = (item) => {
   if (item) {
@@ -327,3 +354,13 @@ const deleteItem = async (id) => {
   }
 }
 </script>
+
+<style>
+.ellipsis-cell {
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+</style>

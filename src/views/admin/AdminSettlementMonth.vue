@@ -47,10 +47,11 @@
           :bodyStyle="{ textAlign: columnAligns[col.field] }"
         >
           <template v-if="col.field === 'note'" #body="slotProps">
-            <span
-              class="ellipsis-cell blue-underline"
-              :title="slotProps.data.note"
+            <span 
+              class="ellipsis-cell" 
               @click="openNotePopup(slotProps.data)"
+              style="cursor: pointer;"
+              :title="slotProps.data.note"
             >
               {{ slotProps.data.note }}
             </span>
@@ -82,8 +83,8 @@
             <Button 
               icon="pi pi-pencil" 
               class="p-button-rounded p-button-text btn-icon-edit" 
-              @click="openNotePopup(slotProps.data)"
-              v-tooltip.top="'전달사항 수정'"
+              @click="openRegisterMonth(slotProps.data, true)"
+              v-tooltip.top="'정산월 수정'"
             />
           </template>
         </Column>
@@ -108,19 +109,17 @@
     <div v-if="showRegisterDialog" class="custom-modal-overlay" @click.self="closeRegisterDialog">
       <div class="custom-modal">
         <div class="modal-header">
-          <div class="modal-title">정산월 등록</div>
+          <div class="modal-title">{{ isEditMode ? '정산월 수정' : '정산월 등록' }}</div>
         </div>
         <div class="modal-body">
           <div class="form-grid">
             <div class="form-group">
               <label for="form-label">정산월 *</label>
-              <Datepicker 
-                v-model="newMonth"
-                type="month"
-                format="yyyy-MM"
-                :clearable="false"
-                class="input-mordal-datepicker"
-              />
+              <select v-model="newMonth" class="input-mordal-datepicker">
+                <option v-for="opt in registerMonthOptions" :key="opt" :value="opt">
+                  {{ opt.slice(0,4) + '년 ' + parseInt(opt.slice(5,7)) + '월' }}
+                </option>
+              </select>
             </div>
             <div class="form-group">
               <label for="form-label">비고</label>
@@ -140,21 +139,17 @@
       </div>
     </div>
 
-    <!-- 전달사항(비고) 수정 모달 -->
+    <!-- 공지사항 팝업 모달 -->
     <div v-if="showNoteDialog" class="custom-modal-overlay" @click.self="closeNoteDialog">
       <div class="custom-modal">
         <div class="modal-header">
           <div class="modal-title">전달사항</div>
         </div>
         <div class="modal-body">
-          <div v-if="!noteEditMode" style="white-space: pre-line;">{{ noteValue }}</div>
-          <textarea v-else v-model="noteValue" rows="12" style="width:100%; margin-bottom:2.5rem;"></textarea>
+          <div style="white-space: pre-line;">{{ noteValue }}</div>
         </div>
         <div class="modal-footer">
-          <button class="btn-edit" v-if="!noteEditMode" @click="startEditNote">수정</button>
-          <button class="btn-primary" v-if="!noteEditMode" @click="closeNoteDialog">확인</button>
-          <button class="btn-cancel" v-if="noteEditMode" @click="cancelEditNote">취소</button>
-          <button class="btn-add" v-if="noteEditMode" @click="saveNote">저장</button>
+          <button class="btn-cancel" @click="closeNoteDialog">확인</button>
         </div>
       </div>
     </div>
@@ -162,7 +157,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import { supabase } from '@/supabase';
@@ -178,7 +173,6 @@ const loading = ref(false);
 const totalCount = ref(0);
 
 const showRegisterDialog = ref(false);
-const newMonth = ref(new Date());
 const newNote = ref('');
 const registerLoading = ref(false);
 
@@ -247,22 +241,36 @@ const columns = [
   { field: 'payment_amount', header: '지급액' }
 ];
 
-// 정산월 목록 불러오기 (settlement_months 테이블)
-const fetchMonthOptions = async () => {
-  const { data, error } = await supabase
-    .from('settlement_months')
-    .select('settlement_month')
-    .order('settlement_month', { ascending: false });
-  if (!error && data) {
-    monthOptions.value = data.map(row => row.settlement_month);
-  }
-};
+// 정산월 등록 모달용: 고정 5개월 옵션 생성
+function getMonthString(date) {
+  return date.toISOString().slice(0, 7);
+}
+const today = new Date();
+const registerMonthOptions = [];
+for (let i = 1; i >= -3; i--) {
+  const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+  registerMonthOptions.push(getMonthString(d));
+}
+
+const newMonth = ref(registerMonthOptions[2]); // 기본값: 지난달
 
 // 필터링된 리스트
 const filteredMonthList = computed(() => {
   if (!selectedMonth.value) return monthList.value;
   return monthList.value.filter(item => item.settlement_month === selectedMonth.value);
 });
+
+// DB에서 정산월 목록을 불러오는 함수
+const fetchMonthOptions = async () => {
+  const { data, error } = await supabase
+    .from('settlement_months')
+    .select('settlement_month')
+    .order('settlement_month', { ascending: false });
+  if (!error && data) {
+    const unique = Array.from(new Set(data.map(row => row.settlement_month)));
+    monthOptions.value = unique;
+  }
+};
 
 // 월별 현황 데이터 불러오기
 const fetchMonthList = async () => {
@@ -337,10 +345,17 @@ const downloadExcel = () => {
   const fileName = `월별정산현황_${new Date().toISOString().slice(0,10)}.xlsx`;
   XLSX.writeFile(wb, fileName);
 };
-const openRegisterMonth = () => {
+const isEditMode = ref(false);
+const openRegisterMonth = (row, edit = false) => {
   showRegisterDialog.value = true;
-  newMonth.value = new Date();
-  newNote.value = '';
+  isEditMode.value = edit;
+  if (edit && row) {
+    newMonth.value = row.settlement_month;
+    newNote.value = row.note;
+  } else {
+    newMonth.value = registerMonthOptions[2];
+    newNote.value = '';
+  }
 };
 const closeRegisterDialog = () => {
   showRegisterDialog.value = false;
@@ -352,7 +367,7 @@ const registerMonth = async () => {
   }
   registerLoading.value = true;
   try {
-    const formattedMonth = newMonth.value.toISOString().slice(0, 7);
+    const formattedMonth = newMonth.value;
 
     // settlement_months 테이블에 insert
     const { error } = await supabase.from('settlement_months').insert({
@@ -369,39 +384,6 @@ const registerMonth = async () => {
     alert('등록 실패: ' + e.message);
   }
   registerLoading.value = false;
-};
-const openNotePopup = (row) => {
-  noteMonth.value = row.settlement_month;
-  noteValue.value = row.note;
-  noteOrigin.value = row.note;
-  noteEditMode.value = false;
-  showNoteDialog.value = true;
-};
-const closeNoteDialog = () => {
-  showNoteDialog.value = false;
-  noteEditMode.value = false;
-};
-const startEditNote = () => {
-  noteEditMode.value = true;
-};
-const cancelEditNote = () => {
-  noteEditMode.value = false;
-  noteValue.value = noteOrigin.value;
-};
-const saveNote = async () => {
-  try {
-    const { error } = await supabase
-      .from('settlement_months')
-      .update({ note: noteValue.value, updated_at: new Date().toISOString() })
-      .eq('settlement_month', noteMonth.value);
-    if (error) throw error;
-    alert('전달사항이 저장되었습니다.');
-    showNoteDialog.value = false;
-    fetchMonthList();
-  } catch (e) {
-    alert('저장 실패: ' + e.message);
-  }
-  noteEditMode.value = false;
 };
 const goDetail = (data) => {
   router.push(`/admin/settlement/month/${data.settlement_month}`);
@@ -425,6 +407,24 @@ const deleteMonth = async (row) => {
     alert('삭제 실패: ' + e.message);
   }
 };
+
+// 공지사항 팝업 열기
+const openNotePopup = (row) => {
+  noteValue.value = row.note;
+  showNoteDialog.value = true;
+};
+
+// 공지사항 팝업 닫기
+const closeNoteDialog = () => {
+  showNoteDialog.value = false;
+};
+
+// monthOptions가 변경될 때마다 selectedMonth의 기본값을 전체로 설정
+watch(monthOptions, (opts) => {
+  if (opts && opts.length > 0) {
+    selectedMonth.value = ''; // 기본값을 전체로 설정
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>

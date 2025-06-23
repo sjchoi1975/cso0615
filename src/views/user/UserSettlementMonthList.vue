@@ -150,7 +150,8 @@ const fetchMonthOptions = async () => {
     .select('settlement_month')
     .order('settlement_month', { ascending: false });
   if (!error && data) {
-    monthOptions.value = data.map(row => row.settlement_month);
+    const unique = Array.from(new Set(data.map(row => row.settlement_month)));
+    monthOptions.value = [''].concat(unique);
   }
 };
 
@@ -221,7 +222,10 @@ const fetchMonthList = async () => {
 
 onMounted(async () => {
   await getCurrentUser();
+  await fetchMonthOptions();
   await fetchMonthList();
+  // 기본값을 전체로 설정
+  selectedMonth.value = '';
 });
 
 const downloadExcel = () => {

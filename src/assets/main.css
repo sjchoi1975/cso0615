@@ -685,9 +685,8 @@ body.login-page .main-content.main-margin {
 .input-240:focus,
 .input-search:focus,
 .filter-dropdown:focus {
-  background: #fff !important;
-  border: 1px solid var(--primary) !important;
-  outline: none !important;
+  border-color: var(--primary) !important;
+  outline: 2px solid var(--primary-light) !important;
 }
 
 /* 인풋 width */
@@ -1855,4 +1854,60 @@ body .p-datepicker .p-highlight { /* body 추가 */
 body .p-datepicker .p-highlight a { /* body 추가 */
    color: #fff !important;
 }
+
+body .dp__input {
+  border: 2px solid #1976d2 !important;
+  border-radius: 6px !important;
+  height: 40px !important;
+  font-size: 1.1rem !important;
+  color: #222 !important;
+  background: #f8fbff !important;
+  padding: 0 1rem !important;
+  box-shadow: none !important;
+}
+
+
+
+
+
+
+/* vue3-datepicker 인풋박스 스타일 (부모 포함, 우선순위 극대화) */
+div.v3dp__datepicker input[type="text"] {
+  border: 1px solid #888 !important;
+  border-radius: 2px !important;
+  height: 32px !important;
+  font-size: 1rem !important;
+  color: #222 !important;
+  background: #fff !important;
+  padding: 0.5rem 1rem !important;
+  box-shadow: none !important;
+  margin-left: 2rem !important;
+  width: calc(100% - 4rem) !important;
+}
+
+
+/* 모달 안의 정산월 셀렉트에만 적용 (우선순위 강화) */
+.custom-modal select.input-mordal-datepicker {
+  border: 1px solid #888 !important;
+  border-radius: 2px !important;
+  height: 32px !important;
+  font-size: 1rem !important;
+  color: #222 !important;
+  background: #fff !important;
+  padding: 0.5rem 1rem !important;
+  box-shadow: none !important;
+  margin-left: 2rem !important;
+  width: calc(100% - 4rem) !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+div.v3dp__datepicker input[type="text"]:focus,
+.custom-modal select.input-mordal-datepicker:focus {
+  border-color: var(--primary) !important;
+  outline: 2px solid var(--primary-light) !important;
+}
+
+
 
