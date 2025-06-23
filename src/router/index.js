@@ -24,7 +24,7 @@ import UserFilterList from '../views/user/UserFilterList.vue'
 import UserEdiList from '../views/user/UserEdiList.vue'
 import UserSettlementList from '../views/user/UserSettlementList.vue'
 
-
+import { supabase } from '@/supabase';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -191,5 +191,20 @@ const router = createRouter({
     },
   ],
 })
+
+router.beforeEach(async (to, from, next) => {
+  // 로그인 페이지는 항상 허용
+  if (to.path === '/login') {
+    return next();
+  }
+  // Supabase 인증 체크
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    // 비로그인 상태면 무조건 /login으로 이동
+    return next('/login');
+  }
+  // 로그인 상태면 정상 진행
+  next();
+});
 
 export default router
