@@ -21,6 +21,7 @@ import UserNoticesDatail from '../views/user/UserNoticesDatail.vue'
 import UserProductsList from '../views/user/UserProductsList.vue'
 import UserFilterCreate from '../views/user/UserFilterCreate.vue'
 import UserFilterList from '../views/user/UserFilterList.vue'
+import UserEdisubmit from '../views/user/UserEdiSubmit.vue'
 import UserEdiList from '../views/user/UserEdiList.vue'
 import UserSettlementList from '../views/user/UserSettlementList.vue'
 
@@ -137,7 +138,7 @@ const router = createRouter({
     {
       path: '/edi/submit',
       name: 'user-edi-submit',
-      component: () => import('@/views/user/UserEdiSubmitView.vue'),
+      component: () => import('@/views/user/UserEdiSubmit.vue'),
     },
     {
       path: '/settlement/list',
@@ -188,6 +189,17 @@ const router = createRouter({
       name: 'UserHospitalsEdit',
       component: () => import('@/views/user/UserHospitalsEdit.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/edi/files/:settlementMonthId/:hospitalId',
+      name: 'user-edi-file-detail',
+      component: () => import('@/views/user/UserEdiFileDetail.vue'),
+    },
+    {
+      path: '/admin/hospitals/edit/:id',
+      name: 'AdminHospitalsEdit',
+      component: () => import('@/views/admin/AdminHospitalsEdit.vue'),
+      meta: { requiresAuth: true, admin: true }
     },
   ],
 })

@@ -1,10 +1,13 @@
 <template>
   <header class="topbar">
     <div class="left">
-      <button class="menu-toggle" @click="$emit('toggle-sidebar')">
+      <button v-if="showBack" class="menu-toggle show-back" @click="onLeftClick">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <button v-else-if="!hideMenuToggle" class="menu-toggle" @click="$emit('toggle-sidebar')">
         <i class="pi pi-bars"></i>
       </button>
-      <span class="logo-title">Company</span>
+      <span class="logo-title" v-if="showLogo">Company</span>
       <span class="menu-title">{{ menuName }}</span>
     </div>
     <div class="right">
@@ -34,11 +37,25 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 const props = defineProps({
   menuName: String,
-  companyName: String
+  companyName: String,
+  showLogo: {
+    type: Boolean,
+    default: true
+  },
+  hideMenuToggle: {
+    type: Boolean,
+    default: false
+  },
+  showBack: {
+    type: Boolean,
+    default: false
+  }
 });
 const emit = defineEmits(['logout', 'profile', 'toggle-sidebar']);
+const router = useRouter();
 const dropdownOpen = ref(false);
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value;
@@ -50,6 +67,14 @@ const onLogout = () => {
 const onProfile = () => {
   emit('profile');
   dropdownOpen.value = false;
+};
+const onLeftClick = () => {
+  console.log('백키 클릭', props.showBack, window.history.length);
+  if (props.showBack) {
+    window.history.length > 1 ? router.back() : router.push('/edi/submit');
+  } else {
+    emit('toggle-sidebar');
+  }
 };
 // 드롭다운 외부 클릭 시 닫기
 const dropdownRef = ref(null);
@@ -73,11 +98,12 @@ if (typeof window !== 'undefined') {
 function getFirstChar(name) {
   if (!name) return '';
   let n = name.trim();
-  n = n.replace(/^(\(주\)|주식회사|\(유\)|유한회사|\(합\)|합자회사|\(유한\)|유한회사|\(재\)|재단법인|\(사\)|사단법인|\(공\)|공사|\(재단\)|재단|\(협\)|협동조합|\(조합\)|조합|\(학교\)|학교|\(의료\)|의료법인|\(법\)|법인|\(비영리\)|비영리법인|\(비영리법인\)|\(주식회사\)|\(유한회사\)|\(합자회사\)|\(재단법인\)|\(사단법인\)|\(공사\)|\(협동조합\)|\(조합\)|\(학교\)|\(의료법인\)|\(법인\)|\(비영리법인\)|\(비영리\))\s*/,'');
+  n = n.replace(/^(\(주\)|주식회사|\(유\)|유한회사|\(합\)|합자회사|\(유한\)|유한회사|\(재\)|재단법인|\(사\)|사단법인|\(공\)|공사|\(재단\)|재단|\(협\)|협동조합|\(조합\)|조합|\(학교\)|학교|\(의료\)|의료법인|\(법\)|법인|\(비영리\)|비영리법인|비영리법인|\(주식회사\)|\(유한회사\)|\(합자회사\)|\(재단법인\)|\(사단법인\)|\(공사\)|\(협동조합\)|\(조합\)|\(학교\)|\(의료법인\)|\(법인\)|\(비영리법인\)|\(비영리\))\s*/,'');
   n = n.trim();
   return n[0] ? n[0].toUpperCase() : '';
 }
 const companyInitial = computed(() => getFirstChar(props.companyName));
+console.log('showBack', props.showBack);
 </script>
 
 
@@ -294,6 +320,15 @@ const companyInitial = computed(() => getFirstChar(props.companyName));
 .topbar .left {
   display: flex;
   align-items: center;
+}
+
+.menu-toggle.show-back {
+  display: inline-block !important;
+}
+@media (min-width: 901px) {
+  .menu-toggle:not(.show-back) {
+    display: none !important;
+  }
 }
 </style>
 

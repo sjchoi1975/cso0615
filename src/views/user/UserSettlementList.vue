@@ -4,7 +4,7 @@
     <div class="filter-card">
       <div class="filter-row">
         <span>처방월</span>
-        <select v-model="selectedPrescriptionMonth" class="filter-dropdown" :disabled="!selectedMonth">
+        <select v-model="selectedPrescriptionMonth" class="input-120" :disabled="!selectedMonth">
           <option value="">전체</option>
           <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
         </select>

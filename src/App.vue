@@ -17,6 +17,7 @@ const userInfo = ref(null)
 const route = useRoute()
 const router = useRouter()
 const isSidebarHovered = ref(false);
+const isMobile = ref(false);
 
 // 로그인 후 userInfo를 세팅하는 예시(실제 구현에서는 로그인 성공 시 setUserInfo 호출)
 function setUserInfo(info) {
@@ -36,38 +37,119 @@ supabase.auth.getUser().then(async ({ data }) => {
   }
 })
 
-// 현재 라우트에 따른 메뉴명 추출
-const menuNameMap = {
-  '/admin/notice/list': '공지사항 목록',
-  '/admin/members/list': '회원 목록',
-  '/admin/products/list': '수수료율 관리',
-  '/admin/hospitals/list': '거래처 목록',
-  '/admin/filter/list': '필터링 요청 목록',
-  '/admin/pharmaceutical-companies': '제약사 관리',
-  '/admin/edi/months': 'EDI 제출월 설정',
-  '/admin/edi/list': 'EDI 제출 목록',
-  '/admin/settlement/month': '월별 정산 현황',
-     
-  '/notice/list': '공지사항',
-  '/products/list': '수수료율',
-  '/hospitals/list': '거래처',
-  '/filter/create': '필터링 요청',
-  '/filter/list': '요청 내역',
-  '/edi/submit': 'EDI 제출',
-  '/edi/list': '제출 내역',
-  '/settlement/list': '정산내역서',
+
+
+// 특수 레이아웃 적용 경로 및 네이밍 규칙 관리
+const specialLayoutRoutes = [
+  {
+    path: /^\/edi\/files\//,
+    async menuName(params) {
+      let monthLabel = '';
+      let hospitalName = '';
+      if (params.settlementMonthId) {
+        const { data: month } = await supabase.from('edi_months').select('settlement_month').eq('id', params.settlementMonthId).single();
+        monthLabel = month?.settlement_month || '';
+      }
+      if (params.hospitalId) {
+        const { data: hospital } = await supabase.from('hospitals').select('hospital_name').eq('id', params.hospitalId).single();
+        hospitalName = hospital?.hospital_name || '';
+      }
+      return `${monthLabel} - ${hospitalName}`;
+    }
+  },
+  {
+    path: /^\/admin\/notices\/create$/,
+    menuName: () => '공지사항 작성'
+  },
+  {
+    path: /^\/admin\/notices\/edit\//,
+    menuName: () => '공지사항 수정'
+  },
+  {
+    path: /^\/admin\/products\/create$/,
+    menuName: () => '제품 등록'
+  },
+  {
+    path: /^\/admin\/products\/edit\//,
+    menuName: () => '제품 수정'
+  },
+  {
+    path: /^\/admin\/hospitals\/create$/,
+    menuName: () => '거래처 등록'
+  },
+  {
+    path: /^\/hospitals\/create$/,
+    menuName: () => '거래처 등록'
+  },
+  {
+    path: /^\/hospitals\/edit\//,
+    menuName: () => '거래처 수정'
+  },
+  // 필요시 추가
+];
+
+// 이미 specialLayoutRoutes에 /admin/hospitals/edit/ 경로가 없다면 추가
+if (!specialLayoutRoutes.some(r => r.path && r.path.toString() === '/^\/admin\/hospitals\/edit\//')) {
+  specialLayoutRoutes.push({
+    path: /^\/admin\/hospitals\/edit\//,
+    menuName: () => '거래처 수정'
+  });
 }
-const menuName = computed(() => {
+
+const currentSpecial = computed(() => {
+  const path = route.path;
+  return specialLayoutRoutes.find(r => r.path.test(path));
+});
+
+const isSpecialLayout = computed(() => !!currentSpecial.value);
+const isLoginOrSignup = computed(() => ['/login', '/signup'].includes(route.path));
+
+const showSidebar = computed(() => !isLoginOrSignup.value && (!isSpecialLayout.value || isMobile.value));
+const showCompany = computed(() => !isLoginOrSignup.value && !isSpecialLayout.value);
+const showBack = computed(() => !isLoginOrSignup.value && isSpecialLayout.value);
+const hideMenuToggle = computed(() => !isLoginOrSignup.value && isSpecialLayout.value && isMobile.value);
+
+const defaultMenuName = computed(() => {
+  const menuNameMap = {
+    '/admin/notice/list': '공지사항 목록',
+    '/admin/members/list': '회원 목록',
+    '/admin/products/list': '수수료율 관리',
+    '/admin/hospitals/list': '거래처 목록',
+    '/admin/filter/list': '필터링 요청 목록',
+    '/admin/pharmaceutical-companies': '제약사 관리',
+    '/admin/edi/months': 'EDI 제출월 설정',
+    '/admin/edi/list': 'EDI 제출 목록',
+    '/admin/settlement/month': '월별 정산 현황',
+    '/notice/list': '공지사항',
+    '/products/list': '수수료율',
+    '/hospitals/list': '거래처',
+    '/filter/create': '필터링 요청',
+    '/filter/list': '요청 내역',
+    '/edi/submit': 'EDI 제출',
+    '/edi/list': '제출 내역',
+    '/settlement/list': '정산내역서',
+  };
   const path = route.path;
   const params = route.params;
-
   if (path.startsWith('/admin/settlement/month/') && params.year_month) {
     const [year, month] = params.year_month.split('-');
     return `월별 정산 현황 > ${year}년 ${parseInt(month, 10)}월`;
   }
-  
   return menuNameMap[path] || '';
 });
+
+const menuName = ref('');
+watch(
+  () => route.fullPath,
+  async () => {
+    if (isSpecialLayout.value && currentSpecial.value && typeof currentSpecial.value.menuName === 'function') {
+      menuName.value = await currentSpecial.value.menuName(route.params);
+    } else {
+      menuName.value = defaultMenuName.value;
+    }
+  },
+  { immediate: true }
+);
 
 const handleLogout = async () => {
   await supabase.auth.signOut()
@@ -91,7 +173,9 @@ watch(
     } else {
       document.body.classList.remove('login-page');
     }
-        
+
+    
+    
     // 스크롤이 필요한 페이지들
     const scrollEnabledPages = [
       '/login', 
@@ -124,6 +208,16 @@ watch(
 const handleSidebarHover = (hovered) => {
   isSidebarHovered.value = hovered;
 };
+
+if (typeof window !== 'undefined') {
+  const checkMobile = () => {
+    isMobile.value = window.innerWidth <= 900;
+  };
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+}
+
+console.log('showSidebar', showSidebar.value, 'showBack', showBack.value, 'hideMenuToggle', hideMenuToggle.value);
 </script>
 
 <template>
@@ -131,7 +225,7 @@ const handleSidebarHover = (hovered) => {
     <Toast />
     <ConfirmDialog />
     <SidebarMenu
-      v-if="!['/login','/signup'].includes(route.path)"
+      v-if="showSidebar"
       :visible="sidebarVisible"
       :user-info="userInfo"
       @menu-click="handleMenuClick"
@@ -140,14 +234,17 @@ const handleSidebarHover = (hovered) => {
     <div v-if="sidebarVisible" class="sidebar-overlay" @click="sidebarVisible = false"></div>
     <div v-if="isSidebarHovered" class="content-overlay"></div>
     <TopbarMenu
-      v-if="!['/login','/signup'].includes(route.path)"
+      v-if="!isLoginOrSignup"
       :menu-name="menuName"
       :company-name="userInfo?.company_name || ''"
+      :show-logo="showCompany"
+      :hide-menu-toggle="hideMenuToggle"
+      :show-back="showBack"
       @logout="handleLogout"
       @profile="handleProfile"
       @toggle-sidebar="sidebarVisible = !sidebarVisible"
     />
-    <div class="main-content main-margin">
+    <div class="main-content main-margin" :class="{ 'no-sidebar': !showSidebar }">
       <RouterView />
     </div>
   </div>

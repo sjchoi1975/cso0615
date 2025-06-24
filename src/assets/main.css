@@ -263,6 +263,7 @@ a,
   z-index: 1999;
 }
 
+/* 원래 기본 마진 사이드바, 탑바 마진 적용 */
 .main-content.main-margin {
   margin-left: 3rem !important;
   margin-top: 3rem !important;
@@ -270,11 +271,23 @@ a,
   box-sizing: border-box !important;
 }
 
-/* 로그인/회원가입 화면에서는 main-content 마진 제거 */
+/* 로그인/회원가입 화면에서는 사이드바, 탑바 모두 마진 제거 */
 body.login-page .main-content.main-margin {
   margin-left: 0 !important;
   margin-top: 0 !important;
 }
+
+/* 사이드바 메뉴 있는 화면 */
+.main-content.main-margin {
+  margin-left: 3rem !important;
+}
+
+/* 사이드바 메뉴 없는 화면 */
+.main-content.main-margin.no-sidebar {
+  margin-left: 0 !important;
+}
+
+
 
 @media (max-width: 900px) {
   .main-content.main-margin {
@@ -324,7 +337,7 @@ body.login-page .main-content.main-margin {
   flex-direction: column;
   gap: 0.6rem;
   padding: 2.4rem 2rem 2.4rem 2rem;
-  background: #f8fafd;
+  background: #fff;
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
 }
@@ -340,6 +353,60 @@ body.login-page .main-content.main-margin {
     padding: 2rem 0rem;
   }
 }
+
+
+/* ========================================================================================================= */
+/* 배경 판
+/* ========================================================================================================= */
+
+
+/* 공지사항 작성 페이지 */
+.board {
+  width: 100vw !important;
+  min-height: 100vh !important;
+  margin: auto !important;
+  background: #f8fafd !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important;
+  padding: 1rem 32rem 2rem 32rem !important;
+}
+
+
+.board_960 {
+  width: 960px !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  background: #f8fafd !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important;
+  padding: 1rem 32rem 2rem 32rem !important;
+}
+
+
+@media (max-width: 1024px) {
+  .board {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    min-height: 100vh !important;
+    padding: 0.5rem 2rem 2rem 2rem!important;
+    border-radius: 0 !important;
+  }
+  .board_960 h2 {
+    display: none;
+  }
+}
+
+.auth-root {
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  background: #f4f6fa !important;
+  padding: 2rem 1rem 2rem 1rem !important;
+}
+
 
 
 /* ========================================================================================================= */
@@ -690,10 +757,6 @@ body.login-page .main-content.main-margin {
 }
 
 
-
-
-
-
 /* 인풋, 검색, 드롭다운 포커스 처리 */
 .input:focus,
 .input-100:focus,
@@ -769,32 +832,6 @@ body.login-page .main-content.main-margin {
 
 .filter-reset-btn:hover {
   text-decoration: underline !important;
-}
-
-
-/* 공지사항 작성 페이지 */
-.board {
-  width: calc(100vw - 3rem) !important;
-  min-height: 100vh !important;
-  margin: 3rem auto 0 0 !important;
-  background: #f8fafd !important;
-  border-radius: var(--border-radius) !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important;
-  padding: 1rem 32rem 2rem 32rem !important;
-}
-
-@media (max-width: 1024px) {
-  .board {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100vw !important;
-    min-height: 100vh !important;
-    padding: 0.5rem 2rem 2rem 2rem!important;
-    border-radius: 0 !important;
-  }
-  .board_960 h2 {
-    display: none;
-  }
 }
 
 
@@ -874,7 +911,7 @@ body.login-page .main-content.main-margin {
  }
 
 .modal-title {
-  font-size: var(--font-size-140) !important;
+  font-size: var(--font-size-130) !important;
   font-weight: 500 !important;
   color: #fff !important;
   margin: 0 !important;

@@ -1,6 +1,6 @@
 <template>
   <div class="board">
-    <h2 style="margin-bottom: 2rem;">공지사항 작성</h2>
+    <h2 style="margin-bottom: 2rem;"></h2>
     <form @submit.prevent="onSubmit">
       <div style="margin-bottom: 1.5rem;">
         <label style="margin-bottom: 0.75rem;">제목</label>

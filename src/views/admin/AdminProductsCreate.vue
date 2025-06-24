@@ -1,6 +1,6 @@
 <template>
   <div class="auth-root">
-    <h2 class="Signup-title">제품 등록</h2>
+    <h2 class="Signup-title"></h2>
     <form @submit.prevent="registerProduct" class="auth-form">
       <label>기준년월</label>
       <input :value="baseMonth" class="input" disabled />

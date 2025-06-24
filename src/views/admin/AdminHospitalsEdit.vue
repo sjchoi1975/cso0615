@@ -1,18 +1,18 @@
 <template>
   <div class="auth-root">
     <h2 class="Signup-title"></h2>
-    <form @submit.prevent="registerHospital" class="auth-form">
+    <form @submit.prevent="onSubmit" class="auth-form">
       <label>거래처명<span style="color:#e74c3c">*</span></label>
-      <input v-model="hospitalName" placeholder="거래처명을 입력하세요" class="input" required />
+      <input v-model="form.hospital_name" placeholder="거래처명을 입력하세요" class="input" required />
       
       <label>사업자등록번호<span style="color:#e74c3c">*</span></label>
-      <input v-model="businessNumber" placeholder="'-' 없이 숫자만 입력" class="input" required />
+      <input v-model="form.business_registration_number" placeholder="'-' 없이 숫자만 입력" class="input" required />
 
       <label>원장명<span style="color:#e74c3c">*</span></label>
-      <input v-model="directorName" placeholder="원장명을 입력하세요" class="input" required />
+      <input v-model="form.director_name" placeholder="원장명을 입력하세요" class="input" required />
 
       <label>주소<span style="color:#e74c3c">*</span></label>
-      <input v-model="address" placeholder="주소를 입력하세요" class="input" required />
+      <input v-model="form.address" placeholder="주소를 입력하세요" class="input" required />
       
       <label>사업자등록증</label>
       <input type="file" @change="onFileChange" class="input" />
@@ -31,9 +31,9 @@
       </div>
 
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
-        <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
+        <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
         <button type="submit" class="btn-add" :disabled="loading" style="flex:1;">
-          {{ loading ? '저장 중...' : '등록' }}
+          {{ loading ? '수정 중...' : '수정' }}
         </button>
       </div>
     </form>
@@ -97,17 +97,22 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { supabase } from '@/supabase';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
+import Button from 'primevue/button';
+import { useToast } from 'primevue/usetoast';
 
-// 기존 상태 변수
-const hospitalName = ref('');
-const businessNumber = ref('');
-const directorName = ref('');
-const address = ref('');
-const licenseFile = ref(null);
-const loading = ref(false);
+const route = useRoute();
 const router = useRouter();
+const toast = useToast();
+const id = route.params.id;
+const loading = ref(false);
+const form = ref({
+  hospital_name: '',
+  business_registration_number: '',
+  director_name: '',
+  address: ''
+});
 
 // 회원 선택 모달 관련 상태 변수
 const showMemberModal = ref(false);
@@ -121,7 +126,7 @@ const loadingMembers = ref(false);
 const onFileChange = (event) => {
   const files = event.target.files;
   if (files.length > 0) {
-    licenseFile.value = files[0];
+    form.value.business_license_file = files[0].name;
   }
 };
 
@@ -147,6 +152,7 @@ const fetchMembers = async () => {
 
 onMounted(() => {
   fetchMembers();
+  fetchHospital();
 });
 
 // 회원 검색
@@ -204,8 +210,8 @@ const getMemberName = (memberId) => {
 };
 
 // 병원 등록 로직 수정
-const registerHospital = async () => {
-  if (!hospitalName.value || !businessNumber.value || !directorName.value || !address.value) {
+const onSubmit = async () => {
+  if (!form.value.hospital_name || !form.value.business_registration_number || !form.value.director_name || !form.value.address) {
     alert('필수 입력 항목(*)을 모두 입력해주세요.');
     return;
   }
@@ -215,24 +221,25 @@ const registerHospital = async () => {
     if (!user) throw new Error('로그인이 필요합니다.');
 
     // 1. 텍스트 정보 삽입
-    const { data: newHospital, error: insertError } = await supabase
+    const { data: updatedHospital, error: updateError } = await supabase
       .from('hospitals')
-      .insert({
-        hospital_name: hospitalName.value,
-        business_registration_number: businessNumber.value,
-        director_name: directorName.value,
-        address: address.value,
+      .update({
+        hospital_name: form.value.hospital_name,
+        business_registration_number: form.value.business_registration_number,
+        director_name: form.value.director_name,
+        address: form.value.address,
         registered_by: user.id,
       })
+      .eq('id', id)
       .select('id')
       .single();
-    if (insertError) throw insertError;
+    if (updateError) throw updateError;
 
-    const newHospitalId = newHospital.id;
+    const newHospitalId = updatedHospital.id;
 
     // 2. 파일 업로드 및 경로 업데이트
-    if (licenseFile.value) {
-      const file = licenseFile.value;
+    if (form.value.business_license_file) {
+      const file = form.value.business_license_file;
       const fileExt = file.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
       const { error: uploadError } = await supabase.storage.from('hospital-biz-licenses').upload(fileName, file);
@@ -251,19 +258,33 @@ const registerHospital = async () => {
       if (mappingError) throw mappingError;
     }
 
-    alert('거래처가 성공적으로 등록되었습니다.');
-    router.push('/admin/hospitals/list');
+    toast.add({ severity: 'success', summary: '수정 완료', detail: '거래처 정보가 수정되었습니다.', life: 2000 });
+    goBack();
 
   } catch (e) {
-    console.error('거래처 등록 오류:', e);
-    alert('등록 중 오류가 발생했습니다: ' + e.message);
+    console.error('거래처 수정 오류:', e);
+    toast.add({ severity: 'error', summary: '수정 실패', detail: e.message, life: 3000 });
   } finally {
     loading.value = false;
   }
 };
 
-const goList = () => {
-  router.push('/admin/hospitals/list');
+const fetchHospital = async () => {
+  const { data, error } = await supabase.from('hospitals').select('*').eq('id', id).single();
+  if (error) {
+    toast.add({ severity: 'error', summary: '불러오기 실패', detail: error.message, life: 3000 });
+    return;
+  }
+  form.value = {
+    hospital_name: data.hospital_name || '',
+    business_registration_number: data.business_registration_number || '',
+    director_name: data.director_name || '',
+    address: data.address || ''
+  };
+};
+
+const goBack = () => {
+  router.back();
 };
 </script>
 

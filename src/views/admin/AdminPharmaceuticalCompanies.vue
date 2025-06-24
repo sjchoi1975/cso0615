@@ -14,7 +14,7 @@
     <div class="function-card">
       <div class="total-count">총 {{ totalCount }}건</div>
       <div style="display: flex; gap: 0.5rem;">
-        <button class="btn-add" @click="openCreateModal">새 제약사 추가</button>
+        <button class="btn-add" @click="openCreateModal">제약사 추가</button>
         <button class="btn-add" @click="downloadExcel">엑셀 다운로드</button>
       </div>
     </div>

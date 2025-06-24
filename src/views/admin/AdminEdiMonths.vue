@@ -73,8 +73,7 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="form-label">정산월 *</label>
-              <select v-model="settlementMonth"
-                class="input-mordal-datepicker">
+              <select v-model="settlementMonth" class="input-mordal-datepicker">
                 <option v-for="opt in monthOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
                 </option>
@@ -187,18 +186,18 @@ const today = new Date()
 // 다음달(기본값)
 const defaultMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
 
-// 5개월치(다다음달~지지난달)
+// 드롭다운 옵션 생성 (YYYY-MM value, 한글 label)
 const monthOptions = computed(() => {
-  const arr = []
+  const arr = [];
   for (let i = 2; i >= -2; i--) {
-    const d = new Date(today.getFullYear(), today.getMonth() + i, 1)
+    const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
     arr.push({
       value: d.toISOString().slice(0, 7), // 'YYYY-MM'
       label: `${d.getFullYear()}년 ${d.getMonth() + 1}월`
-    })
+    });
   }
-  return arr
-})
+  return arr;
+});
 
 // v-model
 const settlementMonth = ref(defaultMonth.toISOString().slice(0, 7))

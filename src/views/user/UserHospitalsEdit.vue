@@ -1,6 +1,6 @@
 <template>
   <div class="auth-root">
-    <h2 class="Signup-title">거래처 수정</h2>
+    <h2 class="Signup-title"></h2>
     <form @submit.prevent="updateHospital" class="auth-form">
       <label>거래처명<span style="color:#e74c3c">*</span></label>
       <input v-model="hospitalName" placeholder="거래처명을 입력하세요" class="input" required />
