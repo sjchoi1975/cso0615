@@ -21,49 +21,52 @@
 
     <!-- Table Card -->
     <div class="table-card user-hospitals-view-table">
-      <DataTable
-        :value="hospitals"
-        :loading="loading"
-        :paginator="false"
-        scrollable
-        :scrollHeight="'calc(100vh - 220px)'"
-        ref="tableRef"
-        :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
-      >
-        <Column
-          v-for="col in tableConfig.columns"
-          :key="col.field"
-          :field="col.field"
-          :header="col.label"
-          :sortable="col.sortable || false"
-          :style="{ width: col.width, textAlign: col.align }"
-          :bodyStyle="{ textAlign: col.align }"
+      <div :style="tableConfig.tableStyle">
+        <DataTable
+          :value="hospitals"
+          :loading="loading"
+          :paginator="false"
+          scrollable
+          scrollDirection="both"
+          :scrollHeight="'calc(100vh - 220px)'"
+          ref="tableRef"
+          :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
         >
-          <template #body="slotProps">
-            <template v-if="col.field === 'index'">
-              {{ first + slotProps.index + 1 }}
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ first + slotProps.index + 1 }}
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'edit'">
+                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToEditPage(slotProps.data.id)" />
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'delete'">
+                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDeleteMapping(slotProps.data)" />
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'license'">
+                <Button v-if="slotProps.data.business_license_file" icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFileModal(slotProps.data)" />
+                <span v-else>-</span>
+              </template>
+              <template v-else-if="col.field === 'registered_at' || col.field === 'updated_at'">
+                {{ formatDate(slotProps.data[col.field]) }}
+              </template>
+              <template v-else>
+                <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+              </template>
             </template>
-            <template v-else-if="col.type === 'icon' && col.field === 'edit'">
-              <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToEditPage(slotProps.data.id)" />
-            </template>
-            <template v-else-if="col.type === 'icon' && col.field === 'delete'">
-              <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDeleteMapping(slotProps.data)" />
-            </template>
-            <template v-else-if="col.type === 'icon' && col.field === 'license'">
-              <Button v-if="slotProps.data.business_license_file" icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFileModal(slotProps.data)" />
-              <span v-else>-</span>
-            </template>
-            <template v-else-if="col.field === 'registered_at' || col.field === 'updated_at'">
-              {{ formatDate(slotProps.data[col.field]) }}
-            </template>
-            <template v-else>
-              <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
-            </template>
-          </template>
-        </Column>
-      </DataTable>
-      <div v-if="loading" class="table-loading-spinner-center">
-        <img src="/spinner.svg" alt="로딩중" />
+          </Column>
+        </DataTable>
+        <div v-if="loading" class="table-loading-spinner-center">
+          <img src="/spinner.svg" alt="로딩중" />
+        </div>
       </div>
     </div>
 

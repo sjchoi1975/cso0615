@@ -458,7 +458,6 @@ body.login-page .main-content.main-margin {
 
 .table-card {
   position: relative !important;
-  overflow: visible !important; /* 드롭다운 메뉴가 테이블 밖으로 보이도록 */
 }
 
 .table-card .p-datatable-table {

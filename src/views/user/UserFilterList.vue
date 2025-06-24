@@ -43,61 +43,63 @@
 
     <!-- Table Card -->
     <div class="table-card user-filter-list-table">
-      <DataTable 
-        :value="requests" 
-        :loading="loading" 
-        :paginator="false" 
-        scrollable 
-        :scrollHeight="'calc(100vh - 204px)'"
-        :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
-      >
-        <Column
-          v-for="col in tableConfig.columns"
-          :key="col.field"
-          :field="col.field"
-          :header="col.label"
-          :sortable="col.sortable || false"
-          :style="{ width: col.width, textAlign: col.align }"
-          :bodyStyle="{ textAlign: col.align }"
+      <div :style="tableConfig.tableStyle">
+        <DataTable 
+          :value="requests" 
+          :loading="loading" 
+          :paginator="false" 
+          scrollable 
+          :scrollHeight="'calc(100vh - 204px)'"
+          :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
         >
-          <template #body="slotProps">
-            <template v-if="col.field === 'index'">
-              {{ first + slotProps.index + 1 }}
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ first + slotProps.index + 1 }}
+              </template>
+              <template v-else-if="col.field === 'filter_type'">
+                {{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}
+              </template>
+              <template v-else-if="col.field === 'status'">
+                <span :class="['status-badge', `status-badge-${slotProps.data.status}`]">
+                  {{ slotProps.data.status === 'pending' ? '대기' : slotProps.data.status === 'approved' ? '승인' : '반려' }}
+                </span>
+              </template>
+              <template v-else-if="col.field === 'admin_comments'">
+                <span class="link" @click="openContentModal('전달사항', slotProps.data.admin_comments)">
+                  {{ slotProps.data.admin_comments || '-' }}
+                </span>
+              </template>
+              <template v-else-if="col.field === 'user_remarks'">
+                <span class="link" @click="openContentModal('요청 비고', slotProps.data.user_remarks)">{{ slotProps.data.user_remarks }}</span>
+              </template>
+              <template v-else-if="col.field === 'updated_at'">
+                <span v-if="slotProps.data.updated_at && new Date(slotProps.data.updated_at).getTime() !== new Date(slotProps.data.request_date).getTime()">
+                  {{ new Date(slotProps.data.updated_at).toLocaleString('sv-SE').slice(0, 16) }}
+                </span>
+                <span v-else>-</span>
+              </template>
+              <template v-else-if="col.field === 'request_date'">
+                {{ slotProps.data.request_date ? new Date(slotProps.data.request_date).toLocaleString('sv-SE').slice(0, 16) : '' }}
+              </template>
+              <template v-else>
+                <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+              </template>
             </template>
-            <template v-else-if="col.field === 'filter_type'">
-              {{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}
-            </template>
-            <template v-else-if="col.field === 'status'">
-              <span :class="['status-badge', `status-badge-${slotProps.data.status}`]">
-                {{ slotProps.data.status === 'pending' ? '대기' : slotProps.data.status === 'approved' ? '승인' : '반려' }}
-              </span>
-            </template>
-            <template v-else-if="col.field === 'admin_comments'">
-              <span class="link" @click="openContentModal('전달사항', slotProps.data.admin_comments)">
-                {{ slotProps.data.admin_comments || '-' }}
-              </span>
-            </template>
-            <template v-else-if="col.field === 'user_remarks'">
-              <span class="link" @click="openContentModal('요청 비고', slotProps.data.user_remarks)">{{ slotProps.data.user_remarks }}</span>
-            </template>
-            <template v-else-if="col.field === 'updated_at'">
-              <span v-if="slotProps.data.updated_at && new Date(slotProps.data.updated_at).getTime() !== new Date(slotProps.data.request_date).getTime()">
-                {{ new Date(slotProps.data.updated_at).toLocaleString('sv-SE').slice(0, 16) }}
-              </span>
-              <span v-else>-</span>
-            </template>
-            <template v-else-if="col.field === 'request_date'">
-              {{ slotProps.data.request_date ? new Date(slotProps.data.request_date).toLocaleString('sv-SE').slice(0, 16) : '' }}
-            </template>
-            <template v-else>
-              <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
-            </template>
-          </template>
-        </Column>
-        <div v-if="loading" class="table-loading-spinner-center">
-          <img src="/spinner.svg" alt="로딩중" />
-        </div>
-      </DataTable>
+          </Column>
+          <div v-if="loading" class="table-loading-spinner-center">
+            <img src="/spinner.svg" alt="로딩중" />
+          </div>
+        </DataTable>
+      </div>
     </div>
     
     <!-- Paginator -->

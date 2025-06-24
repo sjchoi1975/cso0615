@@ -1,7 +1,5 @@
 <template>
   <div class="admin-products-view page-container">
-
-
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row flex-row">
@@ -46,41 +44,45 @@
 
     <!-- 하단: 테이블카드 -->
     <div class="table-card">
-      <DataTable
-        :value="products"
-        :loading="loading"
-        :paginator="false"
-        scrollable
-        :scrollHeight="'calc(100vh - 204px)'"
-        ref="tableRef"
-        :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
-        lazy
-      >
-        <Column
-          v-for="col in tableConfig.columns"
-          :key="col.field"
-          :field="col.field"
-          :header="col.label"
-          :sortable="col.sortable || false"
-          :style="{ width: col.width, textAlign: col.align }"
-          :bodyStyle="{ textAlign: col.align }"
+      <div :style="tableConfig.tableStyle">
+        <DataTable
+          :value="products"
+          :loading="loading"
+          :paginator="false"
+          scrollable
+          scrollDirection="both"
+          :scrollHeight="'calc(100vh - 204px)'"
+          ref="tableRef"
+          :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
+          lazy
         >
-          <template #body="slotProps">
-            <template v-if="col.field === 'index'">
-              {{ first + slotProps.index + 1 }}
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+            :frozen="col.frozen"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ first + slotProps.index + 1 }}
+              </template>
+              <template v-else-if="col.field === 'commission_rate'">
+                {{ formatCommissionRate(getUserCommission(slotProps.data)) }}
+              </template>
+              <template v-else-if="col.field === 'price'">
+                {{ slotProps.data.price != null ? slotProps.data.price.toLocaleString() : '' }}
+              </template>
+              <template v-else>
+                <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+              </template>
             </template>
-            <template v-else-if="col.field === 'commission_rate'">
-              {{ formatCommissionRate(getUserCommission(slotProps.data)) }}
-            </template>
-            <template v-else-if="col.field === 'price'">
-              {{ slotProps.data.price != null ? slotProps.data.price.toLocaleString() : '' }}
-            </template>
-            <template v-else>
-              <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
-            </template>
-          </template>
-        </Column>
-      </DataTable>
+          </Column>
+        </DataTable>
+      </div>
     </div>
 
     <div class="fixed-paginator">
@@ -233,7 +235,7 @@ const formatCommissionRate = (rate) => {
 };
 
 function downloadExcel() {
-  // 엑셀 다운로드 로직
+  // 엑셀 다운로드 로직 (필요시 구현)
 }
 
 function onInput(e) {

@@ -1,3 +1,9 @@
+/* =====================================================================================================*/
+/* 관리자용 테이블
+/* =====================================================================================================*/
+
+
+/* 공지사항 ============================================================================================ */
 export const noticeTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -35,7 +41,7 @@ export const noticeTableConfig = {
 }; 
 
 
-
+/* 수수료율 ============================================================================================ */
 export const productsTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -94,6 +100,8 @@ export const productsTableConfig = {
   }
 };
 
+
+/* 거래처 ============================================================================================= */
 export const hospitalsTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -144,6 +152,8 @@ export const hospitalsTableConfig = {
   }
 };
 
+
+/* 필터링 요청 =========================================================================================== */
 export const filterRequestsTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -186,6 +196,8 @@ export const filterRequestsTableConfig = {
   }
 };
 
+
+/* 제약사 ============================================================================================= */
 export const pharmaceuticalCompaniesTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -217,6 +229,8 @@ export const pharmaceuticalCompaniesTableConfig = {
   }
 };
 
+
+/* EDI 정산월 ============================================================================================ */
 export const ediMonthsTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -250,6 +264,9 @@ export const ediMonthsTableConfig = {
   }
 };
 
+
+/* 정산내역서 - 정산월 ======================================================================================= */
+/* 업체명, 거래처명 -> 업체수, 거래처수 로 변경! =================================================== */
 export const settlementMonthTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -269,20 +286,22 @@ export const settlementMonthTableConfig = {
   mobile: {
     tableWidth: '100vw',
     tableStyle: {
-      minWidth: '600px',
+      minWidth: '540px',
       width: '100vw'
     },
     columns: [
       { field: 'index', label: '순번', width: '8%', align: 'center', sortable: false },
-      { field: 'settlement_month', label: '정산월', width: '16%', align: 'center', sortable: true },
-      { field: 'company_name', label: '업체명', width: '20%', align: 'left', sortable: false },
+      { field: 'settlement_month', label: '정산월', width: '14%', align: 'center', sortable: true },
+      { field: 'company_name', label: '업체명', width: '14%', align: 'left', sortable: false },
+      { field: 'hospital_name', label: '거래처명', width: '14%', align: 'left', sortable: false },
       { field: 'total_amount', label: '정산금액', width: '20%', align: 'right', sortable: false },
-      { field: 'note', label: '비고', width: '20%', align: 'left', sortable: false },
-      { field: 'detail', label: '상세', width: '16%', align: 'center', type: 'icon', icon: 'pi-list' }
+      { field: 'note', label: '비고', width: '18%', align: 'left', sortable: false },
+      { field: 'detail', label: '상세', width: '12%', align: 'center', type: 'icon', icon: 'pi-list' }
     ]
   }
 };
 
+/* 정산내역서 - 상세 ======================================================================================== */
 export const settlementMonthDetailTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -341,6 +360,7 @@ export const settlementMonthDetailTableConfig = {
 /* 이용자용 테이블
 /* =====================================================================================================*/
 
+/* 이용자 - 공지사항 ==================================================================================== */
 export const userNoticesTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -357,7 +377,11 @@ export const userNoticesTableConfig = {
   },
   mobile: {
     tableWidth: '100vw',
-    tableStyle: { minWidth: '100vw', width: '100vw' },
+    tableStyle: {
+      overflowX: 'auto',
+      minWidth: '100vw',
+      width: '100vw'
+    },
     columns: [
       { field: 'id', label: '순번', width: '14%', align: 'center', sortable: false },
       { field: 'title', label: '제목', width: '58%', align: 'left', sortable: true },
@@ -366,6 +390,8 @@ export const userNoticesTableConfig = {
   }
 };
 
+
+/* 이용자 - 수수료율 ==================================================================================== */
 export const userProductsTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -393,27 +419,29 @@ export const userProductsTableConfig = {
     tableWidth: '100vw',
     tableStyle: {
       overflowX: 'auto',
-      minWidth: '1600px',
+      minWidth: '1200px',
       width: '100vw'
     },
     columns: [
-      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'pharmacist', label: '제약사', width: '6%', align: 'left', sortable: false },
-      { field: 'product_name', label: '제품명', width: '12%', align: 'left', sortable: false },
-      { field: 'insurance_code', label: '보험코드', width: '6%', align: 'center', sortable: false },
-      { field: 'price', label: '약가', width: '5%', align: 'right', sortable: false },
-      { field: 'commission_rate', label: '수수료율', width: '5%', align: 'center', sortable: false },
-      { field: 'Ingredient', label: '성분', width: '14%', align: 'left', sortable: false },
-      { field: 'classification', label: '분류명', width: '13%', align: 'left', sortable: false },
-      { field: 'comparator', label: '대조약', width: '12%', align: 'left', sortable: false },
-      { field: 'reimbursement', label: '급여', width: '5%', align: 'center', sortable: false },
-      { field: 'bioequivalence', label: '생동', width: '5%', align: 'center', sortable: false },
-      { field: 'Inhouse', label: '자사/위탁', width: '5%', align: 'center', sortable: false },
-      { field: 'remarks', label: '비고', width: '8%', align: 'left', sortable: false }
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false, frozen: false },
+      { field: 'pharmacist', label: '제약사', width: '6%', align: 'left', sortable: false, frozen: false },
+      { field: 'product_name', label: '제품명', width: '12%', align: 'left', sortable: false, frozen: false },
+      { field: 'insurance_code', label: '보험코드', width: '8%', align: 'center', sortable: false, frozen: false },
+      { field: 'price', label: '약가', width: '5%', align: 'right', sortable: false, frozen: false },
+      { field: 'commission_rate', label: '수수료율', width: '5%', align: 'center', sortable: false, frozen: false },
+      { field: 'Ingredient', label: '성분', width: '12%', align: 'left', sortable: false, frozen: false },
+      { field: 'classification', label: '분류명', width: '12%', align: 'left', sortable: false, frozen: false },
+      { field: 'comparator', label: '대조약', width: '12%', align: 'left', sortable: false, frozen: false },
+      { field: 'reimbursement', label: '급여', width: '5%', align: 'center', sortable: false, frozen: false },
+      { field: 'bioequivalence', label: '생동', width: '5%', align: 'center', sortable: false, frozen: false },
+      { field: 'Inhouse', label: '자사/위탁', width: '5%', align: 'center', sortable: false, frozen: false },
+      { field: 'remarks', label: '비고', width: '9%', align: 'left', sortable: false, frozen: false }
     ]
   }
 };
 
+
+/* 이용자 - 거래처 ============================================================================================= */
 export const userHospitalsTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -440,22 +468,24 @@ export const userHospitalsTableConfig = {
     tableWidth: '100vw',
     tableStyle: {
       overflowX: 'auto',
-      minWidth: '1600px',
+      minWidth: '720px',
       width: '100vw'
     },
     columns: [
-      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      { field: 'index', label: '순번', width: '5%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처명', width: '12%', align: 'left', sortable: true },
-      { field: 'business_registration_number', label: '사업자번호', width: '8%', align: 'center', sortable: true },
+      { field: 'business_registration_number', label: '사업자번호', width: '10%', align: 'center', sortable: true },
       { field: 'director_name', label: '원장명', width: '8%', align: 'center', sortable: true },
-      { field: 'address', label: '주소', width: '16%', align: 'left', sortable: true },
-      { field: 'license', label: '사업자등록증', width: '8%', align: 'center', type: 'icon', icon: 'pi-file' },
+      { field: 'address', label: '주소', width: '14%', align: 'left', sortable: true },
+      { field: 'license', label: '사업자등록증', width: '7%', align: 'center', type: 'icon', icon: 'pi-file' },
       { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },
       { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   }
 };
 
+
+/* 이용자 - 필터링 요청목록 ========================================================================================= */
 export const userFilterRequestsTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -476,26 +506,31 @@ export const userFilterRequestsTableConfig = {
   },
 
   mobile: {
-    tableWidth: '1600px',
+    tableWidth: '100vw',
     tableStyle: {
       overflowX: 'auto',
-      minWidth: '1600px',
-      width: '1600px'
+      minWidth: '800px',
+      width: '100vw'
     },
     columns: [
-      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      { field: 'index', label: '순번', width: '6%', align: 'center', sortable: false },
       { field: 'filter_type', label: '구분', width: '6%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처명', width: '18%', align: 'left', sortable: false },
       { field: 'pharmaceutical_company_name', label: '제약사', width: '10%', align: 'left', sortable: false },
       { field: 'status', label: '처리결과', width: '8%', align: 'center', sortable: false },
-      { field: 'admin_comments', label: '전달사항', width: '18%', align: 'left', sortable: false },
-      { field: 'updated_at', label: '처리일시', width: '10%', align: 'center', sortable: false },
-      { field: 'user_remarks', label: '요청비고', width: '18%', align: 'left', sortable: false },
-      { field: 'request_date', label: '요청일시', width: '10%', align: 'center', sortable: false }
+      { field: 'admin_comments', label: '전달사항', width: '10%', align: 'left', sortable: false },
+      { field: 'updated_at', label: '처리일시', width: '16%', align: 'center', sortable: false },
+      { field: 'user_remarks', label: '요청비고', width: '10%', align: 'left', sortable: false },
+      { field: 'request_date', label: '요청일시', width: '16%', align: 'center', sortable: false }
     ]
   }
 };
 
+
+
+
+
+/* 이용자 - 정산내역서 - 정산월 ======================================================================================= */
 export const userSettlementMonthTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -523,6 +558,8 @@ export const userSettlementMonthTableConfig = {
   }
 };
 
+
+/* 이용자 - 정산내역서 - 상세 ======================================================================================== */
 export const userSettlementMonthDetailTableConfig = {
   pc: {
     tableWidth: '1840px',
