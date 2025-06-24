@@ -28,50 +28,37 @@
         scrollable
         :scrollHeight="'calc(100vh - 220px)'"
         ref="tableRef"
+        :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
       >
-        <Column header="순번" :style="{ width: columnWidths.index }" :bodyStyle="{ textAlign: columnAligns.index }">
+        <Column
+          v-for="col in tableConfig.columns"
+          :key="col.field"
+          :field="col.field"
+          :header="col.label"
+          :sortable="col.sortable || false"
+          :style="{ width: col.width, textAlign: col.align }"
+          :bodyStyle="{ textAlign: col.align }"
+        >
           <template #body="slotProps">
-            {{ first + slotProps.index + 1 }}
-          </template>
-        </Column>
-        <Column field="hospital_name" header="거래처명" :sortable="columnSortables.hospital_name" :style="{ width: columnWidths.hospital_name }" :bodyStyle="{ textAlign: columnAligns.hospital_name }"></Column>
-        <Column field="business_registration_number" header="사업자번호" :sortable="columnSortables.business_registration_number" :style="{ width: columnWidths.business_registration_number }" :bodyStyle="{ textAlign: columnAligns.business_registration_number }"></Column>
-        <Column field="director_name" header="원장명" :sortable="columnSortables.director_name" :style="{ width: columnWidths.director_name }" :bodyStyle="{ textAlign: columnAligns.director_name }"></Column>
-        <Column field="address" header="주소" :sortable="columnSortables.address" :style="{ width: columnWidths.address }" :bodyStyle="{ textAlign: columnAligns.address }"></Column>
-        <Column header="사업자등록증" :style="{ width: columnWidths.license }" :bodyStyle="{ textAlign: columnAligns.license }">
-          <template #body="slotProps">
-            <Button v-if="slotProps.data.business_license_file" icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFileModal(slotProps.data)" />
-            <span v-else>-</span>
-          </template>
-        </Column>
-        <Column field="registered_at" header="등록일자" :sortable="columnSortables.registered_at" :style="{ width: columnWidths.registered_at }" :bodyStyle="{ textAlign: columnAligns.registered_at }">
-          <template #body="slotProps">
-            {{ formatDate(slotProps.data.registered_at) }}
-          </template>
-        </Column>
-        <Column field="creator_name" header="등록자" :style="{ width: columnWidths.creator_name }" :bodyStyle="{ textAlign: columnAligns.creator_name }">
-          <template #body="slotProps">
-            {{ slotProps.data.creator_name || '-' }}
-          </template>
-        </Column>
-        <Column field="updated_at" header="수정일자" :sortable="columnSortables.updated_at" :style="{ width: columnWidths.updated_at }" :bodyStyle="{ textAlign: columnAligns.updated_at }">
-          <template #body="slotProps">
-            {{ slotProps.data.updated_at ? formatDate(slotProps.data.updated_at) : '-' }}
-          </template>
-        </Column>
-        <Column field="updater_name" header="수정자" :style="{ width: columnWidths.updater_name }" :bodyStyle="{ textAlign: columnAligns.updater_name }">
-          <template #body="slotProps">
-            {{ slotProps.data.updater_name || '-' }}
-          </template>
-        </Column>
-        <Column header="수정" :style="{ width: columnWidths.edit }" :bodyStyle="{ textAlign: columnAligns.edit }">
-          <template #body="slotProps">
-            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToEditPage(slotProps.data.id)" />
-          </template>
-        </Column>
-        <Column header="삭제" :style="{ width: columnWidths.delete }" :bodyStyle="{ textAlign: columnAligns.delete }">
-          <template #body="slotProps">
-            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDeleteMapping(slotProps.data)" />
+            <template v-if="col.field === 'index'">
+              {{ first + slotProps.index + 1 }}
+            </template>
+            <template v-else-if="col.type === 'icon' && col.field === 'edit'">
+              <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToEditPage(slotProps.data.id)" />
+            </template>
+            <template v-else-if="col.type === 'icon' && col.field === 'delete'">
+              <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDeleteMapping(slotProps.data)" />
+            </template>
+            <template v-else-if="col.type === 'icon' && col.field === 'license'">
+              <Button v-if="slotProps.data.business_license_file" icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFileModal(slotProps.data)" />
+              <span v-else>-</span>
+            </template>
+            <template v-else-if="col.field === 'registered_at' || col.field === 'updated_at'">
+              {{ formatDate(slotProps.data[col.field]) }}
+            </template>
+            <template v-else>
+              <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+            </template>
           </template>
         </Column>
       </DataTable>
@@ -145,48 +132,9 @@ import Button from 'primevue/button';
 import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
+import { userHospitalsTableConfig } from '@/config/tableConfig';
 
 const router = useRouter();
-
-// Column definitions
-const columnWidths = {
-  index: '4%',
-  hospital_name: '12%',
-  business_registration_number: '8%',
-  director_name: '8%',
-  address: '16%',
-  license: '8%',
-  registered_at: '8%',
-  creator_name: '8%',
-  updated_at: '8%',
-  updater_name: '8%',
-  edit: '6%',
-  delete: '6%',
-};
-
-const columnSortables = {
-  hospital_name: true,
-  business_registration_number: true,
-  director_name: true,
-  address: true,
-  registered_at: true,
-  updated_at: true,
-};
-
-const columnAligns = {
-  index: 'center',
-  hospital_name: 'left',
-  business_registration_number: 'center',
-  director_name: 'center',
-  address: 'left',
-  license: 'center',
-  registered_at: 'center',
-  creator_name: 'center',
-  updated_at: 'center',
-  updater_name: 'center',
-  edit: 'center',
-  delete: 'center'
-};
 
 // Component state
 const hospitals = ref([]);
@@ -204,6 +152,9 @@ const showFileModal = ref(false);
 const hospitalToDelete = ref(null);
 const fileUrl = ref('');
 const currentHospital = ref(null);
+
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? userHospitalsTableConfig.mobile : userHospitalsTableConfig.pc);
 
 const isPdfFile = computed(() => {
   if (!currentFilePath.value) return false;

@@ -53,71 +53,31 @@
         scrollable
         :scrollHeight="'calc(100vh - 204px)'"
         ref="tableRef"
+        :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
         lazy
       >
-        <Column header="순번" :style="{ width: columnWidths.index }" :bodyStyle="{ textAlign: columnAligns.index }">
+        <Column
+          v-for="col in tableConfig.columns"
+          :key="col.field"
+          :field="col.field"
+          :header="col.label"
+          :sortable="col.sortable || false"
+          :style="{ width: col.width, textAlign: col.align }"
+          :bodyStyle="{ textAlign: col.align }"
+        >
           <template #body="slotProps">
-            {{ first + slotProps.index + 1 }}
-          </template>
-        </Column>
-        <Column field="pharmacist" header="제약사" :style="{ width: columnWidths.pharmacist }" :bodyStyle="{ textAlign: columnAligns.pharmacist }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.pharmacist">{{ slotProps.data.pharmacist }}</span>
-          </template>
-        </Column>
-        <Column field="product_name" header="제품명" :style="{ width: columnWidths.product_name }" :bodyStyle="{ textAlign: columnAligns.product_name }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.product_name">{{ slotProps.data.product_name }}</span>
-          </template>
-        </Column>
-        <Column field="insurance_code" header="보험코드" :style="{ width: columnWidths.insurance_code }" :bodyStyle="{ textAlign: columnAligns.insurance_code }">
-          <template #body="slotProps">
-            {{ slotProps.data.insurance_code || '' }}
-          </template>
-        </Column>
-        <Column field="price" header="약가" :style="{ width: columnWidths.price }" :bodyStyle="{ textAlign: columnAligns.price }">
-          <template #body="slotProps">
-            {{ slotProps.data.price != null ? slotProps.data.price.toLocaleString() : '' }}
-          </template>
-        </Column>
-        <Column field="commission_rate" header="수수료율" :style="{ width: columnWidths.commission_rate }" :bodyStyle="{ textAlign: columnAligns.commission_rate }">
-          <template #body="slotProps">
-            {{ formatCommissionRate(getUserCommission(slotProps.data)) }}
-          </template>
-        </Column>
-        <Column field="Ingredient" header="성분" :style="{ width: columnWidths.Ingredient }" :bodyStyle="{ textAlign: columnAligns.Ingredient }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.Ingredient">{{ slotProps.data.Ingredient }}</span>
-          </template>
-        </Column>
-        <Column field="classification" header="분류명" :style="{ width: columnWidths.classification }" :bodyStyle="{ textAlign: columnAligns.classification }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.classification">{{ slotProps.data.classification }}</span>
-          </template>
-        </Column>
-        <Column field="comparator" header="대조약" :style="{ width: columnWidths.comparator }" :bodyStyle="{ textAlign: columnAligns.comparator }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.comparator">{{ slotProps.data.comparator }}</span>
-          </template>
-        </Column>
-        <Column field="reimbursement" header="급여" :style="{ width: columnWidths.reimbursement }" :bodyStyle="{ textAlign: columnAligns.reimbursement }">
-          <template #body="slotProps">
-            {{ slotProps.data.reimbursement }}
-          </template>
-        </Column>
-        <Column field="bioequivalence" header="생동" :style="{ width: columnWidths.bioequivalence }" :bodyStyle="{ textAlign: columnAligns.bioequivalence }">
-          <template #body="slotProps">
-            {{ slotProps.data.bioequivalence }}
-          </template>
-        </Column>
-        <Column field="Inhouse" header="자사/위탁" :style="{ width: columnWidths.Inhouse }" :bodyStyle="{ textAlign: columnAligns.Inhouse }">
-          <template #body="slotProps">
-            {{ slotProps.data.Inhouse }}
-          </template>
-        </Column>
-        <Column field="remarks" header="비고" :style="{ width: columnWidths.remarks }" :bodyStyle="{ textAlign: columnAligns.remarks }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.remarks">{{ slotProps.data.remarks }}</span>
+            <template v-if="col.field === 'index'">
+              {{ first + slotProps.index + 1 }}
+            </template>
+            <template v-else-if="col.field === 'commission_rate'">
+              {{ formatCommissionRate(getUserCommission(slotProps.data)) }}
+            </template>
+            <template v-else-if="col.field === 'price'">
+              {{ slotProps.data.price != null ? slotProps.data.price.toLocaleString() : '' }}
+            </template>
+            <template v-else>
+              <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+            </template>
           </template>
         </Column>
       </DataTable>
@@ -141,6 +101,7 @@ import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
+import { userProductsTableConfig } from '@/config/tableConfig';
 
 const search = ref('');
 const composingValue = ref('');
@@ -154,37 +115,8 @@ const totalCount = ref(0);
 const tableRef = ref(null);
 const userGrade = ref('');
 
-const columnWidths = {
-  index: '4%',
-  pharmacist: '8%',
-  product_name: '12%',
-  insurance_code: '6%',
-  price: '5%',
-  commission_rate: '5%',
-  Ingredient: '14%',
-  classification: '11%',
-  comparator: '12%',
-  reimbursement: '5%',
-  bioequivalence: '5%',
-  Inhouse: '5%',
-  remarks: '8%'
-};
-
-const columnAligns = {
-  index: 'center',
-  pharmacist: 'left',
-  product_name: 'left',
-  insurance_code: 'center',
-  price: 'right',
-  commission_rate: 'center',
-  Ingredient: 'left',
-  classification: 'left',
-  comparator: 'left',
-  reimbursement: 'center',
-  bioequivalence: 'center',
-  Inhouse: 'center',
-  remarks: 'left'
-};
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? userProductsTableConfig.mobile : userProductsTableConfig.pc);
 
 let latestMonth = null;
 

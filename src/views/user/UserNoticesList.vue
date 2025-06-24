@@ -29,56 +29,34 @@
         :scrollHeight="'calc(100vh - 204px)'"
         v-model:expandedRows="expandedRows"
         dataKey="id"
+        :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
       >
-        <Column 
-          header="순번" 
-          field="id"
-          :style="{ width: columnWidths.index }"
-          :class="columnAligns.index"
-        />
-        <Column 
-          field="title" 
-          header="제목"
-          :style="{ width: columnWidths.title }"
-          :class="columnAligns.title"
-          :sortable="columnSortables.title"
+        <Column
+          v-for="col in tableConfig.columns"
+          :key="col.field"
+          :field="col.field"
+          :header="col.label"
+          :sortable="col.sortable || false"
+          :style="{ width: col.width, textAlign: col.align }"
+          :bodyStyle="{ textAlign: col.align }"
         >
           <template #body="{ data }">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span v-if="data.is_important" class="important-badge">중요</span>
-              <a @click="toggleExpand(data.id)" style="cursor: pointer; color: #2196f3; text-decoration: underline;">
-                {{ data.title }}
-              </a>
-            </div>
+            <template v-if="col.field === 'title'">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span v-if="data.is_important" class="important-badge">중요</span>
+                <a @click="toggleExpand(data.id)" style="cursor: pointer; color: #2196f3; text-decoration: underline;">
+                  {{ data.title }}
+                </a>
+              </div>
+            </template>
+            <template v-else-if="col.field === 'created_at'">
+              {{ formatDate(data.created_at) }}
+            </template>
+            <template v-else>
+              {{ data[col.field] }}
+            </template>
           </template>
         </Column>
-        <Column 
-          field="content" 
-          header="내용"
-          :style="{ width: columnWidths.content }"
-          :class="columnAligns.content"
-          :sortable="columnSortables.content"
-        />
-        <Column 
-          field="created_at" 
-          header="작성일시"
-          :style="{ width: columnWidths.created_at }"
-          :class="columnAligns.created_at"
-          :sortable="columnSortables.created_at"
-        >
-          <template #body="{ data }">
-            {{ formatDate(data.created_at) }}
-          </template>
-        </Column>
-        <Column 
-          field="author" 
-          header="작성자"
-          :style="{ width: columnWidths.author }"
-          :class="columnAligns.author"
-          :sortable="columnSortables.author"
-        />
-
-        <!-- 확장된 행 내용 -->
         <template #expansion="{ data }">
           <div class="notice-expansion">
             <div class="content-text">{{ data.content }}</div>
@@ -106,6 +84,7 @@ import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
+import { userNoticesTableConfig } from '@/config/tableConfig';
 
 const router = useRouter();
 const search = ref('');
@@ -114,27 +93,8 @@ const pageSize = ref(20);
 const first = ref(0);
 const expandedRows = ref({});
 
-const columnWidths = {
-  index: '4%',
-  title: '30%',
-  content: '46%',
-  created_at: '8%',
-  author: '12%'
-};
-const columnSortables = {
-  index: false,
-  title: true,
-  content: true,
-  created_at: true,
-  author: true
-};
-const columnAligns = {
-  index: 'text-center',
-  title: 'text-left',
-  content: 'text-left',
-  created_at: 'text-center',
-  author: 'text-center'
-};
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? userNoticesTableConfig.mobile : userNoticesTableConfig.pc);
 
 const fetchNotices = async () => {
   const { data, error } = await supabase

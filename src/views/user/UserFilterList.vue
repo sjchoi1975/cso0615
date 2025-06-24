@@ -49,51 +49,55 @@
         :paginator="false" 
         scrollable 
         :scrollHeight="'calc(100vh - 204px)'"
+        :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
+      >
+        <Column
+          v-for="col in tableConfig.columns"
+          :key="col.field"
+          :field="col.field"
+          :header="col.label"
+          :sortable="col.sortable || false"
+          :style="{ width: col.width, textAlign: col.align }"
+          :bodyStyle="{ textAlign: col.align }"
         >
-        <Column header="순번" :style="{ width: columnWidths.index }" :bodyStyle="{ textAlign: columnAligns.index }">
-          <template #body="slotProps">{{ first + slotProps.index + 1 }}</template>
-        </Column>
-        <Column field="filter_type" header="구분" :style="{ width: columnWidths.filter_type }" :bodyStyle="{ textAlign: columnAligns.filter_type }">
-          <template #body="slotProps">{{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}</template>
-        </Column>
-        <Column field="hospital_name" header="거래처명" :style="{ width: columnWidths.hospital_name }" :bodyStyle="{ textAlign: columnAligns.hospital_name }"></Column>
-        <Column field="pharmaceutical_company_name" header="제약사" :style="{ width: columnWidths.pharmaceutical_company_name }" :bodyStyle="{ textAlign: columnAligns.pharmaceutical_company_name }"></Column>
-        <Column field="status" header="처리결과" :style="{ width: columnWidths.status }" :bodyStyle="{ textAlign: columnAligns.status }">
           <template #body="slotProps">
-            <span :class="['status-badge', `status-badge-${slotProps.data.status}`]">
-              {{ slotProps.data.status === 'pending' ? '대기' : slotProps.data.status === 'approved' ? '승인' : '반려' }}
-            </span>
+            <template v-if="col.field === 'index'">
+              {{ first + slotProps.index + 1 }}
+            </template>
+            <template v-else-if="col.field === 'filter_type'">
+              {{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}
+            </template>
+            <template v-else-if="col.field === 'status'">
+              <span :class="['status-badge', `status-badge-${slotProps.data.status}`]">
+                {{ slotProps.data.status === 'pending' ? '대기' : slotProps.data.status === 'approved' ? '승인' : '반려' }}
+              </span>
+            </template>
+            <template v-else-if="col.field === 'admin_comments'">
+              <span class="link" @click="openContentModal('전달사항', slotProps.data.admin_comments)">
+                {{ slotProps.data.admin_comments || '-' }}
+              </span>
+            </template>
+            <template v-else-if="col.field === 'user_remarks'">
+              <span class="link" @click="openContentModal('요청 비고', slotProps.data.user_remarks)">{{ slotProps.data.user_remarks }}</span>
+            </template>
+            <template v-else-if="col.field === 'updated_at'">
+              <span v-if="slotProps.data.updated_at && new Date(slotProps.data.updated_at).getTime() !== new Date(slotProps.data.request_date).getTime()">
+                {{ new Date(slotProps.data.updated_at).toLocaleString('sv-SE').slice(0, 16) }}
+              </span>
+              <span v-else>-</span>
+            </template>
+            <template v-else-if="col.field === 'request_date'">
+              {{ slotProps.data.request_date ? new Date(slotProps.data.request_date).toLocaleString('sv-SE').slice(0, 16) : '' }}
+            </template>
+            <template v-else>
+              <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+            </template>
           </template>
         </Column>
-        <Column field="admin_comments" header="전달사항" :style="{ width: columnWidths.admin_comments }" :bodyStyle="{ textAlign: columnAligns.admin_comments }">
-          <template #body="slotProps">
-            <span class="link" @click="openContentModal('전달사항', slotProps.data.admin_comments)">
-              {{ slotProps.data.admin_comments || '-' }}
-            </span>
-          </template>
-        </Column>
-        <Column field="updated_at" header="처리일시" :style="{ width: columnWidths.updated_at }" :bodyStyle="{ textAlign: columnAligns.updated_at }">
-           <template #body="slotProps">
-            <span v-if="slotProps.data.updated_at && new Date(slotProps.data.updated_at).getTime() !== new Date(slotProps.data.request_date).getTime()">
-              {{ new Date(slotProps.data.updated_at).toLocaleString('sv-SE').slice(0, 16) }}
-            </span>
-            <span v-else>-</span>
-          </template>
-        </Column>
-        <Column field="user_remarks" header="요청비고" :style="{ width: columnWidths.user_remarks }" :bodyStyle="{ textAlign: columnAligns.user_remarks }">
-          <template #body="slotProps">
-            <span class="link" @click="openContentModal('요청 비고', slotProps.data.user_remarks)">{{ slotProps.data.user_remarks }}</span>
-          </template>
-        </Column>
-        <Column field="request_date" header="요청일시" :style="{ width: columnWidths.request_date }" :bodyStyle="{ textAlign: columnAligns.request_date }">
-          <template #body="slotProps">
-            {{ slotProps.data.request_date ? new Date(slotProps.data.request_date).toLocaleString('sv-SE').slice(0, 16) : '' }}
-          </template>
-        </Column>
+        <div v-if="loading" class="table-loading-spinner-center">
+          <img src="/spinner.svg" alt="로딩중" />
+        </div>
       </DataTable>
-      <div v-if="loading" class="table-loading-spinner-center">
-        <img src="/spinner.svg" alt="로딩중" />
-      </div>
     </div>
     
     <!-- Paginator -->
@@ -113,36 +117,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
-
-const columnWidths = {
-  index: '4%',
-  filter_type: '4%',
-  hospital_name: '18%',
-  pharmaceutical_company_name: '10%',
-  status: '8%',
-  admin_comments: '18%',
-  updated_at: '10%',
-  user_remarks: '18%',
-  request_date: '10%'
-};
-
-const columnAligns = {
-  index: 'center',
-  filter_type: 'center',
-  hospital_name: 'left',
-  pharmaceutical_company_name: 'left',
-  status: 'center',
-  admin_comments: 'left',
-  updated_at: 'center',
-  user_remarks: 'left',
-  request_date: 'center'
-};
+import { userFilterRequestsTableConfig } from '@/config/tableConfig';
 
 const requests = ref([]);
 const loading = ref(false);
@@ -161,6 +142,9 @@ const pharmaOptions = ref([]);
 const showContentModal = ref(false);
 const modalTitle = ref('');
 const modalContent = ref('');
+
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? userFilterRequestsTableConfig.mobile : userFilterRequestsTableConfig.pc);
 
 const fetchDropdownOptions = async () => {
   const { data: hospitalsData } = await supabase.from('hospitals').select('id, hospital_name').order('hospital_name');

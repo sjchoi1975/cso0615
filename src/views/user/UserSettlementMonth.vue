@@ -19,43 +19,41 @@
 
     <!-- 테이블카드 -->
     <div class="table-card user-settlement-month">
-      <DataTable 
+      <DataTable
         :value="filteredMonthList"
-        :loading="loading" 
+        :loading="loading"
         :paginator="false"
-        scrollable 
+        scrollable
         :scrollHeight="'calc(100vh - 204px)'"
-        >
+        :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
+      >
         <template #empty>
           <div v-if="!loading">조회된 데이터가 없습니다.</div>
         </template>
-        <Column header="순번" :style="{ width: columnWidths.index, textAlign: columnAligns.index }">
-          <template #body="slotProps">
-            {{ slotProps.index + 1 }}
-          </template>
-        </Column>
         <Column
-          v-for="col in columns"
+          v-for="col in tableConfig.columns"
           :key="col.field"
           :field="col.field"
-          :header="col.header"
-          :sortable="columnSortables[col.field] || false"
-          :headerStyle="{ width: columnWidths[col.field], textAlign: columnAligns[col.field] }"
-          :bodyStyle="{ textAlign: columnAligns[col.field] }"
+          :header="col.label"
+          :sortable="col.sortable || false"
+          :style="{ width: col.width, textAlign: col.align }"
+          :bodyStyle="{ textAlign: col.align }"
         >
-          <template v-if="col.field === 'note'" #body="slotProps">
-            <span
-              class="link"
-              :title="slotProps.data.note"
-              @click="openNotePopup(slotProps.data)"
-            >
-              {{ slotProps.data.note }}
-            </span>
-          </template>
-        </Column>
-        <Column header="상세" :style="{ width: columnWidths.detail, textAlign: columnAligns.detail }">
           <template #body="slotProps">
-            <button class="btn-detail" @click="goDetail(slotProps.data)">상세</button>
+            <template v-if="col.field === 'index'">
+              {{ slotProps.index + 1 }}
+            </template>
+            <template v-else-if="col.type === 'icon' && col.field === 'detail'">
+              <button class="p-button p-button-text p-button-rounded icon-only-btn" @click="goDetail(slotProps.data)" v-tooltip.top="'상세보기'">
+                <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
+              </button>
+            </template>
+            <template v-else-if="col.field === 'total_amount'">
+              {{ slotProps.data.total_amount?.toLocaleString() }}
+            </template>
+            <template v-else>
+              {{ slotProps.data[col.field] }}
+            </template>
           </template>
         </Column>
       </DataTable>
@@ -83,6 +81,7 @@ import Column from 'primevue/column';
 import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
+import { userSettlementMonthTableConfig } from '@/config/tableConfig';
 
 const router = useRouter();
 
@@ -99,49 +98,8 @@ const noteValue = ref('');
 
 const currentUserRegNo = ref('');
 
-// 컬럼 너비 한 곳에서 관리
-const columnWidths = {
-  index: '4%',
-  settlement_month: '10%',
-  note: '36%',
-  hospital_name: '10%',
-  prescription_count: '10%',
-  prescription_amount: '10%',
-  payment_amount: '10%',
-  detail: '10%'
-};
-
-// 컬럼별 정렬 방식 한 곳에서 관리
-const columnAligns = {
-  index: 'center',
-  settlement_month: 'center',
-  note: 'left',
-  hospital_name: 'center',
-  prescription_count: 'center',
-  prescription_amount: 'right',
-  payment_amount: 'right',
-  detail: 'center'
-};
-
-// 컬럼별 정렬 여부 한 곳에서 관리
-const columnSortables = {
-  settlement_month: true,
-  note: true,
-  hospital_name: true,
-  prescription_count: true,
-  prescription_amount: true,
-  payment_amount: true
-};
-
-// 컬럼 배열 한 곳에서 관리 (정산업체 제거)
-const columns = [
-  { field: 'settlement_month', header: '정산월' },
-  { field: 'note', header: '전달사항' },
-  { field: 'hospital_name', header: '병의원' },
-  { field: 'prescription_count', header: '처방건수' },
-  { field: 'prescription_amount', header: '처방액' },
-  { field: 'payment_amount', header: '지급액' }
-];
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? userSettlementMonthTableConfig.mobile : userSettlementMonthTableConfig.pc);
 
 // 정산월 목록 불러오기 (settlement_months 테이블)
 const fetchMonthOptions = async () => {
