@@ -21,46 +21,48 @@
 
     <!-- 하단: 데이터 테이블 -->
     <div class="table-card">
-      <DataTable 
-        :value="tableData" 
-        :loading="loading"
-        v-model:filters="filters"
-        :globalFilterFields="['remarks']"
-        scrollable 
-        scrollHeight="calc(100vh - 204px)"
-        sortMode="multiple"
-      >
-        <Column 
-          v-for="col in columns"
-          :key="col.field"
-          :field="col.field"
-          :header="col.header"
-          :sortable="col.sortable"
-          :headerStyle="{ width: col.width }"
-          :bodyStyle="{ 'text-align': col.align }"
+      <div :style="tableConfig.tableStyle">
+        <DataTable
+          :value="tableData"
+          :loading="loading"
+          v-model:filters="filters"
+          :globalFilterFields="['remarks']"
+          scrollable
+          scrollHeight="calc(100vh - 204px)"
+          sortMode="multiple"
+          :style="{ width: tableConfig.tableWidth }"
         >
-          <template #body="slotProps">
-            <div v-if="col.field === 'index'">
-              {{ totalRecords - slotProps.index }}
-            </div>
-            <div v-else-if="col.field === 'edit'">
-              <Button icon="pi pi-pencil"
-                class="p-button-rounded p-button-text btn-icon-edit"
-                @click="openModal(slotProps.data)"
-              />
-            </div>
-            <div v-else-if="col.field === 'delete'">
-              <Button icon="pi pi-trash"
-                class="p-button-rounded p-button-text btn-icon-danger"
-                @click="confirmDelete(slotProps.data.id)"
-              />
-            </div>
-            <div v-else>
-              {{ slotProps.data[col.field] }}
-            </div>
-          </template>
-        </Column>
-      </DataTable>
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ totalRecords - slotProps.index }}
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'edit'">
+                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="openModal(slotProps.data)" />
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'delete'">
+                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDelete(slotProps.data.id)" />
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'detail'">
+                <button class="p-button p-button-text p-button-rounded icon-only-btn" @click="goDetail(slotProps.data)" v-tooltip.top="'상세보기'">
+                  <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
+                </button>
+              </template>
+              <template v-else>
+                {{ slotProps.data[col.field] }}
+              </template>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
     </div>
 
     <!-- 등록/수정 모달 -->
@@ -125,56 +127,15 @@ import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Datepicker from 'vue3-datepicker';
 import ko from 'date-fns/locale/ko';
+import { ediMonthsTableConfig } from '@/config/tableConfig';
 
 const data = ref([]);
 const loading = ref(false);
 const totalRecords = ref(0);
 const filters = ref({ 'global': { value: null, matchMode: 'contains' } });
 
-const columnDefs = [
-  { field: 'index', header: '순번' },
-  { field: 'settlement_month', header: '정산월' },
-  { field: 'start_date', header: '제출 시작일' },
-  { field: 'end_date', header: '제출 마감일' },
-  { field: 'remarks', header: '공지사항' },
-  { field: 'edit', header: '수정' },
-  { field: 'delete', header: '삭제' },
-];
-
-const columnWidths = {
-  index: '4%',
-  settlement_month: '8%',
-  start_date: '10%',
-  end_date: '10%',
-  remarks: '56%',
-  edit: '6%',
-  delete: '6%',
-};
-
-const columnAligns = {
-  index: 'center',
-  settlement_month: 'center',
-  start_date: 'center',
-  end_date: 'center',
-  remarks: 'left',
-  edit: 'center',
-  delete: 'center',
-};
-
-const columnSortables = {
-  settlement_month: false,
-  start_date: false,
-  end_date: false,
-};
-
-const columns = computed(() => {
-  return columnDefs.map(col => ({
-    ...col,
-    width: columnWidths[col.field],
-    align: columnAligns[col.field],
-    sortable: columnSortables[col.field] || false,
-  }));
-});
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? ediMonthsTableConfig.mobile : ediMonthsTableConfig.pc);
 
 const isModalVisible = ref(false);
 const currentItem = ref({});

@@ -110,24 +110,24 @@ const showBack = computed(() => !isLoginOrSignup.value && isSpecialLayout.value)
 const hideMenuToggle = computed(() => !isLoginOrSignup.value && isSpecialLayout.value && isMobile.value);
 
 const defaultMenuName = computed(() => {
-  const menuNameMap = {
-    '/admin/notice/list': '공지사항 목록',
-    '/admin/members/list': '회원 목록',
-    '/admin/products/list': '수수료율 관리',
-    '/admin/hospitals/list': '거래처 목록',
-    '/admin/filter/list': '필터링 요청 목록',
-    '/admin/pharmaceutical-companies': '제약사 관리',
-    '/admin/edi/months': 'EDI 제출월 설정',
-    '/admin/edi/list': 'EDI 제출 목록',
-    '/admin/settlement/month': '월별 정산 현황',
-    '/notice/list': '공지사항',
-    '/products/list': '수수료율',
-    '/hospitals/list': '거래처',
-    '/filter/create': '필터링 요청',
-    '/filter/list': '요청 내역',
-    '/edi/submit': 'EDI 제출',
-    '/edi/list': '제출 내역',
-    '/settlement/list': '정산내역서',
+const menuNameMap = {
+  '/admin/notice/list': '공지사항 목록',
+  '/admin/members/list': '회원 목록',
+  '/admin/products/list': '수수료율 관리',
+  '/admin/hospitals/list': '거래처 목록',
+  '/admin/filter/list': '필터링 요청 목록',
+  '/admin/pharmaceutical-companies': '제약사 관리',
+  '/admin/edi/months': 'EDI 제출월 설정',
+  '/admin/edi/list': 'EDI 제출 목록',
+  '/admin/settlement/month': '월별 정산 현황',
+  '/notice/list': '공지사항',
+  '/products/list': '수수료율',
+  '/hospitals/list': '거래처',
+  '/filter/create': '필터링 요청',
+  '/filter/list': '요청 내역',
+  '/edi/submit': 'EDI 제출',
+  '/edi/list': '제출 내역',
+  '/settlement/list': '정산내역서',
   };
   const path = route.path;
   const params = route.params;
@@ -175,7 +175,7 @@ watch(
     }
 
     
-    
+        
     // 스크롤이 필요한 페이지들
     const scrollEnabledPages = [
       '/login', 

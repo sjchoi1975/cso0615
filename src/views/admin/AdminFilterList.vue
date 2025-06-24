@@ -47,60 +47,57 @@
     </div>
 
     <!-- Table Card -->
-    <div class="table-card admin-filter-list-table">
-      <DataTable 
-        :value="requests" 
-        :loading="loading" 
-        :paginator="false" 
-        scrollable 
-        :scrollHeight="'calc(100vh - 204px)'"
+    <div class="table-card">
+      <div :style="tableConfig.tableStyle">
+        <DataTable
+          :value="requests"
+          :loading="loading"
+          :paginator="false"
+          scrollable
+          :scrollHeight="'calc(100vh - 204px)'"
+          :style="{ width: tableConfig.tableWidth }"
         >
-        <Column header="순번" :style="{ width: columnWidths.index }" :bodyStyle="{ textAlign: columnAligns.index }">
-          <template #body="slotProps">{{ first + slotProps.index + 1 }}</template>
-        </Column>
-        <Column field="request_date" header="요청일시" :style="{ width: columnWidths.request_date }" :bodyStyle="{ textAlign: columnAligns.request_date }">
-          <template #body="slotProps">
-            {{ slotProps.data.request_date ? new Date(slotProps.data.request_date).toLocaleString('sv-SE').slice(0, 16) : '' }}
-          </template>
-        </Column>
-        <Column field="member_name" header="업체명" :style="{ width: columnWidths.member_name }" :bodyStyle="{ textAlign: columnAligns.member_name }"></Column>
-        <Column field="filter_type" header="구분" :style="{ width: columnWidths.filter_type }" :bodyStyle="{ textAlign: columnAligns.filter_type }">
-          <template #body="slotProps">{{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}</template>
-        </Column>
-        <Column field="hospital_name" header="거래처명" :style="{ width: columnWidths.hospital_name }" :bodyStyle="{ textAlign: columnAligns.hospital_name }"></Column>
-        <Column field="pharmaceutical_company_name" header="제약사" :style="{ width: columnWidths.pharmaceutical_company_name }" :bodyStyle="{ textAlign: columnAligns.pharmaceutical_company_name }"></Column>
-        <Column field="user_remarks" header="요청비고" :style="{ width: columnWidths.user_remarks }" :bodyStyle="{ textAlign: columnAligns.user_remarks }">
-          <template #body="slotProps">
-            <span class="link" @click="openRemarksModal(slotProps.data.user_remarks)">{{ slotProps.data.user_remarks }}</span>
-          </template>
-        </Column>
-        <Column field="status" header="처리결과" :style="{ width: columnWidths.status }" :bodyStyle="{ textAlign: columnAligns.status }">
-          <template #body="slotProps">
-            <select v-model="slotProps.data.status" 
-                    @change="updateStatus(slotProps.data)" 
-                    :class="['status-select', `status-select-${slotProps.data.status}`]">
-              <option value="pending">대기</option>
-              <option value="approved">승인</option>
-              <option value="rejected">반려</option>
-            </select>
-          </template>
-        </Column>
-        <Column field="admin_comments" header="전달사항" :style="{ width: columnWidths.admin_comments }" :bodyStyle="{ textAlign: columnAligns.admin_comments }">
-          <template #body="slotProps">
-            <span class="link" @click="openAdminCommentsModal(slotProps.data)">
-              {{ slotProps.data.admin_comments || '작성' }}
-            </span>
-          </template>
-        </Column>
-        <Column field="updated_at" header="처리일시" :style="{ width: columnWidths.updated_at }" :bodyStyle="{ textAlign: columnAligns.updated_at }">
-           <template #body="slotProps">
-            <span v-if="slotProps.data.updated_at && new Date(slotProps.data.updated_at).getTime() !== new Date(slotProps.data.request_date).getTime()">
-              {{ new Date(slotProps.data.updated_at).toLocaleString('sv-SE').slice(0, 16) }}
-            </span>
-            <span v-else>-</span>
-          </template>
-        </Column>
-      </DataTable>
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ first + slotProps.index + 1 }}
+              </template>
+              <template v-else-if="col.field === 'request_date'">
+                {{ formatDateTime(slotProps.data.request_date) }}
+              </template>
+              <template v-else-if="col.field === 'updated_at'">
+                {{ formatDateTime(slotProps.data.updated_at) }}
+              </template>
+              <template v-else-if="col.field === 'filter_type'">
+                {{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}
+              </template>
+              <template v-else-if="col.field === 'status'">
+                <select v-model="slotProps.data.status" @change="updateStatus(slotProps.data)" :class="['status-select', `status-select-${slotProps.data.status}`]">
+                  <option value="pending">대기</option>
+                  <option value="approved">승인</option>
+                  <option value="rejected">반려</option>
+                </select>
+              </template>
+              <template v-else-if="col.field === 'admin_comments'">
+                <span class="link" @click="openAdminCommentsModal(slotProps.data)">
+                  {{ slotProps.data.admin_comments || '작성' }}
+                </span>
+              </template>
+              <template v-else>
+                <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+              </template>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
       <div v-if="loading" class="table-loading-spinner-center">
         <img src="/spinner.svg" alt="로딩중" />
       </div>
@@ -137,38 +134,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
+import { filterRequestsTableConfig } from '@/config/tableConfig';
 
-const columnWidths = {
-  index: '4%',
-  request_date: '10%',
-  member_name: '12%',
-  filter_type: '6%',
-  hospital_name: '16%',
-  pharmaceutical_company_name: '10%',
-  user_remarks: '12%',
-  status: '8%',
-  admin_comments: '12%',
-  updated_at: '10%',
-};
-
-const columnAligns = {
-  index: 'center',
-  request_date: 'center',
-  member_name: 'left',
-  filter_type: 'center',
-  hospital_name: 'left',
-  pharmaceutical_company_name: 'left',
-  user_remarks: 'left',
-  status: 'center',
-  admin_comments: 'left',
-  updated_at: 'center',
-};
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? filterRequestsTableConfig.mobile : filterRequestsTableConfig.pc);
 
 const requests = ref([]);
 const loading = ref(false);
@@ -319,5 +294,17 @@ const resetFilters = () => {
   selectedStatus.value = '';
   selectedFilterType.value = '';
 };
+
+function formatDateTime(val) {
+  if (!val) return '';
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return '';
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+}
 
 </script>

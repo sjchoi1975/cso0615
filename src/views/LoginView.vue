@@ -1,4 +1,4 @@
-<template>
+<template>  
   <div class="auth-root">
     <h2 class="login-title">Company</h2>
     <form @submit.prevent="login" class="auth-form">

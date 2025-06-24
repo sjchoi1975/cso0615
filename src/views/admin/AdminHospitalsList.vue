@@ -26,80 +26,65 @@
 
     <!-- Table Card -->
     <div class="table-card admin-hospitals-view-table">
-      <DataTable
-        :value="hospitals"
-        :loading="loading"
-        :paginator="false"
-        scrollable
-        :scrollHeight="'calc(100vh - 220px)'"
-        ref="tableRef"
-      >
-        <Column header="순번" :style="{ width: columnWidths.index }" :bodyStyle="{ textAlign: columnAligns.index }">
-          <template #body="slotProps">
-            {{ first + slotProps.index + 1 }}
-          </template>
-        </Column>
-        <Column field="hospital_name" header="거래처명" :sortable="columnSortables.hospital_name" :style="{ width: columnWidths.hospital_name }" :bodyStyle="{ textAlign: columnAligns.hospital_name }"></Column>
-        <Column field="business_registration_number" header="사업자등록번호" :sortable="columnSortables.business_registration_number" :style="{ width: columnWidths.business_registration_number }" :bodyStyle="{ textAlign: columnAligns.business_registration_number }"></Column>
-        <Column field="director_name" header="원장명" :sortable="columnSortables.director_name" :style="{ width: columnWidths.director_name }" :bodyStyle="{ textAlign: columnAligns.director_name }"></Column>
-        <Column field="address" header="주소" :sortable="columnSortables.address" :style="{ width: columnWidths.address }" :bodyStyle="{ textAlign: columnAligns.address }"></Column>
-        <Column header="사업자등록증" :style="{ width: columnWidths.license }" :bodyStyle="{ textAlign: columnAligns.license }">
-          <template #body="slotProps">
-            <Button v-if="slotProps.data.business_license_file" icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFileModal(slotProps.data)" />
-            <span v-else>-</span>
-          </template>
-        </Column>
-        <Column header="연결회원" :style="{ width: columnWidths.member_count }" :bodyStyle="{ textAlign: columnAligns.member_count }">
-          <template #body="slotProps">
-            <span v-if="slotProps.data.member_count > 0" class="member-count">
-              {{ slotProps.data.member_count }}명
-            </span>
-            <span v-else>-</span>
-          </template>
-        </Column>
-        <Column header="연결 업체" :style="{ width: columnWidths.mapped_members }" :bodyStyle="{ textAlign: columnAligns.mapped_members }">
-          <template #body="slotProps">
-            <div v-if="slotProps.data.mapped_members && slotProps.data.mapped_members.length > 0">
-              <div v-for="(company, index) in slotProps.data.mapped_members" :key="index">
-                {{ company }}
-              </div>
-            </div>
-            <span v-else>-</span>
-          </template>
-        </Column>
-        <Column field="registered_at" header="등록일자" :sortable="columnSortables.registered_at" :style="{ width: columnWidths.registered_at }" :bodyStyle="{ textAlign: columnAligns.registered_at }">
-          <template #body="slotProps">
-            {{ formatDate(slotProps.data.registered_at) }}
-          </template>
-        </Column>
-        <Column field="creator_name" header="등록자" :style="{ width: columnWidths.creator_name }" :bodyStyle="{ textAlign: columnAligns.creator_name }">
-          <template #body="slotProps">
-            {{ slotProps.data.creator_name || '-' }}
-          </template>
-        </Column>
-        <Column field="updated_at" header="수정일자" :sortable="columnSortables.updated_at" :style="{ width: columnWidths.updated_at }" :bodyStyle="{ textAlign: columnAligns.updated_at }">
-          <template #body="slotProps">
-            {{ slotProps.data.updated_at ? formatDate(slotProps.data.updated_at) : '-' }}
-          </template>
-        </Column>
-        <Column field="updater_name" header="수정자" :style="{ width: columnWidths.updater_name }" :bodyStyle="{ textAlign: columnAligns.updater_name }">
-          <template #body="slotProps">
-            {{ slotProps.data.updater_name || '-' }}
-          </template>
-        </Column>
-        <Column header="수정" :style="{ width: columnWidths.edit }" :bodyStyle="{ textAlign: columnAligns.edit }">
-          <template #body="slotProps">
-            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToEditPage(slotProps.data.id)" />
-          </template>
-        </Column>
-        <Column header="삭제" :style="{ width: columnWidths.delete }" :bodyStyle="{ textAlign: columnAligns.delete }">
-          <template #body="slotProps">
-            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteHospital(slotProps.data)" />
-          </template>
-        </Column>
-      </DataTable>
-      <div v-if="loading" class="table-loading-spinner-center">
-        <img src="/spinner.svg" alt="로딩중" />
+      <div :style="tableConfig.tableStyle">
+        <DataTable
+          :value="hospitals"
+          :loading="loading"
+          :paginator="false"
+          scrollable
+          :scrollHeight="'calc(100vh - 220px)'"
+          ref="tableRef"
+          :style="{ width: tableConfig.tableWidth }"
+        >
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ first + slotProps.index + 1 }}
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'edit'">
+                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToEditPage(slotProps.data.id)" />
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'delete'">
+                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteHospital(slotProps.data)" />
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'license'">
+                <Button v-if="slotProps.data.business_license_file" icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFileModal(slotProps.data)" />
+                <span v-else>-</span>
+              </template>
+              <template v-else-if="col.field === 'member_count'">
+                <span v-if="slotProps.data.member_count > 0" class="member-count">
+                  {{ slotProps.data.member_count }}명
+                </span>
+                <span v-else>-</span>
+              </template>
+              <template v-else-if="col.field === 'mapped_members'">
+                <div v-if="slotProps.data.mapped_members && slotProps.data.mapped_members.length > 0">
+                  <div v-for="(company, index) in slotProps.data.mapped_members" :key="index">
+                    {{ company }}
+                  </div>
+                </div>
+                <span v-else>-</span>
+              </template>
+              <template v-else-if="col.field === 'registered_at' || col.field === 'updated_at'">
+                {{ formatDate(slotProps.data[col.field]) }}
+              </template>
+              <template v-else>
+                <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+              </template>
+            </template>
+          </Column>
+        </DataTable>
+        <div v-if="loading" class="table-loading-spinner-center">
+          <img src="/spinner.svg" alt="로딩중" />
+        </div>
       </div>
     </div>
 
@@ -171,6 +156,7 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Paginator from 'primevue/paginator';
 import { formatDate } from '@/utils/dateFormatter.js';
+import { hospitalsTableConfig } from '@/config/tableConfig';
 
 const router = useRouter();
 const hospitals = ref([]);
@@ -193,48 +179,8 @@ const showDeleteModal = ref(false);
 const hospitalToDelete = ref(null);
 const hasMappings = ref(false);
 
-const columnWidths = {
-  index: '4%',
-  hospital_name: '12%',
-  business_registration_number: '8%',
-  director_name: '6%',
-  address: '12%',
-  license: '8%',
-  member_count: '6%',
-  mapped_members: '8%',
-  registered_at: '8%',
-  creator_name: '6%',
-  updated_at: '8%',
-  updater_name: '6%',
-  edit: '4%',
-  delete: '4%',
-};
-
-const columnAligns = {
-  index: 'center',
-  hospital_name: 'left',
-  business_registration_number: 'center',
-  director_name: 'center',
-  address: 'left',
-  license: 'center',
-  member_count: 'center',
-  mapped_members: 'left',
-  registered_at: 'center',
-  creator_name: 'center',
-  updated_at: 'center',
-  updater_name: 'center',
-  edit: 'center',
-  delete: 'center',
-};
-
-const columnSortables = {
-  hospital_name: true,
-  business_registration_number: true,
-  director_name: true,
-  address: true,
-  registered_at: true,
-  updated_at: true,
-};
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? hospitalsTableConfig.mobile : hospitalsTableConfig.pc);
 
 const goToCreatePage = () => {
   router.push('/admin/hospitals/create');

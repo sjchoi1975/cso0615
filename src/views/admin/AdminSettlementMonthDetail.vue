@@ -41,46 +41,44 @@
   
       <!-- 하단: 테이블카드 -->
       <div class="table-card">
-        <DataTable 
-          :value="settlements" 
-          :loading="loading" 
-          :paginator="false"
-          scrollable 
-          :scrollHeight="'calc(100vh - 204px)'">
-          <template #empty>
-            <div v-if="!loading">조회된 데이터가 없습니다.</div>
-          </template>
-          <Column header="순번" :headerStyle="{ width: columnWidths.index, textAlign: columnAligns.index }" :bodyStyle="{ textAlign: columnAligns.index }">
-            <template #body="slotProps">
-              {{ first + slotProps.index + 1 }}
-            </template>
-          </Column>
-          <Column
-            v-for="col in columns"
-            :key="col.field"
-            :field="col.field"
-            :header="col.header"
-            :headerStyle="{ width: columnWidths[col.field], textAlign: columnAligns[col.field] }"
-            :bodyStyle="{ textAlign: columnAligns[col.field] }"
-            :sortable="columnSortables[col.field]"
+        <div :style="tableConfig.tableStyle">
+          <DataTable
+            :value="settlements"
+            :loading="loading"
+            :paginator="false"
+            scrollable
+            :scrollHeight="'calc(100vh - 204px)'"
+            :style="{ width: tableConfig.tableWidth }"
           >
-            <template #body="slotProps" v-if="col.field === 'price'">
-              {{ formatCurrency(slotProps.data[col.field]) }}
-            </template>
-            <template #body="slotProps" v-else-if="col.field === 'quantity'">
-              {{ formatNumber(slotProps.data[col.field]) }}
-            </template>
-            <template #body="slotProps" v-else-if="col.field === 'prescription_amount'">
-              {{ formatCurrency(slotProps.data[col.field]) }}
-            </template>
-            <template #body="slotProps" v-else-if="col.field === 'commission_rate'">
-              {{ formatPercentage(slotProps.data[col.field]) }}
-            </template>
-            <template #body="slotProps" v-else-if="col.field === 'payment_amount'">
-              {{ formatCurrency(slotProps.data[col.field]) }}
-            </template>
-          </Column>
-        </DataTable>
+            <Column
+              v-for="col in tableConfig.columns"
+              :key="col.field"
+              :field="col.field"
+              :header="col.label"
+              :sortable="col.sortable || false"
+              :style="{ width: col.width, textAlign: col.align }"
+              :bodyStyle="{ textAlign: col.align }"
+            >
+              <template #body="slotProps">
+                <template v-if="col.field === 'index'">
+                  {{ first + slotProps.index + 1 }}
+                </template>
+                <template v-else-if="col.field === 'price' || col.field === 'prescription_amount' || col.field === 'payment_amount'">
+                  {{ formatCurrency(slotProps.data[col.field]) }}
+                </template>
+                <template v-else-if="col.field === 'quantity'">
+                  {{ formatNumber(slotProps.data[col.field]) }}
+                </template>
+                <template v-else-if="col.field === 'commission_rate'">
+                  {{ formatPercentage(slotProps.data[col.field]) }}
+                </template>
+                <template v-else>
+                  {{ slotProps.data[col.field] }}
+                </template>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
       </div>
 
       <!-- 하단 고정 페이지네이터 -->
@@ -104,6 +102,7 @@
   import * as XLSX from 'xlsx';
   import Paginator from 'primevue/paginator';
   import { useRoute } from 'vue-router';
+  import { settlementMonthDetailTableConfig } from '@/config/tableConfig';
   
   const settlements = ref([]);
   const loading = ref(false);
@@ -121,74 +120,8 @@
   const pageSize = ref(100);
   const first = ref(0);
   
-  const columnWidths = {
-    index: '4%',
-    company_name: '7%',
-    company_reg_no: '7%',
-    hospital_name: '10%',
-    hospital_reg_no: '7%',
-    prescription_month: '5%',
-    pharma_name: '7%',
-    product_name: '11%',
-    insurance_code: '6%',
-    price: '5%',
-    quantity: '5%',
-    prescription_amount: '6%',
-    commission_rate: '5%',
-    payment_amount: '6%',
-    remarks: '7%'
-  };
-  const columnSortables = {
-    company_name: true,
-    company_reg_no: true,
-    hospital_name: true,
-    hospital_reg_no: true,
-    prescription_month: true,
-    pharma_name: true,
-    product_name: true,
-    insurance_code: true,
-    price: true,
-    quantity: true,
-    prescription_amount: true,
-    commission_rate: true,
-    payment_amount: true,
-    remarks: false
-  };
-  const columnAligns = {
-    index: 'center',
-    company_name: 'left',
-    company_reg_no: 'center',
-    hospital_name: 'left',
-    hospital_reg_no: 'center',
-    prescription_month: 'center',
-    pharma_name: 'left',
-    product_name: 'left',
-    insurance_code: 'center',
-    price: 'right',
-    quantity: 'right',
-    prescription_amount: 'right',
-    commission_rate: 'center',
-    payment_amount: 'right',
-    remarks: 'left'
-  };
-  const columns = [
-    { field: 'company_name', header: '업체명' },
-    { field: 'company_reg_no', header: '사업자등록번호' },
-    { field: 'hospital_name', header: '병의원' },
-    { field: 'hospital_reg_no', header: '사업자등록번호' },
-    { field: 'prescription_month', header: '처방월' },
-    { field: 'pharma_name', header: '제약사' },
-    { field: 'product_name', header: '제품명' },
-    { field: 'insurance_code', header: '보험코드' },
-    { field: 'price', header: '약가' },
-    { field: 'quantity', header: '수량' },
-    { field: 'prescription_amount', header: '처방액' },
-    { field: 'commission_rate', header: '수수료율' },
-    { field: 'payment_amount', header: '지급액' },
-    { field: 'remarks', header: '비고' }
-  ];
-  
-  const route = useRoute();
+  const isMobile = computed(() => window.innerWidth <= 768);
+  const tableConfig = computed(() => isMobile.value ? settlementMonthDetailTableConfig.mobile : settlementMonthDetailTableConfig.pc);
   
   const fetchFilterOptions = async () => {
     // 정산월 목록

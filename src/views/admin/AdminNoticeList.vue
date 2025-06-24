@@ -18,112 +18,70 @@
 
     <!-- 하단: 테이블카드 -->
     <div class="table-card">
-      <DataTable 
-        :value="filterednotice"
-        :paginator="false"
-        :rows="20"
-        :rowsPerPageOptions="[20, 50, 100]"
-        :first="first"
-        :totalRecords="totalCount"
-        @page="onPageChange"
-        scrollable
-        :scrollHeight="'calc(100vh - 194px)'"
-        v-model:expandedRows="expandedRows"
-        dataKey="id"
-      >
-        <Column 
-          header="순번" 
-          field="id"
-          :style="{ width: columnWidths.index }"
-          :class="columnAligns.index"
-        />
-        <Column 
-          field="title" 
-          header="제목"
-          :style="{ width: columnWidths.title }"
-          :class="columnAligns.title"
-          :sortable="columnSortables.title"
+      <div :style="tableConfig.tableStyle">
+        <DataTable 
+          :value="filterednotice"
+          :paginator="false"
+          :rows="50"
+          :rowsPerPageOptions="[20, 50, 100]"
+          :first="first"
+          :totalRecords="totalCount"
+          @page="onPageChange"
+          scrollable
+          :scrollHeight="'calc(100vh - 194px)'"
+          v-model:expandedRows="expandedRows"
+          dataKey="id"
+          :columns="tableConfig.columns"
+          :style="{ width: tableConfig.tableWidth }"
         >
-          <template #body="{ data }">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span v-if="data.is_important" class="important-badge">중요</span>
-              <a @click="toggleExpand(data.id)" style="cursor: pointer; color: #2196f3; text-decoration: underline;">
-                {{ data.title }}
-              </a>
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="{ data }">
+              <template v-if="col.field === 'created_at'">
+                {{ formatDate(data.created_at) }}
+              </template>
+              <template v-else-if="col.field === 'status'">
+                <div class="custom-toggle-wrap">
+                  <input
+                    type="checkbox"
+                    :id="'status-' + data.id"
+                    :checked="data.status === 'active'"
+                    @change="toggleStatus(data.id, data.status)"
+                    class="custom-toggle-checkbox"
+                  />
+                  <label :for="'status-' + data.id" class="custom-toggle-label"></label>
+                </div>
+              </template>
+              <template v-else-if="col.field === 'edit'">
+                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goEdit(data.id)" />
+              </template>
+              <template v-else-if="col.field === 'delete'">
+                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteNotice(data.id)" />
+              </template>
+              <template v-else-if="col.field === 'title'">
+                <a @click="toggleExpand(data.id)" style="cursor: pointer; color: #2196f3; text-decoration: underline;">
+                  {{ data.title }}
+                </a>
+              </template>
+              <template v-else>
+                {{ data[col.field] }}
+              </template>
+            </template>
+          </Column>
+          <template #expansion="{ data }">
+            <div class="notice-expansion">
+              <div class="content-text">{{ data.content }}</div>
             </div>
           </template>
-        </Column>
-        <Column 
-          field="content" 
-          header="내용"
-          :style="{ width: columnWidths.content }"
-          :class="columnAligns.content"
-          :sortable="columnSortables.content"
-        />
-        <Column 
-          field="created_at" 
-          header="작성일시"
-          :style="{ width: columnWidths.created_at }"
-          :class="columnAligns.created_at"
-          :sortable="columnSortables.created_at"
-        >
-          <template #body="{ data }">
-            {{ formatDate(data.created_at) }}
-          </template>
-        </Column>
-        <Column 
-          field="author" 
-          header="작성자"
-          :style="{ width: columnWidths.author }"
-          :class="columnAligns.author"
-          :sortable="columnSortables.author"
-        />
-        <Column 
-          field="status" 
-          header="상태"
-          :style="{ width: columnWidths.status }"
-          :class="columnAligns.status"
-          :sortable="columnSortables.status"
-        >
-          <template #body="{ data }">
-            <div class="custom-toggle-wrap">
-              <input
-                type="checkbox"
-                :id="'status-' + data.id"
-                :checked="data.status === 'active'"
-                @change="toggleStatus(data.id, data.status)"
-                class="custom-toggle-checkbox"
-              />
-              <label :for="'status-' + data.id" class="custom-toggle-label"></label>
-            </div>
-          </template>
-        </Column>
-        <Column 
-          header="수정"
-          :style="{ width: columnWidths.edit }"
-          :class="columnAligns.edit"
-        >
-          <template #body="{ data }">
-            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goEdit(data.id)" />
-          </template>
-        </Column>
-        <Column 
-          header="삭제"
-          :style="{ width: columnWidths.delete }"
-          :class="columnAligns.delete"
-        >
-          <template #body="{ data }">
-            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteNotice(data.id)" />
-          </template>
-        </Column>
-
-        <!-- 확장된 행 내용 -->
-        <template #expansion="{ data }">
-          <div class="notice-expansion">
-            <div class="content-text">{{ data.content }}</div>
-          </div>
-        </template>
-      </DataTable>
+        </DataTable>
+      </div>
     </div>
 
     <div v-if="showPaginator" class="fixed-paginator">
@@ -146,6 +104,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
 import Button from 'primevue/button';
+import { noticeTableConfig } from '@/config/tableConfig';
 
 const router = useRouter();
 const search = ref('');
@@ -154,53 +113,8 @@ const pageSize = ref(20);
 const first = ref(0);
 const expandedRows = ref({});
 
-// 컬럼 너비 한 곳에서 관리
-const columnWidths = {
-  index: '4%',
-  title: '24%',
-  content: '34%',
-  created_at: '8%',
-  author: '12%',
-  status: '6%',
-  edit: '6%',
-  delete: '6%'
-};
-
-// 컬럼별 정렬 여부 한 곳에서 관리
-const columnSortables = {
-  index: false,
-  title: false,
-  content: false,
-  created_at: false,
-  author: false,
-  status: false,
-  edit: false,
-  delete: false
-};
-
-// 컬럼별 정렬 방식 한 곳에서 관리
-const columnAligns = {
-  index: 'text-center',
-  title: 'text-left',
-  content: 'text-left',
-  created_at: 'text-center',
-  author: 'text-center',
-  status: 'text-center',
-  edit: 'text-center',
-  delete: 'text-center'
-};
-
-// 모바일
-// 제목과 날짜만 표시하는 설정
-const noticeConfig = {
-  scroll: false,        // 스크롤 없음
-  compact: true,        // 컴팩트 모드 사용
-  columns: {
-    title: { visible: true, width: '70%' },
-    date: { visible: true, width: '30%' },
-    // 나머지는 숨김
-  }
-}
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? noticeTableConfig.mobile : noticeTableConfig.pc);
 
 // 공지 불러오기 (전체 데이터)
 const fetchNotices = async () => {
@@ -237,9 +151,11 @@ const filteredAll = computed(() => {
   return [...importantNotices, ...normalNotices];
 });
 
+// 페이지네이터 개수 설정
 const filterednotice = computed(() => {
-  return filteredAll.value.slice(first.value, first.value + pageSize.value);
+  return filteredAll.value.slice(first.value, first.value + 50);
 });
+
 
 const totalCount = computed(() => filteredAll.value.length);
 

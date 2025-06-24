@@ -59,28 +59,27 @@
   </div>
 </template>
 
-
 <script setup>
-import { ref, watch, computed } from 'vue';
-import { supabase } from '@/supabase';
-import { useRouter } from 'vue-router';
+  import { ref, watch, computed } from 'vue';
+  import { supabase } from '@/supabase';
+  import { useRouter } from 'vue-router';
 
-const idEmail = ref('');
-const password = ref('');
-const confirmPassword = ref('');
-const companyName = ref('');
-const ceoName = ref('');
-const bizNo = ref('');
-const address = ref('');
-const csoRegistNo = ref('');
-const managerName = ref('');
-const handphone = ref('');
-const contactEmail = ref('');
-const loading = ref(false);
-const router = useRouter();
-const showPasswordMismatch = ref(false);
-const showPassword = ref(false);
-const showConfirmPassword = ref(false);
+  const idEmail = ref('');
+  const password = ref('');
+  const confirmPassword = ref('');
+  const companyName = ref('');
+  const ceoName = ref('');
+  const bizNo = ref('');
+  const address = ref('');
+  const csoRegistNo = ref('');
+  const managerName = ref('');
+  const handphone = ref('');
+  const contactEmail = ref('');
+  const loading = ref(false);
+  const router = useRouter();
+  const showPasswordMismatch = ref(false);
+  const showPassword = ref(false);
+  const showConfirmPassword = ref(false);
 
 // 사업자등록번호 자동 하이픈 추가
 watch(bizNo, (newValue) => {

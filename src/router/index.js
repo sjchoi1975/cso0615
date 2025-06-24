@@ -23,7 +23,7 @@ import UserFilterCreate from '../views/user/UserFilterCreate.vue'
 import UserFilterList from '../views/user/UserFilterList.vue'
 import UserEdisubmit from '../views/user/UserEdiSubmit.vue'
 import UserEdiList from '../views/user/UserEdiList.vue'
-import UserSettlementList from '../views/user/UserSettlementList.vue'
+import UserSettlementList from '../views/user/UserSettlementMonthDatail.vue'
 
 import { supabase } from '@/supabase';
 

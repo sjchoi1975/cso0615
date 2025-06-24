@@ -21,38 +21,44 @@
 
     <!-- 테이블카드 -->
     <div class="table-card">
-      <DataTable 
-        :value="filteredCompanies" 
-        :loading="loading" 
-        :paginator="false" 
-        scrollable 
-        :scrollHeight="'calc(100vh - 204px)'"
+      <div :style="tableConfig.tableStyle">
+        <DataTable
+          :value="filteredCompanies"
+          :loading="loading"
+          :paginator="false"
+          scrollable
+          :scrollHeight="'calc(100vh - 204px)'"
+          :style="{ width: tableConfig.tableWidth }"
         >
-        <template #empty>
-          <div v-if="!loading">조회된 데이터가 없습니다.</div>
-        </template>
-        <Column header="순번" :style="{ width: columnWidths.index }" :headerStyle="{ textAlign: columnAligns.index }" :bodyStyle="{ textAlign: columnAligns.index }">
-          <template #body="slotProps">
-            {{ slotProps.index + 1 + first }}
-          </template>
-        </Column>
-        <Column field="company_name" header="제약사명" :sortable="columnSortables.company_name" :style="{ width: columnWidths.company_name }" :headerStyle="{ textAlign: columnAligns.company_name }" :bodyStyle="{ textAlign: columnAligns.company_name }"></Column>
-        <Column field="created_at" header="등록일" :sortable="columnSortables.created_at" :style="{ width: columnWidths.created_at }" :headerStyle="{ textAlign: columnAligns.created_at }" :bodyStyle="{ textAlign: columnAligns.created_at }">
-          <template #body="slotProps">
-            {{ formatDate(slotProps.data.created_at) }}
-          </template>
-        </Column>
-        <Column header="수정" :style="{ width: columnWidths.edit }" :headerStyle="{ textAlign: columnAligns.edit }" :bodyStyle="{ textAlign: columnAligns.edit }">
-          <template #body="slotProps">
-            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text" @click="openEditModal(slotProps.data)" />
-          </template>
-        </Column>
-        <Column header="삭제" :style="{ width: columnWidths.delete }" :headerStyle="{ textAlign: columnAligns.delete }" :bodyStyle="{ textAlign: columnAligns.delete }">
-          <template #body="slotProps">
-            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteCompany(slotProps.data)" />
-          </template>
-        </Column>
-      </DataTable>
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ slotProps.index + 1 + first }}
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'edit'">
+                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text" @click="openEditModal(slotProps.data)" />
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'delete'">
+                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteCompany(slotProps.data)" />
+              </template>
+              <template v-else-if="col.field === 'created_at'">
+                {{ formatDate(slotProps.data.created_at) }}
+              </template>
+              <template v-else>
+                <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+              </template>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
     </div>
 
     <!-- Paginator -->
@@ -104,6 +110,7 @@ import Column from 'primevue/column';
 import * as XLSX from 'xlsx';
 import Paginator from 'primevue/paginator';
 import Dialog from 'primevue/dialog';
+import { pharmaceuticalCompaniesTableConfig } from '@/config/tableConfig';
 
 const companies = ref([]);
 const loading = ref(true);
@@ -122,29 +129,8 @@ const formData = ref({
   company_name: ''
 });
 
-// 컬럼 너비 한 곳에서 관리
-const columnWidths = {
-  index: '4%',
-  company_name: '76%',
-  created_at: '8%',
-  edit: '6%',
-  delete: '6%'
-};
-
-// 컬럼별 정렬 방식 한 곳에서 관리
-const columnAligns = {
-  index: 'center',
-  company_name: 'left',
-  created_at: 'center',
-  edit: 'center',
-  delete: 'center'
-};
-
-// 컬럼별 정렬 여부 한 곳에서 관리
-const columnSortables = {
-  company_name: true,
-  created_at: true
-};
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? pharmaceuticalCompaniesTableConfig.mobile : pharmaceuticalCompaniesTableConfig.pc);
 
 // 제약사 데이터 불러오기
 const fetchCompanies = async () => {

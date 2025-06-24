@@ -59,176 +59,79 @@
 
     <!-- 하단: 테이블카드 -->
     <div class="table-card admin-products-view-table">
-      <DataTable
-        :value="products"
-        :loading="loading"
-        :paginator="false"
-        :rows="200"
-        :rowsPerPageOptions="[100, 200, 500]"
-        :totalRecords="totalCount"
-        :first="first"
-        @page="onPageChange"
-        lazy
-        responsiveLayout="scroll"
-        scrollable
-        :scrollHeight="'calc(100vh - 194px)'"
-        ref="tableRef"
-      >
-        <Column header="순번"
-          :style="{ width: columnWidths.index }"
-          :bodyStyle="{ textAlign: columnAligns.index }">
-          <template #body="slotProps">
-            {{ first + slotProps.index + 1 }}
-          </template>
-        </Column>
-        <Column field="pharmacist" header="제약사"
-          :sortable="columnSortables.pharmacist"
-          :style="{ width: columnWidths.pharmacist }"
-          :bodyStyle="{ textAlign: columnAligns.pharmacist }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.pharmacist">{{ slotProps.data.pharmacist }}</span>
-          </template>
-        </Column>
-        <Column field="product_name" header="제품명"
-          :sortable="columnSortables.product_name"
-          :style="{ width: columnWidths.product_name }"
-          :bodyStyle="{ textAlign: columnAligns.product_name }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.product_name">{{ slotProps.data.product_name }}</span>
-          </template>
-        </Column>
-        <Column field="insurance_code" header="보험코드"
-          :sortable="columnSortables.insurance_code"
-          :style="{ width: columnWidths.insurance_code }"
-          :bodyStyle="{ textAlign: columnAligns.insurance_code }">
-          <template #body="slotProps">
-            {{ slotProps.data.insurance_code || '' }}
-          </template>
-        </Column>
-        <Column field="price" header="약가"
-          :sortable="columnSortables.price"
-          :style="{ width: columnWidths.price }"
-          :bodyStyle="{ textAlign: columnAligns.price }">
-          <template #body="slotProps">
-            {{ slotProps.data.price?.toLocaleString() }}
-          </template>
-        </Column>
-        <Column field="commission_rate_a" header="수수료 A"
-          :sortable="columnSortables.commission_rate_a"
-          :style="{ width: columnWidths.commission_rate_a }"
-          :bodyStyle="{ textAlign: columnAligns.commission_rate_a }">
-          <template #body="slotProps">
-            {{ formatCommissionRate(slotProps.data.commission_rate_a) }}
-          </template>
-        </Column>
-        <Column field="commission_rate_b" header="수수료 B"
-          :sortable="columnSortables.commission_rate_b"
-          :style="{ width: columnWidths.commission_rate_b }"
-          :bodyStyle="{ textAlign: columnAligns.commission_rate_b }">
-          <template #body="slotProps">
-            {{ formatCommissionRate(slotProps.data.commission_rate_b) }}
-          </template>
-        </Column>
-        <Column field="commission_rate_c" header="수수료 C"
-          :sortable="columnSortables.commission_rate_c"
-          :style="{ width: columnWidths.commission_rate_c }"
-          :bodyStyle="{ textAlign: columnAligns.commission_rate_c }">
-          <template #body="slotProps">
-            {{ formatCommissionRate(slotProps.data.commission_rate_c) }}
-          </template>
-        </Column>
-        <Column field="Ingredient" header="성분명"
-          :sortable="columnSortables.Ingredient"
-          :style="{ width: columnWidths.Ingredient }"
-          :bodyStyle="{ textAlign: columnAligns.Ingredient }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.Ingredient">{{ slotProps.data.Ingredient }}</span>
-          </template>
-        </Column>
-        <Column field="classification" header="분류"
-          :sortable="columnSortables.classification"
-          :style="{ width: columnWidths.classification }"
-          :bodyStyle="{ textAlign: columnAligns.classification }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.classification">{{ slotProps.data.classification }}</span>
-          </template>
-        </Column>
-        <Column field="comparator" header="대조약"
-          :sortable="columnSortables.comparator"
-          :style="{ width: columnWidths.comparator }"
-          :bodyStyle="{ textAlign: columnAligns.comparator }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.comparator">{{ slotProps.data.comparator }}</span>
-          </template>
-        </Column>
-        <Column field="reimbursement" header="급여"
-          :sortable="columnSortables.reimbursement"
-          :style="{ width: columnWidths.reimbursement }"
-          :bodyStyle="{ textAlign: columnAligns.reimbursement }">
-        </Column>
-        <Column field="bioequivalence" header="생동"
-          :sortable="columnSortables.bioequivalence"
-          :style="{ width: columnWidths.bioequivalence }"
-          :bodyStyle="{ textAlign: columnAligns.bioequivalence }">
-        </Column>
-        <Column field="Inhouse" header="자사/위탁"
-          :sortable="columnSortables.Inhouse"
-          :style="{ width: columnWidths.Inhouse }"
-          :bodyStyle="{ textAlign: columnAligns.Inhouse }">
-        </Column>
-        <Column field="remarks" header="비고"
-          :sortable="columnSortables.remarks"
-          :style="{ width: columnWidths.remarks }"
-          :bodyStyle="{ textAlign: columnAligns.remarks }">
-          <template #body="slotProps">
-            <span :title="slotProps.data.remarks">{{ slotProps.data.remarks }}</span>
-          </template>
-        </Column>
-        <Column header="수정"
-          :style="{ width: columnWidths.edit }"
-          :bodyStyle="{ textAlign: columnAligns.edit }">
-          <template #body="slotProps">
-            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToProductEdit(slotProps.data.id)" />
-          </template>
-        </Column>
-        <Column header="삭제"
-          :style="{ width: columnWidths.delete }"
-          :bodyStyle="{ textAlign: columnAligns.delete }">
-          <template #body="slotProps">
-            <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteProduct(slotProps.data.id)" />
-          </template>
-        </Column>
-        <Column field="status" header="상태"
-          :sortable="columnSortables.status"
-          :style="{ width: columnWidths.status }"
-          :bodyStyle="{ textAlign: columnAligns.status }">
-          <template #body="slotProps">
-            <div class="custom-toggle-wrap">
-              <input 
-                type="checkbox" 
-                :id="'status-' + slotProps.data.id" 
-                :checked="slotProps.data.status === 'active'" 
-                @change="updateProductStatus(slotProps.data)"
-                class="custom-toggle-checkbox"
-              />
-              <label :for="'status-' + slotProps.data.id" class="custom-toggle-label"></label>
-            </div>
-          </template>
-        </Column>
-      </DataTable>
-      <div v-if="loading" class="table-loading-spinner-center">
-        <img src="/spinner.svg" alt="로딩중" />
+      <div :style="tableConfig.tableStyle">
+        <DataTable
+          :value="products"
+          :loading="loading"
+          :paginator="false"
+          :rows="200"
+          :rowsPerPageOptions="[100, 200, 500]"
+          :totalRecords="totalCount"
+          :first="first"
+          @page="onPageChange"
+          lazy
+          responsiveLayout="scroll"
+          scrollable
+          :scrollHeight="'calc(100vh - 194px)'"
+          ref="tableRef"
+          :style="{ width: tableConfig.tableWidth }"
+        >
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ first + slotProps.index + 1 }}
+              </template>
+              <template v-else-if="col.format === 'number'">
+                {{ slotProps.data[col.field]?.toLocaleString() }}
+              </template>
+              <template v-else-if="col.format === 'percent'">
+                {{ formatCommissionRate(slotProps.data[col.field]) }}
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'edit'">
+                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToProductEdit(slotProps.data.id)" />
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'delete'">
+                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteProduct(slotProps.data.id)" />
+              </template>
+              <template v-else-if="col.type === 'toggle' && col.field === 'status'">
+                <div class="custom-toggle-wrap">
+                  <input 
+                    type="checkbox" 
+                    :id="'status-' + slotProps.data.id" 
+                    :checked="slotProps.data.status === 'active'" 
+                    @change="updateProductStatus(slotProps.data)"
+                    class="custom-toggle-checkbox"
+                  />
+                  <label :for="'status-' + slotProps.data.id" class="custom-toggle-label"></label>
+                </div>
+              </template>
+              <template v-else>
+                <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+              </template>
+            </template>
+          </Column>
+        </DataTable>
+        <div v-if="loading" class="table-loading-spinner-center">
+          <img src="/spinner.svg" alt="로딩중" />
+        </div>
       </div>
-    </div>
-
-    <div class="fixed-paginator">
-      <Paginator
-        :rows="pageSize"
-        :totalRecords="totalCount"
-        :first="first"
-        :rowsPerPageOptions="[100, 200, 500]"
-        @page="onPageChange"
-      />
+      <div class="fixed-paginator">
+        <Paginator
+          :rows="pageSize"
+          :totalRecords="totalCount"
+          :first="first"
+          :rowsPerPageOptions="[100, 200, 500]"
+          @page="onPageChange"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -245,70 +148,7 @@ import Paginator from 'primevue/paginator';
 import Button from 'primevue/button';
 import AdminProductsCreate from './AdminProductsCreate.vue';
 import AdminProductsEdit from './AdminProductsEdit.vue';
-
-// 컬럼 속성 정의
-const columnWidths = {
-  index: '4%',
-  pharmacist: '6%',
-  product_name: '10%',
-  insurance_code: '5%',
-  price: '4%',
-  commission_rate_a: '4%',
-  commission_rate_b: '4%',
-  commission_rate_c: '4%',
-  Ingredient: '10%',
-  classification: '7%',
-  comparator: '10%',
-  reimbursement: '4%',
-  bioequivalence: '4%',
-  Inhouse: '4%',
-  remarks: '8%',
-  edit: '4%',
-  delete: '4%',
-  status: '4%'
-};
-
-const columnSortables = {
-  index: false,
-  pharmacist: true,
-  product_name: true,
-  insurance_code: true,
-  price: true,
-  commission_rate_a: true,
-  commission_rate_b: true,
-  commission_rate_c: true,
-  Ingredient: false,
-  classification: true,
-  comparator: false,
-  reimbursement: true,
-  bioequivalence: true,
-  Inhouse: true,
-  remarks: false,
-  edit: false,
-  delete: false,
-  status: true,
-};
-
-const columnAligns = {
-  index: 'center',
-  pharmacist: 'left',
-  product_name: 'left',
-  insurance_code: 'center',
-  price: 'right',
-  commission_rate_a: 'center',
-  commission_rate_b: 'center',
-  commission_rate_c: 'center',
-  Ingredient: 'left',
-  classification: 'left',
-  comparator: 'left',
-  reimbursement: 'center',
-  bioequivalence: 'center',
-  Inhouse: 'center',
-  remarks: 'left',
-  edit: 'center',
-  delete: 'center',
-  status: 'center'
-};
+import { productsTableConfig } from '@/config/tableConfig';
 
 const router = useRouter();
 
@@ -329,6 +169,9 @@ const loading = ref(false);
 const totalCount = ref(0);
 const first = ref(0);
 const pageSize = ref(200);
+
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? productsTableConfig.mobile : productsTableConfig.pc);
 
 const fetchMonthOptions = async () => {
   const { data, error } = await supabase

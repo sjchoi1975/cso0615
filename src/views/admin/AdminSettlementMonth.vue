@@ -22,87 +22,48 @@
 
     <!-- 테이블카드 -->
     <div class="table-card">
-      <DataTable 
-        :value="filteredMonthList" 
-        :loading="loading" 
-        :paginator="false" 
-        scrollable 
-        :scrollHeight="'calc(100vh - 204px)'"
+      <div :style="tableConfig.tableStyle">
+        <DataTable
+          :value="filteredMonthList"
+          :loading="loading"
+          :paginator="false"
+          scrollable
+          :scrollHeight="'calc(100vh - 204px)'"
+          :style="{ width: tableConfig.tableWidth }"
         >
-        <template #empty>
-          <div v-if="!loading">조회된 데이터가 없습니다.</div>
-        </template>
-        <Column header="순번" :style="{ width: columnWidths.index, textAlign: columnAligns.index }">
-          <template #body="slotProps">
-            {{ slotProps.index + 1 }}
-          </template>
-        </Column>
-        <Column
-          v-for="col in columns"
-          :key="col.field"
-          :field="col.field"
-          :header="col.header"
-          :sortable="columnSortables[col.field] || false"
-          :headerStyle="{ width: columnWidths[col.field], textAlign: columnAligns[col.field] }"
-          :bodyStyle="{ textAlign: columnAligns[col.field] }"
-        >
-          <template v-if="col.field === 'note'" #body="slotProps">
-            <span 
-              class="ellipsis-cell" 
-              @click="openNotePopup(slotProps.data)"
-              style="cursor: pointer;"
-              :title="slotProps.data.note"
-            >
-              {{ slotProps.data.note }}
-            </span>
-          </template>
-        </Column>
-        <!-- 상세 컬럼 -->
-        <Column 
-          header="상세" 
-          :style="{ width: columnWidths.detail, textAlign: columnAligns.detail }"
-          :sortable="columnSortables.detail"
-        >
-          <template #body="slotProps">
-            <button 
-              class="p-button p-button-text p-button-rounded icon-only-btn"
-              @click="goDetail(slotProps.data)" 
-              v-tooltip.top="'상세보기'"
-            >
-              <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
-            </button>
-          </template>
-        </Column>
-        <!-- 수정 컬럼 -->
-        <Column 
-          header="수정" 
-          :style="{ width: columnWidths.edit, textAlign: columnAligns.edit }"
-          :sortable="columnSortables.edit"
-        >
-          <template #body="slotProps">
-            <Button 
-              icon="pi pi-pencil" 
-              class="p-button-rounded p-button-text btn-icon-edit" 
-              @click="openRegisterMonth(slotProps.data, true)"
-              v-tooltip.top="'정산월 수정'"
-            />
-          </template>
-        </Column>
-        <!-- 삭제 컬럼 -->
-        <Column 
-          header="삭제" 
-          :style="{ width: columnWidths.delete, textAlign: columnAligns.delete }"
-          :sortable="columnSortables.delete"
-        >
-          <template #body="slotProps">
-            <Button 
-              icon="pi pi-trash" 
-              class="p-button-rounded p-button-text btn-icon-danger" 
-              @click="deleteMonth(slotProps.data)"
-            />
-          </template>
-        </Column>
-      </DataTable>
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ slotProps.index + 1 }}
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'detail'">
+                <button class="p-button p-button-text p-button-rounded icon-only-btn" @click="goDetail(slotProps.data)" v-tooltip.top="'상세보기'">
+                  <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
+                </button>
+              </template>
+              <template v-else-if="col.field === 'total_amount'">
+                {{ slotProps.data.total_amount?.toLocaleString() }}
+              </template>
+              <template v-else-if="col.field === 'note'">
+                <span class="ellipsis-cell" @click="openNotePopup(slotProps.data)" style="cursor: pointer;" :title="slotProps.data.note">
+                  {{ slotProps.data.note }}
+                </span>
+              </template>
+              <template v-else>
+                {{ slotProps.data[col.field] }}
+              </template>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
     </div>
 
     <!-- 정산월 등록/수정 모달 -->
@@ -165,6 +126,7 @@ import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
 import Button from 'primevue/button';
 import Datepicker from 'vue3-datepicker';
+import { settlementMonthTableConfig } from '@/config/tableConfig';
 
 const router = useRouter();
 
@@ -186,73 +148,8 @@ const noteMonth = ref('');
 const noteValue = ref('');
 const noteOrigin = ref('');
 
-// 컬럼 너비 한 곳에서 관리
-const columnWidths = {
-  index: '4%',
-  settlement_month: '8%',
-  note: '30%',
-  company_name: '8%',
-  hospital_name: '8%',
-  prescription_count: '8%',
-  prescription_amount: '8%',
-  payment_amount: '8%',
-  detail: '6%',
-  edit: '6%',
-  delete: '6%'
-};
-
-// 컬럼별 정렬 방식 한 곳에서 관리
-const columnAligns = {
-  index: 'center',
-  settlement_month: 'center',
-  note: 'left',
-  company_name: 'center',
-  hospital_name: 'center',
-  prescription_count: 'center',
-  prescription_amount: 'right',
-  payment_amount: 'right',
-  detail: 'center',
-  edit: 'center',
-  delete: 'center'
-};
-
-// 컬럼별 정렬 여부 한 곳에서 관리
-const columnSortables = {
-  settlement_month: true,
-  note: true,
-  company_name: true,
-  hospital_name: true,
-  prescription_count: true,
-  prescription_amount: true,
-  payment_amount: true,
-  detail: false,
-  edit: false,
-  delete: false
-};
-
-// 컬럼 배열 한 곳에서 관리
-const columns = [
-  { field: 'settlement_month', header: '정산월' },
-  { field: 'note', header: '전달사항' },
-  { field: 'company_name', header: '정산업체' },
-  { field: 'hospital_name', header: '병의원' },
-  { field: 'prescription_count', header: '처방건수' },
-  { field: 'prescription_amount', header: '처방액' },
-  { field: 'payment_amount', header: '지급액' }
-];
-
-// 정산월 등록 모달용: 고정 5개월 옵션 생성
-function getMonthString(date) {
-  return date.toISOString().slice(0, 7);
-}
-const today = new Date();
-const registerMonthOptions = [];
-for (let i = 1; i >= -3; i--) {
-  const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
-  registerMonthOptions.push(getMonthString(d));
-}
-
-const newMonth = ref(registerMonthOptions[2]); // 기본값: 지난달
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? settlementMonthTableConfig.mobile : settlementMonthTableConfig.pc);
 
 // 필터링된 리스트
 const filteredMonthList = computed(() => {
