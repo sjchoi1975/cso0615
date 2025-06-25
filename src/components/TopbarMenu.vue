@@ -12,11 +12,8 @@
     </div>
     <div class="right">
       <div class="profile-dropdown-wrapper" ref="dropdownRef">
-        <!-- PC: 업체명 전체, 모바일: 동그라미+첫글자 -->
-        <span v-if="!isMobile" class="company-name profile-trigger" @click="toggleDropdown">
-          {{ companyName }}
-        </span>
-        <span v-else class="profile-circle profile-trigger" @click="toggleDropdown">
+        <!-- PC/모바일 모두: 동그라미+첫글자 -->
+        <span class="profile-circle profile-trigger" @click="toggleDropdown">
           {{ companyInitial }}
         </span>
         <div v-if="dropdownOpen" class="profile-dropdown-box">
@@ -129,6 +126,7 @@ console.log('showBack', props.showBack);
 }
 
 
+/* 탑바 로고명 ======================================== */
 .topbar .logo-title {
   font-weight: bold !important;
   font-size: var(--font-size-140) !important;
@@ -138,88 +136,7 @@ console.log('showBack', props.showBack);
 }
 
 
-
-/* 탑바 프로필 드롭다운 ================================ */
-.profile-dropdown-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.profile-trigger {
-  cursor: pointer;
-  font-weight: 400 !important;
-  font-size: var(--font-size-base) !important;
-  text-decoration: underline !important;
-  color: #222 !important;
-  margin-right: 4rem !important;
-}
-
-.profile-dropdown-box {
-  position: absolute !important;
-  right: 0 !important;
-  top: 120% !important;
-  min-width: 140px !important;
-  background: #fff !important;
-  border-radius: var(--border-radius) !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
-  padding: 0.5rem 0 !important;
-  z-index: 3000 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.2rem !important;
-}
-
-.dropdown-item {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.75rem !important;
-  padding: 0.5rem 1rem !important;
-  background: none !important;
-  border: none !important;
-  width: 100% !important;
-  font-size: var(--font-size-base) !important;
-  color: #222 !important;
-  cursor: pointer !important;
-  transition: background 0.2s !important;
-}
-
-.dropdown-item:hover {
-  background: #f4f6fa !important;
-}
-
-@media (max-width: 900px) {
-  .profile-dropdown-box {
-    min-width: 120px !important;
-    right: 0 !important;
-    left: auto !important;
-  }
-  .profile-trigger {
-    margin-right: 0 !important;
-    font-size: var(--font-size-base) !important;
-  }
-}
-
-/* 모바일 프로필 - 동그라미 스타일 */
-.profile-circle {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin-right: 0 !important;
-  width: 2.2rem !important;
-  height: 2.2rem !important;
-  border-radius: 50% !important;
-  background: var(--gray-500) !important;
-  color: #fff !important;
-  border: none !important;
-  font-size: var(--font-size-base) !important;
-  text-decoration: none !important;
-  box-sizing: border-box !important;
-  transition: background 0.2s, color 0.2s !important;
-}
-
-
-/* 탑바 메뉴명 ======================================== */
+/* 탑바 메뉴(경로)명 =================================== */
 .topbar .menu-title {
   font-size: var(--font-size-130) !important;
   color: #222 !important;
@@ -227,6 +144,7 @@ console.log('showBack', props.showBack);
   padding-left: 0rem !important;
   white-space: nowrap !important;
 }
+
 
 /* 모바일 메뉴 햄버거 버튼 */
 .menu-toggle {
@@ -274,8 +192,88 @@ console.log('showBack', props.showBack);
 }
 
 
+/* 프로필 - 동그라미 스타일 */
+.profile-circle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-right: 0 !important;
+  width: 2.2rem !important;
+  height: 2.2rem !important;
+  border-radius: 50% !important;
+  background: var(--primary) !important;
+  color: #fff !important;
+  border: none !important;
+  font-size: var(--font-size-base) !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+  transition: background 0.2s, color 0.2s !important;
+}
+
+.profile-trigger {
+  cursor: pointer;
+  font-weight: 400 !important;
+  font-size: var(--font-size-base) !important;
+  margin-right: 2rem !important;
+}
+
+@media (max-width: 900px) {
+  .profile-dropdown-box {
+    min-width: 120px !important;
+    right: 0 !important;
+    left: auto !important;
+  }
+  .profile-trigger {
+    margin-right: 0 !important;
+    font-size: var(--font-size-base) !important;
+  }
+}
+
+
+/* 탑바 프로필 드롭다운 ================================ */
+.profile-dropdown-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-dropdown-box {
+  position: absolute !important;
+  right: 0 !important;
+  top: 120% !important;
+  min-width: 140px !important;
+  background: #fff !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
+  padding: 0.5rem 0 !important;
+  z-index: 3000 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.2rem !important;
+}
+
+.dropdown-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  padding: 0.5rem 1rem !important;
+  background: none !important;
+  border: none !important;
+  width: 100% !important;
+  font-size: var(--font-size-base) !important;
+  color: #222 !important;
+  cursor: pointer !important;
+  transition: background 0.2s !important;
+}
+
+.dropdown-item:hover {
+  background: #f4f6fa !important;
+}
+
+
 
 /* 사용 여부 확인 요망 ========================== */
+
 .topbar .right {
   display: flex;
   align-items: center;
@@ -330,5 +328,7 @@ console.log('showBack', props.showBack);
     display: none !important;
   }
 }
+
+
 </style>
 
