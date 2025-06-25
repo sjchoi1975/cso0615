@@ -49,7 +49,7 @@
           :loading="loading" 
           :paginator="false" 
           scrollable 
-          :scrollHeight="'calc(100vh - 204px)'"
+          :scrollHeight="tableScrollHeight"
           :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
         >
           <Column
@@ -126,6 +126,7 @@ import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 import { userFilterRequestsTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const requests = ref([]);
 const loading = ref(false);
@@ -147,6 +148,9 @@ const modalContent = ref('');
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userFilterRequestsTableConfig.mobile : userFilterRequestsTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const fetchDropdownOptions = async () => {
   const { data: hospitalsData } = await supabase.from('hospitals').select('id, hospital_name').order('hospital_name');

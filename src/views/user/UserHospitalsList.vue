@@ -28,7 +28,7 @@
           :paginator="false"
           scrollable
           scrollDirection="both"
-          :scrollHeight="'calc(100vh - 220px)'"
+          :scrollHeight="tableScrollHeight"
           ref="tableRef"
           :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
         >
@@ -136,6 +136,7 @@ import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import { userHospitalsTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const router = useRouter();
 
@@ -158,6 +159,9 @@ const currentHospital = ref(null);
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userHospitalsTableConfig.mobile : userHospitalsTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const isPdfFile = computed(() => {
   if (!currentFilePath.value) return false;

@@ -27,7 +27,7 @@
           :loading="loading"
           :paginator="false"
           scrollable
-          :scrollHeight="'calc(100vh - 204px)'"
+          :scrollHeight="tableScrollHeight"
           :style="{ width: tableConfig.tableWidth }"
         >
           <Column
@@ -111,6 +111,7 @@ import * as XLSX from 'xlsx';
 import Paginator from 'primevue/paginator';
 import Dialog from 'primevue/dialog';
 import { pharmaceuticalCompaniesTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const companies = ref([]);
 const loading = ref(true);
@@ -131,6 +132,9 @@ const formData = ref({
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? pharmaceuticalCompaniesTableConfig.mobile : pharmaceuticalCompaniesTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 // 제약사 데이터 불러오기
 const fetchCompanies = async () => {

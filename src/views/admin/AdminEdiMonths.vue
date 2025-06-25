@@ -28,7 +28,7 @@
           v-model:filters="filters"
           :globalFilterFields="['remarks']"
           scrollable
-          scrollHeight="calc(100vh - 204px)"
+          :scrollHeight="tableScrollHeight"
           sortMode="multiple"
           :style="{ width: tableConfig.tableWidth }"
         >
@@ -128,6 +128,7 @@ import Textarea from 'primevue/textarea';
 import Datepicker from 'vue3-datepicker';
 import ko from 'date-fns/locale/ko';
 import { ediMonthsTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const data = ref([]);
 const loading = ref(false);
@@ -313,6 +314,9 @@ const deleteItem = async (id) => {
     fetchData();
   }
 }
+
+// 테이블 스크롤 높이 계산 (페이지네이터 없음)
+const tableScrollHeight = computed(() => getTableScrollHeight(false, 40));
 </script>
 
 <style>

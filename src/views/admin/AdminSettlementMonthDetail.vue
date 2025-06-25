@@ -47,7 +47,7 @@
             :loading="loading"
             :paginator="false"
             scrollable
-            :scrollHeight="'calc(100vh - 204px)'"
+            :scrollHeight="tableScrollHeight"
             :style="{ width: tableConfig.tableWidth }"
           >
             <Column
@@ -103,6 +103,7 @@
   import Paginator from 'primevue/paginator';
   import { useRoute } from 'vue-router';
   import { settlementMonthDetailTableConfig } from '@/config/tableConfig';
+  import { getTableScrollHeight } from '@/utils/tableHeight';
   
   const settlements = ref([]);
   const loading = ref(false);
@@ -122,6 +123,9 @@
   
   const isMobile = computed(() => window.innerWidth <= 768);
   const tableConfig = computed(() => isMobile.value ? settlementMonthDetailTableConfig.mobile : settlementMonthDetailTableConfig.pc);
+  
+  // 테이블 스크롤 높이 계산 (페이지네이터 있음)
+  const tableScrollHeight = computed(() => getTableScrollHeight(true));
   
   const fetchFilterOptions = async () => {
     // 정산월 목록

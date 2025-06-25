@@ -32,7 +32,7 @@
           :loading="loading"
           :paginator="false"
           scrollable
-          :scrollHeight="'calc(100vh - 220px)'"
+          :scrollHeight="tableScrollHeight"
           ref="tableRef"
           :style="{ width: tableConfig.tableWidth }"
         >
@@ -157,6 +157,7 @@ import Button from 'primevue/button';
 import Paginator from 'primevue/paginator';
 import { formatDate } from '@/utils/dateFormatter.js';
 import { hospitalsTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const router = useRouter();
 const hospitals = ref([]);
@@ -181,6 +182,9 @@ const hasMappings = ref(false);
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? hospitalsTableConfig.mobile : hospitalsTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const goToCreatePage = () => {
   router.push('/admin/hospitals/create');

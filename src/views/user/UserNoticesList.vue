@@ -20,13 +20,13 @@
       <DataTable 
         :value="filterednotice"
         :paginator="false"
-        :rows="20"
+        :rows="50"
         :rowsPerPageOptions="[20, 50, 100]"
         :first="first"
         :totalRecords="totalCount"
         @page="onPageChange"
         scrollable
-        :scrollHeight="'calc(100vh - 204px)'"
+        :scrollHeight="tableScrollHeight"
         v-model:expandedRows="expandedRows"
         dataKey="id"
         :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
@@ -85,16 +85,20 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
 import { userNoticesTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const router = useRouter();
 const search = ref('');
 const notices = ref([]);
-const pageSize = ref(20);
+const pageSize = ref(50);
 const first = ref(0);
 const expandedRows = ref({});
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userNoticesTableConfig.mobile : userNoticesTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const fetchNotices = async () => {
   const { data, error } = await supabase

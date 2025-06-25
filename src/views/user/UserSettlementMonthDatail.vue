@@ -36,7 +36,7 @@
         :loading="loading"
         :paginator="false"
         scrollable
-        :scrollHeight="'calc(100vh - 204px)'"
+        :scrollHeight="tableScrollHeight"
         :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
       >
         <template #empty>
@@ -88,6 +88,7 @@ import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 import { useRoute } from 'vue-router';
 import { userSettlementMonthDetailTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const route = useRoute();
 const settlements = ref([]);
@@ -115,6 +116,9 @@ const onPageChange = (event) => {
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userSettlementMonthDetailTableConfig.mobile : userSettlementMonthDetailTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 // 현재 사용자 정보 가져오기
 const getCurrentUser = async () => {

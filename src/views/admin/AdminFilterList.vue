@@ -54,7 +54,7 @@
           :loading="loading"
           :paginator="false"
           scrollable
-          :scrollHeight="'calc(100vh - 204px)'"
+          :scrollHeight="tableScrollHeight"
           :style="{ width: tableConfig.tableWidth }"
         >
           <Column
@@ -141,9 +141,13 @@ import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 import { filterRequestsTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? filterRequestsTableConfig.mobile : filterRequestsTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const requests = ref([]);
 const loading = ref(false);

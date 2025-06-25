@@ -51,7 +51,7 @@
           :paginator="false"
           scrollable
           scrollDirection="both"
-          :scrollHeight="'calc(100vh - 204px)'"
+          :scrollHeight="tableScrollHeight"
           ref="tableRef"
           :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
           lazy
@@ -104,6 +104,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
 import { userProductsTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const search = ref('');
 const composingValue = ref('');
@@ -112,7 +113,7 @@ const appliedSearch = ref('');
 const products = ref([]);
 const loading = ref(false);
 const first = ref(0);
-const pageSize = ref(100);
+const pageSize = ref(200);
 const totalCount = ref(0);
 const tableRef = ref(null);
 const userGrade = ref('');
@@ -120,9 +121,12 @@ const userGrade = ref('');
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userProductsTableConfig.mobile : userProductsTableConfig.pc);
 
+// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableScrollHeight = computed(() => getTableScrollHeight(true));
+
 let latestMonth = null;
 
-const fetchProducts = async (pageFirst = 0, pageRows = 100) => {
+const fetchProducts = async (pageFirst = 0, pageRows = 200) => {
   loading.value = true;
   if (!latestMonth) {
     const { data: monthData, error: monthError } = await supabase

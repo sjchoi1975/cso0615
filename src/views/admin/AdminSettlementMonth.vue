@@ -28,7 +28,7 @@
           :loading="loading"
           :paginator="false"
           scrollable
-          :scrollHeight="'calc(100vh - 204px)'"
+          :scrollHeight="tableScrollHeight"
           :style="{ width: tableConfig.tableWidth }"
         >
           <Column
@@ -127,6 +127,7 @@ import * as XLSX from 'xlsx';
 import Button from 'primevue/button';
 import Datepicker from 'vue3-datepicker';
 import { settlementMonthTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const router = useRouter();
 
@@ -150,6 +151,9 @@ const noteOrigin = ref('');
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? settlementMonthTableConfig.mobile : settlementMonthTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 없음)
+const tableScrollHeight = computed(() => getTableScrollHeight(false, 40));
 
 // 필터링된 리스트
 const filteredMonthList = computed(() => {

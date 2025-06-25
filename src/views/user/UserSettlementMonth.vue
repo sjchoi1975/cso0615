@@ -24,7 +24,7 @@
         :loading="loading"
         :paginator="false"
         scrollable
-        :scrollHeight="'calc(100vh - 204px)'"
+        :scrollHeight="tableScrollHeight"
         :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
       >
         <template #empty>
@@ -82,6 +82,7 @@ import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
 import { userSettlementMonthTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const router = useRouter();
 
@@ -100,6 +101,9 @@ const currentUserRegNo = ref('');
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userSettlementMonthTableConfig.mobile : userSettlementMonthTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 없음)
+const tableScrollHeight = computed(() => getTableScrollHeight(false, 40));
 
 // 정산월 목록 불러오기 (settlement_months 테이블)
 const fetchMonthOptions = async () => {
