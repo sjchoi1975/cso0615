@@ -28,7 +28,7 @@
           :totalRecords="totalCount"
           @page="onPageChange"
           scrollable
-          :scrollHeight="'calc(100vh - 194px)'"
+          :scrollHeight="tableScrollHeight"
           v-model:expandedRows="expandedRows"
           dataKey="id"
           :columns="tableConfig.columns"
@@ -105,16 +105,20 @@ import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
 import Button from 'primevue/button';
 import { noticeTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const router = useRouter();
 const search = ref('');
 const notices = ref([]);
-const pageSize = ref(20);
+const pageSize = ref(50);
 const first = ref(0);
 const expandedRows = ref({});
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? noticeTableConfig.mobile : noticeTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 // 공지 불러오기 (전체 데이터)
 const fetchNotices = async () => {

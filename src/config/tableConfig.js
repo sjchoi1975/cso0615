@@ -41,6 +41,50 @@ export const noticeTableConfig = {
 }; 
 
 
+/* 회원 목록 ============================================================================================ */
+export const membersTableConfig = {
+  pc: {
+    tableWidth: '1840px',
+    tableStyle: {
+      minWidth: '1840px'
+    },
+    columns: [
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      { field: 'id_email', label: '아이디', width: '10%', align: 'left', sortable: true },
+      { field: 'company_name', label: '회사명', width: '12%', align: 'left', sortable: true },
+      { field: 'biz_no', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자명', width: '8%', align: 'center', sortable: true },
+      { field: 'address', label: '주소', width: '20%', align: 'left', sortable: true },
+      { field: 'cso_regist_no', label: 'CSO 신고번호', width: '12%', align: 'center', sortable: true },
+      { field: 'approval', label: '인증', width: '6%', align: 'center', sortable: true, type: 'toggle' },
+      { field: 'grade', label: '등급', width: '6%', align: 'center', sortable: true, type: 'dropdown' },
+      { field: 'created_at', label: '가입일자', width: '8%', align: 'center', sortable: true }
+    ]
+  },
+
+  mobile: {
+    tableWidth: '100vw',
+    tableStyle: {
+      overflowX: 'auto',
+      minWidth: '1200px',
+      width: '100vw'
+    },
+    columns: [
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      { field: 'id_email', label: '아이디', width: '10%', align: 'left', sortable: true },
+      { field: 'company_name', label: '회사명', width: '12%', align: 'left', sortable: true },
+      { field: 'biz_no', label: '사업자등록번호', width: '10%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자명', width: '8%', align: 'center', sortable: true },
+      { field: 'address', label: '주소', width: '18%', align: 'left', sortable: true },
+      { field: 'cso_regist_no', label: 'CSO 신고번호', width: '12%', align: 'center', sortable: true },
+      { field: 'approval', label: '인증', width: '6%', align: 'center', sortable: true, type: 'toggle' },
+      { field: 'grade', label: '등급', width: '6%', align: 'center', sortable: true, type: 'dropdown' },
+      { field: 'created_at', label: '가입일자', width: '8%', align: 'center', sortable: true }
+    ]
+  }
+};
+
+
 /* 수수료율 ============================================================================================ */
 export const productsTableConfig = {
   pc: {

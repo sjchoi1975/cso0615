@@ -72,7 +72,7 @@
           lazy
           responsiveLayout="scroll"
           scrollable
-          :scrollHeight="'calc(100vh - 194px)'"
+          :scrollHeight="tableScrollHeight"
           ref="tableRef"
           :style="{ width: tableConfig.tableWidth }"
         >
@@ -149,6 +149,7 @@ import Button from 'primevue/button';
 import AdminProductsCreate from './AdminProductsCreate.vue';
 import AdminProductsEdit from './AdminProductsEdit.vue';
 import { productsTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const router = useRouter();
 
@@ -172,6 +173,9 @@ const pageSize = ref(200);
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? productsTableConfig.mobile : productsTableConfig.pc);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const fetchMonthOptions = async () => {
   const { data, error } = await supabase

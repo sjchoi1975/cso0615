@@ -36,90 +36,65 @@
 
     <!-- 하단: 테이블카드 -->
     <div class="table-card">
-      <DataTable
-        :value="filteredMembers"
-        :loading="loading"
-        responsiveLayout="scroll"
-      >
-        <Column header="순번" 
-          :style="{ width: columnWidths.index }" 
-          :bodyStyle="{ textAlign: columnAligns.index }">
-          <template #body="slotProps">
-            {{ slotProps.index + 1 }}
-          </template>
-        </Column>
-        <Column field="id_email" header="아이디"
-          :sortable="columnSortables.id_email" 
-          :style="{ width: columnWidths.id_email }" 
-          :bodyStyle="{ textAlign: columnAligns.id_email }">
-        </Column>
-        <Column field="company_name" header="회사명"
-          :sortable="columnSortables.company_name" 
-          :style="{ width: columnWidths.company_name }" 
-          :bodyStyle="{ textAlign: columnAligns.company_name }">
-        </Column>
-        <Column field="biz_no" header="사업자등록번호" 
-          :sortable="columnSortables.biz_no" 
-          :style="{ width: columnWidths.biz_no }" 
-          :bodyStyle="{ textAlign: columnAligns.biz_no }">
-        </Column>
-        <Column field="ceo_name" header="대표자명" 
-          :sortable="columnSortables.ceo_name" 
-          :style="{ width: columnWidths.ceo_name }" 
-          :bodyStyle="{ textAlign: columnAligns.ceo_name }">
-        </Column>
-        <Column field="address" header="주소" 
-          :sortable="columnSortables.address" 
-          :style="{ width: columnWidths.address }" 
-          :bodyStyle="{ textAlign: columnAligns.address }">
-        </Column>
-        <Column field="cso_regist_no" header="CSO 신고번호" 
-          :sortable="columnSortables.cso_regist_no" 
-          :style="{ width: columnWidths.cso_regist_no }" 
-          :bodyStyle="{ textAlign: columnAligns.cso_regist_no }">
-        </Column>
-        <Column field="approval" header="인증" 
-          :sortable="columnSortables.approval" 
-          :style="{ width: columnWidths.approval }" 
-          :bodyStyle="{ textAlign: columnAligns.approval }">
-          <template #body="slotProps">
-            <div class="custom-toggle-wrap">
-              <input
-                type="checkbox"
-                :id="'toggle-' + slotProps.data.id"
-                class="custom-toggle-checkbox"
-                :checked="slotProps.data.approval === 'approved'"
-                @click.prevent="() => onHtmlToggleApproval(slotProps.data)"
-              />
-              <label :for="'toggle-' + slotProps.data.id" class="custom-toggle-label"></label>
-            </div>
-          </template>
-        </Column>
-        <Column field="grade" header="등급"
-          :sortable="columnSortables.grade"
-          :style="{ width: columnWidths.grade }"
-          :bodyStyle="{ textAlign: columnAligns.grade }">
-          <template #body="slotProps">
-            <select
-              :value="slotProps.data.grade"
-              @change="e => onChangeGrade(slotProps.data, e.target.value)"
-              class="grade-dropdown"
-            >
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-            </select>
-          </template>
-        </Column>
-        <Column field="created_at" header="가입일자" 
-          :sortable="columnSortables.created_at" 
-          :style="{ width: columnWidths.created_at }" 
-          :bodyStyle="{ textAlign: columnAligns.created_at }">
-          <template #body="slotProps">
-            {{ slotProps.data.created_at ? new Date(slotProps.data.created_at).toISOString().split('T')[0] : '' }}
-          </template>
-        </Column>
-      </DataTable>
+      <div :style="tableConfig.tableStyle">
+        <DataTable
+          :value="filteredMembers"
+          :loading="loading"
+          :paginator="false"
+          scrollable
+          :scrollHeight="tableScrollHeight"
+          ref="tableRef"
+          :style="{ width: tableConfig.tableWidth }"
+        >
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ slotProps.index + 1 }}
+              </template>
+              <template v-else-if="col.type === 'toggle' && col.field === 'approval'">
+                <div class="custom-toggle-wrap">
+                  <input
+                    type="checkbox"
+                    :id="'toggle-' + slotProps.data.id"
+                    class="custom-toggle-checkbox"
+                    :checked="slotProps.data.approval === 'approved'"
+                    @click.prevent="() => onHtmlToggleApproval(slotProps.data)"
+                  />
+                  <label :for="'toggle-' + slotProps.data.id" class="custom-toggle-label"></label>
+                </div>
+              </template>
+              <template v-else-if="col.type === 'dropdown' && col.field === 'grade'">
+                <select
+                  :value="slotProps.data.grade"
+                  @change="e => onChangeGrade(slotProps.data, e.target.value)"
+                  class="grade-dropdown"
+                >
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </template>
+              <template v-else-if="col.field === 'created_at'">
+                {{ slotProps.data.created_at ? new Date(slotProps.data.created_at).toISOString().split('T')[0] : '' }}
+              </template>
+              <template v-else>
+                <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+              </template>
+            </template>
+          </Column>
+        </DataTable>
+        <div v-if="loading" class="table-loading-spinner-center">
+          <img src="/spinner.svg" alt="로딩중" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -132,48 +107,26 @@ import InputSwitch from 'primevue/inputswitch';
 import Dropdown from 'primevue/dropdown';
 import { supabase } from '@/supabase';
 import * as XLSX from 'xlsx';
+import { membersTableConfig } from '@/config/tableConfig';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
-// 컬럼 너비 한 곳에서 관리
-const columnWidths = {
-  index: '4%',
-  company_name: '12%',
-  id_email: '10%',
-  biz_no: '8%',
-  ceo_name: '8%',
-  address: '20%',
-  cso_regist_no: '12%',
-  approval: '6%',
-  grade: '6%',
-  created_at: '8%'
+// 반응형 테이블 설정
+const isMobile = computed(() => window.innerWidth <= 768);
+const tableConfig = computed(() => isMobile.value ? membersTableConfig.mobile : membersTableConfig.pc);
+const tableRef = ref(null);
+
+// 테이블 스크롤 높이 계산 (페이지네이터 없음)
+const tableScrollHeight = computed(() => getTableScrollHeight(false, 40));
+
+// 윈도우 리사이즈 이벤트 리스너
+const handleResize = () => {
+  // isMobile이 computed이므로 자동으로 업데이트됨
 };
 
-// 컬럼별 정렬 여부 한 곳에서 관리
-const columnSortables = {
-  index: false,
-  company_name: true,
-  id_email: true,
-  biz_no: true,
-  ceo_name: true,
-  address: true,
-  cso_regist_no: true,
-  approval: true,
-  grade: true,
-  created_at: true
-};
-
-// 컬럼별 정렬 방식 한 곳에서 관리
-const columnAligns = {
-  index: 'center',
-  company_name: 'left',
-  id_email: 'left',
-  biz_no: 'center',
-  ceo_name: 'center',
-  address: 'left',
-  cso_regist_no: 'center',
-  approval: 'center',
-  grade: 'center',
-  created_at: 'center'
-};
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  fetchMembers();
+});
 
 const members = ref([]);
 const loading = ref(false);
@@ -190,8 +143,6 @@ const fetchMembers = async () => {
   }
   loading.value = false;
 };
-
-onMounted(fetchMembers);
 
 const filteredMembers = computed(() => {
   let result = members.value;
