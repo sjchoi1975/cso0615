@@ -4,7 +4,7 @@
       <button v-if="showBack" class="menu-toggle show-back" @click="onLeftClick">
         <i class="pi pi-arrow-left"></i>
       </button>
-      <button v-else-if="!hideMenuToggle" class="menu-toggle" @click="$emit('toggle-sidebar')">
+      <button v-if="!showBack && !hideMenuToggle" class="menu-toggle" @click="$emit('toggle-sidebar')">
         <i class="pi pi-bars"></i>
       </button>
       <span class="logo-title" v-if="showLogo">Company</span>
@@ -66,12 +66,7 @@ const onProfile = () => {
   dropdownOpen.value = false;
 };
 const onLeftClick = () => {
-  console.log('백키 클릭', props.showBack, window.history.length);
-  if (props.showBack) {
-    window.history.length > 1 ? router.back() : router.push('/edi/submit');
-  } else {
-    emit('toggle-sidebar');
-  }
+  window.history.length > 1 ? router.back() : router.push('/edi/submit');
 };
 // 드롭다운 외부 클릭 시 닫기
 const dropdownRef = ref(null);

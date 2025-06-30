@@ -33,7 +33,7 @@
       <div class="total-count">총 {{ filteredMembers.length }}명</div>
       <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
     </div>
-
+    
     <!-- 하단: 테이블카드 -->
     <div class="table-card">
       <div :style="tableConfig.tableStyle">

@@ -1,22 +1,16 @@
 <template>
-  <div class="auth-root">
-    <h2 class="Signup-title"></h2>
-    <form @submit.prevent="onSubmit" class="auth-form">
+  <div class="board">
+    <form @submit.prevent="onSubmit" class="board-form">
       <label>거래처명<span style="color:#e74c3c">*</span></label>
       <input v-model="form.hospital_name" placeholder="거래처명을 입력하세요" class="input" required />
-      
       <label>사업자등록번호<span style="color:#e74c3c">*</span></label>
       <input v-model="form.business_registration_number" placeholder="'-' 없이 숫자만 입력" class="input" required />
-
       <label>원장명<span style="color:#e74c3c">*</span></label>
       <input v-model="form.director_name" placeholder="원장명을 입력하세요" class="input" required />
-
       <label>주소<span style="color:#e74c3c">*</span></label>
       <input v-model="form.address" placeholder="주소를 입력하세요" class="input" required />
-      
       <label>사업자등록증</label>
       <input type="file" @change="onFileChange" class="input" />
-      
       <!-- 담당 업체 선택 섹션 추가 -->
       <label>담당 업체 (선택)</label>
       <button type="button" class="btn-secondary" @click="openMemberModal">업체 선택</button>
@@ -29,7 +23,6 @@
           </div>
         </div>
       </div>
-
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
         <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
         <button type="submit" class="btn-add" :disabled="loading" style="flex:1;">

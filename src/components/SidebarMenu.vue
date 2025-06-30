@@ -1,14 +1,12 @@
 <template>
   <div 
     class="sidebar-container" 
-    :class="{ 'mobile-visible': visible }"
-    @mouseenter="$emit('sidebar-hover', true)"
-    @mouseleave="$emit('sidebar-hover', false)"
+    @mouseenter="!isMobile && $emit('sidebar-hover', true)"
+    @mouseleave="!isMobile && $emit('sidebar-hover', false)"
   >
     <aside
       class="sidebar"
       :class="{ 'sidebar-mobile-open': visible }"
-      :style="isMobile && visible ? 'position: fixed; left: 0; top: 0; z-index: 2000;' : ''"
     >
       <div v-if="isMobile" class="mobile-sidebar-header">
         <span class="logo-text">Company</span>
@@ -17,51 +15,14 @@
         <div
           v-for="item in menuItems"
           :key="item.label"
-          class="menu-group-wrapper"
-          @mouseenter="!isMobile && item.items ? onGroupEnter(item.label) : null"
-          @mouseleave="!isMobile && item.items ? onGroupLeave() : null"
         >
-          <div
-            class="menu-item menu-group-label clickable"
-            v-if="item.items"
-            @click="isMobile ? toggleGroup(item.label) : null"
-            :class="{ 'router-link-exact-active': activeGroup === item.label }"
-          >
-            <div class="menu-item-content">
-              <i :class="item.icon"></i>
-              <span class="menu-label">{{ item.label }}</span>
-              <i 
-                v-if="isMobile" 
-                :class="expandedGroup === item.label ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                style="margin-left: auto;"
-              ></i>
-            </div>
-          </div>
-          <div 
-            v-if="item.items && (hoveredGroup === item.label || (isMobile && expandedGroup === item.label))"
-            class="sub-menu-container"
-          >
-            <RouterLink
-              v-for="sub in item.items"
-              :key="sub.label"
-              :to="sub.to"
-              class="sub-menu-item menu-item"
-              @click="handleSubMenuClick"
-            >
-              <div class="menu-item-content">
-                <i :class="sub.icon"></i>
-                <span>{{ sub.label }}</span>
-              </div>
-            </RouterLink>
-          </div>
           <RouterLink
-            v-else-if="!item.items"
             :to="item.to"
             class="menu-item"
             @click="$emit('menu-click')"
           >
             <div class="menu-item-content">
-              <i :class="item.icon"></i>
+              <font-awesome-icon :icon="item.icon" class="menu-icon-fa" />
               <span class="menu-label">{{ item.label }}</span>
             </div>
           </RouterLink>
@@ -93,53 +54,25 @@ const emit = defineEmits(['toggle', 'menu-click', 'sidebar-hover']);
 const route = useRoute();
 
 const adminMenu = [
-  // { label: '대시보드', icon: 'pi pi-home', to: '/' }, // 임시 히든 처리
-  { label: '공지사항 관리', icon: 'pi pi-bell', items: [
-      { label: '공지사항 목록', icon: 'pi pi-list', to: '/admin/notice/list' },
-    ]
-  },
-  { label: '회원 관리', icon: 'pi pi-users', items: [
-      { label: '회원 목록', icon: 'pi pi-list', to: '/admin/members/list' },
-    ]
-  },
-  { label: '제품 관리', icon: 'pi pi-box', items: [
-      { label: '수수료율 관리', icon: 'pi pi-list', to: '/admin/products/list' },
-    ]
-  },
-  { label: '거래처 관리', icon: 'pi pi-building', items: [
-      { label: '거래처 목록', icon: 'pi pi-list', to: '/admin/hospitals/list' },
-    ]
-  },
-  { label: '필터링 관리', icon: 'pi pi-filter', items: [
-      { label: '필터링 요청 목록', icon: 'pi pi-list', to: '/admin/filter/list' },
-      { label: '제약사 관리', icon: 'pi pi-building', to: '/admin/pharmaceutical-companies' },
-    ]
-  },
-  { label: 'EDI 파일 관리', icon: 'pi pi-file-excel', items: [
-      { label: 'EDI 제출월 설정', icon: 'pi pi-calendar-plus', to: '/admin/edi/months' },
-      { label: 'EDI 제출 목록', icon: 'pi pi-list', to: '/admin/edi/list' },
-    ]
-  },
-  { label: '정산 관리', icon: 'pi pi-wallet', items: [
-      { label: '월별 정산 현황', icon: 'pi pi-list', to: '/admin/settlement/month' },
-    ]
-  },
+  { label: '공지사항 관리', icon: ['fas', 'bullhorn'], to: '/admin/notice/list' },
+  { label: '회원 목록', icon: ['fas', 'users'], to: '/admin/members/list' },
+  { label: '수수료율 관리', icon: ['fas', 'box-archive'], to: '/admin/products/list' },
+  { label: '거래처 목록', icon: ['far', 'hospital'], to: '/admin/hospitals/list' },
+  { label: '필터링 요청', icon: ['fas', 'filter'], to: '/admin/filter/list' },
+  { label: '제약사 관리', icon: ['far', 'building'], to: '/admin/pharmaceutical-companies' },
+  { label: '마감 일정 관리', icon: ['far', 'calendar-days'], to: '/admin/edi/months' },
+  { label: 'EDI 증빙 파일', icon: ['far', 'file-lines'], to: '/admin/edi/list' },
+  { label: '정산내역서', icon: ['fas', 'wallet'], to: '/admin/settlement/month' },
 ];
 const userMenu = [
-  { label: '공지사항', icon: 'pi pi-bell', to: '/notice/list' },
-  { label: '수수료율', icon: 'pi pi-list', to: '/products/list' },
-  { label: '거래처', icon: 'pi pi-building', to: '/hospitals/list' },
-  { label: '필터링', icon: 'pi pi-filter', items: [
-      { label: '필터링 요청', icon: 'pi pi-plus', to: '/filter/create' },
-      { label: '요청 내역', icon: 'pi pi-list', to: '/filter/list' },
-    ]
-  },
-  { label: 'EDI 제출', icon: 'pi pi-upload', items: [
-      { label: 'EDI 제출', icon: 'pi pi-upload', to: '/edi/submit' },
-      { label: '제출 내역', icon: 'pi pi-list', to: '/edi/list' },
-    ]
-  },
-  { label: '정산내역서', icon: 'pi pi-wallet', to: '/settlement/list' },
+  { label: '공지사항', icon: ['fas', 'bullhorn'], to: '/notice/list' },
+  { label: '수수료율', icon: ['fas', 'list'], to: '/products/list' },
+  { label: '거래처', icon: ['far', 'hospital'], to: '/hospitals/list' },
+  { label: '필터링 요청', icon: ['fas', 'filter'], to: '/filter/create' },
+  { label: '필터링 내역', icon: ['fas', 'list-check'], to: '/filter/list' },
+  { label: 'EDI 제출', icon: ['fas', 'upload'], to: '/edi/submit' },
+  /*{ label: '제출 내역', icon: ['far', 'file-lines'], to: '/edi/list' },*/
+  { label: '정산내역서', icon: ['fas', 'wallet'], to: '/settlement/list' },
 ];
 const menuItems = computed(() => props.userInfo?.role === 'admin' ? adminMenu : userMenu);
 
@@ -182,7 +115,7 @@ const handleSubMenuClick = () => {
 
 const sidebarHover = ref(false);
 
-const isMobile = ref(window.innerWidth <= 900);
+const isMobile = ref(false);
 const handleResize = () => {
   isMobile.value = window.innerWidth <= 900;
   // 데스크톱으로 변경 시 확장된 그룹 초기화
@@ -211,152 +144,149 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
 
 
 <style scoped>
+
 /* ========================================================================================================= */
-/* 사이드바 스타일
+/* 기본(데스크탑) 스타일 */
 /* ========================================================================================================= */
+
 .sidebar {
-  width: 3rem !important;
+  width: 3rem;
   position: fixed;
-  top: 3rem !important; /* 탑바 아래에서 시작 */
-  min-height: calc(100vh - 3.0rem) !important;
-  background: #fff !important;
-  border-right: 1px solid var(--gray-400) !important;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.04) !important;
-  z-index: 900 !important;
-  transition: width 0.2s cubic-bezier(.4,0,.2,1) !important;
-  overflow-x: hidden !important;
+  top: 3rem;
+  height: calc(100vh - 3rem);
+  background: #fff;
+  border-right: 1px solid var(--gray-400);
+  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+  z-index: 900;
+  transition: width 0.2s cubic-bezier(.4,0,.2,1);
+  overflow-x: hidden;
+  white-space: nowrap;
 }
 
 .sidebar:hover {
-  width: 15rem !important;
+  width: 15rem;
 }
 
 .menu-item {
   display: flex;
-  align-items: center !important;
-  padding: 0.8rem 0.6rem !important;
-  color: #222 !important;
-  text-decoration: none !important;
-  font-size: var(--font-size-110) !important;
-  font-weight: 500 !important;
-  transition: background 0.2s, color 0.2s !important;
-  white-space: nowrap !important;
+  align-items: center;
+  padding: 0.8rem 0.6rem;
+  color: #222;
+  text-decoration: none;
+  font-size: var(--font-size-110);
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
 }
 
-.menu-item i {
+.menu-icon-fa {
   margin-right: 0.8rem;
-  font-size: var(--font-size-110) !important;
-  font-weight: 500 !important;
-  min-width: 24px !important;
-  text-align: center !important;
+  font-size: var(--font-size-110);
+  min-width: 24px;
+  text-align: center;
 }
 
-.menu-label {
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  transition: opacity 0.2s !important;
-}
-
-@media (min-width: 901px) {
-  .menu-label {
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-  .sidebar:hover .menu-label {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-  }
-}
-
-.menu-item.router-link-exact-active {
-  background: var(--primary) !important;
-  color: #fff !important;
+.menu-item-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .menu-item:hover {
-  background: var(--primary-light) !important;
-  color: var(--text-primary) !important;
+  background: #f0f4f9;
 }
 
-.menu-group-label.clickable {
-  cursor: pointer !important;
+.menu-item.router-link-exact-active {
+  background: #fff;
+  color: var(--primary);
+  border-right: 3px solid var(--primary);
+  font-weight: 600;
 }
 
-.sub-menu-item {
-  padding-left: 3.2rem !important;
-  font-size: var(--font-size-base) !important;
+.menu-label {
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+  flex-grow: 1;
 }
 
-/* 모바일 사이드바(접힘/펼침) ================= */
+.sidebar:hover .menu-label {
+  opacity: 1;
+}
+
+.mobile-sidebar-header {
+  display: none;
+}
+
+.sidebar-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0,0,0,0.2) !important;
+  z-index: 1999 !important;
+}
+
+
+/* ========================================================================================================= */
+/* 모바일 스타일 (900px 이하) */
+/* ========================================================================================================= */
+
 @media (max-width: 900px) {
   .sidebar {
-    top: 0 !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: 0 !important;
-    overflow: hidden !important;
-    transition: width 0.2s !important;
-    padding-left: 0 !important;
-  }
-  .sidebar.sidebar-mobile-open {
-    top: 0 !important;
-    width: 60vw !important;
-    min-width: 60vw !important;
-    max-width: 60vw !important;
-    height: 100vh !important;
-    position: fixed !important;
-    z-index: 2000 !important;
+    width: 60vw;
+    height: 100vh;
+    left: -60vw; /* 시작 위치 (화면 밖 왼쪽) */
+    top: 0;
+    transition: left 0.3s ease-in-out;
+    box-shadow: none;
+    padding-top: 3rem;
   }
   .menu-item {
-    padding: 0.8rem 1rem 0.8rem 1.5rem !important;
+    padding: 0.8rem 2rem;
   }
-  .menu-item i {
-    margin-right: 0.5rem !important;
+  .menu-item.router-link-exact-active {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 500;
   }
-  .sub-menu-item {
-  padding-left: 3.2rem !important;
-  font-size: var(--font-size-base) !important;
-}
-}
 
-.sub-menu-container {
-  transition: all 0.3s ease;
-}
-
-.menu-group-label .menu-item-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.menu-group-label .pi-chevron-right,
-.menu-group-label .pi-chevron-down {
-  font-size: var(--font-size-90) !important;
-  transition: transform 0.3s ease;
-}
-
-@media (max-width: 900px) {
-  .sub-menu-item {
-    padding-left: 2rem;
+  /* 데스크탑 hover 기능 비활성화 */
+  .sidebar:hover {
+    width: 60vw;
   }
-}
 
-/* 모바일 사이드바 헤더 */
-.mobile-sidebar-header {
-  padding: 0.5rem 1rem;
-  text-align: center;
-  border-bottom: 1px solid rgba(222, 226, 230, 0.5);
-  background: none !important;
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0rem;
-}
+  .sidebar.sidebar-mobile-open {
+    left: 0; /* 열렸을 때 위치 */
+    box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+    z-index: 2000;
+  }
 
-.logo-text {
-  font-size: 1.5rem !important;
-  font-weight: 600 !important;
-    color: #333 !important;
+  .menu-label {
+    opacity: 1; /* 모바일에서 라벨 항상 표시 */
+  }
+
+  .mobile-sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .logo-text {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-blue);
+  }
+
+  .sidebar-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    z-index: 1029 !important; /* 사이드바(1030)보다 낮게 설정 */
+  }
+
 }
 </style>

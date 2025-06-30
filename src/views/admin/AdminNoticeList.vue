@@ -16,6 +16,7 @@
       <router-link to="/admin/notices/create" class="btn-add">공지 작성</router-link>
     </div>
 
+    
     <!-- 하단: 테이블카드 -->
     <div class="table-card">
       <div :style="tableConfig.tableStyle">
@@ -60,13 +61,17 @@
                 </div>
               </template>
               <template v-else-if="col.field === 'edit'">
-                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goEdit(data.id)" />
+                <Button icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text btn-icon-edit"
+                  @click="goEdit(data.id)" />
               </template>
               <template v-else-if="col.field === 'delete'">
-                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteNotice(data.id)" />
+                <Button icon="pi pi-trash"
+                  class="p-button-rounded p-button-text btn-icon-delete"
+                  @click="deleteNotice(data.id)" />
               </template>
               <template v-else-if="col.field === 'title'">
-                <a @click="toggleExpand(data.id)" style="cursor: pointer; color: #2196f3; text-decoration: underline;">
+                <a @click="toggleExpand(data.id)" style="cursor: pointer; color: var(--primary); text-decoration: underline;">
                   {{ data.title }}
                 </a>
               </template>

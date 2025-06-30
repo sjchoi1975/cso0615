@@ -1,7 +1,6 @@
 <template>
   <div class="board">
-    <h2 style="margin-bottom: 2rem;"></h2>
-    <form @submit.prevent="onSubmit">
+    <form @submit.prevent="onSubmit" class="board-form-720">
       <div style="margin-bottom: 1.5rem;">
         <label style="margin-bottom: 0.75rem;">제목</label>
         <input 
@@ -38,13 +37,8 @@
         ></textarea>
       </div>
       <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-        <button type="button" class="btn-cancel" @click="goList">취소</button>
-        <button 
-          type="submit" 
-          class="btn-add" 
-          :disabled="loading || !canSubmit"
-          :class="{ 'btn-disabled': !canSubmit }"
-        >
+        <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
+        <button type="submit" class="btn-add" :class="{ 'btn-disabled': loading || !canSubmit }" style="flex:1;">
           작성
         </button>
       </div>
@@ -90,7 +84,8 @@ const goList = () => {
 };
 
 const onSubmit = async () => {
-  if (!title.value.trim() || !content.value.trim()) {
+  if (loading.value) return;
+  if (!canSubmit.value) {
     alert('제목과 내용을 모두 입력하세요.');
     return;
   }
@@ -116,28 +111,3 @@ const onSubmit = async () => {
   }
 };
 </script>
-
-<style scoped>
-.checkbox-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.checkbox-input {
-  width: 1.2rem;
-  height: 1.2rem;
-  cursor: pointer;
-}
-
-.checkbox-label {
-  font-size: 0.9rem;
-  color: #666;
-  cursor: pointer;
-}
-
-.btn-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-</style>

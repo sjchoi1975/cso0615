@@ -16,6 +16,15 @@ import Aura from '@primevue/themes/aura';
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
 import VCalendar from 'v-calendar';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { 
+  faUsers, faBoxArchive, faFilter, faWallet, faList, 
+  faListCheck, faUpload, faBullhorn, faBuilding as faBuildingSolid
+} from '@fortawesome/free-solid-svg-icons'
+import { 
+  faHospital, faBuilding, faCalendarDays, faFileLines
+} from '@fortawesome/free-regular-svg-icons'
 
 // 1. PrimeVue 테마 CSS를 먼저 로드
 // import '@primevue/themes/lara-light-blue/theme.css';
@@ -24,6 +33,12 @@ import 'v-calendar/style.css';
 // 2. 그 다음에 우리 커스텀 CSS를 로드
 import '@/assets/buttons.css';
 import './assets/main.css';
+
+library.add(
+  faUsers, faBoxArchive, faFilter, faWallet, faList, 
+  faListCheck, faUpload, faBullhorn, faBuildingSolid,
+  faHospital, faBuilding, faCalendarDays, faFileLines
+)
 
 const app = createApp(App);
 
@@ -48,5 +63,6 @@ app.use(PrimeVue, {
 app.use(ConfirmationService);
 app.use(ToastService);
 app.use(VCalendar, {});
+app.component('font-awesome-icon', FontAwesomeIcon)
 
 app.mount('#app');

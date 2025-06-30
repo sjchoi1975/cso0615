@@ -1,7 +1,6 @@
 <template>
   <div class="board">
-    <h2 style="margin-bottom: 2rem;"></h2>
-    <form @submit.prevent="onSubmit">
+    <form @submit.prevent="onSubmit" class="board-form-720">
       <div style="margin-bottom: 1.5rem;">
         <label style="margin-bottom: 0.75rem;">제목</label>
         <input 
@@ -38,13 +37,8 @@
         ></textarea>
       </div>
       <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-        <button type="button" class="btn-cancel" @click="goList">취소</button>
-        <button 
-          type="submit" 
-          class="btn-add" 
-          :disabled="loading || !canEdit"
-          :class="{ 'btn-disabled': !canEdit }"
-        >
+        <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
+        <button type="submit" class="btn-add" :class="{ 'btn-disabled': loading || !canEdit }" style="flex:1;">
           수정
         </button>
       </div>
@@ -131,8 +125,14 @@ const goList = () => {
 };
 
 const onSubmit = async () => {
-  if (!title.value.trim() || !content.value.trim()) {
-    alert('제목과 내용을 모두 입력하세요.');
+  if (loading.value) return;
+  if (!canEdit.value) {
+    // 변경사항이 없거나 필수 필드가 비어있을 때
+    if (!hasChanges.value) {
+      alert('변경된 내용이 없습니다.');
+    } else {
+      alert('제목과 내용을 모두 입력하세요.');
+    }
     return;
   }
   loading.value = true;

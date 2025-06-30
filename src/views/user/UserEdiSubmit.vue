@@ -1,48 +1,46 @@
 <template>
   <div class="user-edi-submit-view page-container">
-    <!-- 상단: 필터 -->
-    <div class="filter-card">
-      <div class="filter-row" style="display: flex; align-items: center; gap: 1rem;">
-        <span>정산월</span>
-        <select v-model="selectedPrescriptionMonth" class="input-120" :disabled="!selectedMonth">
-          <option value="">전체</option>
-          <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
-        </select>
+    <!-- 제출 가능 기간일 때 -->
+    <template v-if="isSubmissionPeriod">
+      <!-- Filter Card -->
+      <div class="filter-card custom-auto-height">
+        <div class="filter-row">
+          <div class="p-input-icon-right" style="width: 100%;">
+            <i v-if="!search" class="pi pi-search" />
+            <i v-if="search" class="pi pi-times" @click="clearSearch" style="cursor: pointer;" />
+            <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search" @keyup.enter="applySearch" />
+          </div>
+          <button class="btn-search" @click="applySearch">조회</button>
+        </div>
+      </div>
+      
+      <div class="function-card" style="display: flex; justify-content: flex-end;">
         <span v-if="selectedMonth" style="font-size: 1.1rem;">
           제출 기간 : {{ formatDate(selectedMonth.start_date) }} ~ {{ formatDate(selectedMonth.end_date) }}
         </span>
       </div>
-    </div>
 
-    <!-- 제출 가능 기간일 때 -->
-    <template v-if="isSubmissionPeriod">
-      <div class="function-card" style="display: flex; justify-content: flex-end;">
-        <Button 
-          label="엑셀 다운로드" 
-          icon="pi pi-download" 
-          class="p-button-secondary"
-          @click="downloadExcel"
-        />
-      </div>
       <div class="table-card">
         <DataTable 
           :value="mappedHospitals" 
           :loading="loading" 
           scrollable 
           :scrollHeight="'calc(100vh - 204px)'"
+          :style="activeTableConfig.tableStyle"
         >
-          <Column header="No." headerStyle="width: 5%" bodyStyle="text-align: center">
-            <template #body="slotProps">{{ slotProps.index + 1 }}</template>
-          </Column>
-          <Column field="hospital_name" header="거래처명" headerStyle="width: 20%" />
-          <Column field="business_registration_number" header="사업자등록번호" headerStyle="width: 15%" />
-          <Column field="director_name" header="원장명" headerStyle="width: 10%" />
-          <Column field="address" header="주소" headerStyle="width: 20%" />
-          <Column field="last_month_files" header="전월 제출 파일" headerStyle="width: 10%" />
-          <Column field="current_month_files" header="당월 제출 파일" headerStyle="width: 10%" />
-          <Column header="제출하기" headerStyle="width: 10%" bodyStyle="text-align: center">
+          <Column 
+            v-for="col in activeTableConfig.columns" 
+            :key="col.field" 
+            :field="col.field" 
+            :header="col.label" 
+            :style="{ width: col.width }"
+            :bodyStyle="{ 'text-align': col.align }"
+            :sortable="col.sortable"
+          >
             <template #body="slotProps">
-              <Button icon="pi pi-plus" class="p-button-text" @click="goToFileDetail(slotProps.data)" />
+              <span v-if="col.type === 'index'">{{ slotProps.index + 1 }}</span>
+              <Button v-else-if="col.type === 'button'" icon="pi pi-upload" class="p-button-text" @click="goToFileDetail(slotProps.data)" />
+              <span v-else>{{ slotProps.data[col.field] }}</span>
             </template>
           </Column>
         </DataTable>
@@ -79,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onUnmounted, watch } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -87,20 +85,37 @@ import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
+import { userEdiSubmitTableConfig as tableConfig } from '@/config/tableConfig';
+import InputText from 'primevue/inputtext';
 
 const toast = useToast();
 const router = useRouter();
 const loading = ref(false);
 
-const prescriptionMonthOptions = ref([]);
-const selectedPrescriptionMonth = ref("");
+const screenWidth = ref(window.innerWidth);
+
+const activeTableConfig = computed(() => {
+  if (screenWidth.value <= 768 && tableConfig.mobile) {
+    return tableConfig.mobile;
+  }
+  return tableConfig.pc;
+});
+
+const handleResize = () => {
+  screenWidth.value = window.innerWidth;
+};
+
+const prescriptionMonthObjects = ref([]);
 const selectedMonth = ref(null);
+const allMappedHospitals = ref([]);
 const mappedHospitals = ref([]);
 const userInfo = ref(null);
 
 const modalVisible = ref(false);
 const modalHospital = ref(null);
 const modalFiles = ref([]);
+
+const search = ref('');
 
 const isSubmissionPeriod = computed(() => !!selectedMonth.value);
 
@@ -117,7 +132,6 @@ const fetchUserData = async () => {
   }
 };
 
-// 오늘 날짜가 제출 유효기간(start_date~end_date)인 settlement_month만 옵션으로 제공
 const fetchPrescriptionMonths = async () => {
   const today = new Date().toISOString().split('T')[0];
   const { data, error } = await supabase
@@ -127,35 +141,105 @@ const fetchPrescriptionMonths = async () => {
     .gte('end_date', today)
     .order('settlement_month', { ascending: false });
   if (!error && data && data.length > 0) {
-    prescriptionMonthOptions.value = data.map(item => item.settlement_month);
-    selectedPrescriptionMonth.value = data[0].settlement_month;
+    prescriptionMonthObjects.value = data;
     selectedMonth.value = data[0];
   } else {
-    prescriptionMonthOptions.value = [];
-    selectedPrescriptionMonth.value = "";
+    prescriptionMonthObjects.value = [];
     selectedMonth.value = null;
   }
 };
 
 const fetchMappedHospitals = async () => {
-  if (!userInfo.value) return;
+  if (!userInfo.value || !selectedMonth.value) {
+    allMappedHospitals.value = [];
+    return;
+  }
   loading.value = true;
-  const { data, error } = await supabase
+  
+  const { data: hospitalMappings, error: hospitalError } = await supabase
     .from('hospital_member_mappings')
     .select('hospitals (*)')
     .eq('member_id', userInfo.value.id);
 
-  if (error) {
-    console.error('Error fetching hospitals:', error);
-  } else {
-    mappedHospitals.value = data.map(item => ({
-      ...item.hospitals,
-      director_name: item.hospitals.director_name, // 원장명 필드명 수정
-      last_month_files: '-', // TODO: 실제 파일 수 로직 구현 필요
-      current_month_files: '-', // TODO: 실제 파일 수 로직 구현 필요
-    }));
+  if (hospitalError) {
+    console.error('Error fetching hospitals:', hospitalError);
+    allMappedHospitals.value = [];
+    loading.value = false;
+    return;
   }
+
+  if (!hospitalMappings || hospitalMappings.length === 0) {
+    allMappedHospitals.value = [];
+    loading.value = false;
+    return;
+  }
+
+  const hospitals = hospitalMappings.map(item => item.hospitals);
+  const hospitalIds = hospitals.map(h => h.id);
+  
+  const currentMonthId = selectedMonth.value.id;
+  const currentMonthStr = selectedMonth.value.settlement_month;
+  const [year, month] = currentMonthStr.split('-').map(Number);
+  const lastMonthDate = new Date(year, month - 2, 1);
+  const lastMonthYear = lastMonthDate.getFullYear();
+  const lastMonthMonth = (lastMonthDate.getMonth() + 1).toString().padStart(2, '0');
+  const lastMonthStr = `${lastMonthYear}-${lastMonthMonth}`;
+
+  const { data: lastMonthData } = await supabase.from('edi_months').select('id').eq('settlement_month', lastMonthStr).single();
+  const lastMonthId = lastMonthData?.id;
+  
+  const periodIds = [currentMonthId];
+  if (lastMonthId) periodIds.push(lastMonthId);
+
+  const { data: files, error: filesError } = await supabase
+    .from('edi_files')
+    .select('hospital_id, submission_period_id')
+    .in('hospital_id', hospitalIds)
+    .in('submission_period_id', periodIds)
+    .eq('is_deleted', false);
+
+  if (filesError) {
+    console.error('Error fetching file counts:', filesError);
+  }
+  
+  const fileCounts = (files || []).reduce((acc, file) => {
+    const key = `${file.hospital_id}-${file.submission_period_id}`;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+
+  allMappedHospitals.value = hospitals.map(hospital => {
+    const currentMonthCount = fileCounts[`${hospital.id}-${currentMonthId}`] || 0;
+    const lastMonthCount = lastMonthId ? (fileCounts[`${hospital.id}-${lastMonthId}`] || 0) : 0;
+
+    return {
+      ...hospital,
+      last_month_files: lastMonthCount > 0 ? lastMonthCount : '-',
+      current_month_files: currentMonthCount > 0 ? currentMonthCount : '-',
+    };
+  });
+  
+  applySearch();
   loading.value = false;
+};
+
+const applySearch = () => {
+  const query = search.value.toLowerCase();
+  if (!query) {
+    mappedHospitals.value = [...allMappedHospitals.value];
+    return;
+  }
+  mappedHospitals.value = allMappedHospitals.value.filter(h =>
+    h.hospital_name?.toLowerCase().includes(query) ||
+    h.director_name?.toLowerCase().includes(query) ||
+    h.business_registration_number?.replace(/-/g, '').includes(query) ||
+    h.address?.toLowerCase().includes(query)
+  );
+};
+
+const clearSearch = () => {
+  search.value = '';
+  applySearch();
 };
 
 function openModal(hospital) {
@@ -228,11 +312,16 @@ function goToFileDetail(hospital) {
 }
 
 onMounted(async () => {
+  window.addEventListener('resize', handleResize);
   await fetchUserData();
   await fetchPrescriptionMonths();
   if (isSubmissionPeriod.value) {
     await fetchMappedHospitals();
   }
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
 });
 
 </script>

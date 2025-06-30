@@ -42,18 +42,24 @@ supabase.auth.getUser().then(async ({ data }) => {
 // 특수 레이아웃 적용 경로 및 네이밍 규칙 관리
 const specialLayoutRoutes = [
   {
-    path: /^\/edi\/files\//,
+    path: /^\/edi\/submit\/\d+\/\d+$/,
     async menuName(params) {
-      let monthLabel = '';
-      let hospitalName = '';
-      if (params.settlementMonthId) {
-        const { data: month } = await supabase.from('edi_months').select('settlement_month').eq('id', params.settlementMonthId).single();
-        monthLabel = month?.settlement_month || '';
-      }
-      if (params.hospitalId) {
-        const { data: hospital } = await supabase.from('hospitals').select('hospital_name').eq('id', params.hospitalId).single();
-        hospitalName = hospital?.hospital_name || '';
-      }
+      const { settlementMonthId, hospitalId } = params;
+
+      const { data: month } = await supabase
+        .from('edi_months')
+        .select('settlement_month')
+        .eq('id', settlementMonthId)
+        .single();
+      const monthLabel = month ? month.settlement_month : '';
+      
+      const { data: hospital } = await supabase
+        .from('hospitals')
+        .select('hospital_name')
+        .eq('id', hospitalId)
+        .single();
+      const hospitalName = hospital ? hospital.hospital_name : '';
+
       return `${monthLabel} - ${hospitalName}`;
     }
   },
@@ -104,29 +110,29 @@ const currentSpecial = computed(() => {
 const isSpecialLayout = computed(() => !!currentSpecial.value);
 const isLoginOrSignup = computed(() => ['/login', '/signup'].includes(route.path));
 
-const showSidebar = computed(() => !isLoginOrSignup.value && (!isSpecialLayout.value || isMobile.value));
+const showSidebar = computed(() => !isLoginOrSignup.value);
 const showCompany = computed(() => !isLoginOrSignup.value && !isSpecialLayout.value);
 const showBack = computed(() => !isLoginOrSignup.value && isSpecialLayout.value);
 const hideMenuToggle = computed(() => !isLoginOrSignup.value && isSpecialLayout.value && isMobile.value);
 
 const defaultMenuName = computed(() => {
 const menuNameMap = {
-  '/admin/notice/list': '공지사항 목록',
+  '/admin/notice/list': '공지사항',
   '/admin/members/list': '회원 목록',
   '/admin/products/list': '수수료율 관리',
   '/admin/hospitals/list': '거래처 목록',
-  '/admin/filter/list': '필터링 요청 목록',
+  '/admin/filter/list': '필터링 요청',
   '/admin/pharmaceutical-companies': '제약사 관리',
-  '/admin/edi/months': 'EDI 제출월 설정',
-  '/admin/edi/list': 'EDI 제출 목록',
-  '/admin/settlement/month': '월별 정산 현황',
+  '/admin/edi/months': '마감 일정 관리',
+  '/admin/edi/list': 'EDI 증빙 파일',
+  '/admin/settlement/month': '정산내역서',
   '/notice/list': '공지사항',
   '/products/list': '수수료율',
   '/hospitals/list': '거래처',
   '/filter/create': '필터링 요청',
-  '/filter/list': '요청 내역',
+  '/filter/list': '필터링 내역',
   '/edi/submit': 'EDI 제출',
-  '/edi/list': '제출 내역',
+  /*'/edi/list': '제출 내역',*/
   '/settlement/list': '정산내역서',
   };
   const path = route.path;
@@ -186,7 +192,7 @@ watch(
       '/admin/products/create',
       '/admin/products/edit/',
       '/filter/create',
-      '/edi/upload'
+      '/edi/files/'
     ];
     
     // 동적 라우트를 포함한 페이지 체크
@@ -230,8 +236,8 @@ console.log('showSidebar', showSidebar.value, 'showBack', showBack.value, 'hideM
       :user-info="userInfo"
       @menu-click="handleMenuClick"
       @sidebar-hover="handleSidebarHover"
+      @toggle="sidebarVisible = false"
     />
-    <div v-if="sidebarVisible" class="sidebar-overlay" @click="sidebarVisible = false"></div>
     <div v-if="isSidebarHovered" class="content-overlay"></div>
     <TopbarMenu
       v-if="!isLoginOrSignup"

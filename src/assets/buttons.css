@@ -1,9 +1,176 @@
 /* ========================================== */
-/* 기본 버튼 스타일 (일반 크기)             */
+/* 로그인 & 회원가입
 /* ========================================== */
 
-/* 기본 버튼 공통 스타일 */
+.primary-btn,
+.login-btn,
+.signup-btn,
+.cancel-btn {
+  padding: 0.5rem 1rem !important;
+  font-size: var(--font-size-base) !important;
+  font-weight: 400 !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--border-radius) !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: var(--shadow-sm) !important;
+}
 
+.primary-btn {
+  background: var(--primary) !important;
+  color: var(--text-white) !important;
+}
+
+.login-btn {
+  background: var(--primary) !important;
+  color: var(--text-white) !important;
+}
+
+.signup-btn {
+  background: var(--primary) !important;
+  color: var(--text-white) !important;
+}
+
+.cancel-btn {
+  background: var(--gray-400) !important;
+  color: var(--text-dark) !important;
+}
+
+/* 미사용! - 로그인 & 회원가입 비활성화 */
+/*.signup-btn:disabled {
+  background: var(--primary-blue-light) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-secondary) !important;
+}
+*/
+
+
+
+
+
+/* ========================================== */
+/* 기본 버튼 스타일 (일반 크기)
+/* ========================================== */
+
+/* 공통 스타일 */
+
+.btn-primary,
+.btn-secondary,
+.btn-add,
+.btn-download,
+.btn-cancel {
+  padding: 0.3rem 1rem !important;
+  font-size: var(--font-size-base) !important;
+  font-weight: 400 !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--border-radius) !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: var(--shadow-sm) !important;
+  text-decoration: none !important;
+}
+
+
+.btn-primary {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--text-white) !important;
+}
+
+.btn-add {
+  background: var(--primary-blue) !important;
+  border-color: var(--primary-blue) !important;
+  color: var(--text-white) !important;
+
+}
+
+.btn-cancel {
+  background: #fff !important;
+  border-color: var(--gray-400) !important;
+  color: var(--gray-900) !important;
+
+}
+
+
+
+
+/* ========================================== */
+/* 상호작용 효과 (호버, 포커스, 비활성화)    */
+/* ========================================== */
+
+/* 호버 효과 - 일반 버튼 */
+.btn-primary:hover:not(:disabled),
+.btn-add:hover:not(:disabled),
+.btn-cancel:hover:not(:disabled) {
+  opacity: 0.75 !important;
+  transform: translateY(0px) !important;
+  box-shadow: var(--shadow) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+
+/* 포커스 효과 */
+button:focus,
+.btn-primary:focus,
+.btn-add:focus,
+.btn-cancel:focus {
+  outline: none !important;
+  box-shadow: var(--focus-shadow) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+
+/* 비활성화 상태 */
+.btn-primary:disabled,
+.btn-add:disabled,
+.btn-cancel:disabled {
+  opacity: 0.9 !important;
+  box-shadow: none !important;
+}
+
+
+
+
+
+
+
+/* ========================================== */
+/* 아이콘 버튼
+/* ========================================== */
+
+/* 수정 */
+.btn-icon-edit .p-button-icon {
+  color: var(--warning-dark) !important;
+}
+
+/* 기존 삭제 휴지통 위험으로 작성, 삭제로 변경 요망!!! */
+/* 삭제 */
+.btn-icon-delete .p-button-icon {
+  color: var(--danger) !important;
+}
+
+/* 위험 */
+.btn-icon-danger .p-button-icon {
+  color: var(--danger) !important;
+}
+
+
+
+
+
+
+
+
+/* ========================================================================================= */
+/* ========================================================================================= */
+/* ========================================================================================= */
+
+
+/*
 .btn-primary,
 .btn-secondary,
 .btn-list,
@@ -43,7 +210,10 @@
 }
 
 
+
+
 /* 필터 카드 검색 */
+/*
 .btn-search-filter {
   font-size: var(--font-size-base) !important;
   padding: 0.5rem 1.0rem !important;
@@ -74,6 +244,7 @@
 
 
 /* 로그인 */
+/*
 .login-btn {
   background: var(--primary) !important;
   color: var(--text-white) !important;
@@ -87,30 +258,12 @@
   border: 1px solid var(--border-secondary) !important;
 }
 
-/* 회원가입 */
-.signup-btn {
-  background: var(--primary-blue) !important;
-  color: var(--text-white) !important;
-}
-.signup-btn:disabled {
-  background: var(--primary-blue-light) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--border-secondary) !important;
-}
-
-
-
-
-/* 취소 */
-.cancel-btn {
-  background: var(--gray-400) !important;
-  color: var(--text-dark) !important;
-}
 
 
 
 
 /* 기본 버튼 색상 스타일 */
+/*
 .btn-primary,
 .btn-list,
 .btn-excell-download {
@@ -184,6 +337,7 @@
 }
 
 /* 배경 없는 닫기 버튼 */
+/*
 .btn-close-nobg {
   font-size: 1rem !important;
   background: none !important;
@@ -193,15 +347,6 @@
   box-shadow: none !important;
 }
 
-/* 아이콘 버튼용 위험 색상 */
-.btn-icon-danger .p-button-icon {
-  color: var(--danger) !important;
-}
-
-/* 아이콘 버튼용 수정 색상 */
-.btn-icon-edit .p-button-icon {
-  color: var(--warning-dark) !important;
-}
 
 
 
@@ -210,15 +355,6 @@
 /* ========================================== */
 
 /* 공통 스타일 */
-.login-btn,
-.signup-btn,
-.cancel-btn {
-  width: 100% !important;
-  font-size: var(--font-size-base) !important;
-  padding: 0.6rem 1rem !important;
-  border: none !important;
-  border-radius: var(--border-radius) !important;
-}
 
 
 
@@ -229,6 +365,7 @@
 /* ========================================== */
 
 /* 작은 버튼 공통 스타일 */
+/*
 .btn-primary-sm,
 .btn-add-sm,
 .btn-approve-sm,
@@ -255,6 +392,7 @@
 }
 
 /* 작은 버튼 색상 스타일 (외곽선 스타일) */
+/*
 .btn-approve-sm,
 .btn-add-sm {
   background: var(--white) !important;
@@ -300,6 +438,7 @@
 /* ========================================== */
 
 /* 호버 효과 - 일반 버튼 */
+/*
 .btn-primary:hover:not(:disabled),
 .btn-secondary:hover:not(:disabled),
 .btn-list:hover:not(:disabled),
@@ -333,6 +472,7 @@
 
 
 /* 호버 효과 - 작은 버튼 (배경색 변경) */
+/*
 .btn-approve-sm:hover:not(:disabled),
 .btn-add-sm:hover:not(:disabled) {
   background: var(--primary-blue-hover) !important;
@@ -374,6 +514,7 @@
 
 
 /* 포커스 효과 */
+/*
 button:focus,
 .btn-primary:focus,
 .btn-secondary:focus,
@@ -418,6 +559,7 @@ button:focus,
 
 
 /* 비활성화 상태 */
+/*
 .btn-primary:disabled,
 .btn-secondary:disabled,
 .btn-list:disabled,
@@ -464,7 +606,7 @@ button:focus,
 /* 뱃지 스타일                             */
 /* ========================================== */
 
-
+/*
 .required-badge,
 .active-badge,
 .inactive-badge {
@@ -526,6 +668,7 @@ button:focus,
 - 테이블의 작업 열
 */
 
+/*
 .action-cell {
   padding: 0px !important;
   text-align: center !important;

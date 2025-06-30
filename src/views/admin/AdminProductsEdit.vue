@@ -1,7 +1,6 @@
 <template>
-  <div class="auth-root">
-    <h2 class="Signup-title"></h2>
-    <form @submit.prevent="updateProduct" class="auth-form">
+  <div class="board">
+    <form @submit.prevent="updateProduct" class="board-form">
       <label>기준년월</label>
       <input v-model="product.base_month" class="input" disabled />
       <label>제약사<span style="color:#e74c3c">*</span></label>

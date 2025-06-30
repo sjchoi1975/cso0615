@@ -3,9 +3,11 @@
     <!-- Filter Card -->
     <div class="filter-card custom-auto-height">
       <div class="filter-row">
-        <span class="p-input-icon-left">
+        <div class="p-input-icon-right" style="width: 100%;">
+          <i v-if="!search" class="pi pi-search" />
+          <i v-if="search" class="pi pi-times" @click="clearSearch" style="cursor: pointer;" />
           <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search" @keyup.enter="applySearch" />
-        </span>
+        </div>
         <button class="btn-search" @click="applySearch">조회</button>
       </div>
     </div>
@@ -141,6 +143,7 @@ import { getTableScrollHeight } from '@/utils/tableHeight';
 const router = useRouter();
 
 // Component state
+const allHospitals = ref([]);
 const hospitals = ref([]);
 const loading = ref(false);
 const search = ref('');
@@ -188,18 +191,18 @@ const formatDate = (dateString) => {
 };
 
 // 데이터 조회
-const fetchHospitals = async (pageFirst = 0, pageRows = 100) => {
+const fetchHospitals = async () => {
     loading.value = true;
     try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
+            allHospitals.value = [];
             hospitals.value = [];
             totalCount.value = 0;
-            loading.value = false;
             return;
         }
 
-        let query = supabase
+        const { data, error } = await supabase
             .from('hospital_member_mappings')
             .select(`
                 id,
@@ -208,41 +211,56 @@ const fetchHospitals = async (pageFirst = 0, pageRows = 100) => {
                     creator:registered_by ( company_name ),
                     updater:updated_by ( company_name )
                 )
-            `, { count: 'exact' })
-            .eq('member_id', user.id);
-
-        if (appliedSearch.value) {
-            const keyword = `%${appliedSearch.value}%`;
-            query = query.or(
-                `hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword},address.ilike.${keyword}`,
-                { referencedTable: 'hospitals' }
-            );
-        }
-
-        const from = pageFirst;
-        const to = from + pageRows - 1;
-
-        const { data, error, count } = await query.range(from, to).order('created_at', { ascending: false });
+            `)
+            .eq('member_id', user.id)
+            .order('created_at', { ascending: false });
 
         if (error) throw error;
         
-        hospitals.value = data.map(item => ({
+        allHospitals.value = data.map(item => ({
             ...item.hospital,
             creator_name: item.hospital.creator ? item.hospital.creator.company_name : '-',
             updater_name: item.hospital.updater ? item.hospital.updater.company_name : '-',
             mapping_id: item.id
         }));
-        totalCount.value = count || 0;
+
+        applySearch();
 
     } catch (error) {
         console.error('Error fetching hospitals:', error);
         alert('데이터를 불러오는 데 실패했습니다: ' + error.message);
-        hospitals.value = [];
-        totalCount.value = 0;
+        allHospitals.value = [];
     } finally {
         loading.value = false;
     }
 };
+
+const applySearch = () => {
+  const query = search.value.toLowerCase().trim();
+  if (!query) {
+    hospitals.value = [...allHospitals.value];
+  } else {
+    hospitals.value = allHospitals.value.filter(h => 
+      (h.hospital_name && h.hospital_name.toLowerCase().includes(query)) ||
+      (h.director_name && h.director_name.toLowerCase().includes(query)) ||
+      (h.business_registration_number && h.business_registration_number.replace(/-/g, '').includes(query)) ||
+      (h.address && h.address.toLowerCase().includes(query))
+    );
+  }
+  totalCount.value = hospitals.value.length;
+  onPageChange({ first: 0, rows: pageSize.value });
+};
+
+const clearSearch = () => {
+  search.value = '';
+  applySearch();
+};
+
+const paginatedHospitals = computed(() => {
+  const start = first.value;
+  const end = start + pageSize.value;
+  return hospitals.value.slice(start, end);
+});
 
 const getPublicUrl = (filePath) => {
   if (!filePath) return '';
@@ -300,16 +318,13 @@ const downloadFile = async () => {
 };
 
 const downloadExcel = async () => {
+    if (!hospitals.value || hospitals.value.length === 0) {
+        alert('데이터가 없어 엑셀 다운로드를 할 수 없습니다.');
+        return;
+    }
     loading.value = true;
     try {
-        const { data: allData, error } = await supabase
-            .from('user_hospitals_view')
-            .select('*')
-            .order('registered_at', { ascending: false });
-
-        if (error) throw error;
-
-        const formattedData = allData.map((item, index) => ({
+        const formattedData = hospitals.value.map((item, index) => ({
             '순번': index + 1,
             '거래처명': item.hospital_name,
             '사업자등록번호': item.business_registration_number,
@@ -368,24 +383,132 @@ const deleteMapping = async () => {
   }
 };
 
-// 페이지 변경
+// 페이지네이션
 const onPageChange = (event) => {
-  first.value = event.first;
-  pageSize.value = event.rows;
-  fetchHospitals(event.first, event.rows);
+    first.value = event.first;
+    pageSize.value = event.rows;
 };
 
-onMounted(async () => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    fetchHospitals(0, pageSize.value);
-  }
+// 초기 데이터 로드
+onMounted(() => {
+    fetchHospitals();
 });
 
-watch(search, (newValue) => {
-  if (newValue === '') {
-    applySearch();
-  }
+watch(first, () => {
+    // 페이지네이터의 first 값이 변경될 때 테이블의 스크롤을 최상단으로 이동
+    const tableBody = document.querySelector('.p-datatable-wrapper');
+    if (tableBody) {
+        tableBody.scrollTop = 0;
+    }
 });
 
 </script>
+
+<style scoped>
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter-card {
+  padding: 1rem;
+}
+
+.filter-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-search {
+  width: 100%;
+}
+
+.btn-search {
+  padding: 0.5rem 1rem;
+}
+
+.function-card {
+  padding: 1rem;
+}
+
+.total-count {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.table-card {
+  flex: 1;
+  padding: 1rem;
+}
+
+.table-loading-spinner-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.fixed-paginator {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-modal {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  width: 80%;
+  max-width: 500px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.modal-body {
+  margin-bottom: 1rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.btn-secondary,
+.btn-primary {
+  padding: 0.5rem 1rem;
+}
+
+.btn-secondary {
+  background-color: #ccc;
+  color: black;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+</style>

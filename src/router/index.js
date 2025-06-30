@@ -191,9 +191,9 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: '/edi/files/:settlementMonthId/:hospitalId',
+      path: '/edi/submit/:settlementMonthId/:hospitalId',
       name: 'user-edi-file-detail',
-      component: () => import('@/views/user/UserEdiFileDetail.vue'),
+      component: () => import('@/views/user/UserEdiSubmitDetail.vue'),
     },
     {
       path: '/admin/hospitals/edit/:id',
