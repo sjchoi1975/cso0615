@@ -120,6 +120,7 @@
   const productOptions = ref([]);
   const pageSize = ref(100);
   const first = ref(0);
+  const route = useRoute();
   
   const isMobile = computed(() => window.innerWidth <= 768);
   const tableConfig = computed(() => isMobile.value ? settlementMonthDetailTableConfig.mobile : settlementMonthDetailTableConfig.pc);
@@ -150,9 +151,14 @@
   };
   
   const fetchSettlements = async () => {
+    if (!selectedMonth.value) {
+      // 정산월이 없으면 데이터를 불러오지 않음
+      settlements.value = [];
+      totalCount.value = 0;
+      return;
+    }
     loading.value = true;
     let query = supabase.from('settlements').select('*', { count: 'exact' });
-    if (selectedMonth.value) query = query.eq('settlement_month', selectedMonth.value);
     if (selectedPrescriptionMonth.value) query = query.eq('prescription_month', selectedPrescriptionMonth.value);
     if (selectedCompany.value) query = query.eq('company_name', selectedCompany.value);
     if (selectedHospital.value) query = query.eq('hospital_name', selectedHospital.value);
@@ -172,32 +178,20 @@
     loading.value = false;
   };
   
-  onMounted(async () => {
-    // URL 파라미터로 month가 있으면 selectedMonth에 세팅
-    if (route.query.month) {
-      selectedMonth.value = route.query.month;
+  onMounted(() => {
+    const monthFromUrl = route.params.month;
+    if (monthFromUrl) {
+      selectedMonth.value = monthFromUrl;
+      fetchSettlements();
+      fetchFilterOptions();
     }
-    await getCurrentUser();
-    fetchFilterOptions();
   });
   
-  // 정산월이 바뀌면 나머지 드롭다운 옵션도 새로 불러오고, 데이터도 자동 조회
-  watch(selectedMonth, () => {
-    fetchFilterOptions();
-    selectedPrescriptionMonth.value = '';
-    selectedCompany.value = '';
-    selectedHospital.value = '';
-    selectedProduct.value = '';
-    if (selectedMonth.value) {
-      fetchSettlements();
-    } else {
-      settlements.value = [];
-      totalCount.value = 0;
-    }
-  });
-  // 나머지 필터도 선택 즉시 자동 필터링
+  // 필터 변경 시 데이터 다시 불러오기
   watch([selectedPrescriptionMonth, selectedCompany, selectedHospital, selectedProduct], () => {
-    if (selectedMonth.value) fetchSettlements();
+    if (route.params.month) {
+        fetchSettlements();
+    }
   });
   
   const totalQuantity = computed(() => settlements.value.reduce((sum, r) => sum + (Number(r.quantity) || 0), 0));
@@ -275,33 +269,37 @@
   };
   
   const downloadTemplate = () => {
-    const headers = [
-      //'정산월',  // 정산월 컬럼 제거
-      '업체명', '업체사업자등록번호', '병의원', '병의원사업자등록번호', '처방월',
-      '제약사', '제품명', '보험코드', '약가', '수량', '처방액', '수수료율', '지급액', '비고'
+    const templateData = [
+      {
+        'prescription_month': 'YYYY-MM',
+        'company_name': '업체명',
+        'hospital_name': '병의원명',
+        'product_name': '제품명',
+        'quantity': '수량 (숫자만)',
+        'remarks': '비고 (선택사항)'
+      }
     ];
-    const exampleRow = [
-      // '',
-      '', '', '', '', '', '', '', '', '', '', '', '', '', ''
-    ];
-    const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
-    // 합계행 등은 필요시 추가
+    const ws = XLSX.utils.json_to_sheet(templateData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '정산내역');
-    XLSX.writeFile(wb, '정산내역서_일괄등록양식.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, '정산데이터 템플릿');
+    XLSX.writeFile(wb, 'settlement_template.xlsx');
   };
   
-  const uploadExcel = async (e) => {
-    console.log('selectedMonth:', selectedMonth.value)
-    if (!selectedMonth.value) {
-      alert('정산월을 먼저 선택하세요.');
+  const uploadExcel = async (event) => {
+    const file = event.target.files[0];
+    if (!file) {
       return;
     }
-    const file = e.target.files[0];
-    if (!file) return;
+
+    if (!selectedMonth.value) {
+      alert('엑셀 파일을 등록하려면 먼저 정산월을 선택해야 합니다.');
+      event.target.value = ''; // 파일 선택 초기화
+      return;
+    }
+    
     const reader = new FileReader();
-    reader.onload = async (evt) => {
-      const data = evt.target.result;
+    reader.onload = async (e) => {
+      const data = e.target.result;
       const workbook = XLSX.read(data, { type: 'binary' });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];

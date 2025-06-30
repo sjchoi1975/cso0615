@@ -6,11 +6,8 @@
       <div class="filter-card custom-auto-height">
         <div class="filter-row">
           <div class="p-input-icon-right" style="width: 100%;">
-            <i v-if="!search" class="pi pi-search" />
-            <i v-if="search" class="pi pi-times" @click="clearSearch" style="cursor: pointer;" />
-            <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search" @keyup.enter="applySearch" />
+            <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search" />
           </div>
-          <button class="btn-search" @click="applySearch">조회</button>
         </div>
       </div>
       
@@ -116,6 +113,14 @@ const modalHospital = ref(null);
 const modalFiles = ref([]);
 
 const search = ref('');
+
+let debounceTimer = null;
+watch(search, () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    applySearch();
+  }, 300);
+});
 
 const isSubmissionPeriod = computed(() => !!selectedMonth.value);
 
@@ -239,7 +244,6 @@ const applySearch = () => {
 
 const clearSearch = () => {
   search.value = '';
-  applySearch();
 };
 
 function openModal(hospital) {

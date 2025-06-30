@@ -1,17 +1,14 @@
 <template>
   <div class="page-container">
     <!-- Filter Card -->
-    <div class="filter-card custom-auto-height">
+    <div class="filter-card">
       <div class="filter-row">
         <div class="p-input-icon-right" style="width: 100%;">
-          <i v-if="!search" class="pi pi-search" />
-          <i v-if="search" class="pi pi-times" @click="clearSearch" style="cursor: pointer;" />
-          <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search" @keyup.enter="applySearch" />
+          <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search wide-mobile-search" />
         </div>
-        <button class="btn-search" @click="applySearch">조회</button>
       </div>
     </div>
-
+    
     <!-- Function Card -->
     <div class="function-card custom-auto-height">
       <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}개 거래처</div>
@@ -191,75 +188,97 @@ const formatDate = (dateString) => {
 };
 
 // 데이터 조회
-const fetchHospitals = async () => {
+const fetchHospitals = async (pageFirst = 0, pageRows = 100) => {
     loading.value = true;
     try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-            allHospitals.value = [];
             hospitals.value = [];
             totalCount.value = 0;
             return;
         }
 
-        const { data, error } = await supabase
+        let hospitalIdsQuery = supabase
             .from('hospital_member_mappings')
-            .select(`
-                id,
-                hospital:hospitals!inner (
-                    *,
-                    creator:registered_by ( company_name ),
-                    updater:updated_by ( company_name )
-                )
-            `)
-            .eq('member_id', user.id)
-            .order('created_at', { ascending: false });
+            .select('hospital_id')
+            .eq('member_id', user.id);
 
-        if (error) throw error;
+        const { data: idData, error: idError } = await hospitalIdsQuery;
+        if (idError) throw idError;
         
-        allHospitals.value = data.map(item => ({
-            ...item.hospital,
-            creator_name: item.hospital.creator ? item.hospital.creator.company_name : '-',
-            updater_name: item.hospital.updater ? item.hospital.updater.company_name : '-',
-            mapping_id: item.id
+        const hospitalIds = idData.map(item => item.hospital_id);
+        if (hospitalIds.length === 0) {
+            hospitals.value = [];
+            totalCount.value = 0;
+            loading.value = false;
+            return;
+        }
+
+        let query = supabase
+            .from('hospitals')
+            .select(`
+                *,
+                creator:registered_by ( company_name ),
+                updater:updated_by ( company_name ),
+                mappings:hospital_member_mappings!inner(id)
+            `, { count: 'exact' })
+            .in('id', hospitalIds)
+            .eq('mappings.member_id', user.id);
+
+        if (appliedSearch.value) {
+            const searchTerm = `%${appliedSearch.value}%`;
+            query = query.or(
+                `hospital_name.ilike.${searchTerm},` +
+                `director_name.ilike.${searchTerm},` +
+                `business_registration_number.ilike.${searchTerm},` +
+                `address.ilike.${searchTerm}`
+            );
+        }
+
+        query = query
+            .range(pageFirst, pageFirst + pageRows - 1)
+            .order('registered_at', { ascending: false });
+
+        const { data, error, count } = await query;
+        if (error) throw error;
+
+        hospitals.value = data.map(item => ({
+            ...item,
+            creator_name: item.creator ? item.creator.company_name : '-',
+            updater_name: item.updater ? item.updater.company_name : '-',
+            mapping_id: item.mappings[0]?.id
         }));
 
-        applySearch();
+        totalCount.value = count || 0;
 
     } catch (error) {
         console.error('Error fetching hospitals:', error);
         alert('데이터를 불러오는 데 실패했습니다: ' + error.message);
-        allHospitals.value = [];
+        hospitals.value = [];
+        totalCount.value = 0;
     } finally {
         loading.value = false;
     }
 };
 
-const applySearch = () => {
-  const query = search.value.toLowerCase().trim();
-  if (!query) {
-    hospitals.value = [...allHospitals.value];
-  } else {
-    hospitals.value = allHospitals.value.filter(h => 
-      (h.hospital_name && h.hospital_name.toLowerCase().includes(query)) ||
-      (h.director_name && h.director_name.toLowerCase().includes(query)) ||
-      (h.business_registration_number && h.business_registration_number.replace(/-/g, '').includes(query)) ||
-      (h.address && h.address.toLowerCase().includes(query))
-    );
-  }
-  totalCount.value = hospitals.value.length;
-  onPageChange({ first: 0, rows: pageSize.value });
+let debounceTimer = null;
+watch(search, (newVal) => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    appliedSearch.value = newVal.trim();
+    first.value = 0;
+    fetchHospitals(0, pageSize.value);
+  }, 300);
+});
+
+const onPageChange = (event) => {
+  first.value = event.first;
+  pageSize.value = event.rows;
+  fetchHospitals(event.first, event.rows);
 };
 
-const clearSearch = () => {
-  search.value = '';
-  applySearch();
-};
-
-const paginatedHospitals = computed(() => {
-  const start = first.value;
-  const end = start + pageSize.value;
-  return hospitals.value.slice(start, end);
+onMounted(() => {
+    fetchHospitals(first.value, pageSize.value);
 });
 
 const getPublicUrl = (filePath) => {
@@ -318,7 +337,7 @@ const downloadFile = async () => {
 };
 
 const downloadExcel = async () => {
-    if (!hospitals.value || hospitals.value.length === 0) {
+    if (hospitals.value.length === 0) {
         alert('데이터가 없어 엑셀 다운로드를 할 수 없습니다.');
         return;
     }
@@ -382,24 +401,5 @@ const deleteMapping = async () => {
     closeDeleteModal();
   }
 };
-
-// 페이지네이션
-const onPageChange = (event) => {
-    first.value = event.first;
-    pageSize.value = event.rows;
-};
-
-// 초기 데이터 로드
-onMounted(() => {
-    fetchHospitals();
-});
-
-watch(first, () => {
-    // 페이지네이터의 first 값이 변경될 때 테이블의 스크롤을 최상단으로 이동
-    const tableBody = document.querySelector('.p-datatable-wrapper');
-    if (tableBody) {
-        tableBody.scrollTop = 0;
-    }
-});
 
 </script>

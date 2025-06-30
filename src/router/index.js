@@ -63,7 +63,8 @@ const router = createRouter({
     {
       path: '/admin/edi/list',
       name: 'admin-edi-list',
-      component: AdminEdiList,
+      component: () => import('../views/admin/AdminEdiList.vue'),
+      meta: { requiresAuth: true, role: 'admin' },
     },
     {
       path: '/admin/edi/months',
@@ -76,7 +77,7 @@ const router = createRouter({
       component: AdminSettlementMonth,
     },
     {
-      path: '/admin/settlement/month/:year_month',
+      path: '/admin/settlement/month/:month',
       name: 'admin-settlement-month-detail',
       component: AdminSettlementMonthDetail,
     },

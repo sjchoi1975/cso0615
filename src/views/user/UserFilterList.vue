@@ -3,6 +3,10 @@
     <!-- Filter Card -->
     <div class="filter-card custom-auto-height">
       <div class="filter-row">
+        <span class="p-input-icon-left">
+          <input v-model="search" placeholder="거래처명, 제약사명 검색" class="input-search wide-mobile-search" />
+        </span>
+        <div class="hide-mobile">
         <span>거래처</span>
         <select v-model="selectedHospital" class="input-180">
           <option value="">- 전체 -</option>
@@ -26,10 +30,7 @@
           <option value="approved">승인</option>
           <option value="rejected">반려</option>
         </select>
-        <button class="filter-reset-btn" @click="resetFilters" style="margin-left: 1rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 2px;"><path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
-            초기화
-        </button>
+        </div>
       </div>
     </div>
 
@@ -134,6 +135,7 @@ const first = ref(0);
 const totalCount = ref(0);
 const pageSize = ref(100);
 
+const search = ref('');
 const selectedHospital = ref('');
 const selectedPharma = ref('');
 const selectedStatus = ref('');
@@ -153,11 +155,30 @@ const tableConfig = computed(() => isMobile.value ? userFilterRequestsTableConfi
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const fetchDropdownOptions = async () => {
-  const { data: hospitalsData } = await supabase.from('hospitals').select('id, hospital_name').order('hospital_name');
-  if (hospitalsData) hospitalOptions.value = hospitalsData;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
 
-  const { data: pharmaData } = await supabase.from('pharmaceutical_companies').select('id, company_name').order('company_name');
-  if (pharmaData) pharmaOptions.value = pharmaData;
+  const { data, error } = await supabase
+    .from('admin_filter_list_view')
+    .select('hospital_id, hospital_name, pharmaceutical_company_id, pharmaceutical_company_name')
+    .eq('member_id', user.id);
+  
+  if (error) {
+    console.error('Error fetching dropdown options:', error);
+    return;
+  }
+
+  if (data) {
+    const uniqueHospitals = [...new Map(data.map(item => 
+      [item.hospital_id, { id: item.hospital_id, hospital_name: item.hospital_name }]
+    )).values()].filter(Boolean);
+    hospitalOptions.value = uniqueHospitals.filter(h => h.id);
+
+    const uniquePharmas = [...new Map(data.map(item => 
+      [item.pharmaceutical_company_id, { id: item.pharmaceutical_company_id, company_name: item.pharmaceutical_company_name }]
+    )).values()].filter(Boolean);
+    pharmaOptions.value = uniquePharmas.filter(p => p.id);
+  }
 };
 
 const fetchRequests = async () => {
@@ -176,6 +197,9 @@ const fetchRequests = async () => {
     .select(`*`, { count: 'exact' })
     .eq('member_id', user.id);
 
+  if (search.value) {
+    query = query.or(`hospital_name.ilike.%${search.value}%,pharmaceutical_company_name.ilike.%${search.value}%`);
+  }
   if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
   if (selectedPharma.value) query = query.eq('pharmaceutical_company_id', selectedPharma.value);
   if (selectedStatus.value) query = query.eq('status', selectedStatus.value);
@@ -201,7 +225,7 @@ onMounted(() => {
     fetchDropdownOptions();
 });
 
-watch([selectedHospital, selectedPharma, selectedStatus, selectedFilterType], () => {
+watch([search, selectedHospital, selectedPharma, selectedStatus, selectedFilterType], () => {
   first.value = 0;
   fetchRequests();
 });
@@ -237,6 +261,7 @@ const downloadExcel = () => {
 };
 
 const resetFilters = () => {
+  search.value = '';
   selectedHospital.value = '';
   selectedPharma.value = '';
   selectedStatus.value = '';

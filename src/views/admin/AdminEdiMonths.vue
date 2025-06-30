@@ -64,7 +64,7 @@
         </DataTable>
       </div>
     </div>
-
+    
     <!-- 등록/수정 모달 -->
     <div v-if="isModalVisible" class="custom-modal-overlay" @click.self="isModalVisible = false">
       <div class="custom-modal">

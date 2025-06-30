@@ -125,22 +125,23 @@ const submitFiles = async () => {
 
   for (const file of selectedFiles.value) {
     const filePath = `edi_files/${settlementMonthLabel.value}/${user.id}/${hospitalId}/${Date.now()}_${file.name}`;
-    const { error: uploadError } = await supabase.storage.from('edi-uploads').upload(filePath, file);
+    const { data: uploadData, error: uploadError } = await supabase.storage.from('edi-uploads').upload(filePath, file);
 
     if (uploadError) {
       alert(`파일 업로드 실패: ${file.name}`);
       console.error('Upload Error:', uploadError.message);
       continue;
     }
-
-    const { data: { publicUrl } } = supabase.storage.from('edi-uploads').getPublicUrl(filePath);
+    
+    // 업로드 성공 후 반환된 경로로 공개 URL 생성
+    const { data: { publicUrl } } = supabase.storage.from('edi-uploads').getPublicUrl(uploadData.path);
     
     const { error: insertError } = await supabase.from('edi_files').insert({
       submission_period_id: settlementMonthId,
       member_id: user.id,
       hospital_id: hospitalId,
       file_name: file.name,
-      file_url: publicUrl,
+      file_url: publicUrl, // 공개 URL 저장
       file_size_bytes: file.size,
     });
 
@@ -165,12 +166,17 @@ const deleteRegisteredFile = async (file) => {
   }
   
   // Storage에서 파일 삭제
-  if (file.file_path) {
-    const { error: removeError } = await supabase.storage.from('edi-uploads').remove([file.file_path]);
-    if (removeError) {
-      alert('스토리지에서 파일을 삭제하는 데 실패했습니다.');
-      console.error('Storage Delete Error:', removeError.message);
-      return;
+  if (file.file_url) {
+    // public URL에서 스토리지 경로 추출
+    const urlParts = file.file_url.split('/edi-uploads/');
+    if (urlParts.length > 1) {
+      const storagePath = urlParts[1];
+      const { error: removeError } = await supabase.storage.from('edi-uploads').remove([storagePath]);
+      if (removeError) {
+        alert('스토리지에서 파일을 삭제하는 데 실패했습니다.');
+        console.error('Storage Delete Error:', removeError.message);
+        return;
+      }
     }
   }
 

@@ -3,36 +3,14 @@
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
-        <div>
-        <span class="p-input-icon-left">
+        <span class="p-input-icon-left" style="display: flex; align-items: center; flex-grow: 1;">
           <input
-            :value="search"
-            @input="onInput"
-            @compositionstart="onCompositionStart"
-            @compositionupdate="onCompositionUpdate"
-            @compositionend="onCompositionEnd"
-            @keyup.enter="searchProducts"
+            v-model="search"
             class="input-search wide-mobile-search"
-            style="border-radius: 2px 0 0 2px !important; border-right: none !important;"
+            style="border-radius: 2px !important; flex-grow: 1; min-width: 100px;"
             placeholder="제약사, 제품명, 보험코드, 성분명 검색"
           />
-          <button
-            class="btn-search-filter" 
-            style="border-radius: 0 2px 2px 0 !important;"
-            @click="searchProducts" 
-            :disabled="!isSearchActive"
-            >검색</button>
         </span>
-        <button class="filter-reset-btn icon-reset"
-          @click="resetFilters"
-          title="초기화">
-          <svg xmlns="http://www.w3.org/2000/svg"
-          width="20" height="20" viewBox="0 0 24 24"
-          style="vertical-align: middle;">
-          <path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
-          초기화
-        </button>
-        </div>
       </div>
     </div>
 
@@ -100,7 +78,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -109,8 +87,6 @@ import { userProductsTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const search = ref('');
-const composingValue = ref('');
-const isComposing = ref(false);
 const appliedSearch = ref('');
 const products = ref([]);
 const loading = ref(false);
@@ -127,6 +103,7 @@ const tableConfig = computed(() => isMobile.value ? userProductsTableConfig.mobi
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 let latestMonth = null;
+let debounceTimer = null;
 
 const fetchProducts = async (pageFirst = 0, pageRows = 200) => {
   loading.value = true;
@@ -183,6 +160,18 @@ const fetchProducts = async (pageFirst = 0, pageRows = 200) => {
   loading.value = false;
 };
 
+watch(search, (newVal) => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    const searchTerm = newVal.trim();
+    if (searchTerm.length >= 2 || searchTerm.length === 0) {
+      appliedSearch.value = searchTerm;
+      first.value = 0;
+      fetchProducts(0, pageSize.value);
+    }
+  }, 300); // 300ms 디바운스
+});
+
 onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
@@ -203,23 +192,8 @@ const onPageChange = (event) => {
   fetchProducts(event.first, event.rows);
 };
 
-const isSearchActive = computed(() => {
-  const value = search.value.trim();
-  if (/[가-힣]/.test(value)) {
-    return value.length >= 2;
-  }
-  return value.length >= 3;
-});
-
-const searchProducts = () => {
-  appliedSearch.value = search.value.trim();
-  first.value = 0;
-  fetchProducts(first.value, pageSize.value);
-};
-
 const resetFilters = () => {
   search.value = '';
-  searchProducts();
 };
 
 function getUserCommission(product) {
@@ -242,25 +216,5 @@ const formatCommissionRate = (rate) => {
 
 function downloadExcel() {
   // 엑셀 다운로드 로직 (필요시 구현)
-}
-
-function onInput(e) {
-  if (!isComposing.value) {
-    search.value = e.target.value;
-  }
-}
-
-function onCompositionStart() {
-  isComposing.value = true;
-}
-
-function onCompositionUpdate(e) {
-  composingValue.value = e.target.value;
-}
-
-function onCompositionEnd(e) {
-  isComposing.value = false;
-  search.value = e.target.value;
-  composingValue.value = '';
 }
 </script>

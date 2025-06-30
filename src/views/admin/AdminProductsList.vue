@@ -29,22 +29,6 @@
             <option value="inactive">비활성</option>
           </select>
         </div>
-        <button class="btn-search-filter"
-          @click="searchProducts" 
-          :disabled="!isSearchActive" 
-          style="margin-left: 0.5rem;">
-          검색</button>
-        <div class="hide-mobile">
-          <button class="filter-reset-btn"
-            @click="resetFilters"
-            style="margin-left: 0.5rem; display: flex; align-items: center; gap: 0.2rem;">
-            <svg xmlns="http://www.w3.org/2000/svg"
-            width="20" height="20" viewBox="0 0 24 24"
-            style="vertical-align: middle; margin-right: 2px;">
-            <path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
-            초기화
-          </button>
-        </div>
       </div>
     </div>
 
@@ -166,11 +150,6 @@ const search = ref('');
 const reimbursement = ref('');
 const status = ref('');
 
-const appliedMonth = ref('');
-const appliedSearch = ref('');
-const appliedReimbursement = ref('');
-const appliedStatus = ref('');
-
 const products = ref([]);
 const loading = ref(false);
 const totalCount = ref(0);
@@ -196,7 +175,6 @@ const fetchMonthOptions = async () => {
     monthOptions.value = uniqueMonths;
     if (uniqueMonths.length > 0 && !currentMonth.value.value) {
       currentMonth.value.value = uniqueMonths[0];
-      appliedMonth.value = uniqueMonths[0];
     }
   }
 };
@@ -210,17 +188,20 @@ onActivated(async () => {
   await fetchProducts(first.value, pageSize.value);
 });
 
+let debounceTimer = null;
 watch(
-  () => currentMonth.value.value,
-  (newValue, oldValue) => {
-    if (newValue !== oldValue) {
+  [() => currentMonth.value.value, search, reimbursement, status],
+  () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      first.value = 0;
       fetchProducts(0, pageSize.value);
-    }
-  }
+    }, 300);
+  },
+  { deep: true }
 );
 
 const tableRef = ref(null);
-const scrollPosition = ref(0);
 
 const fetchProducts = async (pageFirst = 0, pageRows = 200) => {
   loading.value = true;
@@ -229,40 +210,34 @@ const fetchProducts = async (pageFirst = 0, pageRows = 200) => {
     .select('*', { count: 'exact' });
 
   // 기준월 필터
-  if (appliedMonth.value) {
-    query = query.eq('base_month', appliedMonth.value);
+  if (currentMonth.value.value) {
+    query = query.eq('base_month', currentMonth.value.value);
   }
   
   // 상태 필터
-  if (appliedStatus.value) {
-    query = query.eq('status', appliedStatus.value);
+  if (status.value) {
+    query = query.eq('status', status.value);
   }
 
   // 급여 필터
-  if (appliedReimbursement.value) {
-    query = query.eq('reimbursement', appliedReimbursement.value);
+  if (reimbursement.value) {
+    query = query.eq('reimbursement', reimbursement.value);
   }
 
   // 쉼표로 구분된 AND 조건 검색
-  if (appliedSearch.value) {
-    const searchTerms = appliedSearch.value.split(',').map(term => term.trim()).filter(term => term);
+  if (search.value) {
+    const searchTerms = search.value.split(',').map(term => term.trim()).filter(term => term);
     if (searchTerms.length > 0) {
       const orConditions = searchTerms.map(term => 
-        `pharmacist.ilike.%${term}%,product_name.ilike.%${term}%,insurance_code.ilike.%${term}%,Ingredient.ilike.%${term}%`
+        `or(pharmacist.ilike.%${term}%,product_name.ilike.%${term}%,insurance_code.ilike.%${term}%,Ingredient.ilike.%${term}%)`
       ).join(',');
-      
-      searchTerms.forEach(term => {
-        const orFilter = `or(pharmacist.ilike.%${term}%,product_name.ilike.%${term}%,insurance_code.ilike.%${term}%,Ingredient.ilike.%${term}%)`;
-        query = query.or(orFilter);
-      });
+      query = query.or(orConditions);
     }
   }
 
-  // 페이지네이션
-  query = query.range(pageFirst, pageFirst + pageRows - 1);
-
-  // 데이터 정렬 (옵션)
-  query = query.order('id', { ascending: false });
+  query = query.range(pageFirst, pageFirst + pageRows - 1)
+    .order('pharmacist', { ascending: true })
+    .order('product_name', { ascending: true });
 
   const { data, error, count } = await query;
 
@@ -288,35 +263,22 @@ const onPageChange = (event) => {
 };
 
 const isSearchActive = computed(() => {
-  const value = search.value.trim();
-  let searchValid = false;
-  if (/[가-힣]/.test(value)) {
-    searchValid = value.length >= 2;
-  } else if (value.length > 0) {
-    searchValid = value.length >= 3;
-  }
-  return (
-    searchValid ||
-    reimbursement.value !== appliedReimbursement.value ||
-    status.value !== appliedStatus.value ||
-    currentMonth.value.value !== appliedMonth.value
-  );
+  return true;
 });
 
 const searchProducts = () => {
-  appliedMonth.value = currentMonth.value.value;
-  appliedSearch.value = search.value;
-  appliedReimbursement.value = reimbursement.value;
-  appliedStatus.value = status.value;
-  fetchProducts(0, pageSize.value);
+  // `watch`가 모든 필터 변경을 감지하므로 이 함수는 더 이상 필요하지 않습니다.
+  // first.value = 0;
+  // fetchProducts(0, pageSize.value);
 };
 
-const resetFilters = async () => {
-  currentMonth.value.value = monthOptions.value[0] || '';
+const resetFilters = () => {
+  if (monthOptions.value.length > 0) {
+    currentMonth.value.value = monthOptions.value[0];
+  }
   search.value = '';
   reimbursement.value = '';
   status.value = '';
-  searchProducts();
 };
 
 const goToProductCreate = () => {
@@ -455,15 +417,15 @@ const deleteAllProducts = async () => {
   loading.value = true;
 
   let query = supabase.from('products').delete().eq('base_month', currentMonth.value.value);
-  if (appliedSearch.value) {
-    const keyword = appliedSearch.value.toLowerCase();
+  if (search.value) {
+    const keyword = search.value.toLowerCase();
     query = query.or(`pharmacist.ilike.%${keyword}%,product_name.ilike.%${keyword}%,insurance_code.ilike.%${keyword}%,Ingredient.ilike.%${keyword}%`);
   }
-  if (appliedReimbursement.value) {
-    query = query.eq('reimbursement', appliedReimbursement.value);
+  if (reimbursement.value) {
+    query = query.eq('reimbursement', reimbursement.value);
   }
-  if (appliedStatus.value) {
-    query = query.eq('status', appliedStatus.value);
+  if (status.value) {
+    query = query.eq('status', status.value);
   }
   const { error } = await query;
   loading.value = false;

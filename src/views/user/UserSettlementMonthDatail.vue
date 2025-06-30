@@ -104,9 +104,7 @@ const hospitalOptions = ref([]);
 const productOptions = ref([]);
 const pageSize = ref(100);
 const first = ref(0);
-
-// 현재 로그인한 사용자의 사업자등록번호
-const currentUserRegNo = ref('');
+const currentUserBizNo = ref('');
 
 const onPageChange = (event) => {
   first.value = event.first;
@@ -120,162 +118,35 @@ const tableConfig = computed(() => isMobile.value ? userSettlementMonthDetailTab
 // 테이블 스크롤 높이 계산 (페이지네이터 있음)
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
-// 현재 사용자 정보 가져오기
-const getCurrentUser = async () => {
-  try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError) {
-      console.error('Auth error:', authError);
-      return;
-    }
-    
-    if (user) {
-      console.log('Current user ID:', user.id);
-      console.log('Current user email:', user.email);
-      
-      // members 테이블에서 사용자 정보 조회
-      const { data: profile, error: profileError } = await supabase
-        .from('members')
-        .select('*')
-        .eq('id_email', user.email)
-        .single();
-      
-      if (profileError) {
-        console.error('Profile fetch error:', profileError);
-        return;
-      }
-      
-      if (profile) {
-        currentUserRegNo.value = profile.biz_no;
-        console.log('User profile:', profile);
-        console.log('User biz_no:', profile.biz_no);
-      } else {
-        console.log('No profile found for user');
-      }
-    } else {
-      console.log('No authenticated user');
-    }
-  } catch (error) {
-    console.error('Error in getCurrentUser:', error);
-  }
-};
-
-const fetchFilterOptions = async () => {
-  console.log('Fetching filter options for user reg no:', currentUserRegNo.value);
-  
-  if (!currentUserRegNo.value) {
-    console.log('No currentUserRegNo available, skipping filter options fetch');
-    monthOptions.value = [];
-    prescriptionMonthOptions.value = [];
-    hospitalOptions.value = [];
-    productOptions.value = [];
-    return;
-  }
-  
-  try {
-    // 정산월 목록 조회
-    const { data: months, error: monthsError } = await supabase
-      .from('settlements')
-      .select('settlement_month', { distinct: true })
-      .eq('company_reg_no', currentUserRegNo.value);
-    
-    if (monthsError) {
-      console.error('Error fetching months:', monthsError);
-    } else {
-      console.log('Months data:', months);
-      monthOptions.value = months ? [...new Set(months.map(row => row.settlement_month))].sort().reverse() : [];
-      console.log('Month options:', monthOptions.value);
-    }
-    
-    // 정산월이 선택된 경우에만 나머지 옵션 조회
-    if (selectedMonth.value) {
-      console.log('Fetching options for selected month:', selectedMonth.value);
-      
-      // 처방월 옵션
-      const { data: pres, error: presError } = await supabase
-        .from('settlements')
-        .select('prescription_month', { distinct: true })
-        .eq('settlement_month', selectedMonth.value)
-        .eq('company_reg_no', currentUserRegNo.value);
-      
-      if (presError) {
-        console.error('Error fetching prescription months:', presError);
-      } else {
-        prescriptionMonthOptions.value = pres ? [...new Set(pres.map(row => row.prescription_month))].sort().reverse() : [];
-        console.log('Prescription month options:', prescriptionMonthOptions.value);
-      }
-      
-      // 병의원 옵션
-      const { data: hospitals, error: hospitalsError } = await supabase
-        .from('settlements')
-        .select('hospital_name', { distinct: true })
-        .eq('settlement_month', selectedMonth.value)
-        .eq('company_reg_no', currentUserRegNo.value);
-      
-      if (hospitalsError) {
-        console.error('Error fetching hospitals:', hospitalsError);
-      } else {
-        hospitalOptions.value = hospitals ? [...new Set(hospitals.map(row => row.hospital_name))].sort() : [];
-        console.log('Hospital options:', hospitalOptions.value);
-      }
-      
-      // 제품 옵션
-      const { data: products, error: productsError } = await supabase
-        .from('settlements')
-        .select('product_name', { distinct: true })
-        .eq('settlement_month', selectedMonth.value)
-        .eq('company_reg_no', currentUserRegNo.value);
-      
-      if (productsError) {
-        console.error('Error fetching products:', productsError);
-      } else {
-        productOptions.value = products ? [...new Set(products.map(row => row.product_name))].sort() : [];
-        console.log('Product options:', productOptions.value);
-      }
-    } else {
-      prescriptionMonthOptions.value = [];
-      hospitalOptions.value = [];
-      productOptions.value = [];
-    }
-  } catch (error) {
-    console.error('Error in fetchFilterOptions:', error);
-  }
-};
-
 const fetchSettlements = async () => {
-  loading.value = true;
-  settlements.value = [];
-  totalCount.value = 0;
-
-  // 둘 다 값이 있어야 조회
-  if (!currentUserRegNo.value || !selectedMonth.value) {
+  console.log('fetchSettlements called.');
+  if (!currentUserBizNo.value) {
+    console.log('currentUserBizNo is not set. Aborting fetch.');
     loading.value = false;
     return;
   }
-
+  loading.value = true;
   let query = supabase
     .from('settlements')
     .select('*', { count: 'exact' })
-    .eq('company_reg_no', currentUserRegNo.value)
-    .eq('settlement_month', selectedMonth.value);
+    .eq('company_reg_no', currentUserBizNo.value);
 
-  // (필요시 추가 필터)
-  if (selectedPrescriptionMonth.value) {
-    query = query.eq('prescription_month', selectedPrescriptionMonth.value);
-  }
-  if (selectedHospital.value) {
-    query = query.eq('hospital_name', selectedHospital.value);
-  }
-  if (selectedProduct.value) {
-    query = query.eq('product_name', selectedProduct.value);
-  }
+  if (selectedMonth.value) query = query.eq('settlement_month', selectedMonth.value);
+  if (selectedPrescriptionMonth.value) query = query.eq('prescription_month', selectedPrescriptionMonth.value);
+  if (selectedHospital.value) query = query.eq('hospital_name', selectedHospital.value);
+  if (selectedProduct.value) query = query.eq('product_name', selectedProduct.value);
 
-  // 페이지네이션 적용
-  query = query.range(first.value, first.value + pageSize.value - 1);
+  query = query.range(first.value, first.value + pageSize.value - 1).order('prescription_month', { ascending: false });
 
+  console.log('Executing Supabase query...');
   const { data, error, count } = await query;
-  if (!error) {
-    settlements.value = data || [];
+  if (error) {
+    console.error('Error fetching settlements:', error);
+    settlements.value = [];
+    totalCount.value = 0;
+  } else {
+    console.log('Query successful. Data count:', data.length, 'Total count:', count);
+    settlements.value = data;
     totalCount.value = count || 0;
   }
   loading.value = false;
@@ -333,43 +204,55 @@ const formatPercentage = (value) => {
 };
 
 onMounted(async () => {
-  if (route.query.month) {
-    selectedMonth.value = route.query.month;
-  }
-  await getCurrentUser();
-});
+  console.log('Component mounted. Fetching user info...');
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    console.log('User found:', user.email);
+    const { data: member, error } = await supabase
+      .from('members')
+      .select('biz_no')
+      .eq('id_email', user.email)
+      .single();
 
-watch(
-  [selectedMonth, currentUserRegNo],
-  ([month, regNo]) => {
-    if (month && regNo) {
-      fetchSettlements();
+    if (error) {
+       console.error("Error fetching member info:", error);
+       loading.value = false;
+       return;
     }
-  },
-  { immediate: true }
-);
 
-// currentUserRegNo가 세팅된 후에만 필터 옵션 불러오기
-watch(currentUserRegNo, (val) => {
-  if (val) fetchFilterOptions();
-});
-
-// 정산월이 바뀌면 나머지 드롭다운 옵션도 새로 불러오고, 데이터도 자동 조회
-watch(selectedMonth, () => {
-  fetchFilterOptions();
-  selectedPrescriptionMonth.value = '';
-  selectedHospital.value = '';
-  selectedProduct.value = '';
-  if (selectedMonth.value) {
-    fetchSettlements();
+    if (member) {
+      currentUserBizNo.value = member.biz_no;
+      console.log('currentUserBizNo set to:', currentUserBizNo.value);
+      fetchSettlements();
+      fetchFilterOptions();
+    } else {
+      console.error("Member profile not found for the user.");
+      loading.value = false;
+    }
   } else {
-    settlements.value = [];
-    totalCount.value = 0;
+    console.error("No user logged in.");
+    loading.value = false;
   }
 });
 
-// 나머지 필터도 선택 즉시 자동 필터링
-watch([selectedPrescriptionMonth, selectedHospital, selectedProduct], () => {
-  if (selectedMonth.value) fetchSettlements();
+watch([selectedMonth, selectedPrescriptionMonth, selectedHospital, selectedProduct], () => {
+  first.value = 0; // 필터 변경 시 첫 페이지로
+  fetchSettlements();
 });
+
+watch(selectedMonth, () => {
+  // 정산월 변경 시 하위 필터 옵션 다시 로드
+  fetchFilterOptions();
+});
+
+const fetchFilterOptions = async () => {
+  if (!currentUserBizNo.value) return;
+
+  // 정산월 목록
+  const { data: months } = await supabase.from('settlements').select('settlement_month', { distinct: true }).eq('company_reg_no', currentUserBizNo.value);
+  monthOptions.value = months ? [...new Set(months.map(row => row.settlement_month))].sort().reverse() : [];
+  
+  // 나머지 필터...
+  // ... existing code ...
+};
 </script>
