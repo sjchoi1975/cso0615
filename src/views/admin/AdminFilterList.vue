@@ -3,38 +3,43 @@
     <!-- Filter Card -->
     <div class="filter-card">
       <div class="filter-row">
-        <span>업체</span>
-        <select v-model="selectedMember" class="input-180">
-          <option value="">- 전체 -</option>
-          <option v-for="member in memberOptions" :key="member.uid" :value="member.uid">{{ member.company_name }}</option>
-        </select>
-        <span>거래처</span>
-        <select v-model="selectedHospital" class="input-180">
-          <option value="">- 전체 -</option>
-          <option v-for="hospital in hospitalOptions" :key="hospital.id" :value="hospital.id">{{ hospital.hospital_name }}</option>
-        </select>
-        <span>제약사</span>
-        <select v-model="selectedPharma" class="input-180">
-          <option value="">- 전체 -</option>
-          <option v-for="pharma in pharmaOptions" :key="pharma.id" :value="pharma.id">{{ pharma.company_name }}</option>
-        </select>
-        <span>구분</span>
-        <select v-model="selectedFilterType" class="filter-dropdown">
-          <option value="">- 전체 -</option>
-          <option value="new">신규</option>
-          <option value="transfer">이관</option>
-        </select>
-        <span>상태</span>
-        <select v-model="selectedStatus" class="filter-dropdown">
-          <option value="">- 전체 -</option>
-          <option value="pending">대기</option>
-          <option value="approved">승인</option>
-          <option value="rejected">반려</option>
-        </select>
-        <button class="filter-reset-btn" @click="resetFilters" style="margin-left: 1rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 2px;"><path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
-            초기화
-        </button>
+        <span class="p-input-icon-left">
+          <input v-model="search" placeholder="업체명, 거래처명, 제약사명 검색" class="input-search wide-mobile-search" />
+        </span>
+        <div class="hide-mobile">
+          <span>업체</span>
+          <select v-model="selectedMember" class="input-180">
+            <option value="">- 전체 -</option>
+            <option v-for="member in memberOptions" :key="member.uid" :value="member.uid">{{ member.company_name }}</option>
+          </select>
+          <span>거래처</span>
+          <select v-model="selectedHospital" class="input-180">
+            <option value="">- 전체 -</option>
+            <option v-for="hospital in hospitalOptions" :key="hospital.id" :value="hospital.id">{{ hospital.hospital_name }}</option>
+          </select>
+          <span>제약사</span>
+          <select v-model="selectedPharma" class="input-180">
+            <option value="">- 전체 -</option>
+            <option v-for="pharma in pharmaOptions" :key="pharma.id" :value="pharma.id">{{ pharma.company_name }}</option>
+          </select>
+          <span>구분</span>
+          <select v-model="selectedFilterType" class="filter-dropdown">
+            <option value="">- 전체 -</option>
+            <option value="new">신규</option>
+            <option value="transfer">이관</option>
+          </select>
+          <span>상태</span>
+          <select v-model="selectedStatus" class="filter-dropdown">
+            <option value="">- 전체 -</option>
+            <option value="pending">대기</option>
+            <option value="approved">승인</option>
+            <option value="rejected">반려</option>
+          </select>
+          <button class="filter-reset-btn" @click="resetFilters" style="margin-left: 1rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 2px;"><path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
+              초기화
+          </button>
+        </div>
       </div>
     </div>
 
@@ -155,6 +160,8 @@ const first = ref(0);
 const totalCount = ref(0);
 const pageSize = ref(100);
 
+const search = ref('');
+
 // Filter states
 const selectedMember = ref('');
 const selectedHospital = ref('');
@@ -176,13 +183,13 @@ const selectedRequest = ref(null);
 
 // Fetch dropdown options
 const fetchDropdownOptions = async () => {
-  const { data: membersData } = await supabase.from('members').select('uid, company_name').eq('role', 'user').order('company_name');
+  const { data: membersData } = await supabase.rpc('get_distinct_request_members');
   if (membersData) memberOptions.value = membersData;
 
-  const { data: hospitalsData } = await supabase.from('hospitals').select('id, hospital_name').order('hospital_name');
+  const { data: hospitalsData } = await supabase.rpc('get_distinct_request_hospitals');
   if (hospitalsData) hospitalOptions.value = hospitalsData;
 
-  const { data: pharmaData } = await supabase.from('pharmaceutical_companies').select('id, company_name').order('company_name');
+  const { data: pharmaData } = await supabase.rpc('get_distinct_request_pharmas');
   if (pharmaData) pharmaOptions.value = pharmaData;
 };
 
@@ -192,6 +199,10 @@ const fetchRequests = async () => {
   let query = supabase
     .from('admin_filter_list_view')
     .select(`*`, { count: 'exact' });
+
+  if (search.value) {
+    query = query.or(`company_name.ilike.%${search.value}%,hospital_name.ilike.%${search.value}%,pharmaceutical_company_name.ilike.%${search.value}%`);
+  }
 
   if (selectedMember.value) query = query.eq('member_id', selectedMember.value);
   if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
@@ -219,7 +230,7 @@ onMounted(() => {
     fetchDropdownOptions();
 });
 
-watch([selectedMember, selectedHospital, selectedPharma, selectedStatus, selectedFilterType], () => {
+watch([search, selectedMember, selectedHospital, selectedPharma, selectedStatus, selectedFilterType], () => {
   first.value = 0;
   fetchRequests();
 });
@@ -292,6 +303,7 @@ const downloadExcel = () => {
 };
 
 const resetFilters = () => {
+  search.value = '';
   selectedMember.value = '';
   selectedHospital.value = '';
   selectedPharma.value = '';

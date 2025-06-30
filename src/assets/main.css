@@ -436,6 +436,8 @@ body.login-page .main-content.main-margin {
 }
 
 /* 필터 행 */
+
+
 .filter-row {
   display: flex !important;
   align-items: center !important;
@@ -495,14 +497,40 @@ body.login-page .main-content.main-margin {
 /* 모바일
 /* ========================================================================================================= */
 
-/* 모바일 필터 카드 스크롤 처리 */
-@media (max-width: 600px) {
-  .filter-card {
-    overflow-x: auto !important;
-    flex-wrap: nowrap !important;
-    white-space: nowrap !important;
+
+/* 모바일 필터 카드 검색창 가운데 정렬 */
+@media (max-width: 768px) {
+  .filter-row {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .wide-mobile-search {
+    width: 90vw !important;
+    min-width: 90vw !important;
+    box-sizing: border-box !important;
+    padding: 0.8rem 0.5rem !important;
+    margin: 0 !important;
   }
 }
+
+/* 1. 기본 스타일: 모든 화면에서 필터를 가로로 정렬 */
+.hide-mobile,
+.filter-hide-mobile {
+  display: flex !important;
+  flex-direction: row;
+  gap: 1rem !important;
+  align-items: center !important;
+}
+
+/* 2. 모바일 스타일: 768px 이하 화면에서만 필터를 숨김 */
+@media (max-width: 768px) {
+  .hide-mobile,
+  .filter-hide-mobile {
+    display: none !important;
+  }
+}
+
+
 
 /* ????????????????????????????????????????????????????????????????????? */
 @media (max-width: 600px) {
@@ -519,36 +547,6 @@ body.login-page .main-content.main-margin {
     border-radius: 0 !important;
     border-left: none !important;
     border-right: none !important;
-  }
-}
-
-/* <input class="input-search wide-mobile-search"> 추가 */
-@media (max-width: 600px) {
-  .wide-mobile-search {
-    width: 93vw !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    padding: 0.8rem 0.5rem !important;
-    margin: 0 !important;
-  }
-}
-
-/* <div class="filter-card search-center-card"> 추가 */
-@media (max-width: 600px) {
-  .mobile-search-center-card {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-}
-
-@media (max-width: 600px) {
-  .hide-mobile,
-  .filter-hide-mobile {
-    display: none !important;
-    flex-direction: row;
-    gap: 1rem !important;
-    align-items: center !important;
   }
 }
 
@@ -701,14 +699,6 @@ body.login-page .main-content.main-margin {
 .input-180 { width: 180px !important; }
 .input-240 { width: 240px !important; }
 .input-search { width: var(--input-search-width) !important; }
-
-@media (max-width: 768px) {
-  .input-search {
-    width: 240px !important;
-  }
-}
-
-
 
 
 

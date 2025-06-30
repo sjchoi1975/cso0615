@@ -213,12 +213,12 @@ button:focus,
 
 
 /* 필터 카드 검색 */
-/*
+
 .btn-search-filter {
   font-size: var(--font-size-base) !important;
   padding: 0.5rem 1.0rem !important;
   border: 1px solid var(--primary) !important;
-  border-radius: 0 2px 2px 0 !important;
+  border-radius: 2px !important;
   background: var(--primary) !important;
   color: var(--text-white) !important;
   transition: border 0.2s !important;
@@ -226,22 +226,20 @@ button:focus,
   box-sizing: border-box !important;
   line-height: 1.15 !important;
 }
-
-@media (max-width: 768px) {
-  .btn-search-filter {
-    padding: 0.65rem 1rem !important;
-  }
-}
-
-
 .btn-search-filter:disabled {
-  background: #e0e0e0 !important;
-  color: #aaa !important;
+  background: var(--primary-light) !important;
+  color: var(--gray-700) !important;
   border: 1px solid var(--border-primary) !important;
   cursor: not-allowed !important;
 }
 
-
+@media (max-width: 768px) {
+  .btn-search-filter {
+    margin-left: -1rem !important;
+    padding: 0.65rem 1.0rem !important;
+    border-left: none !important;
+  }
+}
 
 /* 로그인 */
 /*

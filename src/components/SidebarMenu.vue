@@ -1,8 +1,6 @@
 <template>
   <div 
     class="sidebar-container" 
-    @mouseenter="!isMobile && $emit('sidebar-hover', true)"
-    @mouseleave="!isMobile && $emit('sidebar-hover', false)"
   >
     <aside
       class="sidebar"
@@ -29,8 +27,6 @@
         </div>
       </nav>
     </aside>
-    <!-- 오버레이: 사이드바 오른쪽에만 표시 -->
-    <div v-if="visible && isMobile" class="sidebar-overlay" @click="$emit('toggle')"></div>
   </div>
 </template>
 
@@ -49,7 +45,7 @@ const props = defineProps({
     default: () => ({})
   }
 });
-const emit = defineEmits(['toggle', 'menu-click', 'sidebar-hover']);
+const emit = defineEmits(['toggle', 'menu-click']);
 
 const route = useRoute();
 
@@ -216,17 +212,6 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
   display: none;
 }
 
-.sidebar-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background: rgba(0,0,0,0.2) !important;
-  z-index: 1999 !important;
-}
-
-
 /* ========================================================================================================= */
 /* 모바일 스타일 (900px 이하) */
 /* ========================================================================================================= */
@@ -277,16 +262,5 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
       font-weight: bold;
       color: var(--primary-blue);
   }
-
-  .sidebar-overlay {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    background-color: rgba(0, 0, 0, 0.4) !important;
-    z-index: 1029 !important; /* 사이드바(1030)보다 낮게 설정 */
-  }
-
 }
 </style>

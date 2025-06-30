@@ -1,9 +1,9 @@
 <template>
   <div class="admin-edi-months-view page-container">
     <!-- 상단: 필터 -->
-    <div class="filter-card search-center-card">
+    <div class="filter-card">
       <div class="filter-row">
-        <span>정산월</span>
+        <span >정산월</span>
         <select v-model="selectedFilterMonth" class="input-120">
           <option value="">- 전체 -</option>
           <option v-for="m in filterMonthOptions" :key="m" :value="m">

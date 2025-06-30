@@ -185,4 +185,44 @@ CREATE POLICY "사용자는 자신의 회사 EDI 파일 삭제" ON edi_files
       WHERE c.id = edi_files.company_id 
       AND c.user_id = auth.uid()
     )
-  ); 
+  );
+
+-- Filtering requests distinct options functions
+CREATE OR REPLACE FUNCTION get_distinct_request_members()
+RETURNS TABLE(uid uuid, company_name text) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT DISTINCT m.uid, m.company_name
+  FROM filtering_requests fr
+  JOIN members m ON fr.member_id = m.uid
+  ORDER BY m.company_name;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_distinct_request_hospitals()
+RETURNS TABLE(id int, hospital_name text) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT DISTINCT h.id, h.hospital_name
+  FROM filtering_requests fr
+  JOIN hospitals h ON fr.hospital_id = h.id
+  ORDER BY h.hospital_name;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_distinct_request_pharmas()
+RETURNS TABLE(id int, company_name text) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT DISTINCT pc.id, pc.company_name
+  FROM filtering_requests fr
+  JOIN pharmaceutical_companies pc ON fr.pharmaceutical_company_id = pc.id
+  ORDER BY pc.company_name;
+END;
+$$ LANGUAGE plpgsql;
+
+COMMIT;
+
+--
+-- PostgreSQL database dump complete
+-- 

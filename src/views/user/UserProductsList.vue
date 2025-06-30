@@ -2,7 +2,8 @@
   <div class="admin-products-view page-container">
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
-      <div class="filter-row flex-row">
+      <div class="filter-row">
+        <div>
         <span class="p-input-icon-left">
           <input
             :value="search"
@@ -11,7 +12,7 @@
             @compositionupdate="onCompositionUpdate"
             @compositionend="onCompositionEnd"
             @keyup.enter="searchProducts"
-            class="input-search"
+            class="input-search wide-mobile-search"
             style="border-radius: 2px 0 0 2px !important; border-right: none !important;"
             placeholder="제약사, 제품명, 보험코드, 성분명 검색"
           />
@@ -31,6 +32,7 @@
           <path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
           초기화
         </button>
+        </div>
       </div>
     </div>
 

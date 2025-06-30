@@ -207,7 +207,7 @@ export const filterRequestsTableConfig = {
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'request_date', label: '요청일시', width: '8%', align: 'center', sortable: false },
-      { field: 'member_name', label: '회원명', width: '12%', align: 'left', sortable: false },
+      { field: 'member_name', label: '업체명', width: '12%', align: 'left', sortable: false },
       { field: 'filter_type', label: '구분', width: '6%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처명', width: '12%', align: 'left', sortable: false },
       { field: 'pharmaceutical_company_name', label: '제약사', width: '10%', align: 'left', sortable: false },
@@ -228,7 +228,7 @@ export const filterRequestsTableConfig = {
     columns: [
       { field: 'index', label: '순번', width: '5%', align: 'center', sortable: false },
       { field: 'request_date', label: '요청일시', width: '14%', align: 'center', sortable: false },
-      { field: 'member_name', label: '회원명', width: '12%', align: 'left', sortable: false },
+      { field: 'member_name', label: '업체명', width: '12%', align: 'left', sortable: false },
       { field: 'filter_type', label: '구분', width: '5%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처명', width: '16%', align: 'left', sortable: false },
       { field: 'pharmaceutical_company_name', label: '제약사', width: '10%', align: 'left', sortable: false },
@@ -495,7 +495,7 @@ export const userHospitalsTableConfig = {
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처명', width: '20%', align: 'left', sortable: true },
-      { field: 'business_registration_number', label: '사업자번호', width: '8%', align: 'center', sortable: true },
+      { field: 'business_registration_number', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
       { field: 'director_name', label: '원장명', width: '8%', align: 'center', sortable: true },
       { field: 'address', label: '주소', width: '28%', align: 'left', sortable: true },
       { field: 'license', label: '사업자등록증', width: '8%', align: 'center', type: 'icon', icon: 'pi-file' },
@@ -518,7 +518,7 @@ export const userHospitalsTableConfig = {
     columns: [
       /*{ field: 'index', label: '순번', width: '5%', align: 'center', sortable: false },*/
       { field: 'hospital_name', label: '거래처명', width: '20%', align: 'left', sortable: true },
-      /*{ field: 'business_registration_number', label: '사업자번호', width: '10%', align: 'center', sortable: true },
+      /*{ field: 'business_registration_number', label: '사업자등록번호', width: '10%', align: 'center', sortable: true },
       { field: 'director_name', label: '원장명', width: '8%', align: 'center', sortable: true },*/
       { field: 'address', label: '주소', width: '16%', align: 'left', sortable: true },
       { field: 'license', label: '등록증', width: '7%', align: 'center', type: 'icon', icon: 'pi-file' },
@@ -578,9 +578,9 @@ export const userEdiSubmitTableConfig = {
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', type: 'index' },
       { field: 'hospital_name', label: '거래처명', width: '16%', align: 'left', sortable: true },
-      { field: 'business_registration_number', label: '사업자등록번호', width: '12%', align: 'center', sortable: false },
-      { field: 'director_name', label: '원장명', width: '8%', align: 'center', sortable: false },
-      { field: 'address', label: '주소', width: '30%', align: 'left', sortable: false },
+      { field: 'business_registration_number', label: '사업자등록번호', width: '12%', align: 'center', sortable: true },
+      { field: 'director_name', label: '원장명', width: '8%', align: 'center', sortable: true },
+      { field: 'address', label: '주소', width: '30%', align: 'left', sortable: true },
       { field: 'last_month_files', label: '전월 제출 파일', width: '10%', align: 'center', sortable: false },
       { field: 'current_month_files', label: '당월 제출 파일', width: '10%', align: 'center', sortable: false },
       { field: 'submit_button', label: '제출하기', width: '10%', align: 'center', type: 'button', icon: 'pi pi-upload' }
@@ -599,7 +599,7 @@ export const userEdiSubmitTableConfig = {
       { field: 'hospital_name', label: '거래처명', width: '20%', align: 'left', sortable: true },
       /*{ field: 'business_registration_number', label: '사업자등록번호', width: '12%', align: 'center', sortable: false },
       { field: 'director_name', label: '원장명', width: '8%', align: 'center', sortable: false },*/
-      { field: 'address', label: '주소', width: '16%', align: 'left', sortable: false },
+      { field: 'address', label: '주소', width: '16%', align: 'left', sortable: true },
       { field: 'last_month_files', label: '전월', width: '8%', align: 'center', sortable: false },
       { field: 'current_month_files', label: '당월', width: '8%', align: 'center', sortable: false },
       { field: 'submit_button', label: '제출', width: '8%', align: 'center', type: 'button', icon: 'pi pi-upload' }

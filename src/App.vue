@@ -16,7 +16,6 @@ const sidebarVisible = ref(false)
 const userInfo = ref(null)
 const route = useRoute()
 const router = useRouter()
-const isSidebarHovered = ref(false);
 const isMobile = ref(false);
 
 // 로그인 후 userInfo를 세팅하는 예시(실제 구현에서는 로그인 성공 시 setUserInfo 호출)
@@ -170,6 +169,19 @@ function handleMenuClick() {
   if (window.innerWidth <= 900) sidebarVisible.value = false
 }
 
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 900;
+};
+
+onMounted(() => {
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile);
+});
+
 // 로그인/회원가입 화면일 때 body에 login-page 클래스 추가
 watch(
   () => route.path,
@@ -211,19 +223,9 @@ watch(
   { immediate: true }
 );
 
-const handleSidebarHover = (hovered) => {
-  isSidebarHovered.value = hovered;
-};
-
-if (typeof window !== 'undefined') {
-  const checkMobile = () => {
-    isMobile.value = window.innerWidth <= 900;
-  };
-  checkMobile();
-  window.addEventListener('resize', checkMobile);
+function toggleMobileSidebar() {
+  sidebarVisible.value = !sidebarVisible.value;
 }
-
-console.log('showSidebar', showSidebar.value, 'showBack', showBack.value, 'hideMenuToggle', hideMenuToggle.value);
 </script>
 
 <template>
@@ -235,10 +237,13 @@ console.log('showSidebar', showSidebar.value, 'showBack', showBack.value, 'hideM
       :visible="sidebarVisible"
       :user-info="userInfo"
       @menu-click="handleMenuClick"
-      @sidebar-hover="handleSidebarHover"
       @toggle="sidebarVisible = false"
     />
-    <div v-if="isSidebarHovered" class="content-overlay"></div>
+    <div 
+      v-if="sidebarVisible && isMobile" 
+      class="content-overlay" 
+      @click="toggleMobileSidebar">
+    </div>
     <TopbarMenu
       v-if="!isLoginOrSignup"
       :menu-name="menuName"
@@ -248,7 +253,7 @@ console.log('showSidebar', showSidebar.value, 'showBack', showBack.value, 'hideM
       :show-back="showBack"
       @logout="handleLogout"
       @profile="handleProfile"
-      @toggle-sidebar="sidebarVisible = !sidebarVisible"
+      @toggle-sidebar="toggleMobileSidebar"
     />
     <div class="main-content main-margin" :class="{ 'no-sidebar': !showSidebar }">
       <RouterView />
@@ -261,16 +266,9 @@ console.log('showSidebar', showSidebar.value, 'showBack', showBack.value, 'hideM
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.2);
-  z-index: 800; /* 사이드바(900)보다는 낮고, 콘텐츠보다는 높게 */
-  display: none; /* 모바일에서는 보이지 않음 */
-}
-
-@media (min-width: 901px) {
-  .content-overlay {
-    display: block; /* PC에서만 보임 */
-  }
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1999; /* 모바일 사이드바(2000) 바로 아래 */
 }
 </style>

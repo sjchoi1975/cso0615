@@ -4,41 +4,47 @@
     <!-- 모바일 필터 카드 스크롤 처리 -->
     <div class="filter-card">
       <div class="filter-row">
-        <span>기준월</span>
-        <select v-model="currentMonth.value" class="input-120">
-          <option v-for="m in monthOptions" :key="m" :value="m">
-            {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
-          </option>
-        </select>
+        <div class="hide-mobile">
+          <span>기준월</span>
+          <select v-model="currentMonth.value" class="input-120">
+            <option v-for="m in monthOptions" :key="m" :value="m">
+              {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
+            </option>
+          </select>
+        </div>
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 검색" class="input-search" />
         </span>
-        <span>급여</span>
-        <select v-model="reimbursement" class="input-100">
-          <option value="">- 전체 -</option>
-          <option value="급여">급여</option>
-          <option value="비급여">비급여</option>
-        </select>
-        <span>상태</span>
-        <select v-model="status" class="input-100">
-          <option value="">- 전체 -</option>
-          <option value="active">활성</option>
-          <option value="inactive">비활성</option>
-        </select>
+        <div class="hide-mobile">
+          <span>급여</span>
+          <select v-model="reimbursement" class="input-100">
+            <option value="">- 전체 -</option>
+            <option value="급여">급여</option>
+            <option value="비급여">비급여</option>
+          </select>
+          <span>상태</span>
+          <select v-model="status" class="input-100">
+            <option value="">- 전체 -</option>
+            <option value="active">활성</option>
+            <option value="inactive">비활성</option>
+          </select>
+        </div>
         <button class="btn-search-filter"
           @click="searchProducts" 
           :disabled="!isSearchActive" 
-          style="margin-left: 2rem; 
-          margin: 0rem">검색</button>
-        <button class="filter-reset-btn"
-          @click="resetFilters"
-          style="margin-left: 0.5rem; display: flex; align-items: center; gap: 0.2rem;">
-          <svg xmlns="http://www.w3.org/2000/svg"
-          width="20" height="20" viewBox="0 0 24 24"
-          style="vertical-align: middle; margin-right: 2px;">
-          <path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
-          초기화
-        </button>
+          style="margin-left: 0.5rem;">
+          검색</button>
+        <div class="hide-mobile">
+          <button class="filter-reset-btn"
+            @click="resetFilters"
+            style="margin-left: 0.5rem; display: flex; align-items: center; gap: 0.2rem;">
+            <svg xmlns="http://www.w3.org/2000/svg"
+            width="20" height="20" viewBox="0 0 24 24"
+            style="vertical-align: middle; margin-right: 2px;">
+            <path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
+            초기화
+          </button>
+        </div>
       </div>
     </div>
 

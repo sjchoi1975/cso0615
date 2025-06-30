@@ -6,6 +6,7 @@
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="아이디, 회사명, 사업자등록번호, 대표자명 검색" class="input-search wide-mobile-search" />
         </span>
+        <div class="hide-mobile">
           <span>인증</span>
           <select v-model="approval" class="input-120">
             <option value="">- 전체 -</option>
@@ -25,6 +26,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 2px;"><path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5H5a7 7 0 0 0 7 7a7 7 0 0 0 7-7c0-3.87-3.13-7-7-7z"/></svg>
             초기화
           </button>
+        </div>
       </div>
     </div>
 
