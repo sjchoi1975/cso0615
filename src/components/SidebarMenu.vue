@@ -52,23 +52,23 @@ const route = useRoute();
 const adminMenu = [
   { label: '공지사항 관리', icon: ['fas', 'bullhorn'], to: '/admin/notice/list' },
   { label: '회원 목록', icon: ['fas', 'users'], to: '/admin/members/list' },
-  { label: '수수료율 관리', icon: ['fas', 'box-archive'], to: '/admin/products/list' },
+  { label: '수수료율 관리', icon: ['fas', 'pills'], to: '/admin/products/list' },
   { label: '거래처 목록', icon: ['far', 'hospital'], to: '/admin/hospitals/list' },
   { label: '필터링 요청', icon: ['fas', 'filter'], to: '/admin/filter/list' },
   { label: '제약사 관리', icon: ['far', 'building'], to: '/admin/pharmaceutical-companies' },
   { label: '마감 일정 관리', icon: ['far', 'calendar-days'], to: '/admin/edi/months' },
   { label: 'EDI 증빙 파일', icon: ['far', 'file-lines'], to: '/admin/edi/list' },
-  { label: '정산내역서', icon: ['fas', 'wallet'], to: '/admin/settlement/month' },
+  { label: '정산내역서', icon: ['fas', 'credit-card'], to: '/admin/settlement/month' },
 ];
 const userMenu = [
   { label: '공지사항', icon: ['fas', 'bullhorn'], to: '/notice/list' },
-  { label: '수수료율', icon: ['fas', 'list'], to: '/products/list' },
+  { label: '수수료율', icon: ['fas', 'pills'], to: '/products/list' },
   { label: '거래처', icon: ['far', 'hospital'], to: '/hospitals/list' },
   { label: '필터링 요청', icon: ['fas', 'filter'], to: '/filter/create' },
   { label: '필터링 내역', icon: ['fas', 'list-check'], to: '/filter/list' },
   { label: 'EDI 제출', icon: ['fas', 'upload'], to: '/edi/submit' },
   /*{ label: '제출 내역', icon: ['far', 'file-lines'], to: '/edi/list' },*/
-  { label: '정산내역서', icon: ['fas', 'wallet'], to: '/settlement/month' },
+  { label: '정산내역서', icon: ['fas', 'credit-card'], to: '/settlement/month' },
 ];
 const menuItems = computed(() => props.userInfo?.role === 'admin' ? adminMenu : userMenu);
 
@@ -234,6 +234,13 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
     color: #fff;
     font-weight: 500;
   }
+  .menu-item {
+    font-size: var(--font-size-120);
+  }
+  .menu-icon-fa {
+    font-size: var(--font-size-120);
+  }
+
 
   /* 데스크탑 hover 기능 비활성화 */
   .sidebar:hover {

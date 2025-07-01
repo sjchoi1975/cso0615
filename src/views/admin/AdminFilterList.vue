@@ -43,7 +43,7 @@
     <div class="function-card">
       <div class="total-count">총 {{ totalCount.toLocaleString() }}건의 요청</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-excell-download" @click="downloadExcel">엑셀 다운</button>
+        <button class="btn-add" @click="downloadExcel">다운로드</button>
       </div>
     </div>
 

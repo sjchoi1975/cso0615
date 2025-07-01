@@ -431,8 +431,8 @@ body.login-page .main-content.main-margin {
 
 .filter-card {
   padding: 0 1rem !important;
-  border-bottom: 1px solid var(--gray-500) !important;
-  background:var(--primary-lightest) !important; /* 작업 구분용 */
+  border-bottom: 1px solid var(--gray-400) !important;
+  background:var(--gray-100) !important; /* 작업 구분용 */
 }
 
 /* 필터 행 */
@@ -1094,7 +1094,7 @@ body.modal-open {
 }
 
 .p-datatable .p-datatable-thead > tr > th {
-  background: var(--primary-lightest) !important;
+  background: var(--gray-100) !important;
   color: #222 !important;
   font-weight: 500 !important;
   border-bottom: 1px solid var(--border-secondary) !important;
@@ -1104,7 +1104,7 @@ body.modal-open {
 }
 
 .p-datatable .p-datatable-thead > tr > th:hover {
-  background: var(--primary-light) !important;
+  background: var(--gray-100) !important;
   cursor: pointer !important;
 }
 
@@ -1129,7 +1129,7 @@ body.modal-open {
 
 /* 헤더 하단 테이블 선 명확하게 */
 .p-datatable .p-datatable-thead > tr > th {
-  border-bottom: 1px solid var(--border-primary) !important;
+  border-bottom: 1px solid var(--gray-600) !important;
   color: #222 !important;
   font-weight: 500 !important;
   padding: 0.4rem 0.5rem !important;
@@ -1389,9 +1389,10 @@ button.p-paginator-page:hover {
 /* -- Status Select Box Styles -- */
 .status-select {
     border: 1px solid #d1d5db !important; /* gray-300 */
-    border-radius: 2px !important;
-    padding: 0.25rem 0.5rem !important;
-    font-weight: 500 !important;
+    border-radius: 4px !important;
+    padding: 0.25rem 0.35rem !important;
+    font-size: var(--font-size-90) !important;
+    font-weight: 400 !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
     appearance: none !important;
@@ -1420,6 +1421,13 @@ button.p-paginator-page:hover {
     background-color: #fef2f2 !important; /* red-50 */
     color: #b91c1c !important; /* red-700 */
     border-color: #f87171 !important; /* red-400 */
+}
+
+/* Disabled status select - hide dropdown arrow */
+.status-select:disabled {
+    background-image: none !important;
+    padding-right: 0.35rem !important; /* 화살표 공간 제거 */
+    cursor: default !important;
 }
 
 

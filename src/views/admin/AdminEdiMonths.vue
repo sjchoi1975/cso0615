@@ -16,7 +16,7 @@
     <!-- 중간: 기능 버튼 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalRecords }}건</div>
-      <Button label="신규 등록" icon="pi pi-plus" class="btn-add" @click="openModal(null)" />
+      <Button label="신규 등록" class="btn-add" @click="openModal(null)" />
     </div>
 
     <!-- 하단: 데이터 테이블 -->

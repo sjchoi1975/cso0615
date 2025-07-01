@@ -38,7 +38,7 @@
     <div class="function-card custom-auto-height">
       <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}건의 요청</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-excell-download" @click="downloadExcel">엑셀 다운</button>
+        <button class="btn-add" @click="downloadExcel">다운로드</button>
       </div>
     </div>
 
@@ -70,9 +70,11 @@
                 {{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}
               </template>
               <template v-else-if="col.field === 'status'">
-                <span :class="['status-badge', `status-badge-${slotProps.data.status}`]">
-                  {{ slotProps.data.status === 'pending' ? '대기' : slotProps.data.status === 'approved' ? '승인' : '반려' }}
-                </span>
+                <select disabled :class="['status-select', `status-select-${slotProps.data.status}`]">
+                  <option value="pending" :selected="slotProps.data.status === 'pending'">대기</option>
+                  <option value="approved" :selected="slotProps.data.status === 'approved'">승인</option>
+                  <option value="rejected" :selected="slotProps.data.status === 'rejected'">반려</option>
+                </select>
               </template>
               <template v-else-if="col.field === 'admin_comments'">
                 <span class="link" @click="openContentModal('전달사항', slotProps.data.admin_comments)">

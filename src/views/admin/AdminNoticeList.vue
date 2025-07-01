@@ -13,7 +13,7 @@
     <!-- 중간: 기능카드 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalCount }}건</div>
-      <router-link to="/admin/notices/create" class="btn-add">공지 작성</router-link>
+      <router-link to="/admin/notices/create" class="btn-add">산규 등록</router-link>
     </div>
 
     

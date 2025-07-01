@@ -13,7 +13,7 @@
     <div class="function-card custom-auto-height">
       <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}개 거래처</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-add" @click="downloadExcel">엑셀 다운로드</button>
+        <button class="btn-add" @click="downloadExcel">다운로드</button>
         <button class="btn-add" @click="goToCreatePage">거래처 등록</button>
       </div>
     </div>
@@ -99,28 +99,6 @@
       </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="custom-modal-overlay">
-      <div class="custom-modal">
-        <div class="modal-header">
-          <h3 class="modal-title">거래처 연결 해제</h3>
-          <button class="btn-close" @click="closeDeleteModal">×</button>
-        </div>
-        <div class="modal-body">
-          <p>
-            <strong>'{{ hospitalToDelete?.hospital_name }}'</strong> 거래처와의 연결을 해제하시겠습니까?<br>
-            (거래처 데이터는 삭제되지 않습니다.)
-          </p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="closeDeleteModal">취소</button>
-          <button class="btn-danger" @click="deleteMapping" :disabled="loading">
-            {{ loading ? '해제 중...' : '연결 해제' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -151,9 +129,7 @@ const appliedSearch = ref('');
 const currentFilePath = ref(null);
 
 // Modal state
-const showDeleteModal = ref(false);
 const showFileModal = ref(false);
-const hospitalToDelete = ref(null);
 const fileUrl = ref('');
 const currentHospital = ref(null);
 
@@ -367,38 +343,45 @@ const downloadExcel = async () => {
     }
 };
 
-// 삭제 확인 모달 열기
 const confirmDeleteMapping = (hospital) => {
-  hospitalToDelete.value = hospital;
-  showDeleteModal.value = true;
+  if (window.confirm(`'${hospital.hospital_name}' 거래처를 삭제하시겠습니까?`)) {
+    deleteMapping(hospital);
+  }
 };
 
-// 삭제 모달 닫기
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-  hospitalToDelete.value = null;
-};
-
-// 매핑 삭제
-const deleteMapping = async () => {
-  if (!hospitalToDelete.value) return;
+const deleteMapping = async (hospital) => {
   loading.value = true;
   try {
-    const { error } = await supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not found");
+
+    // Get the mapping ID
+    const { data: mappingData, error: mappingError } = await supabase
+      .from('hospital_member_mappings')
+      .select('id')
+      .eq('hospital_id', hospital.id)
+      .eq('member_id', user.id)
+      .single();
+
+    if (mappingError || !mappingData) {
+        throw new Error('해당 거래처와의 연결 정보를 찾을 수 없습니다.');
+    }
+    
+    // Delete the mapping
+    const { error: deleteError } = await supabase
       .from('hospital_member_mappings')
       .delete()
-      .eq('id', hospitalToDelete.value.mapping_id);
-    
-    if (error) throw error;
-    
-    alert('거래처 연결이 해제되었습니다.');
-    fetchHospitals();
+      .eq('id', mappingData.id);
+      
+    if (deleteError) throw deleteError;
 
+    alert('거래처가 삭제되었습니다.');
+    await fetchHospitals(first.value, pageSize.value); // Refresh the list
   } catch (error) {
-    alert('연결 해제 중 오류가 발생했습니다: ' + error.message);
+    console.error('Error deleting hospital mapping:', error.message);
+    alert('거래처 연결 해제 중 오류가 발생했습니다: ' + error.message);
   } finally {
     loading.value = false;
-    closeDeleteModal();
   }
 };
 

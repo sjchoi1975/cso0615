@@ -13,13 +13,13 @@
     <div class="function-card">
       <div class="total-count">총 {{ totalCount.toLocaleString() }}개 거래처</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-add" @click="downloadExcel">엑셀 다운</button>
+        <button class="btn-add" @click="downloadExcel">다운로드</button>
         <button class="btn-add" @click="downloadTemplate">템플릿</button>
         <label class="btn-add" style="margin-bottom:0; cursor:pointer;">
           엑셀 등록
           <input type="file" accept=".xlsx,.xls" @change="uploadExcel" style="display:none;" />
         </label>
-        <button class="btn-add" @click="goToCreatePage">거래처 등록</button>
+        <button class="btn-add" @click="goToCreatePage">신규 등록</button>
         <button class="btn-danger" @click="deleteAllHospitals">전체 삭제</button>
       </div>
     </div>
