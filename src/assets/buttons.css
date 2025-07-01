@@ -22,17 +22,14 @@
   background: var(--primary) !important;
   color: var(--text-white) !important;
 }
-
 .login-btn {
   background: var(--primary) !important;
   color: var(--text-white) !important;
 }
-
 .signup-btn {
   background: var(--primary) !important;
   color: var(--text-white) !important;
 }
-
 .cancel-btn {
   background: var(--gray-400) !important;
   color: var(--text-dark) !important;
@@ -45,8 +42,6 @@
   border: 1px solid var(--border-secondary) !important;
 }
 */
-
-
 
 
 

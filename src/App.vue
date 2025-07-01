@@ -126,14 +126,15 @@ const menuNameMap = {
   '/admin/edi/list': 'EDI 증빙 파일',
   '/admin/settlement/month': '정산내역서',
   '/notice/list': '공지사항',
+  '/notice/detail': '공지사항 상세',  
   '/products/list': '수수료율',
   '/hospitals/list': '거래처',
   '/filter/create': '필터링 요청',
   '/filter/list': '필터링 내역',
   '/edi/submit': 'EDI 제출',
-  /*'/edi/list': '제출 내역',*/
-  '/settlement/list': '정산내역서',
-  };
+  '/settlement/month': '정산내역서',
+  
+   };
   const path = route.path;
   const params = route.params;
   if (path.startsWith('/admin/settlement/month/') && params.year_month) {
@@ -204,7 +205,7 @@ watch(
       '/admin/products/create',
       '/admin/products/edit/',
       '/filter/create',
-      '/edi/files/'
+      '/edi/submit/'
     ];
     
     // 동적 라우트를 포함한 페이지 체크

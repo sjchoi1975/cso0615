@@ -19,44 +19,52 @@
 
     <!-- 테이블카드 -->
     <div class="table-card user-settlement-month">
-      <DataTable
-        :value="filteredMonthList"
-        :loading="loading"
-        :paginator="false"
-        scrollable
-        :scrollHeight="tableScrollHeight"
-        :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
-      >
-        <template #empty>
-          <div v-if="!loading">조회된 데이터가 없습니다.</div>
-        </template>
-        <Column
-          v-for="col in tableConfig.columns"
-          :key="col.field"
-          :field="col.field"
-          :header="col.label"
-          :sortable="col.sortable || false"
-          :style="{ width: col.width, textAlign: col.align }"
-          :bodyStyle="{ textAlign: col.align }"
+      <div :style="isMobile ? tableConfig.tableStyle : {}">
+        <DataTable
+          :value="filteredMonthList"
+          :loading="loading"
+          :paginator="false"
+          scrollable
+          scrollDirection="both"
+          :scrollHeight="tableScrollHeight"
+          :style="{ width: tableConfig.tableWidth, minWidth: isMobile ? tableConfig.tableStyle.minWidth : '100%' }"
         >
-          <template #body="slotProps">
-            <template v-if="col.field === 'index'">
-              {{ slotProps.index + 1 }}
-            </template>
-            <template v-else-if="col.type === 'icon' && col.field === 'detail'">
-              <button class="p-button p-button-text p-button-rounded icon-only-btn" @click="goDetail(slotProps.data)" v-tooltip.top="'상세보기'">
-                <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
-              </button>
-            </template>
-            <template v-else-if="col.field === 'total_amount'">
-              {{ slotProps.data.total_amount?.toLocaleString() }}
-            </template>
-            <template v-else>
-              {{ slotProps.data[col.field] }}
-            </template>
+          <template #empty>
+            <div v-if="!loading">조회된 데이터가 없습니다.</div>
           </template>
-        </Column>
-      </DataTable>
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ slotProps.index + 1 }}
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'detail'">
+                <button class="p-button p-button-text p-button-rounded icon-only-btn" @click="goDetail(slotProps.data)" v-tooltip.top="'상세보기'">
+                  <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
+                </button>
+              </template>
+              <template v-else-if="col.field === 'note' && slotProps.data.note">
+                <a href="#" @click.prevent="openNotePopup(slotProps.data)" class="note-link">
+                  {{ slotProps.data.note }}
+                </a>
+              </template>
+              <template v-else-if="col.format === 'currency'">
+                {{ slotProps.data[col.field]?.toLocaleString() }}
+              </template>
+              <template v-else>
+                {{ slotProps.data[col.field] }}
+              </template>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
     </div>
 
     <!-- 전달사항 팝업 -->
@@ -83,6 +91,7 @@ import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
 import { userSettlementMonthTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
+import { format } from 'date-fns';
 
 const router = useRouter();
 
@@ -100,6 +109,7 @@ const noteValue = ref('');
 const currentUserRegNo = ref('');
 
 const isMobile = computed(() => window.innerWidth <= 768);
+
 const tableConfig = computed(() => isMobile.value ? userSettlementMonthTableConfig.mobile : userSettlementMonthTableConfig.pc);
 
 // 테이블 스크롤 높이 계산 (페이지네이터 없음)
@@ -113,7 +123,7 @@ const fetchMonthOptions = async () => {
     .order('settlement_month', { ascending: false });
   if (!error && data) {
     const unique = Array.from(new Set(data.map(row => row.settlement_month)));
-    monthOptions.value = [''].concat(unique);
+    monthOptions.value = unique;
   }
 };
 
@@ -125,8 +135,10 @@ const filteredMonthList = computed(() => {
 
 // 현재 로그인한 사용자의 사업자등록번호 가져오기
 const getCurrentUser = async () => {
+  console.log('getCurrentUser_유저확인 시작');
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
+    console.log('getCurrentUser_로그인 유저:', user.email);
     const { data: profile } = await supabase
       .from('members')
       .select('*')
@@ -134,7 +146,12 @@ const getCurrentUser = async () => {
       .single();
     if (profile) {
       currentUserRegNo.value = profile.biz_no;
+      console.log('getCurrentUser_사업자등록번호 확인:', currentUserRegNo.value);
+    } else {
+      console.error('getCurrentUser_멤버 정보를 찾을 수 없습니다.');
     }
+  } else {
+    console.error('getCurrentUser_로그인된 유저가 없습니다.');
   }
 };
 
@@ -142,42 +159,76 @@ const getCurrentUser = async () => {
 const fetchMonthList = async () => {
   loading.value = true;
   monthList.value = [];
-  try {
-    // 1. settlement_months에서 모든 정산월 가져오기
-    const { data: months, error: monthsError } = await supabase
-      .from('settlement_months')
-      .select('*')
-      .order('settlement_month', { ascending: false });
-    if (monthsError) throw monthsError;
-    if (!months) return;
+  console.log('fetchMonthList_데이터 조회 시작, 사업자등록번호:', currentUserRegNo.value);
+  if (!currentUserRegNo.value) {
+    loading.value = false;
+    console.log('fetchMonthList_사업자등록번호가 없어서 중단합니다.');
+    return;
+  }
 
-    // 2. settlements에서 내 사업자등록번호만 필터
+  try {
+    // 1. 현재 사용자의 모든 정산 데이터 가져오기
+    console.log('fetchMonthList_settlements 테이블 조회 시작');
     const { data: settlements, error: settlementsError } = await supabase
       .from('settlements')
       .select('*')
-      .eq('company_reg_no', currentUserRegNo.value);
-    if (settlementsError) throw settlementsError;
+      .like('company_reg_no', `%${currentUserRegNo.value}%`);
 
-    // 3. 월별로 집계
-    monthList.value = months.map(monthRow => {
-      const month = monthRow.settlement_month;
+    if (settlementsError) {
+      console.error('settlements 조회 에러', settlementsError);
+      throw settlementsError;
+    }
+    console.log('fetchMonthList_settlements 조회 결과:', settlements);
+
+    if (!settlements || settlements.length === 0) {
+      console.log('fetchMonthList_settlements 데이터가 없습니다.');
+      monthList.value = [];
+      totalCount.value = 0;
+      loading.value = false;
+      return;
+    }
+
+    // 2. 노트와 등록일자 정보를 위해 모든 정산월 정보 가져오기
+    const { data: allMonths, error: monthsError } = await supabase
+      .from('settlement_months')
+      .select('settlement_month, note, created_at')
+      .order('settlement_month', { ascending: false });
+
+    if (monthsError) throw monthsError;
+
+    const allMonthsMap = new Map((allMonths || []).map(m => [m.settlement_month, m]));
+
+    // 3. 사용자의 정산 데이터에서 고유한 월 목록 추출 및 정렬
+    const userMonths = [...new Set(settlements.map(s => s.settlement_month))].sort().reverse();
+
+    // 4. 월별로 데이터 집계
+    monthList.value = userMonths.map(month => {
       const rows = settlements.filter(r => r.settlement_month === month);
       const hospitalSet = new Set(rows.map(r => r.hospital_name));
+      
       const prescription_count = rows.length;
       const prescription_amount = rows.reduce((sum, r) => sum + (Number(r.prescription_amount) || 0), 0);
       const payment_amount = rows.reduce((sum, r) => sum + (Number(r.payment_amount) || 0), 0);
+
+      const monthInfo = allMonthsMap.get(month) || {};
+
       return {
         settlement_month: month,
         hospital_name: hospitalSet.size,
         prescription_count: prescription_count ? prescription_count.toLocaleString() : '0',
         prescription_amount: prescription_amount ? prescription_amount.toLocaleString() : '0',
         payment_amount: payment_amount ? payment_amount.toLocaleString() : '0',
-        note: monthRow.note || '',
+        note: monthInfo.note || '',
+        created_at: monthInfo.created_at ? format(new Date(monthInfo.created_at), 'yyyy-MM-dd') : '-',
       };
     });
+    
+    console.log('fetchMonthList_최종 집계 데이터:', monthList.value);
     totalCount.value = monthList.value.length;
+
   } catch (e) {
     alert('월별 현황 데이터 조회 실패: ' + e.message);
+    console.error('fetchMonthList_에러:', e);
   }
   loading.value = false;
 };
@@ -221,6 +272,57 @@ const closeNoteDialog = () => {
 };
 const goDetail = (row) => {
   // 상세화면(월별 상세)로 이동, 정산월 파라미터 전달
-  router.push({ path: '/settlement/list', query: { month: row.settlement_month } });
+  router.push(`/settlement/month/${row.settlement_month}`);
 };
 </script>
+
+<style scoped>
+.note-link {
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 100%;
+}
+.note-link:hover {
+  color: #0056b3;
+}
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.custom-modal {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.modai-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  display: block;
+}
+.modal-body {
+  margin-bottom: 1.5rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+</style>

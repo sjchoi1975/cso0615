@@ -23,7 +23,8 @@ import UserFilterCreate from '../views/user/UserFilterCreate.vue'
 import UserFilterList from '../views/user/UserFilterList.vue'
 import UserEdisubmit from '../views/user/UserEdiSubmit.vue'
 import UserEdiList from '../views/user/UserEdiList.vue'
-import UserSettlementList from '../views/user/UserSettlementMonthDatail.vue'
+import UserSettlementMonth from '../views/user/UserSettlementMonth.vue'
+import UserSettlementMonthDatail from '../views/user/UserSettlementMonthDatail.vue'
 
 import { supabase } from '@/supabase';
 
@@ -142,9 +143,14 @@ const router = createRouter({
       component: () => import('@/views/user/UserEdiSubmit.vue'),
     },
     {
-      path: '/settlement/list',
-      name: 'user-settlement-list',
-      component: UserSettlementList,
+      path: '/settlement/month',
+      name: 'user-settlement-month',
+      component: UserSettlementMonth,
+    },
+    {
+      path: '/settlement/month/:month',
+      name: 'user-settlement-month-detail',
+      component: UserSettlementMonthDatail,
     },
     {
       path: '/products/list',

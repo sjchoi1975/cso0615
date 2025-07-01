@@ -725,6 +725,7 @@ body.login-page .main-content.main-margin {
   font-size: var(--font-size-110) !important;
   color: var(--text-primary) !important;
   white-space: nowrap !important;
+  margin-bottom: 0.5rem !important;
 }
 
 /* 연한 설명 - 등록 가능 파일: PDF, JPG, PNG, DOC, DOCX, XLS, XLSX */

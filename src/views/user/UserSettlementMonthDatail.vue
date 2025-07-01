@@ -8,6 +8,7 @@
           <option value="">전체</option>
           <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
         </select>
+        <div class="hide-mobile">
         <span>병의원</span>
         <select v-model="selectedHospital" class="input-180" :disabled="!selectedMonth">
           <option value="">전체</option>
@@ -18,6 +19,7 @@
           <option value="">전체</option>
           <option v-for="p in productOptions" :key="p" :value="p">{{ p }}</option>
         </select>
+        </div>
       </div> 
     </div>
 
@@ -31,39 +33,48 @@
 
     <!-- 하단: 테이블카드 -->
     <div class="table-card">
-      <DataTable
-        :value="settlements"
-        :loading="loading"
-        :paginator="false"
-        scrollable
-        :scrollHeight="tableScrollHeight"
-        :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
-      >
-        <template #empty>
-          <div v-if="!loading">조회된 데이터가 없습니다.</div>
-        </template>
-        <Column
-          v-for="col in tableConfig.columns"
-          :key="col.field"
-          :field="col.field"
-          :header="col.label"
-          :sortable="col.sortable || false"
-          :style="{ width: col.width, textAlign: col.align }"
-          :bodyStyle="{ textAlign: col.align }"
+      <div :style="isMobile ? tableConfig.tableStyle : {}">
+        <DataTable
+          :value="settlements"
+          :loading="loading"
+          :paginator="false"
+          scrollable
+          scrollDirection="both"
+          :scrollHeight="tableScrollHeight"
+          :style="{ width: tableConfig.tableWidth, minWidth: isMobile ? tableConfig.tableStyle.minWidth : '100%' }"
         >
-          <template #body="slotProps">
-            <template v-if="col.field === 'index'">
-              {{ first + slotProps.index + 1 }}
-            </template>
-            <template v-else-if="col.field === 'payment_amount'">
-              {{ formatCurrency(slotProps.data[col.field]) }}
-            </template>
-            <template v-else>
-              {{ slotProps.data[col.field] }}
-            </template>
+          <template #empty>
+            <div v-if="!loading">조회된 데이터가 없습니다.</div>
           </template>
-        </Column>
-      </DataTable>
+          <Column
+            v-for="col in tableConfig.columns"
+            :key="col.field"
+            :field="col.field"
+            :header="col.label"
+            :sortable="col.sortable || false"
+            :style="{ width: col.width, textAlign: col.align }"
+            :bodyStyle="{ textAlign: col.align }"
+          >
+            <template #body="slotProps">
+              <template v-if="col.field === 'index'">
+                {{ first + slotProps.index + 1 }}
+              </template>
+              <template v-else-if="col.format === 'number'">
+                {{ formatNumber(slotProps.data[col.field]) }}
+              </template>
+              <template v-else-if="col.format === 'currency'">
+                {{ formatCurrency(slotProps.data[col.field]) }}
+              </template>
+               <template v-else-if="col.format === 'percent'">
+                {{ formatPercentage(slotProps.data[col.field]) }}
+              </template>
+              <template v-else>
+                {{ slotProps.data[col.field] }}
+              </template>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
     </div>
 
     <!-- 하단 고정 페이지네이터 -->
@@ -94,7 +105,7 @@ const route = useRoute();
 const settlements = ref([]);
 const loading = ref(false);
 const totalCount = ref(0);
-const selectedMonth = ref('');
+const selectedMonth = ref(route.params.month || '');
 const selectedPrescriptionMonth = ref('');
 const selectedHospital = ref('');
 const selectedProduct = ref('');
@@ -119,17 +130,18 @@ const tableConfig = computed(() => isMobile.value ? userSettlementMonthDetailTab
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const fetchSettlements = async () => {
-  console.log('fetchSettlements called.');
+  console.log('상세페이지_fetchSettlements 호출됨.');
   if (!currentUserBizNo.value) {
-    console.log('currentUserBizNo is not set. Aborting fetch.');
+    console.log('상세페이지_currentUserBizNo가 설정되지 않아 조회를 중단합니다.');
     loading.value = false;
     return;
   }
+  console.log(`상세페이지_데이터 조회 시작. 정산월: ${selectedMonth.value}, 사업자번호: ${currentUserBizNo.value}`);
   loading.value = true;
   let query = supabase
     .from('settlements')
     .select('*', { count: 'exact' })
-    .eq('company_reg_no', currentUserBizNo.value);
+    .like('company_reg_no', `%${currentUserBizNo.value}%`);
 
   if (selectedMonth.value) query = query.eq('settlement_month', selectedMonth.value);
   if (selectedPrescriptionMonth.value) query = query.eq('prescription_month', selectedPrescriptionMonth.value);
@@ -138,14 +150,14 @@ const fetchSettlements = async () => {
 
   query = query.range(first.value, first.value + pageSize.value - 1).order('prescription_month', { ascending: false });
 
-  console.log('Executing Supabase query...');
+  console.log('상세페이지_Supabase 쿼리 실행...');
   const { data, error, count } = await query;
   if (error) {
-    console.error('Error fetching settlements:', error);
+    console.error('상세페이지_settlements 조회 에러:', error);
     settlements.value = [];
     totalCount.value = 0;
   } else {
-    console.log('Query successful. Data count:', data.length, 'Total count:', count);
+    console.log('상세페이지_쿼리 성공. 조회된 데이터 수:', data.length, '전체 개수:', count);
     settlements.value = data;
     totalCount.value = count || 0;
   }
@@ -204,10 +216,10 @@ const formatPercentage = (value) => {
 };
 
 onMounted(async () => {
-  console.log('Component mounted. Fetching user info...');
+  console.log('상세페이지_컴포넌트 마운트됨. 유저 정보 조회 시작...');
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
-    console.log('User found:', user.email);
+    console.log('상세페이지_로그인 유저 확인:', user.email);
     const { data: member, error } = await supabase
       .from('members')
       .select('biz_no')
@@ -215,27 +227,27 @@ onMounted(async () => {
       .single();
 
     if (error) {
-       console.error("Error fetching member info:", error);
+       console.error("상세페이지_멤버 정보 조회 에러:", error);
        loading.value = false;
        return;
     }
 
     if (member) {
       currentUserBizNo.value = member.biz_no;
-      console.log('currentUserBizNo set to:', currentUserBizNo.value);
+      console.log('상세페이지_currentUserBizNo 설정됨:', currentUserBizNo.value);
       fetchSettlements();
       fetchFilterOptions();
     } else {
-      console.error("Member profile not found for the user.");
+      console.error("상세페이지_사용자의 멤버 프로필을 찾을 수 없습니다.");
       loading.value = false;
     }
   } else {
-    console.error("No user logged in.");
+    console.error("상세페이지_로그인된 사용자가 없습니다.");
     loading.value = false;
   }
 });
 
-watch([selectedMonth, selectedPrescriptionMonth, selectedHospital, selectedProduct], () => {
+watch([selectedPrescriptionMonth, selectedHospital, selectedProduct], () => {
   first.value = 0; // 필터 변경 시 첫 페이지로
   fetchSettlements();
 });
@@ -246,13 +258,30 @@ watch(selectedMonth, () => {
 });
 
 const fetchFilterOptions = async () => {
-  if (!currentUserBizNo.value) return;
+  if (!currentUserBizNo.value || !selectedMonth.value) return;
 
-  // 정산월 목록
-  const { data: months } = await supabase.from('settlements').select('settlement_month', { distinct: true }).eq('company_reg_no', currentUserBizNo.value);
-  monthOptions.value = months ? [...new Set(months.map(row => row.settlement_month))].sort().reverse() : [];
+  // 처방월 목록
+  const { data: prescriptionMonths } = await supabase
+    .from('settlements')
+    .select('prescription_month')
+    .eq('company_reg_no', currentUserBizNo.value)
+    .eq('settlement_month', selectedMonth.value);
+  prescriptionMonthOptions.value = prescriptionMonths ? [...new Set(prescriptionMonths.map(row => row.prescription_month))].sort().reverse() : [];
   
-  // 나머지 필터...
-  // ... existing code ...
+  // 병의원 목록
+  const { data: hospitals } = await supabase
+    .from('settlements')
+    .select('hospital_name')
+    .eq('company_reg_no', currentUserBizNo.value)
+    .eq('settlement_month', selectedMonth.value);
+  hospitalOptions.value = hospitals ? [...new Set(hospitals.map(row => row.hospital_name))].sort() : [];
+
+  // 제품 목록
+  const { data: products } = await supabase
+    .from('settlements')
+    .select('product_name')
+    .eq('company_reg_no', currentUserBizNo.value)
+    .eq('settlement_month', selectedMonth.value);
+  productOptions.value = products ? [...new Set(products.map(row => row.product_name))].sort() : [];
 };
 </script>

@@ -130,9 +130,12 @@ const menuNameMap = {
   '/hospitals/list': '거래처',
   '/filter/create': '필터링 요청',
   '/filter/list': '필터링 내역',
-  '/edi/submit': 'EDI 제출',
-  /*'/edi/list': '제출 내역',*/
-  '/settlement/list': '정산내역서',
+  '/edi/submit': 'EDI 자료 제출',
+  '/edi/list': 'EDI 제출 내역',
+  '/settlement/month': '정산내역서',
+  '/products/list': '수수료율표',
+  '/notice/list': '공지사항',
+  '/notice/detail': '공지사항',
   };
   const path = route.path;
   const params = route.params;

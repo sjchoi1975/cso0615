@@ -68,7 +68,7 @@ const userMenu = [
   { label: '필터링 내역', icon: ['fas', 'list-check'], to: '/filter/list' },
   { label: 'EDI 제출', icon: ['fas', 'upload'], to: '/edi/submit' },
   /*{ label: '제출 내역', icon: ['far', 'file-lines'], to: '/edi/list' },*/
-  { label: '정산내역서', icon: ['fas', 'wallet'], to: '/settlement/list' },
+  { label: '정산내역서', icon: ['fas', 'wallet'], to: '/settlement/month' },
 ];
 const menuItems = computed(() => props.userInfo?.role === 'admin' ? adminMenu : userMenu);
 
@@ -249,18 +249,6 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
   .menu-label {
     opacity: 1; /* 모바일에서 라벨 항상 표시 */
   }
-
-  .mobile-sidebar-header {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid #eee;
-  }
-
-  .logo-text {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--primary-blue);
-  }
+ 
 }
 </style>

@@ -4,11 +4,12 @@
     <!-- 파일 업로드 섹션 -->
 
     <div class="file-upload-header">
-        <label class="title-md">파일 선택 (최대 20개)</label>
+        <label class="title-md">파일 선택</label>
+        <label class="txt-sm-gray">거래처당 최대 50개까지 제출 가능합니다.</label>
       </div>
       <div class="file-input-row">
         <button type="button" class="btn-secondary" @click="triggerFileInput">파일 찾기</button>
-        <span class="txt-sm-gray">등록 가능 파일: PDF, JPG, PNG, DOC, DOCX, XLS, XLSX</span>
+        <span class="txt-sm-gray">등록 가능 파일: pdf, jpg, png, doc, docx, xls, xlsx</span>
       </div>
       <input 
         type="file" 
@@ -80,8 +81,8 @@ const handleFileSelect = (event) => {
   const newFiles = Array.from(event.target.files);
   const totalFiles = selectedFiles.value.length + newFiles.length;
 
-  if (totalFiles > 20) {
-    alert('파일은 최대 20개까지 선택할 수 있습니다.');
+  if (totalFiles > 50) {
+    alert('파일은 최대 50개까지 선택할 수 있습니다.');
     // 필요한 경우 초과된 파일은 제외하고 추가하는 로직을 넣을 수 있습니다.
     return;
   }
@@ -231,7 +232,6 @@ onMounted(async () => {
   margin-bottom: 1.5rem;
 }
 
-
 .file-list-container {
   margin-top: 1.5rem;
 }
@@ -241,18 +241,16 @@ onMounted(async () => {
   font-weight: 500;
   font-size: 1rem;
   display: block;
-  margin-bottom: 0.75rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #ddd;
 }
 
 .file-list {
   list-style: none;
-  padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.1rem;
 }
 
 .file-item {
