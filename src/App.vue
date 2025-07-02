@@ -192,8 +192,6 @@ watch(
     } else {
       document.body.classList.remove('login-page');
     }
-
-    
         
     // 스크롤이 필요한 페이지들
     const scrollEnabledPages = [

@@ -61,6 +61,7 @@ import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
+import Dialog from 'primevue/dialog';
 import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
 import { userEdiSubmitTableConfig as tableConfig } from '@/config/tableConfig';
@@ -227,6 +228,54 @@ const clearSearch = () => {
   search.value = '';
 };
 
+function openModal(hospital) {
+  modalHospital.value = hospital;
+  modalFiles.value = [];
+  modalVisible.value = true;
+}
+function closeModal() {
+  modalVisible.value = false;
+  modalHospital.value = null;
+  modalFiles.value = [];
+}
+function onFileInputChange(e) {
+  const files = Array.from(e.target.files);
+  modalFiles.value = modalFiles.value.concat(files);
+  e.target.value = '';
+}
+function removeFile(idx) {
+  modalFiles.value.splice(idx, 1);
+}
+async function confirmUpload() {
+  if (!selectedMonth.value || !modalHospital.value || !userInfo.value) return;
+  const companyId = userInfo.value.company_id;
+  for (const file of modalFiles.value) {
+    const filePath = `edi_files/${selectedMonth.value.settlement_month}/${companyId}/${modalHospital.value.id}/${file.name}`;
+    const { error: uploadError } = await supabase.storage.from('edi_uploads').upload(filePath, file);
+    if (uploadError) {
+      toast.add({ severity: 'error', summary: '업로드 실패', detail: uploadError.message, life: 3000 });
+      continue;
+    }
+    const { data: { publicUrl } } = supabase.storage.from('edi_uploads').getPublicUrl(filePath);
+    const { error: dbError } = await supabase.from('edi_files').insert({
+      submission_period_id: selectedMonth.value.id,
+      company_member_id: userInfo.value.id,
+      hospital_id: modalHospital.value.id,
+      file_name: file.name,
+      file_url: publicUrl,
+      file_size_bytes: file.size,
+      created_by: userInfo.value.id,
+      settlement_month: selectedMonth.value.settlement_month,
+    });
+    if (dbError) {
+      toast.add({ severity: 'error', summary: 'DB 저장 실패', detail: dbError.message, life: 3000 });
+    }
+  }
+  toast.add({ severity: 'success', summary: '성공', detail: '파일이 성공적으로 제출되었습니다.', life: 3000 });
+  closeModal();
+  // TODO: 제출 내역 업데이트
+}
+
 const downloadExcel = () => {
   // TODO: 실제 엑셀 다운로드 구현
   alert('엑셀 다운로드 기능은 구현 예정입니다.');
@@ -262,8 +311,6 @@ onUnmounted(() => {
 });
 
 </script>
-
-
 
 <style scoped>
 .submission-period-info {

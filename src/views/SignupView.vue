@@ -1,7 +1,7 @@
 <template>
   <div class="auth-root">
-    <h2 class="Signup-title">회원가입</h2>
-    <form @submit.prevent="signup" class="auth-form">
+    <form @submit.prevent="signup" class="board-form">
+      <h2 class="Signup-title">회원가입</h2>
       <label>아이디
         <span class="required">*</span>
       </label>
@@ -116,7 +116,7 @@
       <input v-model="contactEmail" type="email" placeholder="" class="input" />
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
         <button type="button" class="cancel-btn" @click="goLogin" style="flex:1;">취소</button>
-        <button type="submit" class="signup-btn" :disabled="loading" style="flex:1;">회원가입</button>
+        <button type="submit" class="signup-btn" :disabled="loading" style="flex:2;">회원가입</button>
       </div>
     </form>
   </div>

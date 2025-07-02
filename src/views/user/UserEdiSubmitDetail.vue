@@ -44,10 +44,10 @@
       </div>
       <!-- 하단 버튼 -->
       <div class="form-actions-bottom">
-        <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
-        <button type="submit" class="btn-add" :disabled="isSubmitting || selectedFiles.length === 0"
+        <button type="button" class="cancel-btn" @click="goBack" style="flex:1;">취소</button>
+        <button type="submit" class="confirm-btn" :disabled="isSubmitting || selectedFiles.length === 0"
           :class="{ 'btn-disabled': isSubmitting || selectedFiles.length === 0 }"
-          @click="submitFiles" style="flex:1;">
+          @click="submitFiles" style="flex:2;">
           제출
         </button>
       </div>

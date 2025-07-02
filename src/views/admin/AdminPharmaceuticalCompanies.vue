@@ -87,10 +87,8 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn-cancel" @click="closeModal">취소</button>
-          <button 
-            class="btn-save" 
-            @click="saveCompany"
+          <button class="cancel-btn" @click="closeModal">취소</button>
+          <button class="confirm-btn" @click="saveCompany" 
             :disabled="!formData.company_name.trim() || loading"
           >
             {{ loading ? '저장 중...' : (isEdit ? '수정' : '추가') }}

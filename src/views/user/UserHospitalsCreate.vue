@@ -12,8 +12,8 @@
       <label>사업자등록증</label>
       <input type="file" @change="onFileChange" class="input" />
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
-        <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
-        <button type="submit" class="btn-add" :disabled="loading" style="flex:1;">
+        <button type="button" class="cancel-btn" @click="goList" style="flex:1;">취소</button>
+        <button type="submit" class="confirm-btn" :disabled="loading" style="flex:2;">
           {{ loading ? '저장 중...' : '등록' }}
         </button>
       </div>

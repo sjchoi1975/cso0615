@@ -94,8 +94,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-cancel" @click="closeRegisterDialog">취소</button>
-          <button class="btn-add" @click="registerMonth" :disabled="registerLoading">저장</button>
+          <button class="cancel-btn" @click="closeRegisterDialog">취소</button>
+          <button class="confirm-btn" @click="registerMonth" :disabled="registerLoading">저장</button>
         </div>
       </div>
     </div>

@@ -24,8 +24,8 @@
         </div>
       </div>
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
-        <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
-        <button type="submit" class="btn-add" :disabled="loading" style="flex:1;">
+        <button type="button" class="cancel-btn" @click="goBack" style="flex:1;">취소</button>
+        <button type="submit" class="confirm-btn" :disabled="loading" style="flex:2;">
           {{ loading ? '수정 중...' : '수정' }}
         </button>
       </div>
@@ -79,8 +79,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="cancelMemberSelection">취소</button>
-          <button class="btn-primary" @click="confirmMemberSelection">선택</button>
+          <button class="cancel-btn" @click="cancelMemberSelection">취소</button>
+          <button class="confirm-btn" @click="confirmMemberSelection">선택</button>
         </div>
       </div>
     </div>

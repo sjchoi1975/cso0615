@@ -73,8 +73,8 @@
         </tbody>
       </table>
       <div class="form-actions-table">
-        <button type="button" class="btn-cancel" @click="goBack">취소</button>
-        <button type="button" class="btn-save" @click="submitRequest" :disabled="loading || !isFormValid">{{ loading ? '요청 중...' : '등록' }}</button>
+        <button type="button" class="cancel-btn" @click="goBack" style="flex:1;">취소</button>
+        <button type="button" class="confirm-btn" @click="submitRequest" :disabled="loading || !isFormValid" style="flex:2;">{{ loading ? '요청 중...' : '등록' }}</button>
       </div>
     </div>
 
@@ -113,8 +113,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-cancel" @click="closeModal">취소</button>
-          <button class="btn-save" @click="confirmSelection">선택</button>
+          <button class="cancel-btn" @click="closeModal">취소</button>
+          <button class="confirm-btn" @click="confirmSelection">선택</button>
         </div>
       </div>
     </div>

@@ -283,11 +283,11 @@ body.login-page .main-content.main-margin {
   background: #f4f6fa !important;
 }
 
-.auth-form {
+.login-form {
   display: flex !important;
   flex-direction: column !important;
   width: 100% !important;
-  max-width: 360px !important;
+  max-width: 400px !important;
   gap: 1rem !important;
   background: #fff !important;
   padding: 2.4rem 2rem 2.4rem 2rem !important;
@@ -296,7 +296,7 @@ body.login-page .main-content.main-margin {
 }
 
 @media (max-width: 600px) {
-  .auth-form {
+  .login-form {
     max-width: 90vw !important;
     padding: 2rem 2rem 4rem 2rem !important;
     background: none !important;
@@ -304,20 +304,20 @@ body.login-page .main-content.main-margin {
   }
 }
 
-.login-title,
-.Signup-title {
-  font-weight: 600 !important;
-  margin-bottom: 2rem !important;
-  color: #222 !important;
-}
-
 .login-title {
-  font-size: var(--font-size-180) !important;
+  color: #222 !important;
+  font-weight: 600 !important;
+  font-size: var(--font-size-200) !important;
+  margin-bottom: 4rem !important;
 }
 
 .Signup-title {
-  font-size: var(--font-size-160) !important;
-  margin-top: 2.4rem !important;
+  color: #222 !important;
+  font-weight: 600 !important;
+  font-size: var(--font-size-180) !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 2rem !important;
+  text-align: center !important;
 }
 
 @media (max-width: 600px) {
@@ -325,37 +325,17 @@ body.login-page .main-content.main-margin {
     margin-bottom: 1rem !important;
   }
   .Signup-title {
-    margin-bottom: 0rem !important;
+    font-size: var(--font-size-160) !important;
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
   }
 }
+
 
 
 /* ========================================================================================================= */
 /* 인풋 박스 높이 별도 지정은 아래 인풋 스타일 설정에서 관리중 */
 /* ========================================================================================================= */
-
-
-/* 보기기 / 감추기 버튼(눈깔) */
-.input-eye-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-eye-wrap .input {
-  flex: 1;
-  padding-right: 2.2rem !important;
-}
-
-.eye-btn {
-  position: absolute;
-  right: 1rem !important;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #666 !important;
-  padding: 0 !important;
-}
 
 
 
@@ -750,12 +730,6 @@ body.login-page .main-content.main-margin {
   .filter-dropdown {
     padding: 0.65rem 0.5rem !important;
   }
-/* 인풋 - 로그인 높이 별도 지정 */
-/*
-  .input-login {
-    padding: 0.85rem 0.5rem !important;
-  }
-*/
 }
 
 /* filter-dropdown 스타일 <- 필터링과 무관!!! 드롭다운 스타일임 */
@@ -833,6 +807,14 @@ body.login-page .main-content.main-margin {
   margin-top: -0.5rem;
   margin-bottom: 0.5rem;
 }
+
+/* 필수값 * 표시 스타일 <- 회원가입, 제품, 병의원.. 등록 페이지 */
+.required {
+  color: var(--primary) !important;
+}
+
+
+
 
 
 

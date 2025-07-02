@@ -109,8 +109,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <Button label="취소" severity="secondary" @click="isModalVisible = false" class="btn-cancel"/>
-          <Button label="저장" @click="saveItem" class="btn-add"/>
+          <button class="cancel-btn" @click="isModalVisible = false">취소</button>
+          <button class="confirm-btn" @click="saveItem">저장</button>
         </div>
       </div>
     </div>
