@@ -751,11 +751,12 @@ body.login-page .main-content.main-margin {
     padding: 0.65rem 0.5rem !important;
   }
 /* 인풋 - 로그인 높이 별도 지정 */
+/*
   .input-login {
     padding: 0.85rem 0.5rem !important;
   }
+*/
 }
-
 
 /* filter-dropdown 스타일 <- 필터링과 무관!!! 드롭다운 스타일임 */
 .filter-dropdown {
