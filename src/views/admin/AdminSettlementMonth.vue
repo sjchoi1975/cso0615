@@ -14,9 +14,23 @@
     <!-- 기능카드 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalCount }}건</div>
-      <div style="display: flex; gap: 0.5rem;">
-        <button class="btn-add" @click="downloadExcel">다운로드</button>
-        <button class="btn-primary" @click="openRegisterMonth">정산월 등록</button>
+      <div style="display: flex; gap: 1rem;">
+        <Button
+          icon="pi pi-download"
+          label="다운로드"
+          class="btn-download-md"
+          @click="downloadExcel"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
+        <Button
+          icon="pi pi-pencil"
+          label="정산월 등록"
+          class="btn-add-md"
+          @click="openRegisterMonth"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
       </div>
     </div>
 

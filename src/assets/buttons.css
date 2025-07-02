@@ -66,27 +66,12 @@
 
 /* 공통 스타일 - 기본 버튼 */
 
-.btn-primary-md,
-.btn-add-md, /* 공지사항 목록 - 산규 등록 */
-.btn-save-md,
-.btn-confirm-md,
-.btn-select-md,
-.btn-selectall-md,
-
-.btn-edit-md,
-
-.btn-secondary-md,
-.btn-cancel-md,
-.btn-close-md,
-
-.btn-upload-md,
+.btn-add-md,
 .btn-download-md,
-.btn-download_all-md,
-
-.btn-danger-md,
+.btn-download-all-md,
+.btn-selectall-md,
 .btn-delete-md {
-
-  padding: 0.3rem 1rem !important;
+  padding: 0.35rem 0.5rem !important;
   font-size: var(--font-size-base) !important;
   font-weight: 400 !important;
   border: 1px solid transparent !important;
@@ -99,7 +84,72 @@
   text-decoration: none !important;
 }
 
-/* 색상 스타일 - 기본 버튼 */
+.btn-add-md,
+.btn-download-md,
+.btn-download-all-md,
+.btn-selectall-md {
+  background: var(--gray-100) !important;
+  border-color: var(--gray-500) !important;
+  color: var(--gray-900) !important;
+}
+.btn-delete-md {
+  background: var(--danger) !important;
+  border-color: var(--danger) !important;
+  color: var(--text-white) !important;
+}
+
+/* ========================================================================================================= */
+/* 상호작용 효과 (호버, 포커스, 비활성화)
+/* ========================================================================================================= */
+
+/* 호버 효과 - 일반 버튼 */
+.btn-add-md:hover:not(:disabled),
+.btn-download-md:hover:not(:disabled),
+.btn-download-all-md:hover:not(:disabled),
+.btn-selectall-md:hover:not(:disabled),
+.btn-delete-md:hover:not(:disabled) {
+  filter: brightness(0.92);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* 포커스 효과 */
+button:focus,
+.btn-add-md:focus,
+.btn-download-md:focus,
+.btn-download-all-md:focus,
+.btn-selectall-md:focus,
+.btn-delete-md:focus {
+  outline: none !important;
+  box-shadow: var(--focus-shadow) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* 비활성화 상태 */
+.btn-add-md:disabled,
+.btn-download-md:disabled,
+.btn-download_all-md:disabled,
+.btn-selectall-md:disabled,
+.btn-delete-md:disabled {
+  opacity: 0.9 !important;
+  box-shadow: none !important;
+}
+
+
+
+/* 미사용 버튼
+.btn-primary-md,
+.btn-secondary-md,
+.btn-save-md,
+.btn-confirm-md,
+.btn-edit-md,
+.btn-cancel-md,
+.btn-close-md,
+.btn-danger-md{
+.btn-upload-md,
+.btn-select-md,
+
+/* 색상 스타일
 .btn-primary-md { 
   background: var(--primary) !important;
   border-color: var(--primary) !important;
@@ -110,34 +160,8 @@
   border-color: var(--gray-400) !important;
   color: var(--gray-900) !important;
 }
-.btn-add-md { /* 공지사항 목록 - 산규 등록 */
-  background: var(--primary) !important;
-  border-color: var(--primary) !important;
-  color: var(--text-white) !important;
-}
-.btn-danger-md,
-.btn-delete-md {
-  background: var(--danger) !important;
-  border-color: var(--danger) !important;
-  color: var(--text-white) !important;
-}
 
-.btn-add-md, /* 공지사항 목록 - 산규 등록 */
-.btn-download-md { /* 회원 목록 - 다운로드 */
-  background: var(--gray-100) !important;
-  border-color: var(--gray-500) !important;
-  color: var(--gray-900) !important;
-}
-
-
-
-
-/* ========================================================================================================= */
-/* 상호작용 효과 (호버, 포커스, 비활성화)
-/* ========================================================================================================= */
-
-
-/* 호버 효과 - 일반 버튼 */
+/* 호버 효과 - 기존존
 .btn-primary-md:hover:not(:disabled),
 .btn-cancel-md:hover:not(:disabled) {
   opacity: 0.75 !important;
@@ -146,42 +170,7 @@
   transition: all 0.2s ease-in-out !important;
 }
 
-
-/* 호버 효과 - 일반 버튼 */
-.btn-add-md:hover:not(:disabled), /* 공지사항 목록 - 산규 등록 */
-.btn-download-md:hover:not(:disabled), /* 회원 목록 - 다운로드 */
-.btn-delete-md:hover:not(:disabled) { /* 전체 삭제 */
-  filter: brightness(0.92);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-  transition: all 0.2s ease-in-out !important;
-}
-
-
-/* 포커스 효과 */
-button:focus,
-.btn-primary-md:focus,
-.btn-add-md:focus, /* 공지사항 목록 - 산규 등록 */
-.btn-download-md:focus, /* 회원 목록 - 다운로드 */
-.btn-cancel-md:focus {
-  outline: none !important;
-  box-shadow: var(--focus-shadow) !important;
-  transition: all 0.2s ease-in-out !important;
-}
-
-/* 비활성화 상태 */
-.btn-primary-md:disabled,
-.btn-cancel-md:disabled {
-  opacity: 0.9 !important;
-  box-shadow: none !important;
-}
-
-
-
-
-
-
-
-
+*/
 
 
 

@@ -17,8 +17,15 @@
     <!-- 중간: 기능카드 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
-      <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-add" @click="downloadExcel">다운로드</button>
+      <div style="display: flex; gap:1rem; align-items:center;">
+        <Button
+          icon="pi pi-download"
+          label="다운로드"
+          class="btn-download-md"
+          @click="downloadExcel"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
       </div>
     </div>
 
@@ -83,8 +90,11 @@ import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Paginator from 'primevue/paginator';
+import Button from 'primevue/button';
 import { userProductsTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const search = ref('');
 const appliedSearch = ref('');
@@ -215,6 +225,31 @@ const formatCommissionRate = (rate) => {
 };
 
 function downloadExcel() {
-  // 엑셀 다운로드 로직 (필요시 구현)
+  // 1. 테이블 데이터 준비
+  const exportData = products.value.map((item, idx) => ({
+    '순번': idx + 1,
+    '제약사': item.pharmacist,
+    '제품명': item.product_name,
+    '성분명': item.Ingredient,
+    '약가': item.price,
+    '수수료율': formatCommissionRate(getUserCommission(item)),
+    '급여': item.benefit,
+    '보험코드': item.insurance_code,
+    '분류명': item.category,
+    '대조약': item.reference_drug,
+    '생동': item.bioequivalence,
+    '자사/위탁': item.own_or_consign,
+    '비고': item.note,
+  }));
+
+  // 2. 워크시트/워크북 생성
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, '수수료율');
+
+  // 3. 엑셀 파일로 변환 및 다운로드
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  saveAs(blob, '수수료율_다운로드.xlsx');
 }
 </script>

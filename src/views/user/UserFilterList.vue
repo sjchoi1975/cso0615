@@ -37,8 +37,15 @@
     <!-- Function Card -->
     <div class="function-card custom-auto-height">
       <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}건의 요청</div>
-      <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-add" @click="downloadExcel">다운로드</button>
+      <div style="display: flex; gap:1rem; align-items:center;">
+        <Button
+          icon="pi pi-download"
+          label="다운로드"
+          class="btn-download-md"
+          @click="downloadExcel"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
       </div>
     </div>
 
@@ -130,6 +137,7 @@ import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 import { userFilterRequestsTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
+import Button from 'primevue/button';
 
 const requests = ref([]);
 const loading = ref(false);

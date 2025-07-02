@@ -12,9 +12,23 @@
     <!-- Function Card -->
     <div class="function-card custom-auto-height">
       <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}개 거래처</div>
-      <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-add" @click="downloadExcel">다운로드</button>
-        <button class="btn-add" @click="goToCreatePage">거래처 등록</button>
+      <div style="display: flex; gap:1rem; align-items:center;">
+        <Button
+          icon="pi pi-download"
+          label="다운로드"
+          class="btn-download-md"
+          @click="downloadExcel"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
+        <Button
+          icon="pi pi-pencil"
+          label="거래처 등록"
+          class="btn-add-md"
+          @click="goToCreatePage"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
       </div>
     </div>
 

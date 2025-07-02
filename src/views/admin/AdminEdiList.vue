@@ -28,10 +28,32 @@
       <div class="total-count">
         총 {{ totalCount.toLocaleString() }}개 중 {{ selectedFiles.length }}개 선택
       </div>
-      <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-selectall" @click="toggleSelectAll">{{ selectAllText }}</button>
-        <button class="btn-download_all" @click="batchDownload" :disabled="selectedFiles.length === 0">일괄 다운로드</button>
-        <button class="btn-download" @click="downloadExcel">다운로드</button>
+      <div style="display: flex; gap: 1rem; align-items:center;">
+        <Button
+          icon="pi pi-check-square"
+          :label="selectAllText"
+          class="btn-selectall-md"
+          @click="toggleSelectAll"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
+        <Button
+          icon="pi pi-download"
+          label="일괄 다운로드"
+          class="btn-download-all-md"
+          @click="batchDownload"
+          :disabled="selectedFiles.length === 0"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
+        <Button
+          icon="pi pi-download"
+          label="다운로드"
+          class="btn-download-md"
+          @click="downloadExcel"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
       </div>
     </div>
 

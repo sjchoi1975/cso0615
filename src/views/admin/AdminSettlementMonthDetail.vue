@@ -29,13 +29,38 @@
       <!-- 중간: 기능카드 -->
       <div class="function-card">
         <div class="total-count">총 {{ totalCount.toLocaleString() }}건</div>
-        <div style="display: flex; gap:0.5rem; align-items:center;">
-          <button class="btn-add" @click="downloadTemplate">템플릿</button>
-          <label class="btn-add" style="margin-bottom:0; cursor:pointer;">
-            엑셀 등록
-            <input type="file" accept=".xlsx,.xls" @change="uploadExcel" style="display:none;" />
-          </label>
-          <button class="btn-add" @click="downloadExcel">다운로드</button>
+        <div style="display: flex; gap:1rem; align-items:center;">
+          <Button
+            icon="pi pi-file-excel"
+            label="템플릿"
+            class="btn-download-md"
+            @click="downloadTemplate"
+            iconPos="left"
+            style="gap:0.5em;"
+          />
+          <Button
+            icon="pi pi-upload"
+            label="엑셀 등록"
+            class="btn-add-md"
+            @click="() => $refs.fileInput.click()"
+            iconPos="left"
+            style="gap:0.5em;"
+          />
+          <input
+            ref="fileInput"
+            type="file"
+            accept=".xlsx,.xls"
+            @change="uploadExcel"
+            style="display:none;"
+          />
+          <Button
+            icon="pi pi-download"
+            label="다운로드"
+            class="btn-download-md"
+            @click="downloadExcel"
+            iconPos="left"
+            style="gap:0.5em;"
+          />
         </div>
       </div>
   
@@ -104,6 +129,7 @@
   import { useRoute } from 'vue-router';
   import { settlementMonthDetailTableConfig } from '@/config/tableConfig';
   import { getTableScrollHeight } from '@/utils/tableHeight';
+  import Button from 'primevue/button';
   
   const settlements = ref([]);
   const loading = ref(false);

@@ -780,7 +780,7 @@ body.login-page .main-content.main-margin {
 
 .link {
   display: inline-block !important;
-  color: var(--primary-blue) !important;
+  color: var(--primary) !important;
   font-size: var(--font-size-base) !important;
   cursor: pointer !important;
 }
@@ -1204,7 +1204,7 @@ body.modal-open {
 .p-paginator .p-paginator-page.p-highlight {
   background: var(--gray-500) !important;
   color: #fff !important;
-  border-color: var(--primary-blue) !important;
+  border-color: var(--primary) !important;
 }
 
 .p-paginator .p-paginator-page:hover {
@@ -1702,7 +1702,7 @@ button.p-paginator-page:hover {
 
 /* PrimeVue Dialog 커스텀 스타일 */
 .custom-dialog .p-dialog-header {
-  background: var(--primary-blue) !important;
+  background: var(--primary) !important;
   color: var(--text-white) !important;
   padding: 1rem 1.5rem !important;
   border-top-left-radius: var(--border-radius-lg) !important;

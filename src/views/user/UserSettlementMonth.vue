@@ -12,8 +12,15 @@
     <!-- 기능카드 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalCount }}건</div>
-      <div style="display: flex; gap: 0.5rem;">
-        <button class="btn-add" @click="downloadExcel">다운로드</button>
+      <div style="display: flex; gap: 1rem;">
+        <Button
+          icon="pi pi-download"
+          label="다운로드"
+          class="btn-download-md"
+          @click="downloadExcel"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
       </div>
     </div>
 
@@ -92,6 +99,7 @@ import * as XLSX from 'xlsx';
 import { userSettlementMonthTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
 import { format } from 'date-fns';
+import Button from 'primevue/button';
 
 const router = useRouter();
 
