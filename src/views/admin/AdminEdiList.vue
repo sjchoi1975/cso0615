@@ -29,9 +29,9 @@
         총 {{ totalCount.toLocaleString() }}개 중 {{ selectedFiles.length }}개 선택
       </div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-secondary" @click="toggleSelectAll">{{ selectAllText }}</button>
-        <button class="btn-secondary" @click="batchDownload" :disabled="selectedFiles.length === 0">일괄 다운로드</button>
-        <button class="btn-add" @click="downloadExcel">다운로드</button>
+        <button class="btn-selectall" @click="toggleSelectAll">{{ selectAllText }}</button>
+        <button class="btn-download_all" @click="batchDownload" :disabled="selectedFiles.length === 0">일괄 다운로드</button>
+        <button class="btn-download" @click="downloadExcel">다운로드</button>
       </div>
     </div>
 

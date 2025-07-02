@@ -4,7 +4,7 @@
     <div class="filter-card">
       <div class="filter-row">
         <span class="p-input-icon-left">
-          <input v-model="search" placeholder="아이디, 회사명, 사업자등록번호, 대표자명 검색" class="input-search wide-mobile-search" />
+          <input v-model="search" placeholder="회사명, 사업자등록번호, 대표자명 검색" class="input-search wide-mobile-search" />
         </span>
         <div class="hide-mobile">
           <span>인증</span>
@@ -156,7 +156,6 @@ const filteredMembers = computed(() => {
   if (search.value) {
     const keyword = search.value.toLowerCase();
     result = result.filter(m =>
-      (m.id_email && m.id_email.toLowerCase().includes(keyword)) ||
       (m.company_name && m.company_name.toLowerCase().includes(keyword)) ||
       (m.biz_no && m.biz_no.toLowerCase().includes(keyword)) ||
       (m.ceo_name && m.ceo_name.toLowerCase().includes(keyword))
@@ -208,6 +207,9 @@ const downloadExcel = () => {
     '대표자명': member.ceo_name,
     '주소': member.address,
     'CSO 신고번호': member.cso_regist_no,
+    '담당자': member.manager_name,
+    '휴대폰번호': member.phone,
+    '이메일': member.email,
     '인증': member.approval === 'approved' ? 'Y' : 'N',
     '등급': member.grade,
     '가입일자': member.created_at ? new Date(member.created_at).toISOString().split('T')[0] : ''

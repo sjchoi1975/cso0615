@@ -38,7 +38,7 @@
       </div>
       <div style="display: flex; gap: 1rem; justify-content: flex-end;">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
-        <button type="submit" class="btn-add" :class="{ 'btn-disabled': loading || !canEdit }" style="flex:1;">
+        <button type="submit" class="btn-primary" :class="{ 'btn-disabled': loading || !canEdit }" style="flex:1;">
           수정
         </button>
       </div>

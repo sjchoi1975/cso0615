@@ -42,8 +42,8 @@
           엑셀 등록
           <input type="file" accept=".xlsx,.xls" @change="uploadExcel" style="display:none;" />
         </label>
-        <button class="btn-add" @click="goToProductCreate">신규 등록</button>
-        <button class="btn-danger" @click="deleteAllProducts">전체 삭제</button>
+        <button class="btn-primary" @click="goToProductCreate">신규 등록</button>
+        <button class="btn-delete" @click="deleteAllProducts">전체 삭제</button>
       </div>
     </div>
 

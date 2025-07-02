@@ -1,12 +1,11 @@
-/* ========================================== */
-/* 로그인 & 회원가입
-/* ========================================== */
+/* ========================================================================================================= */
+/* 로그인 / 회원가입
+/* ========================================================================================================= */
 
-.primary-btn,
 .login-btn,
 .signup-btn,
 .cancel-btn {
-  padding: 0.5rem 1rem !important;
+  padding: 0.75rem 1rem !important;
   font-size: var(--font-size-base) !important;
   font-weight: 400 !important;
   border: 1px solid transparent !important;
@@ -18,10 +17,6 @@
   box-shadow: var(--shadow-sm) !important;
 }
 
-.primary-btn {
-  background: var(--primary) !important;
-  color: var(--text-white) !important;
-}
 .login-btn {
   background: var(--primary) !important;
   color: var(--text-white) !important;
@@ -45,17 +40,32 @@
 
 
 
-/* ========================================== */
+/* ========================================================================================================= */
 /* 기본 버튼 스타일 (일반 크기)
-/* ========================================== */
+/* ========================================================================================================= */
 
 /* 공통 스타일 */
 
 .btn-primary,
-.btn-secondary,
 .btn-add,
+.btn-save,
+.btn-confirm,
+.btn-select,
+.btn-selectall,
+
+.btn-edit,
+
+.btn-secondary,
+.btn-cancel,
+.btn-close,
+
+.btn-upload,
 .btn-download,
-.btn-cancel {
+.btn-download_all,
+
+.btn-danger,
+.btn-delete {
+
   padding: 0.3rem 1rem !important;
   font-size: var(--font-size-base) !important;
   font-weight: 400 !important;
@@ -69,33 +79,35 @@
   text-decoration: none !important;
 }
 
-
-.btn-primary {
+.btn-primary { 
   background: var(--primary) !important;
   border-color: var(--primary) !important;
   color: var(--text-white) !important;
 }
-
-.btn-add {
-  background: var(--primary-blue) !important;
-  border-color: var(--primary-blue) !important;
-  color: var(--text-white) !important;
-
-}
-
 .btn-cancel {
   background: #fff !important;
   border-color: var(--gray-400) !important;
   color: var(--gray-900) !important;
-
+}
+.btn-add {
+  background: var(--primary-blue) !important;
+  border-color: var(--primary-blue) !important;
+  color: var(--text-white) !important;
+}
+.btn-danger,
+.btn-delete {
+  background: var(--danger) !important;
+  border-color: var(--danger) !important;
+  color: var(--text-white) !important;
 }
 
 
 
 
-/* ========================================== */
-/* 상호작용 효과 (호버, 포커스, 비활성화)    */
-/* ========================================== */
+
+/* ========================================================================================================= */
+/* 상호작용 효과 (호버, 포커스, 비활성화)
+/* ========================================================================================================= */
 
 /* 호버 효과 - 일반 버튼 */
 .btn-primary:hover:not(:disabled),
@@ -131,11 +143,9 @@ button:focus,
 
 
 
-
-
-/* ========================================== */
+/* ========================================================================================================= */
 /* 아이콘 버튼
-/* ========================================== */
+/* ========================================================================================================= */
 
 /* 수정 */
 .btn-icon-edit .p-button-icon {
@@ -152,6 +162,80 @@ button:focus,
 .btn-icon-danger .p-button-icon {
   color: var(--danger) !important;
 }
+
+
+
+
+
+
+
+/* ========================================================================================================= */
+/* 필터 카드 검색 <- 필터링과 무관!!! 필터링 카드 영역에서 검색 버튼
+/* ========================================================================================================= */
+
+.btn-search-filter {
+  font-size: var(--font-size-base) !important;
+  padding: 0.5rem 1.0rem !important;
+  border: 1px solid var(--primary) !important;
+  border-radius: 2px !important;
+  background: var(--primary) !important;
+  color: var(--text-white) !important;
+  transition: border 0.2s !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  line-height: 1.15 !important;
+}
+.btn-search-filter:disabled {
+  background: var(--primary-light) !important;
+  color: var(--gray-700) !important;
+  border: 1px solid var(--border-primary) !important;
+  cursor: not-allowed !important;
+}
+
+@media (max-width: 768px) {
+  .btn-search-filter {
+    margin-left: -1rem !important;
+    padding: 0.65rem 1.0rem !important;
+    border-left: none !important;
+  }
+}
+
+
+
+/* ========================================================================================================= */
+/* 필터 조건 초기화 버튼 <- 필터링과 무관!!! 드롭다운에서 선택한 것들이나 검색 결과 초기화 하는 것
+/* ========================================================================================================= */
+
+.filter-reset-btn {
+  border: none !important;
+  background: none !important;
+  color: var(--primary-blue) !important;
+  font-size: var(--font-size-90) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: background 0.2s !important;
+}
+
+.filter-reset-btn:hover {
+  text-decoration: underline !important;
+}
+
+
+/* 컬럼 정렬 클래스 */
+.text-center { text-align: center !important; }
+.text-left   { text-align: left !important; }
+.text-right  { text-align: right !important; }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -205,36 +289,6 @@ button:focus,
 }
 
 
-
-
-/* 필터 카드 검색 */
-
-.btn-search-filter {
-  font-size: var(--font-size-base) !important;
-  padding: 0.5rem 1.0rem !important;
-  border: 1px solid var(--primary) !important;
-  border-radius: 2px !important;
-  background: var(--primary) !important;
-  color: var(--text-white) !important;
-  transition: border 0.2s !important;
-  cursor: pointer !important;
-  box-sizing: border-box !important;
-  line-height: 1.15 !important;
-}
-.btn-search-filter:disabled {
-  background: var(--primary-light) !important;
-  color: var(--gray-700) !important;
-  border: 1px solid var(--border-primary) !important;
-  cursor: not-allowed !important;
-}
-
-@media (max-width: 768px) {
-  .btn-search-filter {
-    margin-left: -1rem !important;
-    padding: 0.65rem 1.0rem !important;
-    border-left: none !important;
-  }
-}
 
 /* 로그인 */
 /*

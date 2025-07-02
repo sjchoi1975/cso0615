@@ -1,3 +1,4 @@
+// 사용 안함!
 <template>
   <div class="board">
     <h2 style="margin-bottom: 2rem;">공지사항 상세</h2>
@@ -60,7 +61,7 @@
       <div style="display: flex; gap: 1rem; justify-content: flex-end;">
         <button type="button" class="btn-delete" @click="deleteNotice">삭제</button>
         <button type="button" class="btn-edit" @click="goEdit">수정</button>
-        <button type="button" class="btn-cancel" @click="goList">목록</button>
+        <button type="button" class="btn-list" @click="goList">목록</button>
       </div>
     </form>
   </div>

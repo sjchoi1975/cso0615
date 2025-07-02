@@ -19,8 +19,8 @@
           엑셀 등록
           <input type="file" accept=".xlsx,.xls" @change="uploadExcel" style="display:none;" />
         </label>
-        <button class="btn-add" @click="goToCreatePage">신규 등록</button>
-        <button class="btn-danger" @click="deleteAllHospitals">전체 삭제</button>
+        <button class="btn-primary" @click="goToCreatePage">신규 등록</button>
+        <button class="btn-delete" @click="deleteAllHospitals">전체 삭제</button>
       </div>
     </div>
 

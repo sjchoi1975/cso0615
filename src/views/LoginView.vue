@@ -3,11 +3,10 @@
     <h2 class="login-title">Company</h2>
     <form @submit.prevent="login" class="auth-form">
       <label>ID</label>
-      <input v-model="email" type="email" placeholder="" class="input" required autofocus />
-      
-      <label class="pw-label">PW</label>
+      <input v-model="email" type="email" placeholder="" class="input-login" required autofocus />
+      <label style="margin-top: 1rem;">PW</label>
       <div class="input-eye-wrap">
-        <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="" class="input" required />
+        <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="" class="input-login" required />
         <button type="button" class="eye-btn" @click="showPassword = !showPassword" :aria-label="showPassword ? '비밀번호 숨기기' : '비밀번호 보기'">
           <span v-if="showPassword">
             <!-- eye-off SVG -->
@@ -19,7 +18,6 @@
           </span>
         </button>
       </div>
-      
       <button type="submit" class="login-btn" style="margin-top: 2rem;;">로그인</button>
       <span class="link" style="text-align: center; margin-top: 1.6rem;" @click="goSignup">회원가입</span>
     </form>
@@ -85,32 +83,3 @@ const goSignup = () => {
   router.push('/signup');
 };
 </script>
-
-<style scoped>
-
-.pw-label {
-  margin-top: 1.2rem !important;
-}
-
-.input-eye-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-eye-wrap .input {
-  flex: 1;
-  padding-right: 2.2rem !important;
-}
-
-.eye-btn {
-  position: absolute;
-  right: 1rem !important;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #666 !important;
-  padding: 0 !important;
-}
-
-</style>

@@ -43,7 +43,7 @@
     <div class="function-card">
       <div class="total-count">총 {{ totalCount.toLocaleString() }}건의 요청</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
-        <button class="btn-add" @click="downloadExcel">다운로드</button>
+        <button class="btn-download" @click="downloadExcel">다운로드</button>
       </div>
     </div>
 
@@ -126,8 +126,8 @@
           <textarea v-model="adminComments" class="input-field" rows="5" placeholder="전달사항을 입력하세요."></textarea>
         </div>
         <div class="modal-footer">
-          <button @click="closeAdminCommentsModal" class="btn-secondary">취소</button>
-          <button @click="saveAdminComments" class="btn-primary">저장</button>
+          <button @click="closeAdminCommentsModal" class="btn-cancel">취소</button>
+          <button @click="saveAdminComments" class="btn-add">저장</button>
         </div>
       </div>
     </div>

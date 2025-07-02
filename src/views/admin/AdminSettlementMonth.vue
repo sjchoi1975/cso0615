@@ -16,7 +16,7 @@
       <div class="total-count">총 {{ totalCount }}건</div>
       <div style="display: flex; gap: 0.5rem;">
         <button class="btn-add" @click="downloadExcel">다운로드</button>
-        <button class="btn-add" @click="openRegisterMonth">정산월 등록</button>
+        <button class="btn-primary" @click="openRegisterMonth">정산월 등록</button>
       </div>
     </div>
 

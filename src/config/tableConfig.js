@@ -14,7 +14,7 @@ export const noticeTableConfig = {
       { field: 'id', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'title', label: '제목', width: '26%', align: 'left', sortable: false },
       { field: 'content', label: '내용', width: '34%', align: 'left', sortable: false },
-      { field: 'created_at', label: '작성일시', width: '8%', align: 'center', sortable: false },
+      { field: 'created_at', label: '작성일자', width: '8%', align: 'center', sortable: false },
       { field: 'author', label: '작성자', width: '10%', align: 'center', sortable: false },
       { field: 'edit', label: '수정', width: '6%', align: 'center', sortable: false },
       { field: 'delete', label: '삭제', width: '6%', align: 'center', sortable: false },
@@ -32,7 +32,7 @@ export const noticeTableConfig = {
     columns: [
       /*{ field: 'id', label: '순번', width: '10%', align: 'center', sortable: false },*/
       { field: 'title', label: '제목', width: '40%', align: 'left', sortable: false },
-      { field: 'created_at', label: '작성일시', width: '24%', align: 'center', sortable: false },
+      { field: 'created_at', label: '작성일자', width: '24%', align: 'center', sortable: false },
       { field: 'edit', label: '수정', width: '12%', align: 'center', sortable: false },
       { field: 'delete', label: '삭제', width: '12%', align: 'center', sortable: false },
       { field: 'status', label: '상태', width: '12%', align: 'center', sortable: false }
@@ -50,15 +50,18 @@ export const membersTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'id_email', label: '아이디', width: '10%', align: 'left', sortable: true },
-      { field: 'company_name', label: '회사명', width: '12%', align: 'left', sortable: true },
+      { field: 'id_email', label: '아이디', width: '8%', align: 'left', sortable: true },
+      { field: 'company_name', label: '회사명', width: '10%', align: 'left', sortable: true },
       { field: 'biz_no', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
-      { field: 'ceo_name', label: '대표자명', width: '8%', align: 'center', sortable: true },
-      { field: 'address', label: '주소', width: '20%', align: 'left', sortable: true },
-      { field: 'cso_regist_no', label: 'CSO 신고번호', width: '12%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자명', width: '6%', align: 'center', sortable: true },
+      { field: 'address', label: '주소', width: '14%', align: 'left', sortable: true },
+      { field: 'cso_regist_no', label: 'CSO 신고번호', width: '8%', align: 'center', sortable: true },
+      { field: 'manager_name', label: '담당자', width: '6%', align: 'center', sortable: true },
+      { field: 'phone', label: '휴대폰번호', width: '8%', align: 'center', sortable: true },
+      { field: 'email', label: '이메일', width: '10%', align: 'left', sortable: true },
       { field: 'approval', label: '인증', width: '6%', align: 'center', sortable: true, type: 'toggle' },
       { field: 'grade', label: '등급', width: '6%', align: 'center', sortable: true, type: 'dropdown' },
-      { field: 'created_at', label: '가입일자', width: '8%', align: 'center', sortable: true }
+      { field: 'created_at', label: '가입일자', width: '6%', align: 'center', sortable: true }
     ]
   },
 
@@ -66,20 +69,23 @@ export const membersTableConfig = {
     tableWidth: '100vw',
     tableStyle: {
       overflowX: 'auto',
-      minWidth: '1080px',
+      minWidth: '1600px',
       width: '100vw'
     },
     columns: [
-      { field: 'index', label: '순번', width: '5%', align: 'center', sortable: false },
-      { field: 'id_email', label: '아이디', width: '10%', align: 'left', sortable: true },
-      { field: 'company_name', label: '회사명', width: '12%', align: 'left', sortable: true },
-      { field: 'biz_no', label: '사업자등록번호', width: '10%', align: 'center', sortable: true },
-      { field: 'ceo_name', label: '대표자명', width: '8%', align: 'center', sortable: true },
-      { field: 'address', label: '주소', width: '18%', align: 'left', sortable: true },
-      { field: 'cso_regist_no', label: 'CSO 신고번호', width: '12%', align: 'center', sortable: true },
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      { field: 'id_email', label: '아이디', width: '8%', align: 'left', sortable: true },
+      { field: 'company_name', label: '회사명', width: '10%', align: 'left', sortable: true },
+      { field: 'biz_no', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자명', width: '6%', align: 'center', sortable: true },
+      { field: 'address', label: '주소', width: '12%', align: 'left', sortable: true },
+      { field: 'cso_regist_no', label: 'CSO 신고번호', width: '10%', align: 'center', sortable: true },
+      { field: 'manager_name', label: '담당자', width: '6%', align: 'center', sortable: true },
+      { field: 'phone', label: '휴대폰번호', width: '8%', align: 'center', sortable: true },
+      { field: 'email', label: '이메일', width: '10%', align: 'left', sortable: true },
       { field: 'approval', label: '인증', width: '6%', align: 'center', sortable: true, type: 'toggle' },
       { field: 'grade', label: '등급', width: '6%', align: 'center', sortable: true, type: 'dropdown' },
-      { field: 'created_at', label: '가입일자', width: '8%', align: 'center', sortable: true }
+      { field: 'created_at', label: '가입일자', width: '6%', align: 'center', sortable: true }
     ]
   }
 };
@@ -418,7 +424,7 @@ export const userNoticesTableConfig = {
       { field: 'id', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'title', label: '제목', width: '30%', align: 'left', sortable: true },
       { field: 'content', label: '내용', width: '46%', align: 'left', sortable: true },
-      { field: 'created_at', label: '작성일시', width: '10%', align: 'center', sortable: true },
+      { field: 'created_at', label: '작성일자', width: '10%', align: 'center', sortable: true },
       { field: 'author', label: '작성자', width: '10%', align: 'center', sortable: true }
     ]
   },

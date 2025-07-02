@@ -192,9 +192,10 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
 }
 
 .menu-item.router-link-exact-active {
-  background: var(--primary);
-  color: #fff;
-  font-weight: 500;
+  background: #fff;
+  color: var(--primary);
+  border-right: 3px solid var(--primary);
+  font-weight: 600;
 }
 
 .menu-label {
@@ -239,17 +240,22 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
   .menu-icon-fa {
     font-size: var(--font-size-120);
   }
+
+
   /* 데스크탑 hover 기능 비활성화 */
   .sidebar:hover {
     width: 60vw;
   }
+
   .sidebar.sidebar-mobile-open {
     left: 0; /* 열렸을 때 위치 */
     box-shadow: 4px 0 12px rgba(0,0,0,0.1);
     z-index: 2000;
   }
+
   .menu-label {
     opacity: 1; /* 모바일에서 라벨 항상 표시 */
   }
+ 
 }
 </style>

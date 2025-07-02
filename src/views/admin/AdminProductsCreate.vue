@@ -38,7 +38,7 @@
       </select>
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
-        <button type="submit" class="btn-add" :disabled="loading" style="flex:1;">등록</button>
+        <button type="submit" class="btn-primary" :disabled="loading" style="flex:1;">등록</button>
       </div>
     </form>
   </div>
