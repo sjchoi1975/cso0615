@@ -56,42 +56,49 @@ body.scroll-enabled {
 
 :root {
   
-/* 브랜드 색상 - 후보군 */
+  /* 브랜드 색상 - 사용중 */
+  --primary: #1976d2; /* 포인트 파랑 */
+  --primary-light: #e3f2fd; /* 아주 밝은 파랑 */
+  --primary-lightest: #f1f8ff; /* 거의 흰색에 가까운 파랑 */
+  --primary-dark: #1565c0; /* 어두운 파랑 */
+  --primary-hover: #1565c0; /* 호버 시 파랑 */
+
+  /*--primary: #c62828;           /* 메인 진한 레드 */
+  /*--primary-dark: #8e0000;      /* 더 어두운 레드 */
+  /*--primary-light: #ff5252;     /* 밝은 레드 */
+  /*--primary-lightest: #ffebee;  /* 아주 연한 레드(배경용) */
+    
+  /*--primary: #2e7d32;           /* 메인 진한 녹색 */
+  /*--primary-dark: #005005;      /* 더 어두운 녹색 */
+  /*--primary-light: #66bb6a;     /* 밝은 녹색 */
+  /*--primary-lightest: #e8f5e9;  /* 아주 연한 녹색(배경용) */
+
+  
+  /* 브랜드 색상 - 후보군 */
   /* 레드 */
-  --primary-dark: #8e0000;      /* 더 어두운 레드 */
-  --primary: #c62828;           /* 메인 진한 레드 */
-  --primary-mid: #e73c3c;       /* 중간 레드 */
-  --primary-light: #f44336;     /* 밝은 레드 */
-  --primary-lightest: #ffcdd2;  /* 아주 연한 레드(배경용) */
+  --primary-red: #c62828;           /* 메인 진한 레드 */
+  --primary-red-dark: #8e0000;      /* 더 어두운 레드 */
+  --primary-red-light: #ff5252;     /* 밝은 레드 */
+  --primary-red-lightest: #ffebee;  /* 아주 연한 레드(배경용) */
   
   /* 그린 */
-  --primary-dark: #028a3d;      /* 네이버 그린(어두운) */
-  --primary: #03c75a;           /* 네이버 그린 */
-  --primary-mid: #26d96a;       /* 중간 그린 */
-  --primary-light: #4caf50;     /* 네이버 그린(밝은) */
-  --primary-lightest: #c8e6c9;  /* 네이버 그린(아주 연한) */
+  --primary-green: #03c75a;           /* 네이버 그린 */
+  --primary-green-dark: #028a3d;      /* 네이버 그린(어두운) */
+  --primary-green-light: #4be18e;     /* 네이버 그린(밝은) */
+  --primary-green-lightest: #e6f9ee;  /* 네이버 그린(아주 연한) */
   
   /* 녹색 */
-  --primary-dark: #005005;      /* 더 어두운 녹색 */
-  --primary: #2e7d32;           /* 메인 진한 녹색 */
-  --primary-mid: #4a9b4e;       /* 중간 녹색 */
-  --primary-light: #4caf50;     /* 밝은 녹색 */
-  --primary-lightest: #c8e6c9;  /* 아주 연한 녹색(배경용) */
+  --primary-deep-green: #2e7d32;           /* 메인 진한 녹색 */
+  --primary-deep-green-dark: #005005;      /* 더 어두운 녹색 */
+  --primary-deep-green-light: #66bb6a;     /* 밝은 녹색 */
+  --primary-deep-green-lightest: #e8f5e9;  /* 아주 연한 녹색(배경용) */
 
   /* 파랑 */
-  --primary-dark: #1565c0;     /* 어두운 파랑 */
-  --primary: #1976d2;          /* 포인트 파랑 */
-  --primary-mid: #42a5f5;      /* 중간 파랑 */
-  --primary-light: #bbdefb;    /* 아주 밝은 파랑 */
-  --primary-lightest: #e3f2fd; /* 거의 흰색에 가까운 파랑 */
+  --primary-blue: #1976d2; /* 포인트 파랑 */
+  --primary-blue-dark: #1565c0; /* 어두운 파랑 */
+  --primary-blue-light: #e3f2fd; /* 아주 밝은 파랑 */
+  --primary-blue-lightest: #f1f8ff; /* 거의 흰색에 가까운 파랑 */
   
-/* 브랜드 색상 - 사용중 */
---primary-dark: #1565c0;     /* 어두운 파랑 */
---primary: #1976d2;          /* 포인트 파랑 */
---primary-mid: #42a5f5;      /* 중간 파랑 */
---primary-light: #bbdefb;    /* 아주 밝은 파랑 */
---primary-lightest: #e3f2fd; /* 거의 흰색에 가까운 파랑 */
-
   
   /* 상태 색상 */
   --success: #28a745;
@@ -438,8 +445,8 @@ body.login-page .main-content.main-margin {
 .function-card {
   display: flex !important;
   align-items: center !important;
-  min-height: 3.4rem !important;
-  max-height: 3.4rem !important;
+  min-height: 3.2rem !important;
+  max-height: 3.2rem !important;
 }
 
 .function-card {

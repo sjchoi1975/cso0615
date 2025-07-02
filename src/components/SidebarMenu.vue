@@ -167,7 +167,7 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
   display: flex;
   align-items: center;
   padding: 0.8rem 0.6rem;
-  color: #222;
+  color: #555;
   text-decoration: none;
   font-size: var(--font-size-110);
   font-weight: 500;
@@ -188,7 +188,8 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
 }
 
 .menu-item:hover {
-  background: #f0f4f9;
+  background: var(--primary-light);
+  color: #222;
 }
 
 .menu-item.router-link-exact-active {

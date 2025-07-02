@@ -13,23 +13,9 @@
     <!-- 기능카드 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalCount }}건</div>
-      <div style="display: flex; gap: 1rem;">
-        <Button
-          icon="pi pi-pencil"
-          label="제약사 추가"
-          class="btn-add-md"
-          @click="openCreateModal"
-          iconPos="left"
-          style="gap:0.5em;"
-        />
-        <Button
-          icon="pi pi-download"
-          label="다운로드"
-          class="btn-download-md"
-          @click="downloadExcel"
-          iconPos="left"
-          style="gap:0.5em;"
-        />
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn-primary" @click="openCreateModal">제약사 추가</button>
+        <button class="btn-add" @click="downloadExcel">다운로드</button>
       </div>
     </div>
 

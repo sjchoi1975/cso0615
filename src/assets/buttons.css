@@ -3,10 +3,10 @@
 /* ========================================================================================================= */
 
 /* 공통 스타일 - 로그인 / 회원가입 / 확인 / 취소 */
-.login-btn,
-.signup-btn,
-.confirm-btn,
-.cancel-btn {
+.btn-login,
+.btn-signup,
+.btn-confirm,
+.btn-cancel {
   padding: 0.75rem 2rem !important;
   font-size: var(--font-size-base) !important;
   font-weight: 400 !important;
@@ -20,29 +20,29 @@
 }
 
 /* 색상 스타일 - 로그인 / 회원가입 / 확인 / 취소 */
-.login-btn {
+.btn-login {
   background: var(--primary) !important;
   color: var(--text-white) !important;
 }
-.signup-btn {
+.btn-signup {
   background: var(--primary) !important;
   color: var(--text-white) !important;
 }
-.confirm-btn {
+.btn-confirm {
   background: var(--primary) !important;
   color: var(--text-white) !important;
 }  
-.cancel-btn {
+.btn-cancel {
   background: var(--gray-100) !important;
   color: var(--text-dark) !important;
   border: 1px solid var(--border-secondary) !important;
 }
 
 /* 호버 효과 - 로그인 / 회원가입 / 확인 / 취소 */
-.login-btn:hover:not(:disabled),
-.signup-btn:hover:not(:disabled),
-.confirm-btn:hover:not(:disabled),
-.cancel-btn:hover:not(:disabled) {
+.btn-login:hover:not(:disabled),
+.btn-signup:hover:not(:disabled),
+.btn-confirm:hover:not(:disabled),
+.btn-cancel:hover:not(:disabled) {
   opacity: 0.75 !important;
   transform: translateY(0px) !important;
   box-shadow: var(--shadow) !important;
@@ -50,10 +50,10 @@
 }
 
 /* 비활성화 상태 */
-.login-btn:disabled,
-.signup-btn:disabled,
-.confirm-btn:disabled,
-.cancel-btn:disabled {
+.btn-login:disabled,
+.btn-signup:disabled,
+.btn-confirm:disabled,
+.btn-cancel:disabled {
   opacity: 0.5 !important;
   box-shadow: none !important;
 }
@@ -66,31 +66,31 @@
 
 /* 공통 스타일 - 기본 버튼 */
 
-.btn-primary,
-.btn-add,
-.btn-save,
-.btn-confirm,
-.btn-select,
-.btn-selectall,
+.btn-primary-md,
+.btn-add-md, /* 공지사항 목록 - 산규 등록 */
+.btn-save-md,
+.btn-confirm-md,
+.btn-select-md,
+.btn-selectall-md,
 
-.btn-edit,
+.btn-edit-md,
 
-.btn-secondary,
-.btn-cancel,
-.btn-close,
+.btn-secondary-md,
+.btn-cancel-md,
+.btn-close-md,
 
-.btn-upload,
-.btn-download,
-.btn-download_all,
+.btn-upload-md,
+.btn-download-md,
+.btn-download_all-md,
 
-.btn-danger,
-.btn-delete {
+.btn-danger-md,
+.btn-delete-md {
 
   padding: 0.3rem 1rem !important;
   font-size: var(--font-size-base) !important;
   font-weight: 400 !important;
   border: 1px solid transparent !important;
-  border-radius: var(--border-radius) !important;
+  border-radius: var(--border-radius-2xl) !important;
   cursor: pointer !important;
   white-space: nowrap !important;
   text-align: center !important;
@@ -100,28 +100,34 @@
 }
 
 /* 색상 스타일 - 기본 버튼 */
-.btn-primary { 
+.btn-primary-md { 
   background: var(--primary) !important;
   border-color: var(--primary) !important;
   color: var(--text-white) !important;
 }
-.btn-cancel {
+.btn-cancel-md {
   background: #fff !important;
   border-color: var(--gray-400) !important;
   color: var(--gray-900) !important;
 }
-.btn-add {
-  background: var(--primary-blue) !important;
-  border-color: var(--primary-blue) !important;
+.btn-add-md { /* 공지사항 목록 - 산규 등록 */
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
   color: var(--text-white) !important;
 }
-.btn-danger,
-.btn-delete {
+.btn-danger-md,
+.btn-delete-md {
   background: var(--danger) !important;
   border-color: var(--danger) !important;
   color: var(--text-white) !important;
 }
 
+.btn-add-md, /* 공지사항 목록 - 산규 등록 */
+.btn-download-md { /* 회원 목록 - 다운로드 */
+  background: var(--gray-100) !important;
+  border-color: var(--gray-500) !important;
+  color: var(--gray-900) !important;
+}
 
 
 
@@ -130,10 +136,10 @@
 /* 상호작용 효과 (호버, 포커스, 비활성화)
 /* ========================================================================================================= */
 
+
 /* 호버 효과 - 일반 버튼 */
-.btn-primary:hover:not(:disabled),
-.btn-add:hover:not(:disabled),
-.btn-cancel:hover:not(:disabled) {
+.btn-primary-md:hover:not(:disabled),
+.btn-cancel-md:hover:not(:disabled) {
   opacity: 0.75 !important;
   transform: translateY(0px) !important;
   box-shadow: var(--shadow) !important;
@@ -141,24 +147,39 @@
 }
 
 
+/* 호버 효과 - 일반 버튼 */
+.btn-add-md:hover:not(:disabled), /* 공지사항 목록 - 산규 등록 */
+.btn-download-md:hover:not(:disabled), /* 회원 목록 - 다운로드 */
+.btn-delete-md:hover:not(:disabled) { /* 전체 삭제 */
+  filter: brightness(0.92);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  transition: all 0.2s ease-in-out !important;
+}
+
+
 /* 포커스 효과 */
 button:focus,
-.btn-primary:focus,
-.btn-add:focus,
-.btn-cancel:focus {
+.btn-primary-md:focus,
+.btn-add-md:focus, /* 공지사항 목록 - 산규 등록 */
+.btn-download-md:focus, /* 회원 목록 - 다운로드 */
+.btn-cancel-md:focus {
   outline: none !important;
   box-shadow: var(--focus-shadow) !important;
   transition: all 0.2s ease-in-out !important;
 }
 
-
 /* 비활성화 상태 */
-.btn-primary:disabled,
-.btn-add:disabled,
-.btn-cancel:disabled {
+.btn-primary-md:disabled,
+.btn-cancel-md:disabled {
   opacity: 0.9 !important;
   box-shadow: none !important;
 }
+
+
+
+
+
+
 
 
 
@@ -169,18 +190,21 @@ button:focus,
 /* ========================================================================================================= */
 
 /* 수정 */
-.btn-icon-edit .p-button-icon {
+.btn-icon-edit
+.p-button-icon {
   color: var(--warning-dark) !important;
 }
 
 /* 기존 삭제 휴지통 위험으로 작성, 삭제로 변경 요망!!! */
 /* 삭제 */
-.btn-icon-delete .p-button-icon {
+.btn-icon-delete
+.p-button-icon {
   color: var(--danger) !important;
 }
 
 /* 위험 */
-.btn-icon-danger .p-button-icon {
+.btn-icon-danger
+.p-button-icon {
   color: var(--danger) !important;
 }
 
@@ -268,24 +292,6 @@ button:focus,
   color: #666 !important;
   padding: 0 !important;
 }
-
-
-
-
-/* 컬럼 정렬 클래스 */
-.text-center { text-align: center !important; }
-.text-left   { text-align: left !important; }
-.text-right  { text-align: right !important; }
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -31,58 +31,19 @@
         </div>
       </div>
     </div>
-    
+
     <!-- 모바일 기능카드 스크롤 처리 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
       <div style="display: flex; gap:1rem; align-items:center;">
-        <Button
-          icon="pi pi-file-excel"
-          label="양식다운"
-          class="btn-add-md"
-          @click="downloadTemplate"
-          iconPos="left"
-          style="gap:0.5rem;"
-        />
-        <Button
-          icon="pi pi-upload"
-          label="엑셀 등록"
-          class="btn-add-md"
-          @click="() => $refs.fileInput.click()"
-          iconPos="left"
-          style="gap:0.5rem;"
-        />
-        <input
-          ref="fileInput"
-          type="file"
-          accept=".xlsx,.xls"
-          @change="uploadExcel"
-          style="display:none;"
-        />
-        <Button
-          icon="pi pi-download"
-          label="다운로드"
-          class="btn-download-md"
-          @click="downloadExcel"
-          iconPos="left"
-          style="gap:0.5rem;"
-        />
-        <Button
-          icon="pi pi-pencil"
-          label="신규 등록"
-          class="btn-add-md"
-          @click="goToProductCreate"
-          iconPos="left"
-          style="gap:0.5rem;"
-        />
-        <Button
-          icon="pi pi-trash"
-          label="전체 삭제"
-          class="btn-delete-md"
-          @click="deleteAllProducts"
-          iconPos="left"
-          style="gap:0.5rem;"
-        />
+        <button class="btn-add" @click="downloadExcel">다운로드</button>
+        <button class="btn-add" @click="downloadTemplate">템플릿</button>
+        <label class="btn-add" style="margin-bottom:0; cursor:pointer;">
+          엑셀 등록
+          <input type="file" accept=".xlsx,.xls" @change="uploadExcel" style="display:none;" />
+        </label>
+        <button class="btn-primary" @click="goToProductCreate">신규 등록</button>
+        <button class="btn-delete" @click="deleteAllProducts">전체 삭제</button>
       </div>
     </div>
 

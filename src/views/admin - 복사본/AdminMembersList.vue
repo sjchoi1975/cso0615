@@ -27,14 +27,7 @@
     <!-- 중간: 기능카드 -->
     <div class="function-card">
       <div class="total-count">총 {{ filteredMembers.length }}명</div>
-      <Button
-        icon="pi pi-download"
-        label="다운로드"
-        class="btn-download-md"
-        @click="downloadExcel"
-        :iconPos="'left'"
-        style="gap:0.5rem;"
-      />
+      <button class="btn-download-md" @click="downloadExcel">다운로드</button>
     </div>
     
     <!-- 하단: 테이블카드 -->
@@ -112,7 +105,6 @@ import { supabase } from '@/supabase';
 import * as XLSX from 'xlsx';
 import { membersTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
-import Button from 'primevue/button';
 
 // 반응형 테이블 설정
 const isMobile = computed(() => window.innerWidth <= 768);

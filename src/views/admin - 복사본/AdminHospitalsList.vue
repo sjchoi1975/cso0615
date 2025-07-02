@@ -8,58 +8,19 @@
         </span>
       </div>
     </div>
-    
+
     <!-- Function Card -->
     <div class="function-card">
       <div class="total-count">총 {{ totalCount.toLocaleString() }}개 거래처</div>
-      <div style="display: flex; gap:1rem; align-items:center;">
-        <Button
-          icon="pi pi-file-excel"
-          label="양식다운"
-          class="btn-add-md"
-          @click="downloadTemplate"
-          iconPos="left"
-          style="gap:0.5em;"
-        />
-        <Button
-          icon="pi pi-upload"
-          label="엑셀 등록"
-          class="btn-add-md"
-          @click="() => $refs.fileInput.click()"
-          iconPos="left"
-          style="gap:0.5em;"
-        />
-        <input
-          ref="fileInput"
-          type="file"
-          accept=".xlsx,.xls"
-          @change="uploadExcel"
-          style="display:none;"
-        />
-        <Button
-          icon="pi pi-download"
-          label="다운로드"
-          class="btn-download-md"
-          @click="downloadExcel"
-          iconPos="left"
-          style="gap:0.5em;"
-        />
-        <Button
-          icon="pi pi-pencil"
-          label="신규 등록"
-          class="btn-add-md"
-          @click="goToCreatePage"
-          iconPos="left"
-          style="gap:0.5em;"
-        />
-        <Button
-          icon="pi pi-trash"
-          label="전체 삭제"
-          class="btn-delete-md"
-          @click="deleteAllHospitals"
-          iconPos="left"
-          style="gap:0.5em;"
-        />
+      <div style="display: flex; gap:0.5rem; align-items:center;">
+        <button class="btn-add" @click="downloadExcel">다운로드</button>
+        <button class="btn-add" @click="downloadTemplate">템플릿</button>
+        <label class="btn-add" style="margin-bottom:0; cursor:pointer;">
+          엑셀 등록
+          <input type="file" accept=".xlsx,.xls" @change="uploadExcel" style="display:none;" />
+        </label>
+        <button class="btn-primary" @click="goToCreatePage">신규 등록</button>
+        <button class="btn-delete" @click="deleteAllHospitals">전체 삭제</button>
       </div>
     </div>
 

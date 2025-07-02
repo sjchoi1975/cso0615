@@ -13,15 +13,9 @@
     <!-- 중간: 기능카드 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalCount }}건</div>
-      <Button
-        icon="pi pi-pencil"
-        label="신규 등록"
-        class="btn-add-md"
-        @click="$router.push('/admin/notices/create')"
-        iconPos="left"
-        style="gap:0.5rem;"
-      />
+      <router-link to="/admin/notices/create" class="btn-add-md">산규 등록</router-link>
     </div>
+
     
     <!-- 하단: 테이블카드 -->
     <div class="table-card">

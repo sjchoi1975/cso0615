@@ -43,14 +43,7 @@
     <div class="function-card">
       <div class="total-count">총 {{ totalCount.toLocaleString() }}건의 요청</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
-        <Button
-          icon="pi pi-download"
-          label="다운로드"
-          class="btn-download-md"
-          @click="downloadExcel"
-          iconPos="left"
-          style="gap:0.5rem;"
-        />
+        <button class="btn-download" @click="downloadExcel">다운로드</button>
       </div>
     </div>
 
@@ -150,7 +143,6 @@ import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 import { filterRequestsTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
-import Button from 'primevue/button';
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? filterRequestsTableConfig.mobile : filterRequestsTableConfig.pc);
