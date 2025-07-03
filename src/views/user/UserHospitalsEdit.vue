@@ -1,13 +1,13 @@
 <template>
   <div class="board">
     <form @submit.prevent="updateHospital" class="board-form">
-      <label>거래처명<span style="color:#e74c3c">*</span></label>
+      <label>거래처명<span class="required">*</span></label>
       <input v-model="hospitalName" placeholder="거래처명을 입력하세요" class="input" required />
-      <label>사업자등록번호<span style="color:#e74c3c">*</span></label>
+      <label>사업자등록번호<span class="required">*</span></label>
       <input v-model="businessNumber" placeholder="'-' 없이 숫자만 입력" class="input" required />
-      <label>원장명<span style="color:#e74c3c">*</span></label>
+      <label>원장명<span class="required">*</span></label>
       <input v-model="directorName" placeholder="원장명을 입력하세요" class="input" required />
-      <label>주소<span style="color:#e74c3c">*</span></label>
+      <label>주소<span class="required">*</span></label>
       <input v-model="address" placeholder="주소를 입력하세요" class="input" required />
       <label>사업자등록증</label>
       <input type="file" @change="onFileChange" class="input" />
@@ -157,14 +157,3 @@ const getFileUrl = (path) => {
   return data.publicUrl;
 };
 </script>
-
-<style scoped>
-.file-info {
-  font-size: 0.9em;
-  color: #555;
-  margin-top: 5px;
-}
-.file-info .link {
-  margin-left: 10px;
-}
-</style>

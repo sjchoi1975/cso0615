@@ -592,29 +592,12 @@ body.login-page .main-content.main-margin {
 
 /* 필터링 요청 - 거래처명, 원장명 입력 인풋 박스 */
 .input-table,
-.input-search {
+.input-search-filter {
   width: 100% !important;
   padding: 0.5rem !important;
   border: 1px solid #ddd !important;
   border-radius: 2px !important;
   font-size: var(--font-size-base) !important;
-}
-
-.selected-pharmas-list {
-  margin-top: 1rem !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.5rem !important;
-}
-
-.selected-pharma-item {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  background-color: #f8f9fa !important;
-  border: 1px solid #e9ecef !important;
-  padding: 0.5rem 0.75rem !important;
-  border-radius: 4px !important;
 }
 
 .pharma-badge {
@@ -637,30 +620,100 @@ body.login-page .main-content.main-margin {
 
 /* 인라인 선택 목록 스타일 */
 .selection-list-container {
-  max-height: 400px !important;
+  max-height: 70vh !important;
   overflow-y: auto !important;
 }
 
+
+
+/* 거래처, 제약사 선택 모달 ================================================================================= */
 .hospital-item,
 .pharma-modal-item {
-  padding: 0.75rem 1rem !important;
+  padding: 0.5rem 0.5rem !important;
   border-bottom: 1px solid #eee !important;
   cursor: pointer !important;
 }
 
-.hospital-item:hover, .pharma-modal-item:hover { background-color: #f8f9fa !important; }
-.hospital-item:last-child, .pharma-modal-item:last-child { border-bottom: none !important; }
+.hospital-item:hover,
+.pharma-modal-item:hover {
+  background-color: var(--primary-lightest) !important;
+}
 
-.hospital-name { font-weight: 600 !important; }
-.hospital-info, .hospital-address { font-size: 0.9rem !important; color: #666 !important; }
-
-.pharma-modal-item { display: flex; justify-content: space-between; align-items: center; }
-.pharma-modal-item.selected { background-color: #e3f2fd; }
-.check-icon { color: #1976d2; font-weight: bold; }
-.no-data { padding: 1rem; text-align: center; color: #888; }
-.selected-item-display { margin-top: 0.5rem; }
+.hospital-item:last-child,
+.pharma-modal-item:last-child {
+  border-bottom: none !important;
+}
 
 
+
+/* 거래처 선택 모달 ======================================================================================== */
+.hospital-name {
+  color: #444 !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+}
+
+.hospital-info,
+.hospital-address {
+  color: #666 !important;
+  font-size: 0.95rem !important;
+}
+
+.hospital-name.selected,
+.hospital-info.selected {
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+}
+
+
+/* 제약사 선택 모달 ======================================================================================== */
+.pharma-modal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #444 !important;
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
+}
+
+.pharma-modal-item.selected {
+  color: var(--primary) !important;
+  background-color: var(--primary-lightest) !important;
+  font-weight: 600 !important;
+}
+
+.check-icon {
+  color: var(--primary) !important;
+  padding: 0 1rem 0 0 !important;
+  font-weight: 600 !important;
+}
+
+.no-data {
+  padding: 1rem;
+  text-align: center;
+  color: #888;
+}
+
+.selected-item-display {
+  margin-top: 0.5rem;
+}
+
+.selected-pharmas-list {
+  margin-top: 1rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+}
+
+.selected-pharma-item {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  background-color: var(--gray-200) !important;
+  border: 1px solid var(--gray-400) !important;
+  padding: 0.25rem 1rem !important;
+  border-radius: var(--border-radius) !important;
+}
 
 
 
@@ -917,6 +970,18 @@ div.v3dp__datepicker input[type="text"]:focus,
   text-decoration: underline !important;
 }
 
+/* 거래처 수정 - 파일 정보 스타일 */
+.file-info {
+  font-size: 0.9em;
+  color: #555;
+  margin-top: 5px;
+}
+.file-info .link {
+  margin-left: 10px;
+}
+
+
+
 /* 비밀번호 불일치 시 스타일 <- 로그인, 회원가입 */
 .password-mismatch {
   border-color: #dc3545 !important;
@@ -966,6 +1031,21 @@ div.v3dp__datepicker input[type="text"]:focus,
   .custom-modal {
     padding: 0 !important;
     border-radius: var(--border-radius-2xl) !important;
+    min-width: 90vw !important;
+    max-width: 90vw !important;
+  }
+}
+
+/* 모달 스타일 - 제약사 선택 모달 ============================================================================== */
+.custom-modal-pharma {
+  min-width: 480px !important;
+  max-width: 90vw !important;
+  min-height: 180px !important;
+  max-height: 90vh !important;
+}
+
+@media (max-width: 768px) {
+  .custom-modal-pharma {
     min-width: 90vw !important;
     max-width: 90vw !important;
   }

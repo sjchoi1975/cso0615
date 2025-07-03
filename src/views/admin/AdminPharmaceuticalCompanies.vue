@@ -58,10 +58,22 @@
                 {{ slotProps.index + 1 + first }}
               </template>
               <template v-else-if="col.type === 'icon' && col.field === 'edit'">
-                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text" @click="openEditModal(slotProps.data)" />
+                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="openEditModal(slotProps.data)" />
               </template>
               <template v-else-if="col.type === 'icon' && col.field === 'delete'">
-                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteCompany(slotProps.data)" />
+                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDelete(slotProps.data)" />
+              </template>
+              <template v-else-if="col.field === 'status'">
+                <div class="custom-toggle-wrap">
+                  <input
+                    type="checkbox"
+                    :id="'status-' + slotProps.data.id"
+                    :checked="slotProps.data.status === 'active'"
+                    @change="toggleStatus(slotProps.data)"
+                    class="custom-toggle-checkbox"
+                  />
+                  <label :for="'status-' + slotProps.data.id" class="custom-toggle-label"></label>
+                </div>
               </template>
               <template v-else-if="col.field === 'created_at'">
                 {{ formatDate(slotProps.data.created_at) }}
@@ -153,7 +165,7 @@ const fetchCompanies = async () => {
     const { data, error } = await supabase
       .from('pharmaceutical_companies')
       .select('*')
-      .order('company_name');
+      .order('created_at', { ascending: false });
     
     if (error) throw error;
     
@@ -177,6 +189,13 @@ const filteredCompanies = computed(() => {
   return companies.value.filter(company => 
     company.company_name.toLowerCase().includes(keyword)
   );
+});
+
+// 제약사 선택 모달용 목록 생성 (가나다순, 활성만)
+const activeSortedCompanies = computed(() => {
+  return companies.value
+    .filter(c => c.status === 'active')
+    .sort((a, b) => a.company_name.localeCompare(b.company_name, 'ko'));
 });
 
 // 모달 열기/닫기
@@ -308,6 +327,19 @@ const formatDate = (dateString) => {
   const day = ('0' + date.getDate()).slice(-2);
   return `${year}-${month}-${day}`;
 };
+
+async function toggleStatus(company) {
+  const newStatus = company.status === 'active' ? 'inactive' : 'active';
+  const { error } = await supabase
+    .from('pharmaceutical_companies')
+    .update({ status: newStatus })
+    .eq('id', company.id);
+  if (!error) {
+    company.status = newStatus;
+  } else {
+    alert('상태 변경에 실패했습니다.');
+  }
+}
 
 onMounted(async () => {
   await fetchCompanies();

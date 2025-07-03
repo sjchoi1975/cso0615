@@ -149,10 +149,13 @@
     <div v-if="showFileModal" class="custom-modal-overlay">
       <div class="custom-modal">
         <div class="modal-header">
-          <h3 class="modal-title" style="text-align: center;">사업자등록증</h3>
+          <div class="modal-title">사업자등록증</div>
         </div>
         <div class="modal-body">
-          <img :src="fileUrl" alt="사업자등록증" style="max-width:100%;max-height:60vh;" />
+          <object v-if="isPdfFile" :data="fileUrl" type="application/pdf" style="width: 100%; height: 70vh;">
+            <p>PDF 뷰어를 로드할 수 없습니다. <a :href="fileUrl" target="_blank">여기서 다운로드</a>하여 확인해주세요.</p>
+          </object>
+          <img v-else :src="fileUrl" alt="사업자등록증" style="width: 100%; max-height: 70vh; object-fit: contain;" />
         </div>
         <div class="modal-footer">
           <button class="btn-cancel modal" @click="closeFileModal">닫기</button>
@@ -160,7 +163,7 @@
         </div>
       </div>
     </div>
-
+    
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteModal" class="custom-modal-overlay">
       <div class="custom-modal">
@@ -215,8 +218,7 @@ const tableRef = ref(null);
 // State for file viewer modal
 const showFileModal = ref(false);
 const fileUrl = ref('');
-const isPdfFile = ref(false);
-const currentHospitalForFile = ref(null);
+const currentFilePath = ref(null);
 
 // State for delete confirmation modal
 const showDeleteModal = ref(false);
@@ -228,6 +230,12 @@ const tableConfig = computed(() => isMobile.value ? hospitalsTableConfig.mobile 
 
 // 테이블 스크롤 높이 계산 (페이지네이터 있음)
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
+
+const isPdfFile = computed(() => {
+  if (!currentFilePath.value) return false;
+  const extension = currentFilePath.value.split('.').pop()?.toLowerCase();
+  return extension === 'pdf';
+});
 
 const goToCreatePage = () => {
   router.push('/admin/hospitals/create');
@@ -385,25 +393,15 @@ const deleteHospital = async (hospital) => {
   }
 };
 
-const openFileModal = async (hospital) => {
-  if (!hospital.business_license_file) {
-    alert('파일이 존재하지 않습니다.');
-    return;
-  }
-  
-  currentHospitalForFile.value = hospital;
-  currentFilePath.value = hospital.business_license_file;
-
-  // DB에 저장된 파일 경로를 사용하여 임시 URL 생성
-  const { data, error } = await supabase.storage
-    .from('hospital-biz-licenses')
-    .createSignedUrl(currentFilePath.value, 60); // 60초간 유효
-
+const openFileModal = async (row) => {
+  if (!row.business_license_file) return;
+  currentFilePath.value = row.business_license_file;
+  // signedUrl 발급
+  const { data, error } = await supabase.storage.from('hospital-biz-licenses').createSignedUrl(currentFilePath.value, 60);
   if (error) {
     alert('파일 보기 링크 생성에 실패했습니다: ' + error.message);
     return;
   }
-
   fileUrl.value = data.signedUrl;
   showFileModal.value = true;
 };
@@ -411,34 +409,15 @@ const openFileModal = async (hospital) => {
 const closeFileModal = () => {
   showFileModal.value = false;
   fileUrl.value = '';
-  currentHospitalForFile.value = null;
+  currentFilePath.value = null;
 };
 
 const closeDeleteModal = () => {
   showDeleteModal.value = false;
 };
 
-async function showLicenseModal(hospital) {
-  if (!hospital.business_license_file) return;
-
-  // business_license_file에 전체 URL이 저장되어 있을 경우, 경로만 추출합니다.
-  const path = hospital.business_license_file.split('/').pop();
-
-  const { data, error } = await supabase.storage
-    .from('hospital-biz-licenses')
-    .createSignedUrl(path, 60); // 60초 유효
-
-  if (error) {
-    console.error('Error creating signed URL:', error);
-    alert('파일 URL을 생성하는 데 실패했습니다.');
-    return;
-  }
-  fileUrl.value = data.signedUrl;
-  showFileModal.value = true;
-}
-
 const downloadFile = async () => {
-  if (!currentFilePath.value || !currentHospitalForFile.value) {
+  if (!fileUrl.value || !currentFilePath.value) {
     alert('다운로드할 파일 정보가 없습니다.');
     return;
   }
@@ -447,7 +426,7 @@ const downloadFile = async () => {
     // 저장된 파일 경로를 사용해 직접 파일을 다운로드합니다.
     const { data: blob, error } = await supabase.storage
       .from('hospital-biz-licenses')
-      .download(currentFilePath.value);
+      .download(fileUrl.value);
 
     if (error) {
       throw error;
@@ -457,8 +436,8 @@ const downloadFile = async () => {
     const a = document.createElement('a');
     a.href = url;
     
-    const fileExtension = currentFilePath.value.split('.').pop();
-    a.download = `${currentHospitalForFile.value.hospital_name}_사업자등록증.${fileExtension}`;
+    const fileExtension = fileUrl.value.split('.').pop();
+    a.download = `${currentFilePath.value}_사업자등록증.${fileExtension}`;
     
     document.body.appendChild(a);
     a.click();

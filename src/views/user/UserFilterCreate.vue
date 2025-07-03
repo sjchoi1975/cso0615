@@ -53,11 +53,10 @@
           <tr>
             <th>제약사 선택</th>
             <td>
-              <button type="button" class="btn-add-sm" @click="openPharmaModal">제약사 추가</button>
+              <button type="button" class="btn-add-sm" @click="openPharmaModal">제약사 선택</button>
               <div v-if="selectedPharmas.length > 0" class="selected-pharmas-list">
                 <div v-for="pharma in selectedPharmas" :key="pharma.id" class="selected-pharma-item">
                   <span>{{ pharma.company_name }}</span>
-                  <button type="button" class="remove-badge" @click="removePharma(pharma.id)">×</button>
                 </div>
               </div>
             </td>
@@ -77,18 +76,22 @@
         <button type="button" class="btn-confirm" @click="submitRequest" :disabled="loading || !isFormValid" style="flex:2;">{{ loading ? '요청 중...' : '등록' }}</button>
       </div>
     </div>
-
+    
     <!-- 공용 선택 모달 -->
     <div v-if="showModal" class="custom-modal-overlay">
-      <div class="custom-modal">
+      <div class="custom-modal custom-modal-pharma">
         <div class="modal-header">
           <h3 class="modal-title">{{ modalTitle }}</h3>
-          <button class="btn-close-nobg" @click="closeModal">×</button>
         </div>
         <div class="modal-body">
+          <!--
           <div class="search-box">
-            <input v-model="modalSearch" type="text" class="input-search" :placeholder="modalSearchPlaceholder" />
+            <input v-model="modalSearch"
+              type="text"
+              class="input-search-filter"
+              :placeholder="modalSearchPlaceholder" />
           </div>
+          -->
           <div class="selection-list-container">
             <!-- 거래처 목록 -->
             <template v-if="modalType === 'hospital'">
@@ -102,7 +105,7 @@
             </template>
             <!-- 제약사 목록 -->
             <template v-if="modalType === 'pharma'">
-              <div v-for="pharma in filteredModalItems" :key="pharma.id" 
+              <div v-for="pharma in activeSortedCompanies" :key="pharma.id" 
                    class="pharma-modal-item" 
                    :class="{ selected: isPharmaSelectedInModal(pharma.id) }" 
                    @click="togglePharmaSelection(pharma)">
@@ -184,7 +187,7 @@ const filteredModalItems = computed(() => {
 // 모달 열기
 const openHospitalModal = () => {
   modalType.value = 'hospital';
-  modalTitle.value = '내 거래처 선택';
+  modalTitle.value = '거래처 선택';
   modalSearchPlaceholder.value = '거래처명으로 검색';
   tempSelectedHospital.value = hospitalInfo.value.id ? { ...hospitalInfo.value } : null;
   showModal.value = true;
@@ -192,7 +195,7 @@ const openHospitalModal = () => {
 
 const openPharmaModal = () => {
   modalType.value = 'pharma';
-  modalTitle.value = '제약사 추가';
+  modalTitle.value = '제약사 선택';
   modalSearchPlaceholder.value = '제약사명으로 검색';
   tempSelectedPharmas.value = [...selectedPharmas.value];
   showModal.value = true;
@@ -341,4 +344,12 @@ onMounted(async () => {
   await fetchMyHospitals();
   await fetchPharmas();
 });
+
+const activeSortedCompanies = computed(() => {
+  return allPharmas.value
+    .filter(c => c.status === 'active')
+    .sort((a, b) => a.company_name.localeCompare(b.company_name, 'ko'));
+});
+
+console.log(activeSortedCompanies.value);
 </script>
