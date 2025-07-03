@@ -1089,17 +1089,19 @@ body.modal-open {
   padding: 0.4rem 0.5rem;
   text-align: center !important;
   transition: background-color 0.2s ease !important;
+  height: 2.72rem !important;
 }
 
 .p-datatable .p-datatable-thead > tr > th:hover {
-  background: var(--gray-100) !important;
+  background: var(--gray-200) !important;
   cursor: pointer !important;
 }
 
 .p-datatable .p-datatable-tbody > tr {
   background: #fff !important;
-  padding: 0.4rem 0.5rem !important;
+  padding: 0 0.5rem !important;
   transition: background 0.2s !important;
+  height: 2.72rem !important;
 }
 
 .p-datatable .p-datatable-tbody > tr:hover {
@@ -1108,12 +1110,12 @@ body.modal-open {
 
 /* 짝수 행 배경색 */
 .p-datatable .p-datatable-tbody > tr:nth-child(even) {
-  background: var(--bg-even-row) !important;
+  background: var(--gray-100) !important;
 }
 
 .p-datatable .p-datatable-tbody > tr > td {
   border-bottom: 1px solid var(--border-tertiary) !important;
-  padding: 0.4rem 0.5rem !important;
+  padding: 0 0.5rem !important;
 }
 
 .p-datatable .p-datatable-tbody > tr:last-child {
