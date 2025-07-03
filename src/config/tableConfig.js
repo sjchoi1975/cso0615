@@ -281,7 +281,7 @@ export const pharmaceuticalCompaniesTableConfig = {
 
 
 
-/* EDI 정산월 ============================================================================================ */
+/* EDI 마감 일정 관리 ===================================================================================== */
 export const ediMonthsTableConfig = {
   pc: {
     tableWidth: '1840px',
@@ -319,6 +319,56 @@ export const ediMonthsTableConfig = {
     ]
   }
 };
+
+
+/* EDI 증빙파일 =========================================================================================== */
+export const adminEdiListTableConfig = {
+  pc: {
+    tableWidth: '1840px',
+    tableStyle: {
+      minWidth: '1840px'
+    },
+    columns: [
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      /*{ field: 'settlement_month', label: '정산월', width: '6%', align: 'center', sortable: true },*/
+      { field: 'company_name', label: '업체명', width: '10%', align: 'left', sortable: true },
+      { field: 'member_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },
+      { field: 'member_ceo_name', label: '대표자', width: '6%', align: 'center', sortable: false },
+      { field: 'hospital_name', label: '거래처명', width: '12%', align: 'left', sortable: true },
+      { field: 'hospital_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },
+      { field: 'director_name', label: '원장명', width: '6%', align: 'center', sortable: false },
+      { field: 'hospital_address', label: '주소', width: '12%', align: 'left', sortable: false },
+      { field: 'proof_file', label: '파일보기', width: '6%', align: 'center', sortable: false, type: 'icon' },
+      { field: 'download', label: '다운로드', width: '6%', align: 'center', sortable: false, type: 'icon' },
+      { field: 'created_at', label: '등록일자', width: '8%', align: 'center', sortable: true },
+      { field: 'created_by_name', label: '등록자', width: '10%', align: 'center', sortable: false }
+    ]
+  },
+  mobile: {
+    tableWidth: '100vw',
+    tableStyle: {
+      overflowX: 'auto',
+      minWidth: '800px',
+      width: '100vw'
+    },
+    columns: [
+      /*{ field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      /*{ field: 'settlement_month', label: '정산월', width: '6%', align: 'center', sortable: true },*/
+      { field: 'company_name', label: '업체명', width: '12%', align: 'left', sortable: true },
+      /*{ field: 'member_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },*/
+      /*{ field: 'member_ceo_name', label: '대표자', width: '6%', align: 'center', sortable: false },*/
+      { field: 'hospital_name', label: '거래처명', width: '16%', align: 'left', sortable: true },
+      /*{ field: 'hospital_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },*/
+      /*{ field: 'director_name', label: '원장명', width: '6%', align: 'center', sortable: false },*/
+      { field: 'hospital_address', label: '주소', width: '12%', align: 'left', sortable: false },
+      { field: 'proof_file', label: '파일보기', width: '6%', align: 'center', sortable: false, type: 'icon' },
+      { field: 'download', label: '다운로드', width: '6%', align: 'center', sortable: false, type: 'icon' },
+      { field: 'created_at', label: '등록일자', width: '12%', align: 'center', sortable: true },
+      /*{ field: 'created_by_name', label: '등록자', width: '10%', align: 'center', sortable: false }*/
+    ]
+  }
+};
+
 
 
 /* 정산내역서 - 정산월 ======================================================================================= */
@@ -612,50 +662,6 @@ export const userEdiSubmitTableConfig = {
       { field: 'last_month_files', label: '전월', width: '8%', align: 'center', sortable: false },
       { field: 'current_month_files', label: '당월', width: '8%', align: 'center', sortable: false },
       { field: 'submit_button', label: '제출', width: '8%', align: 'center', type: 'button', icon: 'pi pi-upload' }
-    ]
-  }
-};
-
-
-
-/* EDI 증빙파일 =========================================================================================== */
-export const adminEdiListTableConfig = {
-  pc: {
-    tableWidth: '1840px',
-    tableStyle: {
-      minWidth: '1840px'
-    },
-    columns: [
-      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'settlement_month', label: '정산월', width: '6%', align: 'center', sortable: true },
-      { field: 'company_name', label: '업체명', width: '10%', align: 'left', sortable: true },
-      { field: 'member_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },
-      { field: 'member_ceo_name', label: '대표자', width: '6%', align: 'center', sortable: false },
-      { field: 'hospital_name', label: '거래처명', width: '10%', align: 'left', sortable: true },
-      { field: 'hospital_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },
-      { field: 'director_name', label: '원장명', width: '6%', align: 'center', sortable: false },
-      { field: 'hospital_address', label: '주소', width: '10%', align: 'left', sortable: false },
-      { field: 'proof_file', label: '파일보기', width: '6%', align: 'center', sortable: false, type: 'icon' },
-      { field: 'download', label: '다운로드', width: '6%', align: 'center', sortable: false, type: 'icon' },
-      { field: 'created_at', label: '등록일자', width: '8%', align: 'center', sortable: true },
-      { field: 'created_by_name', label: '등록자', width: '8%', align: 'center', sortable: false }
-    ]
-  },
-  mobile: {
-    tableWidth: '100vw',
-    tableStyle: {
-      overflowX: 'auto',
-      minWidth: '1600px',
-      width: '100vw'
-    },
-    columns: [
-      { field: 'settlement_month', label: '정산월', width: '10%', align: 'center', sortable: true },
-      { field: 'company_name', label: '업체명', width: '20%', align: 'left', sortable: true },
-      { field: 'hospital_name', label: '거래처명', width: '20%', align: 'left', sortable: true },
-      { field: 'created_at', label: '등록일자', label: '15%', align: 'center', sortable: true },
-      { field: 'proof_file', label: '보기', width: '10%', align: 'center', sortable: false, type: 'icon' },
-      { field: 'download', label: '받기', width: '10%', align: 'center', sortable: false, type: 'icon' },
-      { field: 'created_by_name', label: '등록자', width: '15%', align: 'center', sortable: false }
     ]
   }
 };

@@ -3,12 +3,12 @@
     <!-- Filter Card -->
     <div class="filter-card">
       <div class="filter-row">
-        <div class="hide-mobile">
           <span>정산월</span>
           <select v-model="selectedMonth" class="input-120">
             <option value="">- 전체 -</option>
             <option v-for="month in monthOptions" :key="month" :value="month">{{ month }}</option>
           </select>
+        <div class="hide-mobile">
           <span>업체</span>
           <select v-model="selectedCompany" class="input-180">
             <option value="">- 전체 -</option>
@@ -56,7 +56,7 @@
         />
       </div>
     </div>
-
+    
     <!-- Table Card -->
     <div class="table-card">
       <div :style="tableConfig.tableStyle">

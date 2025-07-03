@@ -1109,7 +1109,7 @@ body.modal-open {
 /* 데스크탑 */
 .p-datatable .p-datatable-thead > tr > th,
 .p-datatable .p-datatable-tbody > tr {
-  height: 2.5rem !important;
+  height: 2.4rem !important;
 }
 
 
