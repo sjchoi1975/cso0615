@@ -34,7 +34,7 @@
     
     <!-- 모바일 기능카드 스크롤 처리 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
+      <div class="total-count">총 {{ totalCount.toLocaleString() }}개</div>
       <div style="display: flex; gap:1rem; align-items:center;">
         <Button
           icon="pi pi-file-excel"
@@ -131,16 +131,13 @@
                 <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteProduct(slotProps.data.id)" />
               </template>
               <template v-else-if="col.type === 'toggle' && col.field === 'status'">
-                <div class="custom-toggle-wrap">
-                  <input 
-                    type="checkbox" 
-                    :id="'status-' + slotProps.data.id" 
-                    :checked="slotProps.data.status === 'active'" 
-                    @change="updateProductStatus(slotProps.data)"
-                    class="custom-toggle-checkbox"
-                  />
-                  <label :for="'status-' + slotProps.data.id" class="custom-toggle-label"></label>
-                </div>
+                <input
+                  type="checkbox"
+                  :id="'status-' + slotProps.data.id"
+                  :checked="slotProps.data.status === 'active'"
+                  @change="updateProductStatus(slotProps.data)"
+                  class="custom-toggle-checkbox"
+                /><label :for="'status-' + slotProps.data.id" class="custom-toggle-label"></label>
               </template>
               <template v-else>
                 <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>

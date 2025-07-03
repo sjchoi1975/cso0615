@@ -13,7 +13,13 @@
       
       <div class="function-card" style="display: flex; justify-content: flex-end;">
         <span v-if="selectedMonth" style="font-size: 1.1rem;">
-          제출 기간 : {{ formatDate(selectedMonth.start_date) }} ~ {{ formatDate(selectedMonth.end_date) }}
+          제출 기간 :
+          {{ selectedMonth.start_date ? new Date(selectedMonth.start_date).toISOString().slice(0,10) : '' }}
+          ~
+          {{ selectedMonth.end_date ? new Date(selectedMonth.end_date).toISOString().slice(0,10) : '' }}
+          <span v-if="selectedMonth.end_date" class="badge-dn">
+            D-{{ getRemainDays(selectedMonth.end_date) }}
+          </span>
         </span>
       </div>
 
@@ -248,6 +254,16 @@ function goToFileDetail(hospital) {
   router.push({ name: 'user-edi-file-detail', params: { settlementMonthId: selectedMonth.value.id, hospitalId: hospital.id } });
 }
 
+function getRemainDays(endDate) {
+  const today = new Date();
+  const end = new Date(endDate);
+  // 00:00:00 기준으로 맞추기
+  today.setHours(0,0,0,0);
+  end.setHours(0,0,0,0);
+  const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+  return diff >= 0 ? diff : 0;
+}
+
 onMounted(async () => {
   window.addEventListener('resize', handleResize);
   await fetchUserData();
@@ -262,8 +278,6 @@ onUnmounted(() => {
 });
 
 </script>
-
-
 
 <style scoped>
 .submission-period-info {
@@ -296,4 +310,5 @@ onUnmounted(() => {
   margin: 0;
   color: var(--text-secondary);
 }
+
 </style> 

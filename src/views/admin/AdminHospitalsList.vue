@@ -11,7 +11,7 @@
     
     <!-- Function Card -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount.toLocaleString() }}개 거래처</div>
+      <div class="total-count">총 {{ totalCount.toLocaleString() }}개</div>
       <div style="display: flex; gap:1rem; align-items:center;">
         <Button
           icon="pi pi-file-excel"
@@ -89,13 +89,20 @@
                 {{ first + slotProps.index + 1 }}
               </template>
               <template v-else-if="col.type === 'icon' && col.field === 'edit'">
-                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToEditPage(slotProps.data.id)" />
+                <Button icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text btn-icon-edit"
+                  @click="goToEditPage(slotProps.data.id)" />
               </template>
               <template v-else-if="col.type === 'icon' && col.field === 'delete'">
-                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteHospital(slotProps.data)" />
+                <Button icon="pi pi-trash"
+                  class="p-button-rounded p-button-text btn-icon-danger"
+                  @click="deleteHospital(slotProps.data)" />
               </template>
+
               <template v-else-if="col.type === 'icon' && col.field === 'license'">
-                <Button v-if="slotProps.data.business_license_file" icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFileModal(slotProps.data)" />
+                <span v-if="slotProps.data.business_license_file" @click="openFileModal(slotProps.data)" style="cursor:pointer;">
+                  <i class="pi pi-file biz-doc-icon"></i>
+                </span>
                 <span v-else>-</span>
               </template>
               <template v-else-if="col.field === 'member_count'">
@@ -145,14 +152,11 @@
           <h3 class="modal-title" style="text-align: center;">사업자등록증</h3>
         </div>
         <div class="modal-body">
-          <object v-if="isPdfFile" :data="fileUrl" type="application/pdf" style="width: 100%; height: 70vh;">
-            <p>PDF 뷰어를 로드할 수 없습니다. <a :href="fileUrl" target="_blank">여기서 다운로드</a>하여 확인해주세요.</p>
-          </object>
-          <img v-else :src="fileUrl" alt="사업자등록증" style="width: 100%; max-height: 70vh; object-fit: contain;" />
+          <img :src="fileUrl" alt="사업자등록증" style="max-width:100%;max-height:60vh;" />
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeFileModal">닫기</button>
-          <button class="btn-primary" @click="downloadFile">다운로드</button>
+          <button class="btn-cancel modal" @click="closeFileModal">닫기</button>
+          <button class="btn-confirm modal" @click="downloadFile">다운로드</button>
         </div>
       </div>
     </div>
@@ -355,7 +359,7 @@ const deleteAllHospitals = async () => {
 };
 
 const deleteHospital = async (hospital) => {
-  if (!confirm(`'${hospital.hospital_name}' 거래처을 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
+  if (!confirm(`'${hospital.hospital_name}' 거래처 정보를 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
 
   loading.value = true;
   try {
@@ -371,7 +375,7 @@ const deleteHospital = async (hospital) => {
     const { error } = await supabase.from('hospitals').delete().eq('id', hospital.id);
     if (error) throw error;
 
-    alert('거래처와 연결된 모든 정보가 삭제되었습니다.');
+    alert('거래처 정보가 삭제되었습니다.');
     fetchHospitals(first.value, pageSize.value);
   } catch (error) {
     console.error('Error deleting hospital:', error);

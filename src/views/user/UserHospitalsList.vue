@@ -11,7 +11,7 @@
     
     <!-- Function Card -->
     <div class="function-card custom-auto-height">
-      <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}개 거래처</div>
+      <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}개</div>
       <div style="display: flex; gap:1rem; align-items:center;">
         <Button
           icon="pi pi-download"
@@ -64,9 +64,12 @@
               <template v-else-if="col.type === 'icon' && col.field === 'delete'">
                 <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDeleteMapping(slotProps.data)" />
               </template>
+
               <template v-else-if="col.type === 'icon' && col.field === 'license'">
-                <Button v-if="slotProps.data.business_license_file" icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFileModal(slotProps.data)" />
-                <span v-else>-</span>
+                <span v-if="slotProps.data.business_license_file" @click="openFileModal(slotProps.data)" style="cursor:pointer;">
+                  <i class="pi pi-file biz-doc-icon"></i>
+                </span>
+                <span v-else></span>
               </template>
               <template v-else-if="col.field === 'registered_at' || col.field === 'updated_at'">
                 {{ formatDate(slotProps.data[col.field]) }}
@@ -107,8 +110,8 @@
           <img v-else :src="fileUrl" alt="사업자등록증" style="width: 100%; max-height: 70vh; object-fit: contain;" />
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeFileModal">닫기</button>
-          <button class="btn-primary" @click="downloadFile">다운로드</button>
+          <button class="btn-cancel modal" @click="closeFileModal">닫기</button>
+          <button class="btn-confirm modal" @click="downloadFile">다운로드</button>
         </div>
       </div>
     </div>

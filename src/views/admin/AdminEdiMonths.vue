@@ -1,6 +1,6 @@
 <template>
   <div class="admin-edi-months-view page-container">
-    <!-- 상단: 필터 -->
+    <!-- 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
         <span >정산월</span>
@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <!-- 중간: 기능 버튼 -->
+    <!-- 기능카드 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalRecords }}건</div>
       <Button
@@ -26,7 +26,7 @@
       />
     </div>
 
-    <!-- 하단: 데이터 테이블 -->
+    <!-- 테이블카드 -->
     <div class="table-card">
       <div :style="tableConfig.tableStyle">
         <DataTable
@@ -63,6 +63,11 @@
                   <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
                 </button>
               </template>
+              <template v-else-if="col.field === 'remarks'">
+                <span v-if="slotProps.data.remarks" class="link" @click="openNoticeModal(slotProps.data.remarks)">
+                  {{ slotProps.data.remarks }}
+                </span>
+              </template>
               <template v-else>
                 {{ slotProps.data[col.field] }}
               </template>
@@ -81,27 +86,28 @@
         <div class="modal-body">
           <div class="form-grid">
             <div class="form-group">
-              <label for="form-label">정산월 *</label>
-              <select v-model="settlementMonth" class="input-mordal-datepicker">
-                <option v-for="opt in monthOptions" :key="opt.value" :value="opt.value">
-                  {{ opt.label }}
+              <label for="form-label">정산월<span class="required">*</span></label>
+              <select v-model="newMonth" class="input">
+                <option value="">- 선택 -</option>
+                <option v-for="opt in registerMonthOptions" :key="opt" :value="opt">
+                  {{ opt.slice(0,4) + '년 ' + parseInt(opt.slice(5,7)) + '월' }}
                 </option>
               </select>
             </div>
             <div class="form-group">
-              <label for="form-label">제출 시작일 *</label>
+              <label for="form-label">제출 시작일<span class="required">*</span></label>
               <Datepicker 
                 v-model="currentItem.start_date"
                 :locale="ko"
-                class="input-mordal-datepicker"
+                class="input"
               />
             </div>
             <div class="form-group">
-              <label for="form-label">제출 마감일 *</label>
+              <label for="form-label">제출 마감일<span class="required">*</span></label>
               <Datepicker 
                 v-model="currentItem.end_date"
                 :locale="ko"
-                class="input-mordal-datepicker"
+                class="input"
               />
             </div>
             <div class="form-group">
@@ -109,16 +115,25 @@
               <Textarea id="remarks"
                 v-model="currentItem.remarks"
                 rows="8"
-                class="input-mordal"
+                class="input"
                 placeholder="회원 전달 사항을 입력하세요"
               />
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-cancel" @click="isModalVisible = false">취소</button>
-          <button class="btn-confirm" @click="saveItem">저장</button>
+          <button class="btn-cancel modal" @click="isModalVisible = false">취소</button>
+          <button class="btn-confirm modal" @click="saveItem">저장</button>
         </div>
+      </div>
+    </div>
+    
+    <!-- 공지사항 모달 -->
+    <div v-if="showNoticeModal" class="custom-modal-overlay">
+      <div class="custom-modal">
+        <div class="modal-header"><h3 class="modal-title">공지사항</h3></div>
+        <div class="modal-body"><div style="white-space: pre-line;">{{ noticeContent }}</div></div>
+        <div class="modal-footer"><button @click="closeNoticeModal" class="btn-cancel modal">닫기</button></div>
       </div>
     </div>
   </div>
@@ -155,21 +170,21 @@ const today = new Date()
 // 다음달(기본값)
 const defaultMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
 
-// 드롭다운 옵션 생성 (YYYY-MM value, 한글 label)
-const monthOptions = computed(() => {
+// 1. 정산월 옵션 생성 (year-month 포맷)
+const registerMonthOptions = computed(() => {
+  const today = new Date();
   const arr = [];
-  for (let i = 2; i >= -2; i--) {
+  for (let i = 1; i >= -3; i--) {
     const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
-    arr.push({
-      value: d.toISOString().slice(0, 7), // 'YYYY-MM'
-      label: `${d.getFullYear()}년 ${d.getMonth() + 1}월`
-    });
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    arr.push(`${year}-${month}`);
   }
   return arr;
 });
 
-// v-model
-const settlementMonth = ref(defaultMonth.toISOString().slice(0, 7))
+// 2. 등록/수정용 v-model 변수 선언
+const newMonth = ref("");
 
 // 모달 표시 상태에 따라 body에 클래스를 토글
 watch(isModalVisible, (isVisible) => {
@@ -180,7 +195,7 @@ watch(isModalVisible, (isVisible) => {
   }
 });
 
-const modalTitle = computed(() => isEditMode.value ? 'EDI 제출월 수정' : 'EDI 제출월 등록');
+const modalTitle = computed(() => isEditMode.value ? 'EDI 마감 일정 수정' : 'EDI 마감 일정 등록');
 
 const filterMonthOptions = ref([]);
 const selectedFilterMonth = ref('');
@@ -233,11 +248,11 @@ const openModal = (item) => {
       end_date: new Date(item.end_date),
     };
     if (item.settlement_month) {
-      settlementMonth.value = item.settlement_month;
+      newMonth.value = item.settlement_month;
     }
   } else {
     isEditMode.value = false;
-    settlementMonth.value = defaultMonth.toISOString().slice(0, 7);
+    newMonth.value = "";
     const today = new Date();
     currentItem.value = {
       start_date: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 3),
@@ -258,8 +273,8 @@ const formatDateToSupabase = (date) => {
 };
 
 const saveItem = async () => {
-  if (!settlementMonth.value) {
-    alert('정산월이 지정되지 않았습니다.');
+  if (!newMonth.value) {
+    alert('정산월을 선택하세요.');
     return;
   }
   if (!currentItem.value.start_date) {
@@ -278,7 +293,7 @@ const saveItem = async () => {
 
   const itemToSave = {
     ...currentItem.value,
-    settlement_month: settlementMonth.value,
+    settlement_month: newMonth.value,
     start_date: formatDateToSupabase(currentItem.value.start_date),
     end_date: formatDateToSupabase(currentItem.value.end_date),
   };
@@ -324,6 +339,17 @@ const deleteItem = async (id) => {
 
 // 테이블 스크롤 높이 계산 (페이지네이터 없음)
 const tableScrollHeight = computed(() => getTableScrollHeight(false, 40));
+
+const showNoticeModal = ref(false);
+const noticeContent = ref('');
+function openNoticeModal(content) {
+  noticeContent.value = content;
+  showNoticeModal.value = true;
+}
+function closeNoticeModal() {
+  showNoticeModal.value = false;
+  noticeContent.value = '';
+}
 </script>
 
 <style>

@@ -41,7 +41,7 @@
 
     <!-- Function Card -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount.toLocaleString() }}건의 요청</div>
+      <div class="total-count">총 {{ totalCount.toLocaleString() }}건</div>
       <div style="display: flex; gap:0.5rem; align-items:center;">
         <Button
           icon="pi pi-download"
@@ -96,7 +96,17 @@
               </template>
               <template v-else-if="col.field === 'admin_comments'">
                 <span class="link" @click="openAdminCommentsModal(slotProps.data)">
-                  {{ slotProps.data.admin_comments || '작성' }}
+                  <template v-if="!slotProps.data.admin_comments">
+                    <i class="pi pi-pencil" style="margin-right:8px;"></i>등록
+                  </template>
+                  <template v-else>
+                    {{ slotProps.data.admin_comments }}
+                  </template>
+                </span>
+              </template>
+              <template v-else-if="col.field === 'user_remarks'">
+                <span v-if="slotProps.data.user_remarks" class="link" @click="openRemarksModal(slotProps.data.user_remarks)">
+                  {{ slotProps.data.user_remarks }}
                 </span>
               </template>
               <template v-else>
@@ -119,22 +129,22 @@
     <!-- Remarks Modal -->
     <div v-if="showRemarksModal" class="custom-modal-overlay">
       <div class="custom-modal">
-        <div class="modal-header"><h3 class="modal-title">요청 비고</h3><button @click="closeRemarksModal" class="btn-close">×</button></div>
+        <div class="modal-header"><h3 class="modal-title">회원 요청사항</h3></div>
         <div class="modal-body"><div style="white-space: pre-line;">{{ currentRemark }}</div></div>
-        <div class="modal-footer"><button @click="closeRemarksModal" class="btn-secondary">닫기</button></div>
+        <div class="modal-footer"><button @click="closeRemarksModal" class="btn-cancel modal">닫기</button></div>
       </div>
     </div>
     
     <!-- Admin Comments Modal -->
     <div v-if="showAdminCommentsModal" class="custom-modal-overlay">
       <div class="custom-modal">
-        <div class="modal-header"><h3 class="modal-title">전달사항 작성/수정</h3><button @click="closeAdminCommentsModal" class="btn-close">×</button></div>
+        <div class="modal-header"><h3 class="modal-title">회원 전달사항</h3></div>
         <div class="modal-body">
-          <textarea v-model="adminComments" class="input-field" rows="5" placeholder="전달사항을 입력하세요."></textarea>
+          <textarea v-model="adminComments" class="input" rows="5" placeholder="전달사항을 입력하세요."></textarea>
         </div>
         <div class="modal-footer">
-          <button @click="closeAdminCommentsModal" class="btn-cancel">취소</button>
-          <button @click="saveAdminComments" class="btn-add">저장</button>
+          <button @click="closeAdminCommentsModal" class="btn-cancel modal">취소</button>
+          <button @click="saveAdminComments" class="btn-confirm modal">저장</button>
         </div>
       </div>
     </div>

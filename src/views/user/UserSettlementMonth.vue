@@ -1,14 +1,18 @@
 <template>
   <div class="user-settlement-month-view page-container">
+    <!-- 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
         <span>정산월</span>
         <select v-model="selectedMonth" class="input-120">
-          <option value="">전체</option>
-          <option v-for="m in monthOptions" :key="m" :value="m">{{ m }}</option>
+          <option value="">- 전체 -</option>
+          <option v-for="m in monthOptions" :key="m" :value="m">
+            {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
+          </option>
         </select>
       </div>
     </div>
+
     <!-- 기능카드 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalCount }}건</div>
@@ -58,7 +62,7 @@
                 </button>
               </template>
               <template v-else-if="col.field === 'note' && slotProps.data.note">
-                <a href="#" @click.prevent="openNotePopup(slotProps.data)" class="note-link">
+                <a href="#" @click.prevent="openNotePopup(slotProps.data)" class="link">
                   {{ slotProps.data.note }}
                 </a>
               </template>
@@ -73,16 +77,18 @@
         </DataTable>
       </div>
     </div>
-
+    
     <!-- 전달사항 팝업 -->
     <div v-if="showNoteDialog" class="custom-modal-overlay">
       <div class="custom-modal">
-        <label class="modai-title">전달사항</label>
+        <div class="modal-header">
+          <div class="modal-title">전달사항</div>
+        </div>
         <div class="modal-body">
           <div style="white-space: pre-line;">{{ noteValue }}</div>
         </div>
         <div class="modal-footer">
-          <button class="btn-primary" @click="closeNoteDialog">확인</button>
+          <button class="btn-cancel modal" @click="closeNoteDialog">닫기</button>
         </div>
       </div>
     </div>
@@ -283,54 +289,3 @@ const goDetail = (row) => {
   router.push(`/settlement/month/${row.settlement_month}`);
 };
 </script>
-
-<style scoped>
-.note-link {
-  color: #007bff;
-  text-decoration: underline;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-  max-width: 100%;
-}
-.note-link:hover {
-  color: #0056b3;
-}
-.custom-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.custom-modal {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-.modai-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  display: block;
-}
-.modal-body {
-  margin-bottom: 1.5rem;
-  max-height: 60vh;
-  overflow-y: auto;
-}
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-}
-</style>

@@ -3,11 +3,11 @@
     <form @submit.prevent="registerProduct" class="board-form">
       <label>기준년월</label>
       <input :value="baseMonth" class="input" disabled />
-      <label>제약사<span style="color:#e74c3c">*</span></label>
+      <label>제약사<span class="required">*</span></label>
       <input v-model="pharmacist" placeholder="제약사" class="input" required />
       <label>분류명</label>
       <input v-model="classification" placeholder="분류명" class="input" />
-      <label>제품명<span style="color:#e74c3c">*</span></label>
+      <label>제품명<span class="required">*</span></label>
       <input v-model="productName" placeholder="제품명" class="input" required />
       <label>보험코드</label>
       <input v-model="insuranceCode" placeholder="보험코드" class="input" maxlength="9" />

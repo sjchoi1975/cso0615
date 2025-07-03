@@ -1,13 +1,13 @@
 <template>
   <div class="board">
     <form @submit.prevent="onSubmit" class="board-form">
-      <label>거래처명<span style="color:#e74c3c">*</span></label>
+      <label>거래처명<span class="required">*</span></label>
       <input v-model="form.hospital_name" placeholder="거래처명을 입력하세요" class="input" required />
-      <label>사업자등록번호<span style="color:#e74c3c">*</span></label>
+      <label>사업자등록번호<span class="required">*</span></label>
       <input v-model="form.business_registration_number" placeholder="'-' 없이 숫자만 입력" class="input" required />
-      <label>원장명<span style="color:#e74c3c">*</span></label>
+      <label>원장명<span class="required">*</span></label>
       <input v-model="form.director_name" placeholder="원장명을 입력하세요" class="input" required />
-      <label>주소<span style="color:#e74c3c">*</span></label>
+      <label>주소<span class="required">*</span></label>
       <input v-model="form.address" placeholder="주소를 입력하세요" class="input" required />
       <label>사업자등록증</label>
       <input type="file" @change="onFileChange" class="input" />
@@ -251,7 +251,7 @@ const onSubmit = async () => {
       if (mappingError) throw mappingError;
     }
 
-    toast.add({ severity: 'success', summary: '수정 완료', detail: '거래처 정보가 수정되었습니다.', life: 2000 });
+    alert('거래처 정보 수정이 완료되었습니다.');
     goBack();
 
   } catch (e) {

@@ -12,7 +12,7 @@
 
     <!-- 기능카드 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount }}건</div>
+      <div class="total-count">총 {{ totalCount }}개사</div>
       <div style="display: flex; gap: 1rem;">
         <Button
           icon="pi pi-pencil"
@@ -86,23 +86,21 @@
         <div class="modal-header">
           <h3 class="modal-title">{{ isEdit ? '제약사 수정' : '제약사 추가' }}</h3>
         </div>
-        
         <div class="modal-body">
           <div class="form-group">
-            <label>제약사명 *</label>
+            <label>제약사명</label>
             <input 
               v-model="formData.company_name" 
               type="text" 
-              class="input-mordal" 
+              class="input" 
               placeholder="제약사명을 입력하세요"
               required
             />
           </div>
         </div>
-
         <div class="modal-footer">
-          <button class="btn-cancel" @click="closeModal">취소</button>
-          <button class="btn-confirm" @click="saveCompany" 
+          <button class="btn-cancel modal" @click="closeModal">취소</button>
+          <button class="btn-confirm modal" @click="saveCompany" 
             :disabled="!formData.company_name.trim() || loading"
           >
             {{ loading ? '저장 중...' : (isEdit ? '수정' : '추가') }}

@@ -304,18 +304,18 @@ export const ediMonthsTableConfig = {
     tableWidth: '100vw',
     tableStyle: {
       overflowX: 'auto',
-      minWidth: '720px',
+      minWidth: '640px',
       width: '100vw'
     },
     columns: [
       /*{ field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },*/
-      { field: 'settlement_month', label: '정산월', width: '10%', align: 'center', sortable: true },
-      { field: 'start_date', label: '시작일자', width: '12%', align: 'center', sortable: true },
-      { field: 'end_date', label: '마감일자', width: '12%', align: 'center', sortable: true },
-      { field: 'remarks', label: '공지사항', width: '30%', align: 'left', sortable: false },
-      { field: 'detail', label: '상세', width: '8%', align: 'center', type: 'icon', icon: 'pi-list' },
-      { field: 'edit', label: '수정', width: '8%', align: 'center', type: 'icon', icon: 'pi-pencil' },
-      { field: 'delete', label: '삭제', width: '8%', align: 'center', type: 'icon', icon: 'pi-trash' }
+      { field: 'settlement_month', label: '정산월', width: '12%', align: 'center', sortable: true },
+      { field: 'start_date', label: '시작일자', width: '16%', align: 'center', sortable: true },
+      { field: 'end_date', label: '마감일자', width: '16%', align: 'center', sortable: true },
+      { field: 'remarks', label: '공지사항', width: '26%', align: 'left', sortable: false },
+      { field: 'detail', label: '상세', width: '10%', align: 'center', type: 'icon', icon: 'pi-list' },
+      { field: 'edit', label: '수정', width: '10%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'delete', label: '삭제', width: '10%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   }
 };
@@ -382,27 +382,31 @@ export const settlementMonthTableConfig = {
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'settlement_month', label: '정산월', width: '8%', align: 'center', sortable: true },
-      { field: 'company_name', label: '업체', width: '12%', align: 'center', sortable: false },
-      { field: 'hospital_name', label: '거래처', width: '12%', align: 'center', sortable: false },
-      { field: 'total_amount', label: '정산금액', width: '12%', align: 'right', sortable: false },
-      { field: 'note', label: '비고', width: '42%', align: 'left', sortable: false },
-      { field: 'detail', label: '상세', width: '10%', align: 'center', type: 'icon', icon: 'pi-list' }
+      { field: 'company_name', label: '업체', width: '8%', align: 'center', sortable: false },
+      { field: 'hospital_name', label: '거래처', width: '8%', align: 'center', sortable: false },
+      { field: 'total_amount', label: '정산금액', width: '8%', align: 'right', sortable: false },
+      { field: 'note', label: '전달사항', width: '46%', align: 'left', sortable: false },
+      { field: 'detail', label: '상세', width: '6%', align: 'center', type: 'icon', icon: 'pi-list' },
+      { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   },
   mobile: {
     tableWidth: '100vw',
     tableStyle: {
-      minWidth: '720px',
+      minWidth: '640px',
       width: '100vw'
     },
     columns: [
-      /*{ field: 'index', label: '순번', width: '6%', align: 'center', sortable: false },*/
-      { field: 'settlement_month', label: '정산월', width: '10%', align: 'center', sortable: true },
+      /*{ field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },*/
+      { field: 'settlement_month', label: '정산월', width: '12%', align: 'center', sortable: true },
       { field: 'company_name', label: '업체', width: '12%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처', width: '12%', align: 'center', sortable: false },
-      { field: 'total_amount', label: '정산금액', width: '18%', align: 'right', sortable: false },
-      { field: 'note', label: '비고', width: '32%', align: 'left', sortable: false },
-      { field: 'detail', label: '상세', width: '8%', align: 'center', type: 'icon', icon: 'pi-list' }
+      { field: 'total_amount', label: '정산금액', width: '16%', align: 'right', sortable: false },
+      { field: 'note', label: '전달사항', width: '28%', align: 'left', sortable: false },
+      /*{ field: 'detail', label: '상세', width: '10%', align: 'center', type: 'icon', icon: 'pi-list' },*/
+      { field: 'edit', label: '수정', width: '10%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'delete', label: '삭제', width: '10%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   }
 };
@@ -681,7 +685,9 @@ export const userSettlementMonthTableConfig = {
       { field: 'payment_amount', label: '지급액', width: '10%', align: 'center', sortable: true, format: 'currency' },
       { field: 'note', label: '전달사항', width: '34%', align: 'left' },
       { field: 'detail', label: '상세보기', width: '8%', align: 'center', type: 'icon' },
-      { field: 'created_at', label: '등록일자', width: '10%', align: 'center', sortable: true }
+      { field: 'created_at', label: '등록일자', width: '10%', align: 'center', sortable: true },
+      { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   },
   
@@ -700,7 +706,9 @@ export const userSettlementMonthTableConfig = {
       { field: 'prescription_amount', label: '처방액', width: '10%', align: 'center', sortable: true, format: 'currency' },
       { field: 'payment_amount', label: '지급액', width: '10%', align: 'center', sortable: true, format: 'currency' },
       { field: 'note', label: '전달사항', width: '18%', align: 'left' },
-      { field: 'created_at', label: '등록일자', width: '10%', align: 'center', sortable: true }
+      { field: 'created_at', label: '등록일자', width: '10%', align: 'center', sortable: true },
+      { field: 'edit', label: '수정', width: '8%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'delete', label: '삭제', width: '8%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   }
 };
@@ -725,7 +733,9 @@ export const userSettlementMonthDetailTableConfig = {
       { field: 'prescription_amount', label: '처방액', width: '8%', align: 'right', format: 'currency' },
       { field: 'commission_rate', label: '수수료율', width: '7%', align: 'center', format: 'percent' },
       { field: 'payment_amount', label: '지급액', width: '8%', align: 'right', format: 'currency' },
-      { field: 'remarks', label: '비고', width: '16%', align: 'left' }
+      { field: 'remarks', label: '비고', width: '16%', align: 'left' },
+      { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   },
 
@@ -747,7 +757,9 @@ export const userSettlementMonthDetailTableConfig = {
       { field: 'prescription_amount', label: '처방액', width: '8%', align: 'right', format: 'currency' },
       { field: 'commission_rate', label: '수수료율', width: '6%', align: 'center', format: 'percent' },
       { field: 'payment_amount', label: '지급액', width: '8%', align: 'right', format: 'currency' },
-      { field: 'remarks', label: '비고', width: '12%', align: 'left' }
+      { field: 'remarks', label: '비고', width: '12%', align: 'left' },
+      { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   }
 };

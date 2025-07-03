@@ -104,6 +104,7 @@ const fetchNotices = async () => {
   const { data, error } = await supabase
     .from('notices')
     .select('*')
+    .eq('status', 'active')
     .order('created_at', { ascending: false });
   if (!error) {
     notices.value = data;

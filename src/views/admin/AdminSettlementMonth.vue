@@ -58,6 +58,12 @@
               <template v-if="col.field === 'index'">
                 {{ slotProps.index + 1 }}
               </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'edit'">
+                <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="openRegisterMonth(slotProps.data, true)" v-tooltip.top="'수정'" />
+              </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'delete'">
+                <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="deleteMonth(slotProps.data)" v-tooltip.top="'삭제'" />
+              </template>
               <template v-else-if="col.type === 'icon' && col.field === 'detail'">
                 <button class="p-button p-button-text p-button-rounded icon-only-btn" @click="goDetail(slotProps.data)" v-tooltip.top="'상세보기'">
                   <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
@@ -67,7 +73,7 @@
                 {{ slotProps.data.total_amount?.toLocaleString() }}
               </template>
               <template v-else-if="col.field === 'note'">
-                <span class="ellipsis-cell" @click="openNotePopup(slotProps.data)" style="cursor: pointer;" :title="slotProps.data.note">
+                <span v-if="slotProps.data.note" class="link" @click="openNotePopup(slotProps.data)" style="cursor: pointer;" :title="slotProps.data.note">
                   {{ slotProps.data.note }}
                 </span>
               </template>
@@ -89,32 +95,33 @@
         <div class="modal-body">
           <div class="form-grid">
             <div class="form-group">
-              <label for="form-label">정산월 *</label>
-              <select v-model="newMonth" class="input-mordal-datepicker">
+              <label for="form-label">정산월</label>
+              <select v-model="newMonth" class="input">
+                <option value="">- 선택 -</option>
                 <option v-for="opt in registerMonthOptions" :key="opt" :value="opt">
                   {{ opt.slice(0,4) + '년 ' + parseInt(opt.slice(5,7)) + '월' }}
                 </option>
               </select>
             </div>
             <div class="form-group">
-              <label for="form-label">비고</label>
-              <textarea 
+              <label for="form-label">전달사항</label>
+              <Textarea id="note"
                 v-model="newNote"
                 rows="8"
-                class="input-mordal"
+                class="input"
                 placeholder="회원 전달 사항을 입력하세요"
               />
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-cancel" @click="closeRegisterDialog">취소</button>
-          <button class="btn-confirm" @click="registerMonth" :disabled="registerLoading">저장</button>
+          <button class="btn-cancel modal" @click="closeRegisterDialog">취소</button>
+          <button class="btn-confirm modal" @click="registerMonth" :disabled="registerLoading">저장</button>
         </div>
       </div>
     </div>
 
-    <!-- 공지사항 팝업 모달 -->
+    <!-- 전달사항 팝업 모달 -->
     <div v-if="showNoteDialog" class="custom-modal-overlay" @click.self="closeNoteDialog">
       <div class="custom-modal">
         <div class="modal-header">
@@ -124,7 +131,7 @@
           <div style="white-space: pre-line;">{{ noteValue }}</div>
         </div>
         <div class="modal-footer">
-          <button class="btn-cancel" @click="closeNoteDialog">확인</button>
+          <button class="btn-cancel modal" @click="closeNoteDialog">닫기</button>
         </div>
       </div>
     </div>
@@ -142,6 +149,7 @@ import Button from 'primevue/button';
 import Datepicker from 'vue3-datepicker';
 import { settlementMonthTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
+import Textarea from 'primevue/textarea';
 
 const router = useRouter();
 
@@ -162,6 +170,8 @@ const noteEditMode = ref(false);
 const noteMonth = ref('');
 const noteValue = ref('');
 const noteOrigin = ref('');
+
+const newMonth = ref("");
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? settlementMonthTableConfig.mobile : settlementMonthTableConfig.pc);
@@ -260,6 +270,19 @@ const downloadExcel = () => {
   const fileName = `월별정산현황_${new Date().toISOString().slice(0,10)}.xlsx`;
   XLSX.writeFile(wb, fileName);
 };
+
+const registerMonthOptions = computed(() => {
+  const today = new Date();
+  const arr = [];
+  for (let i = 1; i >= -3; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    arr.push(`${year}-${month}`); // 'YYYY-MM'
+  }
+  return arr;
+});
+
 const isEditMode = ref(false);
 const openRegisterMonth = (row, edit = false) => {
   showRegisterDialog.value = true;
@@ -268,7 +291,7 @@ const openRegisterMonth = (row, edit = false) => {
     newMonth.value = row.settlement_month;
     newNote.value = row.note;
   } else {
-    newMonth.value = registerMonthOptions[2];
+    newMonth.value = "";
     newNote.value = '';
   }
 };

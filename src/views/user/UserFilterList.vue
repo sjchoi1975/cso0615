@@ -36,7 +36,7 @@
 
     <!-- Function Card -->
     <div class="function-card custom-auto-height">
-      <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}건의 요청</div>
+      <div class="total-count total-count-nowrap">총 {{ totalCount.toLocaleString() }}건</div>
       <div style="display: flex; gap:1rem; align-items:center;">
         <Button
           icon="pi pi-download"
@@ -71,25 +71,31 @@
           >
             <template #body="slotProps">
               <template v-if="col.field === 'index'">
-                {{ first + slotProps.index + 1 }}
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ first + slotProps.index + 1 }}
+                </span>
               </template>
               <template v-else-if="col.field === 'filter_type'">
-                {{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}
+                </span>
               </template>
               <template v-else-if="col.field === 'status'">
-                <select disabled :class="['status-select', `status-select-${slotProps.data.status}`]">
+                <select disabled :class="['status-select-user', `status-select-${slotProps.data.status}-user`]">
                   <option value="pending" :selected="slotProps.data.status === 'pending'">대기</option>
                   <option value="approved" :selected="slotProps.data.status === 'approved'">승인</option>
                   <option value="rejected" :selected="slotProps.data.status === 'rejected'">반려</option>
                 </select>
               </template>
               <template v-else-if="col.field === 'admin_comments'">
-                <span class="link" @click="openContentModal('전달사항', slotProps.data.admin_comments)">
-                  {{ slotProps.data.admin_comments || '-' }}
+                <span v-if="slotProps.data.admin_comments" class="link" @click="openAdminCommentsModal(slotProps.data.admin_comments)">
+                  {{ slotProps.data.admin_comments }}
                 </span>
               </template>
               <template v-else-if="col.field === 'user_remarks'">
-                <span class="link" @click="openContentModal('요청 비고', slotProps.data.user_remarks)">{{ slotProps.data.user_remarks }}</span>
+                <span v-if="slotProps.data.user_remarks" class="link" @click="openUserRemarksModal(slotProps.data.user_remarks)">
+                  {{ slotProps.data.user_remarks }}
+                </span>
               </template>
               <template v-else-if="col.field === 'updated_at'">
                 <span v-if="slotProps.data.updated_at && new Date(slotProps.data.updated_at).getTime() !== new Date(slotProps.data.request_date).getTime()">
@@ -99,6 +105,16 @@
               </template>
               <template v-else-if="col.field === 'request_date'">
                 {{ slotProps.data.request_date ? new Date(slotProps.data.request_date).toLocaleString('sv-SE').slice(0, 16) : '' }}
+              </template>
+              <template v-else-if="col.field === 'hospital_name'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ slotProps.data.hospital_name }}
+                </span>
+              </template>
+              <template v-else-if="col.field === 'pharmaceutical_company_name'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ slotProps.data.pharmaceutical_company_name }}
+                </span>
               </template>
               <template v-else>
                 <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
@@ -117,12 +133,20 @@
       <Paginator :rows="pageSize" :totalRecords="totalCount" :first="first" @page="onPageChange" />
     </div>
 
-    <!-- Content Modal -->
-    <div v-if="showContentModal" class="custom-modal-overlay">
+    <!-- Admin Comments Modal -->
+    <div v-if="showAdminCommentsModal" class="custom-modal-overlay">
       <div class="custom-modal">
-        <div class="modal-header"><h3 class="modal-title">{{ modalTitle }}</h3><button @click="closeContentModal" class="btn-close">×</button></div>
-        <div class="modal-body"><div style="white-space: pre-line;">{{ modalContent }}</div></div>
-        <div class="modal-footer"><button @click="closeContentModal" class="btn-secondary">닫기</button></div>
+        <div class="modal-header"><h3 class="modal-title">전달사항</h3></div>
+        <div class="modal-body"><div style="white-space: pre-line;">{{ adminCommentsContent }}</div></div>
+        <div class="modal-footer"><button @click="closeAdminCommentsModal" class="btn-cancel modal">닫기</button></div>
+      </div>
+    </div>
+    <!-- User Remarks Modal -->
+    <div v-if="showUserRemarksModal" class="custom-modal-overlay">
+      <div class="custom-modal">
+        <div class="modal-header"><h3 class="modal-title">요청사항</h3></div>
+        <div class="modal-body"><div style="white-space: pre-line;">{{ userRemarksContent }}</div></div>
+        <div class="modal-footer"><button @click="closeUserRemarksModal" class="btn-cancel modal">닫기</button></div>
       </div>
     </div>
   </div>
@@ -154,9 +178,10 @@ const selectedFilterType = ref('');
 const hospitalOptions = ref([]);
 const pharmaOptions = ref([]);
 
-const showContentModal = ref(false);
-const modalTitle = ref('');
-const modalContent = ref('');
+const showAdminCommentsModal = ref(false);
+const adminCommentsContent = ref('');
+const showUserRemarksModal = ref(false);
+const userRemarksContent = ref('');
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userFilterRequestsTableConfig.mobile : userFilterRequestsTableConfig.pc);
@@ -246,12 +271,22 @@ const onPageChange = (event) => {
   fetchRequests();
 };
 
-const openContentModal = (title, content) => {
-  modalTitle.value = title;
-  modalContent.value = content;
-  showContentModal.value = true;
-};
-const closeContentModal = () => showContentModal.value = false;
+function openAdminCommentsModal(content) {
+  adminCommentsContent.value = content;
+  showAdminCommentsModal.value = true;
+}
+function closeAdminCommentsModal() {
+  showAdminCommentsModal.value = false;
+  adminCommentsContent.value = '';
+}
+function openUserRemarksModal(content) {
+  userRemarksContent.value = content;
+  showUserRemarksModal.value = true;
+}
+function closeUserRemarksModal() {
+  showUserRemarksModal.value = false;
+  userRemarksContent.value = '';
+}
 
 const downloadExcel = () => {
   const exportData = requests.value.map(row => ({

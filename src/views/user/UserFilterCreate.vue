@@ -113,8 +113,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-cancel" @click="closeModal">취소</button>
-          <button class="btn-confirm" @click="confirmSelection">선택</button>
+          <button class="btn-cancel modal" @click="closeModal">취소</button>
+          <button class="btn-confirm modal" @click="confirmSelection">선택</button>
         </div>
       </div>
     </div>

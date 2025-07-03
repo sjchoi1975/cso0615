@@ -19,8 +19,14 @@
   box-shadow: var(--shadow-sm) !important;
 }
 
+/* 모달용 - 확인 / 취소(닫기) */
+.modal {
+  padding: 0.5rem 1rem !important;
+  justify-content: flex-end !important;
+}
+
 /* 색상 스타일 - 로그인 / 회원가입 / 확인 / 취소 */
-.btn-login {
+.btn-login { 
   background: var(--primary) !important;
   color: var(--text-white) !important;
 }
@@ -178,17 +184,22 @@ button:focus,
 /* 아이콘 버튼
 /* ========================================================================================================= */
 
-/* 수정 */
+/* 수정 - 연필 */
 .btn-icon-edit
 .p-button-icon {
   color: var(--warning-dark) !important;
+  color: var(--warning-dark) !important;
 }
 
-/* 기존 삭제 휴지통 위험으로 작성, 삭제로 변경 요망!!! */
-/* 삭제 */
+/* 삭제 - 휴지통 */
 .btn-icon-delete
 .p-button-icon {
   color: var(--danger) !important;
+}
+
+/* 문서 - 사업자등록증.. */
+.biz-doc-icon {
+  color: #444;
 }
 
 /* 위험 */
@@ -196,6 +207,7 @@ button:focus,
 .p-button-icon {
   color: var(--danger) !important;
 }
+
 
 
 
@@ -281,6 +293,24 @@ button:focus,
   color: #666 !important;
   padding: 0 !important;
 }
+
+
+/* ========================================== */
+/* 뱃지 스타일                             */
+/* ========================================== */
+
+/* EDI 제출 기간 D-N */
+.badge-dn {
+  display: inline-block;
+  background: var(--primary);
+  color: var(--text-white);
+  font-size: 0.95em;
+  border-radius: 16px;
+  padding: 2px 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
 
 
 

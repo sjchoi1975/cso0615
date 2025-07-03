@@ -16,7 +16,7 @@
 
     <!-- 중간: 기능카드 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount.toLocaleString() }}개 제품</div>
+      <div class="total-count">총 {{ totalCount.toLocaleString() }}개</div>
       <div style="display: flex; gap:1rem; align-items:center;">
         <Button
           icon="pi pi-download"
