@@ -109,6 +109,7 @@ const currentSpecial = computed(() => {
 const isSpecialLayout = computed(() => !!currentSpecial.value);
 const isLoginOrSignup = computed(() => ['/login', '/signup'].includes(route.path));
 
+// 사이드바 표시 여부 결정
 const showSidebar = computed(() => !isLoginOrSignup.value);
 const showCompany = computed(() => !isLoginOrSignup.value && !isSpecialLayout.value);
 const showBack = computed(() => !isLoginOrSignup.value && isSpecialLayout.value);

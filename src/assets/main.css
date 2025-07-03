@@ -1089,7 +1089,6 @@ body.modal-open {
   padding: 0.4rem 0.5rem;
   text-align: center !important;
   transition: background-color 0.2s ease !important;
-  height: 2.72rem !important;
 }
 
 .p-datatable .p-datatable-thead > tr > th:hover {
@@ -1101,8 +1100,28 @@ body.modal-open {
   background: #fff !important;
   padding: 0 0.5rem !important;
   transition: background 0.2s !important;
-  height: 2.72rem !important;
 }
+
+/* ========================================================================================================= */
+/* 테이블 헤더 높이 조정
+/* ========================================================================================================= */
+
+/* 데스크탑 */
+.p-datatable .p-datatable-thead > tr > th,
+.p-datatable .p-datatable-tbody > tr {
+  height: 2.5rem !important;
+}
+
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .p-datatable .p-datatable-thead > tr > th,
+  .p-datatable .p-datatable-tbody > tr {
+    height: 2.4rem !important;
+  }
+}
+
+/* ========================================================================================================= */
 
 .p-datatable .p-datatable-tbody > tr:hover {
   background: #f4f8ff !important;
