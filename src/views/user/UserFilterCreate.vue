@@ -79,7 +79,7 @@
     
     <!-- 공용 선택 모달 -->
     <div v-if="showModal" class="custom-modal-overlay">
-      <div class="custom-modal custom-modal-pharma">
+      <div class="custom-modal-filtering">
         <div class="modal-header">
           <h3 class="modal-title">{{ modalTitle }}</h3>
         </div>

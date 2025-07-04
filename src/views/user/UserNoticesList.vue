@@ -1,6 +1,8 @@
 <template>
   <div class="admin-notice-view page-container">
-    
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
@@ -93,6 +95,7 @@ const notices = ref([]);
 const pageSize = ref(50);
 const first = ref(0);
 const expandedRows = ref({});
+const loading = ref(false);
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userNoticesTableConfig.mobile : userNoticesTableConfig.pc);
@@ -101,6 +104,7 @@ const tableConfig = computed(() => isMobile.value ? userNoticesTableConfig.mobil
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const fetchNotices = async () => {
+  loading.value = true;
   const { data, error } = await supabase
     .from('notices')
     .select('*')
@@ -109,6 +113,7 @@ const fetchNotices = async () => {
   if (!error) {
     notices.value = data;
   }
+  loading.value = false;
 };
 
 onMounted(() => {

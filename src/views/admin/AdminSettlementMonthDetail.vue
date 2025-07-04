@@ -61,9 +61,27 @@
             iconPos="left"
             style="gap:0.5em;"
           />
+
+          <Button
+            icon="pi pi-check-square"
+            :label="selectAllText"
+            class="btn-selectall-md"
+            @click="toggleSelectAll"
+            iconPos="left"
+            style="gap:0.5em;"
+          />
+          <Button
+            icon="pi pi-trash"
+            label="삭제"
+            class="btn-delete-md"
+            @click="deleteSelected"
+            severity="danger"
+            iconPos="left"
+            style="gap:0.5em;"
+          />
         </div>
       </div>
-  
+        
       <!-- 하단: 테이블카드 -->
       <div class="table-card">
         <div v-if="loading" class="table-loading-spinner-center">
@@ -78,7 +96,18 @@
             scrollable
             :scrollHeight="tableScrollHeight"
             :style="{ width: tableConfig.tableWidth }"
+            dataKey="id"
+            v-model:selection="selectedRows"
           >
+            <Column headerStyle="width: 3rem">
+              <template #body="slotProps">
+                <input
+                  type="checkbox"
+                  v-model="slotProps.data._selected"
+                  @change="onRowSelectChange(slotProps.data)"
+                />
+              </template>
+            </Column>
             <Column
               v-for="col in tableConfig.columns"
               :key="col.field"
@@ -149,6 +178,8 @@
   const pageSize = ref(100);
   const first = ref(0);
   const route = useRoute();
+  
+  const selectedRows = ref([]);
   
   const isMobile = computed(() => window.innerWidth <= 768);
   const tableConfig = computed(() => isMobile.value ? settlementMonthDetailTableConfig.mobile : settlementMonthDetailTableConfig.pc);
@@ -435,6 +466,48 @@
     first.value = event.first;
     pageSize.value = event.rows;
     fetchSettlements();
+  };
+
+  const selectAllText = computed(() => {
+    return selectedRows.value.length === settlements.value.length && settlements.value.length > 0 ? '모두 해제' : '모두 선택';
+  });
+
+  const toggleSelectAll = () => {
+    if (selectedRows.value.length === settlements.value.length) {
+      settlements.value.forEach(row => row._selected = false);
+      selectedRows.value = [];
+    } else {
+      settlements.value.forEach(row => row._selected = true);
+      selectedRows.value = [...settlements.value];
+    }
+  };
+
+  const deleteSelected = async () => {
+    if (selectedRows.value.length === 0) {
+      alert('삭제할 항목을 선택하세요.');
+      return;
+    }
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    const ids = selectedRows.value.map(row => row.id);
+    const { error } = await supabase
+      .from('settlements')
+      .delete()
+      .in('id', ids);
+    if (error) {
+      alert('삭제 중 오류가 발생했습니다.');
+    } else {
+      alert('삭제가 완료되었습니다.');
+      fetchSettlements();
+      selectedRows.value = [];
+    }
+  };
+
+  const onRowSelectChange = (row) => {
+    if (row._selected) {
+      if (!selectedRows.value.includes(row)) selectedRows.value.push(row);
+    } else {
+      selectedRows.value = selectedRows.value.filter(r => r.id !== row.id);
+    }
   };
   </script>
   

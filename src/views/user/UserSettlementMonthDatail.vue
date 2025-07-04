@@ -5,29 +5,29 @@
       <div class="filter-row">
         <span>처방월</span>
         <select v-model="selectedPrescriptionMonth" class="input-120" :disabled="!selectedMonth">
-          <option value="">전체</option>
+          <option value="">- 전체 -</option>
           <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
         </select>
         <div class="hide-mobile">
         <span>병의원</span>
         <select v-model="selectedHospital" class="input-180" :disabled="!selectedMonth">
-          <option value="">전체</option>
+          <option value="">- 전체 -</option>
           <option v-for="h in hospitalOptions" :key="h" :value="h">{{ h }}</option>
         </select>
         <span>제품</span>
         <select v-model="selectedProduct" class="input-180" :disabled="!selectedMonth">
-          <option value="">전체</option>
+          <option value="">- 전체 -</option>
           <option v-for="p in productOptions" :key="p" :value="p">{{ p }}</option>
         </select>
         </div>
       </div> 
     </div>
-
+    
     <!-- 중간: 기능카드 -->
     <div class="function-card">
       <div class="total-count">총 {{ totalCount }}건</div>
-      <div style="display: flex; gap: 0.5rem;">
-        <button class="btn-add" @click="downloadExcel">다운로드</button>
+      <div style="display: flex; gap: 1rem; align-items:center;">
+        <button class="btn-download-md" @click="downloadExcel">다운로드</button>
       </div>
     </div>
 
@@ -43,7 +43,7 @@
           :scrollHeight="tableScrollHeight"
           :style="{ width: tableConfig.tableWidth, minWidth: isMobile ? tableConfig.tableStyle.minWidth : '100%' }"
         >
-          <template #empty>
+        <template #empty>
             <div v-if="!loading">조회된 데이터가 없습니다.</div>
           </template>
           <Column
@@ -141,7 +141,7 @@ const fetchSettlements = async () => {
   let query = supabase
     .from('settlements')
     .select('*', { count: 'exact' })
-    .like('company_reg_no', `%${currentUserBizNo.value}%`);
+    .eq('company_reg_no', currentUserBizNo.value);
 
   if (selectedMonth.value) query = query.eq('settlement_month', selectedMonth.value);
   if (selectedPrescriptionMonth.value) query = query.eq('prescription_month', selectedPrescriptionMonth.value);

@@ -6,9 +6,9 @@
 /* 관리자 - 공지사항 ===================================================================================== */
 export const noticeTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'id', label: '순번', width: '4%', align: 'center', sortable: false },
@@ -44,9 +44,9 @@ export const noticeTableConfig = {
 /* 관리자 - 회원 목록 ===================================================================================== */
 export const membersTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
@@ -54,14 +54,14 @@ export const membersTableConfig = {
       { field: 'company_name', label: '회사명', width: '10%', align: 'left', sortable: true },
       { field: 'biz_no', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
       { field: 'ceo_name', label: '대표자명', width: '6%', align: 'center', sortable: true },
-      { field: 'address', label: '주소', width: '14%', align: 'left', sortable: true },
+      { field: 'address', label: '주소', width: '12%', align: 'left', sortable: true },
       { field: 'cso_regist_no', label: 'CSO 신고번호', width: '8%', align: 'center', sortable: true },
       { field: 'manager_name', label: '담당자', width: '6%', align: 'center', sortable: true },
       { field: 'phone', label: '휴대폰번호', width: '8%', align: 'center', sortable: true },
       { field: 'email', label: '이메일', width: '10%', align: 'left', sortable: true },
       { field: 'approval', label: '인증', width: '6%', align: 'center', sortable: true, type: 'toggle' },
       { field: 'grade', label: '등급', width: '6%', align: 'center', sortable: true, type: 'dropdown' },
-      { field: 'created_at', label: '가입일자', width: '6%', align: 'center', sortable: true }
+      { field: 'created_at', label: '가입일자', width: '8%', align: 'center', sortable: true }
     ]
   },
 
@@ -94,9 +94,9 @@ export const membersTableConfig = {
 /* 관리자 - 수수료율 ===================================================================================== */
 export const productsTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center' },
@@ -154,7 +154,7 @@ export const productsTableConfig = {
 /* 관리자 - 거래처 ===================================================================================== */
 export const hospitalsTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
       minWidth: 'calc(100vw - 3rem)'
     },
@@ -208,9 +208,9 @@ export const hospitalsTableConfig = {
 /* 관리자 - 필터링 요청 =================================================================================== */
 export const filterRequestsTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
@@ -252,9 +252,9 @@ export const filterRequestsTableConfig = {
 /* 관리자 - 제약사 관리 =================================================================================== */
 export const pharmaceuticalCompaniesTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
@@ -288,9 +288,9 @@ export const pharmaceuticalCompaniesTableConfig = {
 /* 관리자 - EDI 마감 일정 관리 ============================================================================= */
 export const ediMonthsTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
@@ -328,13 +328,12 @@ export const ediMonthsTableConfig = {
 /* 관리자 - EDI 증빙파일 =================================================================================== */
 export const adminEdiListTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      /*{ field: 'settlement_month', label: '정산월', width: '6%', align: 'center', sortable: true },*/
       { field: 'company_name', label: '업체명', width: '10%', align: 'left', sortable: true },
       { field: 'member_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },
       { field: 'member_ceo_name', label: '대표자', width: '6%', align: 'center', sortable: false },
@@ -356,19 +355,18 @@ export const adminEdiListTableConfig = {
       width: '100vw'
     },
     columns: [
-      /*{ field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      /*{ field: 'settlement_month', label: '정산월', width: '6%', align: 'center', sortable: true },*/
-      { field: 'company_name', label: '업체명', width: '12%', align: 'left', sortable: true },
-      /*{ field: 'member_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },*/
-      /*{ field: 'member_ceo_name', label: '대표자', width: '6%', align: 'center', sortable: false },*/
-      { field: 'hospital_name', label: '거래처명', width: '16%', align: 'left', sortable: true },
-      /*{ field: 'hospital_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },*/
-      /*{ field: 'director_name', label: '원장명', width: '6%', align: 'center', sortable: false },*/
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      { field: 'company_name', label: '업체명', width: '10%', align: 'left', sortable: true },
+      { field: 'member_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },
+      { field: 'member_ceo_name', label: '대표자', width: '6%', align: 'center', sortable: false },
+      { field: 'hospital_name', label: '거래처명', width: '12%', align: 'left', sortable: true },
+      { field: 'hospital_biz_no', label: '사업자번호', width: '8%', align: 'center', sortable: false },
+      { field: 'director_name', label: '원장명', width: '6%', align: 'center', sortable: false },
       { field: 'hospital_address', label: '주소', width: '12%', align: 'left', sortable: false },
       { field: 'proof_file', label: '파일보기', width: '6%', align: 'center', sortable: false, type: 'icon' },
       { field: 'download', label: '다운로드', width: '6%', align: 'center', sortable: false, type: 'icon' },
-      { field: 'created_at', label: '등록일자', width: '12%', align: 'center', sortable: true },
-      /*{ field: 'created_by_name', label: '등록자', width: '10%', align: 'center', sortable: false }*/
+      { field: 'created_at', label: '등록일자', width: '8%', align: 'center', sortable: true },
+      { field: 'created_by_name', label: '등록자', width: '10%', align: 'center', sortable: false }
     ]
   }
 };
@@ -379,9 +377,9 @@ export const adminEdiListTableConfig = {
 /* 업체명, 거래처명 -> 업체수, 거래처수 로 변경! =================================================== */
 export const settlementMonthTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
@@ -396,6 +394,7 @@ export const settlementMonthTableConfig = {
       { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   },
+
   mobile: {
     tableWidth: '100vw',
     tableStyle: {
@@ -420,18 +419,18 @@ export const settlementMonthTableConfig = {
 /* 관리자 - 정산내역서 - 상세 =================================================================================== */
 export const settlementMonthDetailTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'index', label: '순번', width: '3%', align: 'center', sortable: false },
-      { field: 'company_name', label: '업체명', width: '9%', align: 'left', sortable: true },
+      { field: 'company_name', label: '업체명', width: '8%', align: 'left', sortable: true },
       { field: 'company_reg_no', label: '사업자등록번호', width: '7%', align: 'center', sortable: true },
       { field: 'hospital_name', label: '거래처명', width: '9%', align: 'left', sortable: true },
       { field: 'hospital_reg_no', label: '사업자등록번호', width: '7%', align: 'center', sortable: true },
       { field: 'prescription_month', label: '처방월', width: '5%', align: 'center', sortable: true },
-      { field: 'pharma_name', label: '제약사', width: '7%', align: 'left', sortable: true },
+      { field: 'pharma_name', label: '제약사', width: '6%', align: 'left', sortable: true },
       { field: 'product_name', label: '제품명', width: '9%', align: 'left', sortable: true },
       { field: 'insurance_code', label: '보험코드', width: '7%', align: 'center', sortable: true },
       { field: 'price', label: '약가', width: '5%', align: 'right', sortable: true },
@@ -439,7 +438,7 @@ export const settlementMonthDetailTableConfig = {
       { field: 'prescription_amount', label: '처방액', width: '7%', align: 'right', sortable: true },
       { field: 'commission_rate', label: '수수료율', width: '5%', align: 'center', sortable: false },
       { field: 'payment_amount', label: '지급액', width: '7%', align: 'right', sortable: false },
-      { field: 'remarks', label: '비고', width: '8%', align: 'left', sortable: false }
+      { field: 'remarks', label: '비고', width: '7%', align: 'left', sortable: false }
     ]
   },
   
@@ -451,7 +450,7 @@ export const settlementMonthDetailTableConfig = {
       width: '100vw'
     },
     columns: [
-      { field: 'index', label: '순번', width: '4%', align: 'center' },
+      { field: 'index', label: '순번', width: '3%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '병의원', width: '10%', align: 'left', sortable: true },
       { field: 'product_name', label: '제품명', width: '10%', align: 'left', sortable: true },
       { field: 'prescription_month', label: '처방월', width: '7%', align: 'center', sortable: true },
@@ -476,9 +475,9 @@ export const settlementMonthDetailTableConfig = {
 /* 이용자 - 공지사항 ==================================================================================== */
 export const userNoticesTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'id', label: '순번', width: '4%', align: 'center', sortable: false },
@@ -507,9 +506,9 @@ export const userNoticesTableConfig = {
 /* 이용자 - 수수료율 ==================================================================================== */
 export const userProductsTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
       columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
@@ -557,9 +556,9 @@ export const userProductsTableConfig = {
 /* 이용자 - 거래처 ============================================================================================= */
 export const userHospitalsTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
@@ -599,9 +598,9 @@ export const userHospitalsTableConfig = {
 /* 이용자 - 필터링 내역 ========================================================================================= */
 export const userFilterRequestsTableConfig = {
   pc: {
-    tableWidth: '1840px',
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
@@ -642,6 +641,10 @@ export const userFilterRequestsTableConfig = {
 /* 이용자 - EDI 제출 ========================================================================================= */
 export const userEdiSubmitTableConfig = {
   pc: {
+    tableWidth: 'calc(100vw - 3rem)',
+    tableStyle: {
+      minWidth: 'calc(100vw - 3rem)'
+    },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', type: 'index' },
       { field: 'hospital_name', label: '거래처명', width: '16%', align: 'left', sortable: true },
@@ -679,7 +682,10 @@ export const userEdiSubmitTableConfig = {
 /* 이용자 - 정산내역서 - 정산월 ======================================================================================= */
 export const userSettlementMonthTableConfig = {
   pc: {
-    tableStyle: { minWidth: '1840px' },
+    tableWidth: 'calc(100vw - 3rem)',
+    tableStyle: {
+      minWidth: 'calc(100vw - 3rem)'
+    },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center' },
       { field: 'settlement_month', label: '정산월', width: '8%', align: 'center', sortable: true },
@@ -714,15 +720,15 @@ export const userSettlementMonthTableConfig = {
 };
 
 
-
 /* 이용자 - 정산내역서 - 상세 ======================================================================================== */
 export const userSettlementMonthDetailTableConfig = {
   pc: {
+    tableWidth: 'calc(100vw - 3rem)',
     tableStyle: {
-      minWidth: '1840px'
+      minWidth: 'calc(100vw - 3rem)'
     },
     columns: [
-      { field: 'index', label: '순번', width: '4%', align: 'center' },
+      { field: 'index', label: '순번', width: '3%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '병의원', width: '10%', align: 'left', sortable: true },
       { field: 'product_name', label: '제품명', width: '10%', align: 'left', sortable: true },
       { field: 'prescription_month', label: '처방월', width: '7%', align: 'center', sortable: true },

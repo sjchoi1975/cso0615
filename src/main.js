@@ -1,4 +1,4 @@
-// import '@primevue/themes/lara-light-blue/theme.css'; //
+/*import '@primevue/themes/lara-light-blue/theme.css';*/
 import 'primeicons/primeicons.css';
 
 // 기타 전역 CSS
