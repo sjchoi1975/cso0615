@@ -339,6 +339,7 @@ body.login-page .main-content.main-margin {
 
 
 
+
 /* ========================================================================================================= */
 /* ========================================================================================================= */
 /* 배경 판
@@ -1016,6 +1017,8 @@ div.v3dp__datepicker input[type="text"]:focus,
 /* ========================================================================================================= */
 
 .custom-modal {
+  display: flex !important;
+  flex-direction: column !important;
   position: relative !important;
   background: #fff !important;
   border-radius: var(--border-radius-2xl) !important;
@@ -1023,7 +1026,7 @@ div.v3dp__datepicker input[type="text"]:focus,
   padding: 0 !important;
   min-width: 480px !important;
   max-width: 90vw !important;
-  min-height: 180px !important;
+  min-height: 120px !important;
   max-height: 90vh !important;
 }
 
@@ -1038,6 +1041,8 @@ div.v3dp__datepicker input[type="text"]:focus,
 
 /* 모달 스타일 - 제약사 선택 모달 ============================================================================== */
 .custom-modal-pharma {
+  display: flex !important;
+  flex-direction: column !important;
   min-width: 480px !important;
   max-width: 90vw !important;
   min-height: 180px !important;
@@ -1046,8 +1051,17 @@ div.v3dp__datepicker input[type="text"]:focus,
 
 @media (max-width: 768px) {
   .custom-modal-pharma {
-    min-width: 90vw !important;
-    max-width: 90vw !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .modal-body {
+    flex: 1 1 0 !important;   /* 또는 flex: 1 1 auto !important; */
+    overflow-y: auto !important;
+    padding: 1rem 2rem !important;
   }
 }
 
@@ -1078,10 +1092,9 @@ div.v3dp__datepicker input[type="text"]:focus,
 */
 
 .modal-body {
-  display: block !important;
-  font-size: var(--font-size-base) !important;
-  padding: 2rem 2rem!important;
-
+  flex: 1 1 0 !important;
+  overflow-y: auto !important;
+  padding: 2rem 2rem !important;
 }
 
 .modal-footer {

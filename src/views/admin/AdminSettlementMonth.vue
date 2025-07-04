@@ -69,8 +69,11 @@
                   <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
                 </button>
               </template>
+              <template v-else-if="col.field === 'prescription_amount'">
+                {{ Number(slotProps.data.prescription_amount).toLocaleString() }}
+              </template>
               <template v-else-if="col.field === 'total_amount'">
-                {{ slotProps.data.total_amount?.toLocaleString() }}
+                {{ Number(slotProps.data.total_amount).toLocaleString() }}
               </template>
               <template v-else-if="col.field === 'note'">
                 <span v-if="slotProps.data.note" class="link" @click="openNotePopup(slotProps.data)" style="cursor: pointer;" :title="slotProps.data.note">
@@ -230,8 +233,8 @@ const fetchMonthList = async () => {
         company_name: companySet.size,
         hospital_name: hospitalSet.size,
         prescription_count: prescription_count ? prescription_count.toLocaleString() : '0',
-        prescription_amount: prescription_amount ? prescription_amount.toLocaleString() : '0',
-        payment_amount: payment_amount ? payment_amount.toLocaleString() : '0',
+        prescription_amount: Math.round(prescription_amount),
+        total_amount: Math.round(payment_amount),
         note: monthRow.note || '',
       };
     });
@@ -253,15 +256,15 @@ const downloadExcel = () => {
     return;
   }
   const headers = [
-    '정산월', '업체수', '병의원수', '처방건수', '처방액', '지급액', '전달사항'
+    '정산월', '업체수', '병의원수', '처방건수', '처방액', '정산금액', '전달사항'
   ];
   const data = monthList.value.map(item => [
     item.settlement_month,
     item.company_name,
     item.hospital_name,
     item.prescription_count,
-    item.prescription_amount,
-    item.payment_amount,
+    item.prescription_amount ? Math.round(item.prescription_amount).toLocaleString() : '0',
+    item.total_amount ? Math.round(item.total_amount).toLocaleString() : '0',
     item.note ? item.note.replace(/\n/g, '\\n') : ''
   ]);
   const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);

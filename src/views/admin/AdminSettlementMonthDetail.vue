@@ -5,7 +5,7 @@
         <div class="filter-row">
           <span>처방월</span>
           <select v-model="selectedPrescriptionMonth" class="input-120">
-            <option value="">전체</option>
+            <option value="">- 전체 -</option>
             <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
           </select>
           <span>업체명</span>
@@ -13,7 +13,7 @@
             <option value="">전체</option>
             <option v-for="c in companyOptions" :key="c" :value="c">{{ c }}</option>
           </select>
-          <span>병의원</span>
+          <span>거래처</span>
           <select v-model="selectedHospital" class="input-240">
             <option value="">전체</option>
             <option v-for="h in hospitalOptions" :key="h" :value="h">{{ h }}</option>
@@ -66,8 +66,12 @@
   
       <!-- 하단: 테이블카드 -->
       <div class="table-card">
+        <div v-if="loading" class="table-loading-spinner-center">
+          <img src="/spinner.svg" alt="로딩중" />
+        </div>
         <div :style="tableConfig.tableStyle">
           <DataTable
+            v-if="!loading"
             :value="settlements"
             :loading="loading"
             :paginator="false"
@@ -134,12 +138,10 @@
   const settlements = ref([]);
   const loading = ref(false);
   const totalCount = ref(0);
-  const selectedMonth = ref('');
   const selectedPrescriptionMonth = ref('');
   const selectedCompany = ref('');
   const selectedHospital = ref('');
   const selectedProduct = ref('');
-  const monthOptions = ref([]);
   const prescriptionMonthOptions = ref([]);
   const companyOptions = ref([]);
   const hospitalOptions = ref([]);
@@ -155,37 +157,54 @@
   const tableScrollHeight = computed(() => getTableScrollHeight(true));
   
   const fetchFilterOptions = async () => {
-    // 정산월 목록
-    const { data: months } = await supabase.from('settlements').select('settlement_month', { distinct: true });
-    monthOptions.value = months ? [...new Set(months.map(row => row.settlement_month))].sort().reverse() : [];
-    // 정산월이 선택된 경우에만 나머지 옵션 조회
-    if (selectedMonth.value) {
-      const { data: pres } = await supabase.from('settlements').select('prescription_month', { distinct: true }).eq('settlement_month', selectedMonth.value);
-      prescriptionMonthOptions.value = pres ? [...new Set(pres.map(row => row.prescription_month))].sort().reverse() : [];
-      const { data: companies } = await supabase.from('settlements').select('company_name', { distinct: true }).eq('settlement_month', selectedMonth.value);
-      companyOptions.value = companies ? [...new Set(companies.map(row => row.company_name))].sort() : [];
-      const { data: hospitals } = await supabase.from('settlements').select('hospital_name', { distinct: true }).eq('settlement_month', selectedMonth.value);
-      hospitalOptions.value = hospitals ? [...new Set(hospitals.map(row => row.hospital_name))].sort() : [];
-      const { data: products } = await supabase.from('settlements').select('product_name', { distinct: true }).eq('settlement_month', selectedMonth.value);
-      productOptions.value = products ? [...new Set(products.map(row => row.product_name))].sort() : [];
-    } else {
-      prescriptionMonthOptions.value = [];
-      companyOptions.value = [];
-      hospitalOptions.value = [];
-      productOptions.value = [];
+    const baseMonth = route.params.month;
+    // 0) 처방월 옵션: 해당 정산월의 모든 처방월
+    const { data: pres } = await supabase.from('settlements').select('prescription_month', { distinct: true }).eq('settlement_month', baseMonth);
+    prescriptionMonthOptions.value = pres ? [...new Set(pres.map(row => row.prescription_month))].sort().reverse() : [];
+
+    // 1) 업체 옵션: 처방월 조건만
+    let companyQuery = supabase.from('settlements').select('company_name', { distinct: true }).eq('settlement_month', baseMonth);
+    if (selectedPrescriptionMonth.value) {
+      companyQuery = companyQuery.eq('prescription_month', selectedPrescriptionMonth.value);
     }
+    const { data: companies } = await companyQuery;
+    companyOptions.value = companies ? [...new Set(companies.map(row => row.company_name))].sort() : [];
+
+    // 2) 거래처 옵션: 처방월+업체 조건
+    let hospitalQuery = supabase.from('settlements').select('hospital_name', { distinct: true }).eq('settlement_month', baseMonth);
+    if (selectedPrescriptionMonth.value) {
+      hospitalQuery = hospitalQuery.eq('prescription_month', selectedPrescriptionMonth.value);
+    }
+    if (selectedCompany.value) {
+      hospitalQuery = hospitalQuery.eq('company_name', selectedCompany.value);
+    }
+    const { data: hospitals } = await hospitalQuery;
+    hospitalOptions.value = hospitals ? [...new Set(hospitals.map(row => row.hospital_name))].sort() : [];
+
+    // 3) 제품 옵션: 처방월+업체+거래처 조건
+    let productQuery = supabase.from('settlements').select('product_name', { distinct: true }).eq('settlement_month', baseMonth);
+    if (selectedPrescriptionMonth.value) {
+      productQuery = productQuery.eq('prescription_month', selectedPrescriptionMonth.value);
+    }
+    if (selectedCompany.value) {
+      productQuery = productQuery.eq('company_name', selectedCompany.value);
+    }
+    if (selectedHospital.value) {
+      productQuery = productQuery.eq('hospital_name', selectedHospital.value);
+    }
+    const { data: products } = await productQuery;
+    productOptions.value = products ? [...new Set(products.map(row => row.product_name))].sort() : [];
+
+    // 제품 옵션 불러올 때
+    console.log('제품 옵션:', productOptions.value);
   };
   
   const fetchSettlements = async () => {
-    if (!selectedMonth.value) {
-      // 정산월이 없으면 데이터를 불러오지 않음
-      settlements.value = [];
-      totalCount.value = 0;
-      return;
+    const baseMonth = route.params.month;
+    let query = supabase.from('settlements').select('*', { count: 'exact' }).eq('settlement_month', baseMonth);
+    if (selectedPrescriptionMonth.value) {
+      query = query.eq('prescription_month', selectedPrescriptionMonth.value);
     }
-    loading.value = true;
-    let query = supabase.from('settlements').select('*', { count: 'exact' });
-    if (selectedPrescriptionMonth.value) query = query.eq('prescription_month', selectedPrescriptionMonth.value);
     if (selectedCompany.value) query = query.eq('company_name', selectedCompany.value);
     if (selectedHospital.value) query = query.eq('hospital_name', selectedHospital.value);
     if (selectedProduct.value) query = query.eq('product_name', selectedProduct.value);
@@ -202,22 +221,44 @@
       totalCount.value = 0;
     }
     loading.value = false;
+
+    // 제품 필터 값
+    console.log('제품 필터 값:', selectedProduct.value);
   };
   
   onMounted(() => {
     const monthFromUrl = route.params.month;
     if (monthFromUrl) {
-      selectedMonth.value = monthFromUrl;
+      selectedPrescriptionMonth.value = '';
       fetchSettlements();
       fetchFilterOptions();
     }
   });
   
+  // 정산월 변경 시 필터 옵션 업데이트
+  watch(selectedPrescriptionMonth, async () => {
+    selectedCompany.value = '';
+    selectedHospital.value = '';
+    selectedProduct.value = '';
+    await fetchFilterOptions();
+    await fetchSettlements();
+  });
+  
   // 필터 변경 시 데이터 다시 불러오기
-  watch([selectedPrescriptionMonth, selectedCompany, selectedHospital, selectedProduct], () => {
-    if (route.params.month) {
-        fetchSettlements();
-    }
+  watch(selectedCompany, async () => {
+    selectedHospital.value = '';
+    selectedProduct.value = '';
+    await fetchFilterOptions();
+    await fetchSettlements();
+  });
+  watch(selectedHospital, async () => {
+    selectedProduct.value = '';
+    await fetchFilterOptions();
+    await fetchSettlements();
+  });
+  
+  watch(selectedProduct, async () => {
+    await fetchSettlements();
   });
   
   const totalQuantity = computed(() => settlements.value.reduce((sum, r) => sum + (Number(r.quantity) || 0), 0));
@@ -237,7 +278,7 @@
 
   const formatPercentage = (value) => {
     if (!value) return '0%';
-    return Math.round(Number(value) * 100) + '%';
+    return (Math.round(Number(value) * 1000) / 10).toFixed(1) + '%';
   };
   
   const editRow = (idx) => {
@@ -263,7 +304,7 @@
   
   const downloadExcel = () => {
     const todayStr = new Date().toISOString().slice(0, 10);
-    let monthLabel = selectedMonth.value;
+    let monthLabel = selectedPrescriptionMonth.value;
     let fileMonth = '';
     if (monthLabel && monthLabel.length === 7) {
       const [y, m] = monthLabel.split('-');
@@ -271,24 +312,42 @@
     } else {
       fileMonth = '전체';
     }
-    const exportData = settlements.value.map(row => ({
-      '정산월': selectedMonth.value,
-      '업체명': row.company_name,
-      '업체사업자등록번호': row.company_reg_no,
-      '병의원': row.hospital_name,
-      '병의원사업자등록번호': row.hospital_reg_no,
-      '처방월': row.prescription_month,
-      '제약사': row.pharma_name,
-      '제품명': row.product_name,
-      '보험코드': row.insurance_code,
-      '약가': row.price,
-      '수량': row.quantity,
-      '처방액': row.prescription_amount,
-      '수수료율': row.commission_rate,
-      '지급액': row.payment_amount,
-      '비고': row.remarks
-    }));
-    const ws = XLSX.utils.json_to_sheet(exportData);
+    const exportData = settlements.value.map(row => ([
+      selectedPrescriptionMonth.value,
+      row.company_name,
+      row.company_reg_no,
+      row.hospital_name,
+      row.hospital_reg_no,
+      row.prescription_month,
+      row.pharma_name,
+      row.product_name,
+      row.insurance_code,
+      row.price ? Math.round(row.price) : 0,
+      row.quantity ? Math.round(row.quantity) : 0,
+      row.prescription_amount ? Math.round(row.prescription_amount) : 0,
+      row.commission_rate ? Number(Number(row.commission_rate).toFixed(3)) : 0,
+      row.payment_amount ? Math.round(row.payment_amount) : 0,
+      row.remarks
+    ]));
+    const headers = [
+      '정산월', '업체명', '업체사업자등록번호', '병의원', '병의원사업자등록번호', '처방월', '제약사', '제품명', '보험코드',
+      '약가', '수량', '처방액', '수수료율', '지급액', '비고'
+    ];
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...exportData]);
+
+    // 셀 서식 지정: 약가, 수량, 처방액, 지급액(10,11,12,14번째 컬럼) -> '#,##0', 수수료율(13번째) -> '0.0%'
+    const colFormats = [null, null, null, null, null, null, null, null, null, '#,##0', '#,##0', '#,##0', '0.0%', '#,##0', null];
+    for (let r = 1; r <= exportData.length; r++) {
+      // 약가, 수량, 처방액, 지급액
+      ['J','K','L','N'].forEach((col, idx) => {
+        const cell = ws[`${col}${r+1}`];
+        if (cell) cell.z = '#,##0';
+      });
+      // 수수료율
+      const percentCell = ws[`M${r+1}`];
+      if (percentCell) percentCell.z = '0.0%';
+    }
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, '정산내역');
     XLSX.writeFile(wb, `정산내역서 - ${fileMonth}_${todayStr}.xlsx`);
@@ -325,7 +384,7 @@
       return;
     }
 
-    if (!selectedMonth.value) {
+    if (!selectedPrescriptionMonth.value) {
       alert('엑셀 파일을 등록하려면 먼저 정산월을 선택해야 합니다.');
       event.target.value = ''; // 파일 선택 초기화
       return;
@@ -339,7 +398,7 @@
       const sheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(sheet);
       const rows = json.map(row => ({
-        settlement_month: selectedMonth.value,
+        settlement_month: selectedPrescriptionMonth.value,
         company_name: row['업체명'] || '',
         company_reg_no: row['업체사업자등록번호'] || '',
         hospital_name: row['병의원'] || '',
@@ -348,11 +407,11 @@
         pharma_name: row['제약사'] || '',
         product_name: row['제품명'] || '',
         insurance_code: row['보험코드'] || '',
-        price: row['약가'] || null,
-        quantity: row['수량'] || null,
-        prescription_amount: row['처방액'] || null,
-        commission_rate: row['수수료율'] || null,
-        payment_amount: row['지급액'] || null,
+        price: row['약가'] ? Number(Number(row['약가']).toFixed(2)) : null,
+        quantity: row['수량'] ? Number(Number(row['수량']).toFixed(2)) : null,
+        prescription_amount: row['처방액'] ? Number(Number(row['처방액']).toFixed(2)) : null,
+        commission_rate: row['수수료율'] ? Number(Number(row['수수료율']).toFixed(3)) : null,
+        payment_amount: row['지급액'] ? Number(Number(row['지급액']).toFixed(2)) : null,
         remarks: row['비고'] || ''
       }));
       const validRows = rows.filter(r => r.company_name && r.hospital_name && r.product_name);

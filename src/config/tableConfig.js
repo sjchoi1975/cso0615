@@ -385,11 +385,12 @@ export const settlementMonthTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'settlement_month', label: '정산월', width: '8%', align: 'center', sortable: true },
-      { field: 'company_name', label: '업체', width: '8%', align: 'center', sortable: false },
-      { field: 'hospital_name', label: '거래처', width: '8%', align: 'center', sortable: false },
-      { field: 'total_amount', label: '정산금액', width: '8%', align: 'right', sortable: false },
-      { field: 'note', label: '전달사항', width: '46%', align: 'left', sortable: false },
+      { field: 'settlement_month', label: '정산월', width: '6%', align: 'center', sortable: true },
+      { field: 'company_name', label: '업체', width: '6%', align: 'center', sortable: false },
+      { field: 'hospital_name', label: '거래처', width: '6%', align: 'center', sortable: false },
+      { field: 'prescription_amount', label: '처방액', width: '8%', align: 'center', sortable: false },
+      { field: 'total_amount', label: '정산금액', width: '8%', align: 'center', sortable: false },
+      { field: 'note', label: '전달사항', width: '44%', align: 'left', sortable: false },
       { field: 'detail', label: '상세', width: '6%', align: 'center', type: 'icon', icon: 'pi-list' },
       { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },
       { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', icon: 'pi-trash' }
@@ -398,19 +399,20 @@ export const settlementMonthTableConfig = {
   mobile: {
     tableWidth: '100vw',
     tableStyle: {
-      minWidth: '640px',
+      minWidth: '840px',
       width: '100vw'
     },
     columns: [
       /*{ field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },*/
-      { field: 'settlement_month', label: '정산월', width: '12%', align: 'center', sortable: true },
-      { field: 'company_name', label: '업체', width: '12%', align: 'center', sortable: false },
-      { field: 'hospital_name', label: '거래처', width: '12%', align: 'center', sortable: false },
-      { field: 'total_amount', label: '정산금액', width: '16%', align: 'right', sortable: false },
-      { field: 'note', label: '전달사항', width: '28%', align: 'left', sortable: false },
-      /*{ field: 'detail', label: '상세', width: '10%', align: 'center', type: 'icon', icon: 'pi-list' },*/
-      { field: 'edit', label: '수정', width: '10%', align: 'center', type: 'icon', icon: 'pi-pencil' },
-      { field: 'delete', label: '삭제', width: '10%', align: 'center', type: 'icon', icon: 'pi-trash' }
+      { field: 'settlement_month', label: '정산월', width: '10%', align: 'center', sortable: true },
+      { field: 'company_name', label: '업체', width: '9%', align: 'center', sortable: false },
+      { field: 'hospital_name', label: '거래처', width: '9%', align: 'center', sortable: false },
+      { field: 'prescription_amount', label: '처방액', width: '14%', align: 'center', sortable: false },
+      { field: 'total_amount', label: '정산금액', width: '14%', align: 'center', sortable: false },
+      { field: 'note', label: '전달사항', width: '20%', align: 'left', sortable: false },
+      { field: 'detail', label: '상세', width: '8%', align: 'center', type: 'icon', icon: 'pi-list' },
+      { field: 'edit', label: '수정', width: '8%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'delete', label: '삭제', width: '8%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   }
 };
@@ -424,17 +426,17 @@ export const settlementMonthDetailTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '3%', align: 'center', sortable: false },
-      { field: 'company_name', label: '업체명', width: '9%', align: 'left', sortable: false },
-      { field: 'company_reg_no', label: '사업자등록번호', width: '7%', align: 'center', sortable: false },
-      { field: 'hospital_name', label: '거래처명', width: '9%', align: 'left', sortable: false },
-      { field: 'hospital_reg_no', label: '사업자등록번호', width: '7%', align: 'center', sortable: false },
-      { field: 'prescription_month', label: '처방월', width: '5%', align: 'center', sortable: false },
-      { field: 'pharma_name', label: '제약사', width: '7%', align: 'left', sortable: false },
-      { field: 'product_name', label: '제품명', width: '9%', align: 'left', sortable: false },
-      { field: 'insurance_code', label: '보험코드', width: '7%', align: 'center', sortable: false },
-      { field: 'price', label: '약가', width: '5%', align: 'right', sortable: false },
-      { field: 'quantity', label: '수량', width: '5%', align: 'right', sortable: false },
-      { field: 'prescription_amount', label: '처방액', width: '7%', align: 'right', sortable: false },
+      { field: 'company_name', label: '업체명', width: '9%', align: 'left', sortable: true },
+      { field: 'company_reg_no', label: '사업자등록번호', width: '7%', align: 'center', sortable: true },
+      { field: 'hospital_name', label: '거래처명', width: '9%', align: 'left', sortable: true },
+      { field: 'hospital_reg_no', label: '사업자등록번호', width: '7%', align: 'center', sortable: true },
+      { field: 'prescription_month', label: '처방월', width: '5%', align: 'center', sortable: true },
+      { field: 'pharma_name', label: '제약사', width: '7%', align: 'left', sortable: true },
+      { field: 'product_name', label: '제품명', width: '9%', align: 'left', sortable: true },
+      { field: 'insurance_code', label: '보험코드', width: '7%', align: 'center', sortable: true },
+      { field: 'price', label: '약가', width: '5%', align: 'right', sortable: true },
+      { field: 'quantity', label: '수량', width: '5%', align: 'right', sortable: true },
+      { field: 'prescription_amount', label: '처방액', width: '7%', align: 'right', sortable: true },
       { field: 'commission_rate', label: '수수료율', width: '5%', align: 'center', sortable: false },
       { field: 'payment_amount', label: '지급액', width: '7%', align: 'right', sortable: false },
       { field: 'remarks', label: '비고', width: '8%', align: 'left', sortable: false }
@@ -454,13 +456,13 @@ export const settlementMonthDetailTableConfig = {
       { field: 'product_name', label: '제품명', width: '10%', align: 'left', sortable: true },
       { field: 'prescription_month', label: '처방월', width: '7%', align: 'center', sortable: true },
       { field: 'pharma_name', label: '제약사', width: '8%', align: 'left', sortable: true },
-      { field: 'insurance_code', label: '보험코드', width: '8%', align: 'center' },
-      { field: 'price', label: '약가', width: '7%', align: 'right', format: 'number' },
-      { field: 'quantity', label: '수량', width: '7%', align: 'right', format: 'number' },
-      { field: 'prescription_amount', label: '처방액', width: '8%', align: 'right', format: 'currency' },
-      { field: 'commission_rate', label: '수수료율', width: '7%', align: 'center', format: 'percent' },
-      { field: 'payment_amount', label: '지급액', width: '8%', align: 'right', format: 'currency' },
-      { field: 'remarks', label: '비고', width: '16%', align: 'left' }
+      { field: 'insurance_code', label: '보험코드', width: '8%', align: 'center', sortable: true },
+      { field: 'price', label: '약가', width: '7%', align: 'right', format: 'number', sortable: true },
+      { field: 'quantity', label: '수량', width: '7%', align: 'right', format: 'number', sortable: true },
+      { field: 'prescription_amount', label: '처방액', width: '8%', align: 'right', format: 'currency', sortable: true },
+      { field: 'commission_rate', label: '수수료율', width: '7%', align: 'center', format: 'percent', sortable: true },
+      { field: 'payment_amount', label: '지급액', width: '8%', align: 'right', format: 'currency', sortable: true },
+      { field: 'remarks', label: '비고', width: '16%', align: 'left', sortable: true }
     ]
   }
 };
