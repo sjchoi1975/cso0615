@@ -1654,14 +1654,14 @@ border-color: var(--gray-400) !important;
 
 /* 승인 Approved */
 .status-select-user.status-select-approved-user {
-background-color: none !important;
+background-color: #fff !important;
 color: var(--primary) !important;
 border-color: var(--primary) !important;
 }
 
 /* 반려 Rejected */
 .status-select-user.status-select-rejected-user {
-background-color: none !important;
+background-color: #fff !important;
 color: var(--danger) !important;
 border-color: var(--danger) !important;
 }

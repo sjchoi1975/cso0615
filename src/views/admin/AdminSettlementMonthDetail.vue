@@ -297,12 +297,20 @@
   const downloadTemplate = () => {
     const templateData = [
       {
-        'prescription_month': 'YYYY-MM',
-        'company_name': '업체명',
-        'hospital_name': '병의원명',
-        'product_name': '제품명',
-        'quantity': '수량 (숫자만)',
-        'remarks': '비고 (선택사항)'
+        '업체명': '',
+        '업체사업자등록번호': '123-45-67890', // 필수 예시
+        '병의원': '',
+        '병의원사업자등록번호': '',
+        '처방월': '',
+        '제약사': '',
+        '제품명': '',
+        '보험코드': '',
+        '약가': '',
+        '수량': '',
+        '처방액': '',
+        '수수료율': '',
+        '지급액': '',
+        '비고': ''
       }
     ];
     const ws = XLSX.utils.json_to_sheet(templateData);

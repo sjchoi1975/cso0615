@@ -96,7 +96,7 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="form-label">정산월</label>
-              <select v-model="newMonth" class="input">
+              <select v-model="newMonth" class="input" :disabled="isEditMode">
                 <option value="">- 선택 -</option>
                 <option v-for="opt in registerMonthOptions" :key="opt" :value="opt">
                   {{ opt.slice(0,4) + '년 ' + parseInt(opt.slice(5,7)) + '월' }}
@@ -288,15 +288,21 @@ const openRegisterMonth = (row, edit = false) => {
   showRegisterDialog.value = true;
   isEditMode.value = edit;
   if (edit && row) {
+    // 수정 모드: 기존 데이터 설정
     newMonth.value = row.settlement_month;
-    newNote.value = row.note;
+    newNote.value = row.note || '';
   } else {
+    // 등록 모드: 초기화
     newMonth.value = "";
     newNote.value = '';
   }
 };
 const closeRegisterDialog = () => {
   showRegisterDialog.value = false;
+  // 모달 닫을 때 상태 초기화
+  isEditMode.value = false;
+  newMonth.value = "";
+  newNote.value = '';
 };
 const registerMonth = async () => {
   if (!newMonth.value) {
@@ -307,19 +313,35 @@ const registerMonth = async () => {
   try {
     const formattedMonth = newMonth.value;
 
-    // settlement_months 테이블에 insert
-    const { error } = await supabase.from('settlement_months').insert({
-      settlement_month: formattedMonth,
-      note: newNote.value || null,
-      created_at: new Date().toISOString(),
-      // created_by: (추후 로그인 연동 시 추가)
-    });
-    if (error) throw error;
-    alert('정산월이 등록되었습니다.');
+    if (isEditMode.value) {
+      // 수정 모드: update 쿼리 사용
+      const { error } = await supabase
+        .from('settlement_months')
+        .update({
+          note: newNote.value || null,
+          updated_at: new Date().toISOString(),
+          // updated_by: (추후 로그인 연동 시 추가)
+        })
+        .eq('settlement_month', formattedMonth);
+      
+      if (error) throw error;
+      alert('정산월이 수정되었습니다.');
+    } else {
+      // 등록 모드: insert 쿼리 사용
+      const { error } = await supabase.from('settlement_months').insert({
+        settlement_month: formattedMonth,
+        note: newNote.value || null,
+        created_at: new Date().toISOString(),
+        // created_by: (추후 로그인 연동 시 추가)
+      });
+      if (error) throw error;
+      alert('정산월이 등록되었습니다.');
+    }
+    
     showRegisterDialog.value = false;
     fetchMonthList();
   } catch (e) {
-    alert('등록 실패: ' + e.message);
+    alert(isEditMode.value ? '수정 실패: ' + e.message : '등록 실패: ' + e.message);
   }
   registerLoading.value = false;
 };

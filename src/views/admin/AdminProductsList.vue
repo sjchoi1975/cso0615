@@ -199,8 +199,9 @@ const tableConfig = computed(() => isMobile.value ? productsTableConfig.mobile :
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const fetchMonthOptions = async () => {
+  // product_months 테이블에서 기준월 목록 불러오기
   const { data, error } = await supabase
-    .from('products')
+    .from('product_months')
     .select('base_month')
     .order('base_month', { ascending: false });
 

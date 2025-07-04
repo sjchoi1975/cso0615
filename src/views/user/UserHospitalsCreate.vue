@@ -9,6 +9,10 @@
       <input v-model="directorName" placeholder="원장명을 입력하세요" class="input" required />
       <label>주소<span class="required">*</span></label>
       <input v-model="address" placeholder="주소를 입력하세요" class="input" required />
+      <label>전화번호</label>
+      <input v-model="phone" placeholder="지역번호-국번-번호" class="input" maxlength="13" />
+      <label>휴대폰 번호</label>
+      <input v-model="handphone" placeholder="010-1234-5678" class="input" maxlength="13" />
       <label>사업자등록증</label>
       <input type="file" @change="onFileChange" class="input" />
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
@@ -22,7 +26,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
@@ -34,6 +38,70 @@ const address = ref('');
 const licenseFile = ref(null);
 const loading = ref(false);
 const router = useRouter();
+const handphone = ref('');
+const phone = ref('');
+
+// 사업자등록번호 자동 하이픈 추가
+watch(businessNumber, (newValue) => {
+  const digits = newValue.replace(/\D/g, '');
+  let formatted = '';
+  if (digits.length > 0) {
+    if (digits.length <= 3) {
+      formatted = digits;
+    } else if (digits.length <= 5) {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5, 10)}`;
+    }
+  }
+  if (formatted !== businessNumber.value) {
+    businessNumber.value = formatted;
+  }
+});
+
+// 전화번호 자동 하이픈 추가 (지역번호 자동 분류)
+watch(phone, (newValue) => {
+  const digits = newValue.replace(/\D/g, '');
+  let formatted = '';
+  if (digits.startsWith('02')) {
+    if (digits.length <= 2) {
+      formatted = digits;
+    } else if (digits.length <= 6) {
+      formatted = `${digits.slice(0,2)}-${digits.slice(2)}`;
+    } else {
+      formatted = `${digits.slice(0,2)}-${digits.slice(2,6)}-${digits.slice(6,10)}`;
+    }
+  } else {
+    if (digits.length <= 3) {
+      formatted = digits;
+    } else if (digits.length <= 7) {
+      formatted = `${digits.slice(0,3)}-${digits.slice(3)}`;
+    } else {
+      formatted = `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7,11)}`;
+    }
+  }
+  if (formatted !== phone.value) {
+    phone.value = formatted;
+  }
+});
+
+// 휴대폰 번호 자동 하이픈 추가
+watch(handphone, (newValue) => {
+  const digits = newValue.replace(/\D/g, '');
+  let formatted = '';
+  if (digits.length > 0) {
+    if (digits.length <= 3) {
+      formatted = digits;
+    } else if (digits.length <= 7) {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+    }
+  }
+  if (formatted !== handphone.value) {
+    handphone.value = formatted;
+  }
+});
 
 const onFileChange = (event) => {
   const files = event.target.files;
@@ -66,15 +134,25 @@ const registerHospital = async () => {
         business_registration_number: businessNumber.value,
         director_name: directorName.value,
         address: address.value,
-        registered_by: user.id, // 등록자는 현재 로그인한 이용자
+        telephone: phone.value,
+        handphone: handphone.value,
+        registered_by: user.id,
       })
       .select('id')
       .single();
-
     if (insertError) throw insertError;
     const newHospitalId = newHospital.id;
 
-    // 2. 파일이 있으면 업로드하고 테이블 업데이트
+    // 2. 병원-이용자 관계(매핑) 정보 추가
+    const { error: mappingError } = await supabase
+      .from('hospital_member_mappings')
+      .insert({
+        hospital_id: newHospitalId,
+        member_id: user.id,
+      });
+    if (mappingError) throw mappingError;
+
+    // 3. 파일이 있으면 업로드하고 테이블 업데이트
     if (licenseFile.value) {
       const file = licenseFile.value;
       const fileExt = file.name.split('.').pop();
@@ -95,19 +173,8 @@ const registerHospital = async () => {
       if (updateError) throw updateError;
     }
 
-    // 3. 병원-이용자 관계(매핑) 정보 추가
-    const { error: mappingError } = await supabase
-      .from('hospital_member_mappings')
-      .insert({
-        hospital_id: newHospitalId,
-        member_id: user.id,
-      });
-
-    if (mappingError) throw mappingError;
-
-    alert('거래처가 성공적으로 등록 및 연결되었습니다.');
+    alert('신규 거래처가 등록되었습니다.');
     router.push('/hospitals/list');
-
   } catch (e) {
     console.error('거래처 등록 및 연결 오류:', e);
     alert('처리 중 오류가 발생했습니다: ' + e.message);

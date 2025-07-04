@@ -9,6 +9,10 @@
       <input v-model="directorName" placeholder="원장명을 입력하세요" class="input" required />
       <label>주소<span class="required">*</span></label>
       <input v-model="address" placeholder="주소를 입력하세요" class="input" required />
+      <label>전화번호</label>
+      <input v-model="phone" placeholder="지역번호-국번-번호" class="input" maxlength="13" />
+      <label>휴대폰 번호</label>
+      <input v-model="handphone" placeholder="010-1234-5678" class="input" maxlength="13" />
       <label>사업자등록증</label>
       <input type="file" @change="onFileChange" class="input" />
       <div v-if="existingLicenseFile" class="file-info">
@@ -26,7 +30,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter, useRoute } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
@@ -35,6 +39,8 @@ const hospitalName = ref('');
 const businessNumber = ref('');
 const directorName = ref('');
 const address = ref('');
+const phone = ref('');
+const handphone = ref('');
 const newLicenseFile = ref(null);
 const existingLicenseFile = ref(null);
 const loading = ref(false);
@@ -64,6 +70,8 @@ const fetchHospitalData = async () => {
     businessNumber.value = data.business_registration_number;
     directorName.value = data.director_name;
     address.value = data.address;
+    phone.value = data.telephone || '';
+    handphone.value = data.handphone || '';
     existingLicenseFile.value = data.business_license_file;
 
   } catch (e) {
@@ -123,6 +131,8 @@ const updateHospital = async () => {
         business_registration_number: businessNumber.value,
         director_name: directorName.value,
         address: address.value,
+        telephone: phone.value,
+        handphone: handphone.value,
         business_license_file: licenseFilePath,
         updated_by: user.id,
         updated_at: new Date().toISOString()
@@ -156,4 +166,47 @@ const getFileUrl = (path) => {
   const { data } = supabase.storage.from('hospital-biz-licenses').getPublicUrl(path);
   return data.publicUrl;
 };
+
+// 전화번호, 휴대폰번호 자동 하이픈 처리
+watch(() => phone.value, (newValue) => {
+  const digits = (newValue || '').replace(/\D/g, '');
+  let formatted = '';
+  if (digits.startsWith('02')) {
+    if (digits.length <= 2) {
+      formatted = digits;
+    } else if (digits.length <= 6) {
+      formatted = `${digits.slice(0,2)}-${digits.slice(2)}`;
+    } else {
+      formatted = `${digits.slice(0,2)}-${digits.slice(2,6)}-${digits.slice(6,10)}`;
+    }
+  } else {
+    if (digits.length <= 3) {
+      formatted = digits;
+    } else if (digits.length <= 7) {
+      formatted = `${digits.slice(0,3)}-${digits.slice(3)}`;
+    } else {
+      formatted = `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7,11)}`;
+    }
+  }
+  if (formatted !== phone.value) {
+    phone.value = formatted;
+  }
+});
+
+watch(() => handphone.value, (newValue) => {
+  const digits = (newValue || '').replace(/\D/g, '');
+  let formatted = '';
+  if (digits.length > 0) {
+    if (digits.length <= 3) {
+      formatted = digits;
+    } else if (digits.length <= 7) {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+    }
+  }
+  if (formatted !== handphone.value) {
+    handphone.value = formatted;
+  }
+});
 </script>

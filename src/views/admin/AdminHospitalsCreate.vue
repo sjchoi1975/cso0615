@@ -9,6 +9,10 @@
       <input v-model="directorName" placeholder="원장명을 입력하세요" class="input" required />
       <label>주소<span class="required">*</span></label>
       <input v-model="address" placeholder="주소를 입력하세요" class="input" required />
+      <label>전화번호</label>
+      <input v-model="phone" placeholder="지역번호-국번-번호" class="input" maxlength="13" />
+      <label>휴대폰 번호</label>
+      <input v-model="handphone" placeholder="010-1234-5678" class="input" maxlength="13" />
       <label>사업자등록증</label>
       <input type="file" @change="onFileChange" class="input" />
       <!-- 담당 업체 선택 섹션 추가 -->
@@ -88,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
@@ -110,6 +114,9 @@ const selectedMembers = ref([]); // 최종 선택된 회원
 const tempSelectedMembers = ref([]); // 모달 내에서 임시로 선택된 회원
 const memberSearch = ref('');
 const loadingMembers = ref(false);
+
+const phone = ref('');
+const handphone = ref('');
 
 const onFileChange = (event) => {
   const files = event.target.files;
@@ -196,6 +203,68 @@ const getMemberName = (memberId) => {
   return member ? member.company_name : '알 수 없음';
 };
 
+// 사업자등록번호 자동 하이픈 추가
+watch(businessNumber, (newValue) => {
+  const digits = newValue.replace(/\D/g, '');
+  let formatted = '';
+  if (digits.length > 0) {
+    if (digits.length <= 3) {
+      formatted = digits;
+    } else if (digits.length <= 5) {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5, 10)}`;
+    }
+  }
+  if (formatted !== businessNumber.value) {
+    businessNumber.value = formatted;
+  }
+});
+
+// 전화번호 자동 하이픈 추가 (지역번호 자동 분류)
+watch(phone, (newValue) => {
+  const digits = newValue.replace(/\D/g, '');
+  let formatted = '';
+  if (digits.startsWith('02')) {
+    if (digits.length <= 2) {
+      formatted = digits;
+    } else if (digits.length <= 6) {
+      formatted = `${digits.slice(0,2)}-${digits.slice(2)}`;
+    } else {
+      formatted = `${digits.slice(0,2)}-${digits.slice(2,6)}-${digits.slice(6,10)}`;
+    }
+  } else {
+    if (digits.length <= 3) {
+      formatted = digits;
+    } else if (digits.length <= 7) {
+      formatted = `${digits.slice(0,3)}-${digits.slice(3)}`;
+    } else {
+      formatted = `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7,11)}`;
+    }
+  }
+  if (formatted !== phone.value) {
+    phone.value = formatted;
+  }
+});
+
+// 휴대폰 번호 자동 하이픈 추가
+watch(handphone, (newValue) => {
+  const digits = newValue.replace(/\D/g, '');
+  let formatted = '';
+  if (digits.length > 0) {
+    if (digits.length <= 3) {
+      formatted = digits;
+    } else if (digits.length <= 7) {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+    }
+  }
+  if (formatted !== handphone.value) {
+    handphone.value = formatted;
+  }
+});
+
 // 병원 등록 로직 수정
 const registerHospital = async () => {
   if (!hospitalName.value || !businessNumber.value || !directorName.value || !address.value) {
@@ -205,9 +274,12 @@ const registerHospital = async () => {
   loading.value = true;
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('로그인이 필요합니다.');
-
-    // 1. 텍스트 정보 삽입
+    if (!user) {
+      alert('로그인이 필요합니다.');
+      loading.value = false;
+      return;
+    }
+    // 1. 텍스트 정보 먼저 삽입
     const { data: newHospital, error: insertError } = await supabase
       .from('hospitals')
       .insert({
@@ -215,22 +287,33 @@ const registerHospital = async () => {
         business_registration_number: businessNumber.value,
         director_name: directorName.value,
         address: address.value,
+        telephone: phone.value,
+        handphone: handphone.value,
         registered_by: user.id,
       })
       .select('id')
       .single();
     if (insertError) throw insertError;
-
     const newHospitalId = newHospital.id;
 
-    // 2. 파일 업로드 및 경로 업데이트
+    // 2. 파일이 있으면 업로드하고 테이블 업데이트
     if (licenseFile.value) {
       const file = licenseFile.value;
       const fileExt = file.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage.from('hospital-biz-licenses').upload(fileName, file);
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('hospital-biz-licenses')
+        .upload(filePath, file);
+
       if (uploadError) throw uploadError;
-      const { error: updateError } = await supabase.from('hospitals').update({ business_license_file: fileName }).eq('id', newHospitalId);
+
+      const { error: updateError } = await supabase
+        .from('hospitals')
+        .update({ business_license_file: filePath })
+        .eq('id', newHospitalId);
+
       if (updateError) throw updateError;
     }
 
@@ -244,12 +327,11 @@ const registerHospital = async () => {
       if (mappingError) throw mappingError;
     }
 
-    alert('거래처가 성공적으로 등록되었습니다.');
+    alert('신규 거래처가 등록되었습니다.');
     router.push('/admin/hospitals/list');
-
   } catch (e) {
     console.error('거래처 등록 오류:', e);
-    alert('등록 중 오류가 발생했습니다: ' + e.message);
+    alert('처리 중 오류가 발생했습니다: ' + e.message);
   } finally {
     loading.value = false;
   }

@@ -252,14 +252,23 @@ const onPageChange = (event) => {
 };
 
 const downloadExcel = () => {
-  const exportData = hospitals.value.map((row, index) => ({
-    '순번': first.value + index + 1,
-    '거래처명': row.hospital_name,
-    '사업자등록번호': row.business_registration_number,
-    '원장명': row.director_name,
-    '주소': row.address,
-    '등록일': new Date(row.registered_at).toLocaleDateString(),
-  }));
+  // tableConfig에서 다운로드 대상 컬럼만 추출
+  const columns = hospitalsTableConfig.pc.columns.filter(col => !['license', 'edit', 'delete'].includes(col.field));
+  const exportData = hospitals.value.map((row, index) => {
+    const obj = {};
+    columns.forEach(col => {
+      if (col.field === 'index') {
+        obj[col.label] = first.value + index + 1;
+      } else if (col.field === 'registered_at' || col.field === 'updated_at') {
+        obj[col.label] = row[col.field] ? new Date(row[col.field]).toISOString().slice(0, 10) : '';
+      } else if (col.field === 'mapped_members') {
+        obj[col.label] = Array.isArray(row[col.field]) ? row[col.field].join(', ') : (row[col.field] || '');
+      } else {
+        obj[col.label] = row[col.field] ?? '';
+      }
+    });
+    return obj;
+  });
   const ws = XLSX.utils.json_to_sheet(exportData);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '거래처목록');
