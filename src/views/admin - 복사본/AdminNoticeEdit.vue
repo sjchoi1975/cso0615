@@ -18,7 +18,7 @@
             type="checkbox" 
             id="important" 
             v-model="isImportant" 
-            class="custom-checkbox"
+            class="checkbox-input"
           />
           <label for="important" class="checkbox-label">중요 공지로 설정 (상단 고정)</label>
         </div>
@@ -38,8 +38,8 @@
       </div>
       <div style="display: flex; gap: 1rem; justify-content: flex-end;">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canSubmit }" style="flex:2;">
-          작성
+        <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canEdit }" style="flex:2;">
+          수정
         </button>
       </div>
     </form>
@@ -48,24 +48,65 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
 
+const route = useRoute();
+const router = useRouter();
 const title = ref('');
 const content = ref('');
 const isImportant = ref(false);
 const textarea = ref(null);
 const titleInput = ref(null);
-const router = useRouter();
 const loading = ref(false);
+
+// 원본 데이터 저장
+const originalData = ref({
+  title: '',
+  content: '',
+  is_important: false
+});
 
 // 제목과 내용이 모두 입력되었는지 확인
 const canSubmit = computed(() => {
   return title.value.trim().length > 0 && content.value.trim().length > 0;
 });
 
-// 컴포넌트 마운트 시 제목 입력란에 포커스
-onMounted(() => {
+// 변경사항이 있는지 확인
+const hasChanges = computed(() => {
+  return title.value !== originalData.value.title ||
+         content.value !== originalData.value.content ||
+         isImportant.value !== originalData.value.is_important;
+});
+
+// 수정 버튼 활성화 조건
+const canEdit = computed(() => {
+  return canSubmit.value && hasChanges.value;
+});
+
+const fetchNotice = async () => {
+  const { data, error } = await supabase
+    .from('notices')
+    .select('*')
+    .eq('id', route.params.id)
+    .single();
+  if (!error && data) {
+    title.value = data.title;
+    content.value = data.content;
+    isImportant.value = data.is_important || false;
+    
+    // 원본 데이터 저장
+    originalData.value = {
+      title: data.title,
+      content: data.content,
+      is_important: data.is_important || false
+    };
+  }
+};
+
+onMounted(async () => {
+  await fetchNotice();
+  // 데이터 로드 후 제목 입력란에 포커스
   if (titleInput.value) {
     titleInput.value.focus();
   }
@@ -85,27 +126,27 @@ const goList = () => {
 
 const onSubmit = async () => {
   if (loading.value) return;
-  if (!canSubmit.value) {
-    alert('제목과 내용을 모두 입력하세요.');
+  if (!canEdit.value) {
+    // 변경사항이 없거나 필수 필드가 비어있을 때
+    if (!hasChanges.value) {
+      alert('변경된 내용이 없습니다.');
+    } else {
+      alert('제목과 내용을 모두 입력하세요.');
+    }
     return;
   }
   loading.value = true;
   try {
-    // 작성자 정보 가져오기
-    const { data: { user } } = await supabase.auth.getUser();
-    const author = user?.email || '';
-    const { error } = await supabase.from('notices').insert({
+    const { error } = await supabase.from('notices').update({
       title: title.value,
       content: content.value,
-      author,
-      status: 'active',
       is_important: isImportant.value,
-    });
+    }).eq('id', route.params.id);
     if (error) throw error;
-    alert('공지사항이 등록되었습니다.');
+    alert('수정되었습니다.');
     router.push('/admin/notices/list');
   } catch (e) {
-    alert('등록 실패: ' + (e.message || e));
+    alert('수정 실패: ' + (e.message || e));
   } finally {
     loading.value = false;
   }

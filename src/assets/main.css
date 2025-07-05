@@ -256,9 +256,12 @@ body.login-page .main-content.main-margin {
   margin-left: 0 !important;
 }
 
+/* ========================================================================================================= */
+/* 모바일 탑바 높이 조정 시 메인 컨텐츠 마진 제거 */
 @media (max-width: 900px) {
   .main-content.main-margin {
     margin-left: 0 !important;
+    margin-top: 3.6rem !important;
   }
 }
 
@@ -297,6 +300,7 @@ body.login-page .main-content.main-margin {
     box-shadow: none !important;
   }
 }
+
 
 .login-title {
   color: #222 !important;
@@ -434,6 +438,19 @@ body.login-page .main-content.main-margin {
   border-bottom: 1px solid var(--gray-400) !important;
   background:var(--gray-100) !important; /* 작업 구분용 */
 }
+
+/* ========================================================================================================= */
+/* 모바일 탑바 높이 조정 시 필터 카드 배경 제거 */
+@media (max-width: 900px) {
+  .filter-card {
+    background: none !important; /* 작업 구분용 */
+    border-bottom: none !important;
+    margin-top: 0.75rem !important;
+    margin-bottom: 0rem !important;
+  }
+}
+/* ========================================================================================================= */
+
 
 .filter-card,
 .function-card {
@@ -1577,6 +1594,20 @@ button.p-paginator-page:hover {
 
 
 
+/* 체크박스 커스텀 스타일 - 공지사항 중요 공지, 정산내역서 선택 체크박스 */
+.share-checkbox, .custom-checkbox {
+  width: 1.2rem !important;
+  height: 1.2rem !important;
+  accent-color: #3B82F6; /* 파란색 */
+  border-radius: 4px;
+  border: 1px solid #888;
+  cursor: pointer;
+}
+.custom-checkbox:checked {
+  box-shadow: 0 0 0 2px #3B82F633;
+}
+
+
 
 /* ========================================================================================================= */
 /* 필터링 요청 목록 상태값별 박스 섹상 변경
@@ -1710,20 +1741,6 @@ border-color: var(--danger) !important;
 .btn-disabled {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
-}
-
-
-/* 체크박스 커스텀 스타일 예시 (main.css로 옮겨서 사용하세요) */
-.share-checkbox, .custom-checkbox {
-  width: 24px;
-  height: 24px;
-  accent-color: #3B82F6; /* 파란색 */
-  border-radius: 4px;
-  border: 1px solid #bbb;
-  cursor: pointer;
-}
-.custom-checkbox:checked {
-  box-shadow: 0 0 0 2px #3B82F633;
 }
 
 
