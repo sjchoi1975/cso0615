@@ -224,7 +224,7 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
     top: 0;
     transition: left 0.3s ease-in-out;
     box-shadow: none;
-    padding-top: 3rem;
+    padding-top: 4rem;
   }
   .menu-item {
     padding: 0.8rem 2rem;
