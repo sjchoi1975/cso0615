@@ -114,13 +114,14 @@ const updateHospital = async () => {
       const file = newLicenseFile.value;
       const fileExt = file.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
+      const filePath = `${user.id}/${hospitalId}/${fileName}`;
       
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('hospital-biz-licenses')
-        .upload(fileName, file);
+        .upload(filePath, file);
 
       if (uploadError) throw uploadError;
-      licenseFilePath = uploadData.path;
+      licenseFilePath = filePath;
     }
 
     // 병원 정보 업데이트

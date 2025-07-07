@@ -585,8 +585,8 @@ export const userHospitalsTableConfig = {
     columns: [
       { field: 'hospital_name', label: '거래처명', width: '20%', align: 'left', sortable: true },
       { field: 'address', label: '주소', width: '16%', align: 'left', sortable: true },
-      { field: 'telephone', label: '전화번호', width: '8%', align: 'center', sortable: false },
-      { field: 'handphone', label: '휴대폰번호', width: '8%', align: 'center', sortable: false },
+      /*{ field: 'telephone', label: '전화번호', width: '8%', align: 'center', sortable: false },
+      { field: 'handphone', label: '휴대폰번호', width: '8%', align: 'center', sortable: false },*/
       { field: 'license', label: '등록증', width: '7%', align: 'center', type: 'icon', icon: 'pi-file' },
       { field: 'edit', label: '수정', width: '7%', align: 'center', type: 'icon', icon: 'pi-pencil' },
       { field: 'delete', label: '삭제', width: '7%', align: 'center', type: 'icon', icon: 'pi-trash' }

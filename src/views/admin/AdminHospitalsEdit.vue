@@ -97,11 +97,9 @@ import { supabase } from '@/supabase';
 import { useRouter, useRoute } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
 import Button from 'primevue/button';
-import { useToast } from 'primevue/usetoast';
 
 const route = useRoute();
 const router = useRouter();
-const toast = useToast();
 const id = route.params.id;
 const loading = ref(false);
 const form = ref({
@@ -125,7 +123,8 @@ const loadingMembers = ref(false);
 const onFileChange = (event) => {
   const files = event.target.files;
   if (files.length > 0) {
-    form.value.business_license_file = files[0].name;
+    licenseFile.value = files[0];
+    console.log('선택된 파일:', licenseFile.value);
   }
 };
 
@@ -281,13 +280,21 @@ const onSubmit = async () => {
     const newHospitalId = updatedHospital.id;
 
     // 2. 파일 업로드 및 경로 업데이트
-    if (form.value.business_license_file) {
-      const file = form.value.business_license_file;
+    if (licenseFile.value && licenseFile.value instanceof File) {
+      const file = licenseFile.value;
       const fileExt = file.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage.from('hospital-biz-licenses').upload(fileName, file);
+      const filePath = `${user.id}/${newHospitalId}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('hospital-biz-licenses')
+        .upload(filePath, file);
       if (uploadError) throw uploadError;
-      const { error: updateError } = await supabase.from('hospitals').update({ business_license_file: fileName }).eq('id', newHospitalId);
+
+      const { error: updateError } = await supabase
+        .from('hospitals')
+        .update({ business_license_file: filePath })
+        .eq('id', newHospitalId);
       if (updateError) throw updateError;
     }
 
@@ -305,8 +312,8 @@ const onSubmit = async () => {
     goBack();
 
   } catch (e) {
-    console.error('거래처 수정 오류:', e);
-    toast.add({ severity: 'error', summary: '수정 실패', detail: e.message, life: 3000 });
+    console.error('거래처 수정 상세 오류:', e);
+    alert('거래처 수정 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
   } finally {
     loading.value = false;
   }
@@ -315,7 +322,7 @@ const onSubmit = async () => {
 const fetchHospital = async () => {
   const { data, error } = await supabase.from('hospitals').select('*').eq('id', id).single();
   if (error) {
-    toast.add({ severity: 'error', summary: '불러오기 실패', detail: error.message, life: 3000 });
+    alert('거래처 정보를 불러오는 데 실패했습니다.');
     return;
   }
   form.value = {

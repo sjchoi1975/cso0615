@@ -301,19 +301,17 @@ const registerHospital = async () => {
       const file = licenseFile.value;
       const fileExt = file.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const filePath = `${user.id}/${newHospitalId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('hospital-biz-licenses')
         .upload(filePath, file);
-
       if (uploadError) throw uploadError;
 
       const { error: updateError } = await supabase
         .from('hospitals')
         .update({ business_license_file: filePath })
         .eq('id', newHospitalId);
-
       if (updateError) throw updateError;
     }
 

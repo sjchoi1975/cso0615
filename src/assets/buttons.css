@@ -21,7 +21,7 @@
 
 /* 모달용 - 확인 / 취소(닫기) */
 .modal {
-  padding: 0.5rem 1rem !important;
+  padding: 0.5rem 1.5rem !important;
   justify-content: flex-end !important;
 }
 
@@ -42,6 +42,12 @@
   background: var(--gray-100) !important;
   color: var(--text-dark) !important;
   border: 1px solid var(--border-secondary) !important;
+}
+
+.btn-cancel {
+  background: var(--gray-600) !important;
+  color: var(--text-white) !important;
+  border: 1px solid var(--gray-600) !important;
 }
 
 /* 호버 효과 - 로그인 / 회원가입 / 확인 / 취소 */
