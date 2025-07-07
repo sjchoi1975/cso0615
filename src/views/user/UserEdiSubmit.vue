@@ -42,7 +42,12 @@
           >
             <template #body="slotProps">
               <span v-if="col.type === 'index'">{{ slotProps.index + 1 }}</span>
-              <Button v-else-if="col.type === 'button'" icon="pi pi-upload" class="p-button-text" @click="goToFileDetail(slotProps.data)" />
+              <span v-else-if="col.field === 'current_month_files' && slotProps.data.current_month_files !== '-'">
+                <span class="file-count-link" @click="goToFileDetail(slotProps.data)">
+                  {{ slotProps.data.current_month_files }}
+                </span>
+              </span>
+              <Button v-else-if="col.type === 'button'" icon="pi pi-upload" class="p-button-text" @click="goToUpload(slotProps.data)" />
               <span v-else>{{ slotProps.data[col.field] }}</span>
             </template>
           </Column>
@@ -251,7 +256,7 @@ const formatDate = (dateString) => {
 
 function goToFileDetail(hospital) {
   if (!selectedMonth.value) return;
-  router.push({ name: 'user-edi-file-detail', params: { settlementMonthId: selectedMonth.value.id, hospitalId: hospital.id } });
+  router.push({ path: `/edi/submit/${selectedMonth.value.id}/${hospital.id}` });
 }
 
 function getRemainDays(endDate) {
@@ -262,6 +267,11 @@ function getRemainDays(endDate) {
   end.setHours(0,0,0,0);
   const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
   return diff >= 0 ? diff : 0;
+}
+
+function goToUpload(hospital) {
+  if (!selectedMonth.value) return;
+  router.push({ path: `/edi/submit/upload?month=${selectedMonth.value.id}&hospital=${hospital.id}` });
 }
 
 onMounted(async () => {

@@ -99,7 +99,8 @@
               </template>
               <template v-else-if="col.field === 'memo'">
                 <span class="link" @click="openMemoModal(slotProps.data)">
-                  {{ slotProps.data.memo || '입력' }}
+                  <i v-if="!slotProps.data.memo" class="pi pi-pencil" style="margin-right:4px;"></i>
+                  {{ slotProps.data.memo ? slotProps.data.memo : '등록' }}
                 </span>
               </template>
               <template v-else-if="col.field === 'confirm_status'">
@@ -160,6 +161,7 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import { supabase } from '@/supabase';
 import { getTableScrollHeight } from '@/utils/tableHeight';
+import { settlementMonthShareTableConfig } from '@/config/tableConfig';
 
 const route = useRoute();
 const month = route.params.month;
@@ -182,48 +184,7 @@ const requestContent = ref('');
 const isMobile = computed(() => window.innerWidth <= 768);
 
 // 공유 화면용 테이블 설정
-const tableConfig = computed(() => {
-  const baseConfig = {
-    tableStyle: {
-      width: '100%',
-      border: '1px solid #e0e0e0',
-      borderRadius: '8px',
-      overflow: 'hidden'
-    },
-    tableWidth: '100%',
-    columns: [
-      { field: 'index', label: '순번', width: '60px', align: 'center', sortable: false },
-      { field: 'company_name', label: '업체명', width: '150px', align: 'left', sortable: true },
-      { field: 'company_reg_no', label: '사업자등록번호', width: '120px', align: 'center', sortable: true },
-      { field: 'ceo_name', label: '대표자명', width: '100px', align: 'center', sortable: true },
-      { field: 'hospital_count', label: '거래처수', width: '80px', align: 'center', sortable: true },
-      { field: 'prescription_count', label: '처방건수', width: '80px', align: 'center', sortable: true },
-      { field: 'prescription_amount', label: '처방액', width: '100px', align: 'right', sortable: true },
-      { field: 'payment_amount', label: '지급액', width: '100px', align: 'right', sortable: true },
-      { field: 'supply_amount', label: '공급가', width: '100px', align: 'right', sortable: true },
-      { field: 'vat', label: '부가세', width: '80px', align: 'right', sortable: true },
-      { field: 'total_amount', label: '합계액', width: '100px', align: 'right', sortable: true },
-      { field: 'memo', label: '전달사항', width: '120px', align: 'left', sortable: false },
-      { field: 'share', label: '공유', width: '80px', align: 'center', type: 'icon', sortable: false },
-      { field: 'confirm_status', label: '확인상태', width: '100px', align: 'center', sortable: true },
-      { field: 'confirm_comment', label: '요청내용', width: '120px', align: 'left', sortable: false }
-    ]
-  };
-
-  if (isMobile.value) {
-    // 모바일에서는 일부 컬럼만 표시
-    baseConfig.columns = [
-      { field: 'index', label: '순번', width: '50px', align: 'center', sortable: false },
-      { field: 'company_name', label: '업체명', width: '120px', align: 'left', sortable: true },
-      { field: 'total_amount', label: '합계액', width: '80px', align: 'right', sortable: true },
-      { field: 'share', label: '공유', width: '60px', align: 'center', type: 'icon', sortable: false },
-      { field: 'confirm_status', label: '확인상태', width: '100px', align: 'center', sortable: true },
-      { field: 'confirm_comment', label: '요청내용', width: '120px', align: 'left', sortable: false }
-    ];
-  }
-
-  return baseConfig;
-});
+const tableConfig = computed(() => isMobile.value ? settlementMonthShareTableConfig.mobile : settlementMonthShareTableConfig.pc);
 
 // 테이블 스크롤 높이 계산 (페이지네이터 없음)
 const tableScrollHeight = computed(() => getTableScrollHeight(false, 40));

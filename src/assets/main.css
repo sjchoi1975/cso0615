@@ -635,14 +635,11 @@ body.login-page .main-content.main-margin {
   border-top-left-radius: var(--border-radius-2xl) !important;
   border-top-right-radius: var(--border-radius-2xl) !important;
   background-color: var(--primary) !important;
-  
  }
 
 .modal-body {
   flex: 1 1 0 !important;
   overflow-y: auto !important;
-
-
   padding: 2rem 2rem !important;
 }
 
@@ -792,7 +789,7 @@ body.modal-open {
 .selection-filter-type {
   display: flex !important;
   align-items: center !important;
-  gap: 3.1rem !important; /* 라디오 버튼 사이의 간격 */
+  gap: 4.4rem !important; /* 라디오 버튼 사이의 간격 */
 }
 
 /* 필터링 요청 병원 선택 - 내 거래처, 신규 거래처 */
@@ -935,13 +932,23 @@ body.modal-open {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  font-size: 1.05rem !important;
+  font-size: 1.0rem !important;
   background-color: var(--primary-lightest) !important;
   border: 1px solid var(--gray-300) !important;
-  padding: 0.25rem 1rem !important;
-  border-radius: var(--border-radius-2xl) !important;
+  padding: 0.5rem 1.5rem !important;
+  border-radius: var(--border-radius) !important;
 }
 
+.selected-edi-file {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 1.0rem !important;
+  background-color: var(--gray-100) !important;
+  border: none !important;
+  padding: 0.65rem 1.5rem !important;
+  border-radius: 0 !important;
+}
 
 
 /* ========================================================================================================= */
@@ -1185,6 +1192,36 @@ div.v3dp__datepicker input[type="text"]:focus,
   font-size: var(--font-size-100) !important;
   display: block !important;
 }
+
+
+/* 정산내역서 - 정산내역,세금계산서 발행 요청, 전달사항.. */
+.title-sm {
+  font-size: 1.1rem !important;
+  color:#444 !important;
+  font-weight:600 !important;
+}
+
+.title-sm-danger {
+  font-size: 1.1rem !important;
+  color: var(--danger) !important;
+}
+
+
+/* 표 헤더 */
+
+
+
+
+/* 표 바디 */
+
+
+
+
+
+
+
+
+
 
 .link {
   display: inline-block !important;

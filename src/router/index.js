@@ -149,6 +149,11 @@ const router = createRouter({
       component: () => import('@/views/user/UserEdiSubmit.vue'),
     },
     {
+      path: '/edi/submit/upload',
+      name: 'UserEdiSubmitUpload',
+      component: () => import('@/views/user/UserEdiSubmitUpload.vue')
+    },
+    {
       path: '/settlement/month',
       name: 'user-settlement-month',
       component: UserSettlementMonth,

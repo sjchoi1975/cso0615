@@ -38,6 +38,7 @@ supabase.auth.getUser().then(async ({ data }) => {
 
 
 
+
 // 특수 레이아웃 적용 경로 및 네이밍 규칙 관리
 const specialLayoutRoutes = [
   {
@@ -62,33 +63,25 @@ const specialLayoutRoutes = [
       return `${monthLabel} - ${hospitalName}`;
     }
   },
+  { path: /^\/admin\/notices\/create\/?$/, menuName: () => '공지사항 작성' },
+  { path: /^\/admin\/notices\/edit\/.*$/, menuName: () => '공지사항 수정' },
+  { path: /^\/admin\/products\/create\/?$/, menuName: () => '제품 등록' },
+  { path: /^\/admin\/products\/edit\/.*$/, menuName: () => '제품 수정' },
+  { path: /^\/admin\/hospitals\/create\/?$/, menuName: () => '거래처 등록' },
+  { path: /^\/admin\/hospitals\/edit\/.*$/, menuName: () => '거래처 수정' },
+  { path: /^\/hospitals\/create\/?$/, menuName: () => '거래처 등록' },
+  { path: /^\/hospitals\/edit\/.*$/, menuName: () => '거래처 수정' },
   {
-    path: /^\/admin\/notices\/create$/,
-    menuName: () => '공지사항 작성'
+    path: /^\/admin\/settlement\/month\/\d{4}-\d{2}$/,
+    menuName: (params) => `정산내역서 상세 - ${params[0].slice(-7, -5)}년 ${params[0].slice(-2)}월`
   },
   {
-    path: /^\/admin\/notices\/edit\//,
-    menuName: () => '공지사항 수정'
+    path: /^\/admin\/settlement\/share\/\d{4}-\d{2}$/,
+    menuName: (params) => `정산내역서 공유 - ${params[0].slice(-7, -5)}년 ${params[0].slice(-2)}월`
   },
   {
-    path: /^\/admin\/products\/create$/,
-    menuName: () => '제품 등록'
-  },
-  {
-    path: /^\/admin\/products\/edit\//,
-    menuName: () => '제품 수정'
-  },
-  {
-    path: /^\/admin\/hospitals\/create$/,
-    menuName: () => '거래처 등록'
-  },
-  {
-    path: /^\/hospitals\/create$/,
-    menuName: () => '거래처 등록'
-  },
-  {
-    path: /^\/hospitals\/edit\//,
-    menuName: () => '거래처 수정'
+    path: /^\/user\/settlement-month-detail.*month=(\d{4}-\d{2})/,
+    menuName: (params) => `정산내역서 상세 - ${params[1].slice(0,4)}년 ${params[1].slice(5,7)}월`
   },
   // 필요시 추가
 ];
@@ -109,7 +102,7 @@ const currentSpecial = computed(() => {
 const isSpecialLayout = computed(() => !!currentSpecial.value);
 const isLoginOrSignup = computed(() => ['/login', '/signup'].includes(route.path));
 
-const showSidebar = computed(() => !isLoginOrSignup.value);
+const showSidebar = computed(() => !isLoginOrSignup.value && !isSpecialLayout.value);
 const showCompany = computed(() => !isLoginOrSignup.value && !isSpecialLayout.value);
 const showBack = computed(() => !isLoginOrSignup.value && isSpecialLayout.value);
 const hideMenuToggle = computed(() => !isLoginOrSignup.value && isSpecialLayout.value && isMobile.value);

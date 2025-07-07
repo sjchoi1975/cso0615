@@ -2,27 +2,27 @@
   <div class="board">
     <form class="board-form" @submit.prevent="submitRequest">
       <!-- 구분 -->
-      <label>구분<span class="required">*</span></label>
-      <div class="selection-filter-type" style="margin-bottom: 1rem;">
+      <label class="title-sm">구분<span class="required">*</span></label>
+      <div class="selection-filter-type" style="margin-bottom: 1.5rem;">
         <label class="radio-inline"><input type="radio" v-model="filterType" value="new" /> 신규</label>
         <label class="radio-inline"><input type="radio" v-model="filterType" value="transfer" /> 이관</label>
       </div>
 
       <!-- 거래처 선택 구역 -->
-      <label>거래처 선택<span class="required">*</span></label>
+      <label class="title-sm">거래처 선택<span class="required">*</span></label>
       <div class="selection-hoapital" style="margin-bottom: 0.5rem;">
         <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="existing" /> 등록 거래처</label>
         <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="new" /> 신규 거래처</label>
       </div>
       <!-- 거래처 선택 버튼 (등록 거래처 선택 시만 노출) -->
       <div v-if="hospitalSelectionType === 'existing'" style="margin-bottom: 1rem;">
-        <button type="button" class="btn-add-md" @click="openHospitalModal" style="width: 100%;">거래처 선택</button>
+        <button type="button" class="btn-select-wide" @click="openHospitalModal" style="width: 100%;">거래처 선택</button>
       </div>
       <!-- 등록 거래처 정보 표시 (선택된 경우) -->
-      <div v-if="hospitalSelectionType === 'existing' && hospitalInfo.id" class="selected-hospital-info" style="margin-top: -1rem; margin-bottom: 1rem;">
-        <div style="font-size:1.2rem; color:#333; font-weight:600;">{{ hospitalInfo.hospital_name }}</div>
-        <div style="font-size:1rem; color:#555; font-weight:400;">{{ hospitalInfo.address }}</div>
-        <div style="font-size:1rem; color:#555; font-weight:400;">{{ hospitalInfo.director_name }} | {{ hospitalInfo.business_registration_number }}</div>
+      <div v-if="hospitalSelectionType === 'existing' && hospitalInfo.id" class="selected-hospital-info" style="margin-top: -1rem; margin-bottom: 2rem;">
+        <div style="font-size:1.2rem; color:#444; font-weight:600; margin-left: 1rem;">{{ hospitalInfo.hospital_name }}</div>
+        <div style="font-size:1rem; color:#666; font-weight:400; margin-left: 1rem;">{{ hospitalInfo.address }}</div>
+        <div style="font-size:1rem; color:#666; font-weight:400; margin-left: 1rem;">{{ hospitalInfo.director_name }} | {{ hospitalInfo.business_registration_number }}</div>
       </div>
       <!-- 신규 거래처 입력 폼 -->
       <div v-if="hospitalSelectionType === 'new'">
@@ -43,10 +43,17 @@
       </div>
       
       <!-- 제약사 선택 -->
-      <label>제약사 선택<span class="required">*</span></label>
-      <button type="button" class="btn-add-md" @click="openPharmaModal" style="margin-bottom: -0.5rem;">제약사 선택</button>
-      <div v-if="selectedPharmas.length > 0" class="selected-pharmas-list" style="margin-bottom: 1rem;">
-        <div v-for="pharma in selectedPharmas" :key="pharma.id" class="selected-pharma-item" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+      <label class="title-sm">제약사 선택<span class="required">*</span></label>
+      <button type="button" class="btn-select-wide" @click="openPharmaModal" style="margin-bottom: -0.5rem;">제약사 선택</button>
+      <div v-if="selectedPharmas.length > 0" class="selected-pharmas-list">
+        <div v-for="pharma in selectedPharmas"
+          :key="pharma.id"
+          class="selected-pharma-item"
+          style="display 
+          : flex; align-items
+          : center; justify-content
+          : space-between;
+          gap: 0.5rem;">
           <span>{{ pharma.company_name }}</span>
           <button type="button" @click="removePharma(pharma.id)" style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
@@ -55,7 +62,7 @@
       </div>
 
       <!-- 메모 -->
-      <label>메모</label>
+      <label class="title-sm" style="margin-top: 1.5rem;">메모</label>
       <textarea v-model="userRemarks" class="input" placeholder="요청 메모를 입력해 주세요." rows="5"></textarea>
 
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
@@ -69,6 +76,7 @@
       <div class="custom-modal-filtering">
         <div class="modal-header">
           <h3 class="modal-title">{{ modalTitle }}</h3>
+          <input v-model="modalSearch" class="input" :placeholder="modalSearchPlaceholder" style="margin-top:0.75rem; margin-bottom:0.25rem;" />
         </div>
         <div class="modal-body">
           <div class="selection-list-container">
@@ -89,9 +97,9 @@
             </template>
             <!-- 제약사 목록 -->
             <template v-if="modalType === 'pharma'">
-              <div v-for="pharma in activeSortedCompanies" :key="pharma.id" 
-                   class="pharma-modal-item" 
-                   :class="{ selected: isPharmaSelectedInModal(pharma.id) }" 
+              <div v-for="pharma in filteredModalItems" :key="pharma.id"
+                   class="pharma-modal-item"
+                   :class="{ selected: isPharmaSelectedInModal(pharma.id) }"
                    @click="togglePharmaSelection(pharma)">
                 <span class="pharma-name">{{ pharma.company_name }}</span>
                 <span v-if="isPharmaSelectedInModal(pharma.id)" class="check-icon">✓</span>
