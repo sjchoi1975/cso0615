@@ -113,7 +113,7 @@ const route = useRoute();
 const settlements = ref([]);
 const loading = ref(false);
 const totalCount = ref(0);
-const selectedMonth = ref(route.params.month || '');
+const selectedMonth = ref(route.query.month || '');
 const selectedPrescriptionMonth = ref('');
 const selectedHospital = ref('');
 const selectedProduct = ref('');
@@ -123,7 +123,7 @@ const hospitalOptions = ref([]);
 const productOptions = ref([]);
 const pageSize = ref(100);
 const first = ref(0);
-const currentUserBizNo = ref('');
+const currentUserBizNo = ref(route.query.biz_no || '');
 
 const onPageChange = (event) => {
   first.value = event.first;
@@ -137,6 +137,8 @@ const tableConfig = computed(() => isMobile.value ? userSettlementMonthDetailTab
 // 테이블 스크롤 높이 계산 (페이지네이터 있음)
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
+const normalizeBizNo = (val) => (val || '').replaceAll('-', '').replaceAll(' ', '').trim();
+
 const fetchSettlements = async () => {
   console.log('상세페이지_fetchSettlements 호출됨.');
   if (!currentUserBizNo.value) {
@@ -144,12 +146,13 @@ const fetchSettlements = async () => {
     loading.value = false;
     return;
   }
-  console.log(`상세페이지_데이터 조회 시작. 정산월: ${selectedMonth.value}, 사업자번호: ${currentUserBizNo.value}`);
+  const normBizNo = normalizeBizNo(currentUserBizNo.value);
+  console.log(`상세페이지_데이터 조회 시작. 정산월: ${selectedMonth.value}, 사업자번호: ${normBizNo}`);
   loading.value = true;
   let query = supabase
     .from('settlements')
     .select('*', { count: 'exact' })
-    .eq('company_reg_no', currentUserBizNo.value);
+    .eq('company_reg_no', currentUserBizNo.value.trim());
 
   if (selectedMonth.value) query = query.eq('settlement_month', selectedMonth.value);
   if (selectedPrescriptionMonth.value) query = query.eq('prescription_month', selectedPrescriptionMonth.value);
@@ -224,35 +227,8 @@ const formatPercentage = (value) => {
 };
 
 onMounted(async () => {
-  console.log('상세페이지_컴포넌트 마운트됨. 유저 정보 조회 시작...');
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    console.log('상세페이지_로그인 유저 확인:', user.email);
-    const { data: member, error } = await supabase
-      .from('members')
-      .select('biz_no')
-      .eq('id_email', user.email)
-      .single();
-
-    if (error) {
-       console.error("상세페이지_멤버 정보 조회 에러:", error);
-       loading.value = false;
-       return;
-    }
-
-    if (member) {
-      currentUserBizNo.value = member.biz_no;
-      console.log('상세페이지_currentUserBizNo 설정됨:', currentUserBizNo.value);
-      fetchSettlements();
-      fetchFilterOptions();
-    } else {
-      console.error("상세페이지_사용자의 멤버 프로필을 찾을 수 없습니다.");
-      loading.value = false;
-    }
-  } else {
-    console.error("상세페이지_로그인된 사용자가 없습니다.");
-    loading.value = false;
-  }
+  fetchSettlements();
+  fetchFilterOptions && fetchFilterOptions();
 });
 
 watch([selectedPrescriptionMonth, selectedHospital, selectedProduct], () => {

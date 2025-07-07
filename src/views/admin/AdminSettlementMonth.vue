@@ -69,6 +69,11 @@
                   <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
                 </button>
               </template>
+              <template v-else-if="col.type === 'icon' && col.field === 'share'">
+                <button class="p-button p-button-text p-button-rounded icon-only-btn" @click="goToShare(slotProps.data)" v-tooltip.top="'공유 화면'">
+                  <i class="pi pi-share-alt" style="font-size: 1.2rem; color: #1976d2;"></i>
+                </button>
+              </template>
               <template v-else-if="col.field === 'prescription_amount'">
                 {{ Number(slotProps.data.prescription_amount).toLocaleString() }}
               </template>
@@ -123,7 +128,7 @@
         </div>
       </div>
     </div>
-
+    
     <!-- 전달사항 팝업 모달 -->
     <div v-if="showNoteDialog" class="custom-modal-overlay" @click.self="closeNoteDialog">
       <div class="custom-modal">
@@ -388,6 +393,10 @@ watch(monthOptions, (opts) => {
     selectedMonth.value = ''; // 기본값을 전체로 설정
   }
 }, { immediate: true });
+
+function goToShare(row) {
+  router.push({ name: 'AdminSettlementMonthShare', params: { month: row.settlement_month } });
+}
 </script>
 
 <style scoped>

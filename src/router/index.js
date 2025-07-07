@@ -83,6 +83,12 @@ const router = createRouter({
       component: AdminSettlementMonthDetail,
     },
     {
+      path: '/admin/settlement/share/:month',
+      name: 'AdminSettlementMonthShare',
+      component: () => import('@/views/admin/AdminSettlementMonthShare.vue'),
+      props: true
+    },
+    {
       path: '/admin/products/create',
       name: 'admin-products-create',
       component: AdminProductsCreate,
@@ -148,9 +154,9 @@ const router = createRouter({
       component: UserSettlementMonth,
     },
     {
-      path: '/settlement/month/:month',
-      name: 'user-settlement-month-detail',
-      component: UserSettlementMonthDatail,
+      path: '/user/settlement-month-detail',
+      name: 'UserSettlementMonthDatail',
+      component: () => import('@/views/user/UserSettlementMonthDatail.vue')
     },
     {
       path: '/products/list',

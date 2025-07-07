@@ -384,13 +384,14 @@ export const settlementMonthTableConfig = {
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'settlement_month', label: '정산월', width: '6%', align: 'center', sortable: true },
+      { field: 'note', label: '전달사항', width: '38%', align: 'left', sortable: false },
+      { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'detail', label: '등록', width: '6%', align: 'center', type: 'icon', icon: 'pi-list' },
       { field: 'company_name', label: '업체', width: '6%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처', width: '6%', align: 'center', sortable: false },
       { field: 'prescription_amount', label: '처방액', width: '8%', align: 'center', sortable: false },
       { field: 'total_amount', label: '정산금액', width: '8%', align: 'center', sortable: false },
-      { field: 'note', label: '전달사항', width: '44%', align: 'left', sortable: false },
-      { field: 'detail', label: '상세', width: '6%', align: 'center', type: 'icon', icon: 'pi-list' },
-      { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'share', label: '공유', width: '6%', align: 'center', type: 'icon', icon: 'pi-share-alt' },
       { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   },
@@ -411,6 +412,7 @@ export const settlementMonthTableConfig = {
       { field: 'note', label: '전달사항', width: '20%', align: 'left', sortable: false },
       { field: 'detail', label: '상세', width: '8%', align: 'center', type: 'icon', icon: 'pi-list' },
       { field: 'edit', label: '수정', width: '8%', align: 'center', type: 'icon', icon: 'pi-pencil' },
+      { field: 'share', label: '공유', width: '8%', align: 'center', type: 'icon', icon: 'pi-share-alt' },
       { field: 'delete', label: '삭제', width: '8%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
   }

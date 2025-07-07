@@ -2,7 +2,7 @@
   <div class="user-settlement-month-view page-container">
     <!-- 필터카드 -->
     <div class="filter-card">
-      <div class="filter-row">
+      <div class="filter-row" style="margin-left:1rem;">
         <span>정산월</span>
         <select v-model="selectedMonth" class="input-120">
           <option value="">- 전체 -</option>
@@ -12,91 +12,116 @@
         </select>
       </div>
     </div>
-
-    <!-- 기능카드 -->
-    <div class="function-card">
-      <div class="total-count">총 {{ totalCount }}건</div>
-      <div style="display: flex; gap: 1rem;">
-        <Button
-          icon="pi pi-download"
-          label="다운로드"
-          class="btn-download-md"
-          @click="downloadExcel"
-          iconPos="left"
-          style="gap:0.5em;"
-        />
-      </div>
-    </div>
     
-    <!-- 테이블카드 -->
-    <div class="table-card user-settlement-month">
-      <div :style="isMobile ? tableConfig.tableStyle : {}">
-        <DataTable
-          :value="filteredMonthList"
-          :loading="loading"
-          :paginator="false"
-          scrollable
-          scrollDirection="both"
-          :scrollHeight="tableScrollHeight"
-          :style="{ width: tableConfig.tableWidth, minWidth: isMobile ? tableConfig.tableStyle.minWidth : '100%' }"
-        >
-          <template #empty>
-            <div v-if="!loading">조회된 데이터가 없습니다.</div>
-          </template>
-          <Column
-            v-for="col in tableConfig.columns"
-            :key="col.field"
-            :field="col.field"
-            :header="col.label"
-            :sortable="col.sortable || false"
-            :style="{ width: col.width, textAlign: col.align }"
-            :bodyStyle="{ textAlign: col.align }"
-          >
-            <template #body="slotProps">
-              <template v-if="col.field === 'index'">
-                {{ slotProps.index + 1 }}
-              </template>
-              <template v-else-if="col.type === 'icon' && col.field === 'detail'">
-                <button class="p-button p-button-text p-button-rounded icon-only-btn" @click="goDetail(slotProps.data)" v-tooltip.top="'상세보기'">
-                  <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
-                </button>
-              </template>
-              <template v-else-if="col.field === 'note' && slotProps.data.note">
-                <a href="#" @click.prevent="openNotePopup(slotProps.data)" class="link">
-                  {{ slotProps.data.note }}
-                </a>
-              </template>
-              <template v-else-if="col.format === 'currency'">
-                {{ slotProps.data[col.field]?.toLocaleString() }}
-              </template>
-              <template v-else>
-                {{ slotProps.data[col.field] }}
-              </template>
+    <!-- board-form: 정산내역, 세금계산서, 전달사항 -->
+    <div class="board">
+      <div class="board-form">
+        <!-- 정산내역 표 -->
+        <div style="margin-bottom:0.5rem;">
+          <b style="font-size:1.15rem; font-weight:600; color:#444;">정산내역</b>
+          <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:1px solid #bbb; table-layout:fixed;">
+            <thead>
+              <tr style="background:#f8f9fa;">
+                <th style="border:1px solid #bbb; padding:0.5em; font-weight:500; width:33.33%;">거래처</th>
+                <th style="border:1px solid #bbb; padding:0.5em; font-weight:500; width:33.33%;">처방건</th>
+                <th style="border:1px solid #bbb; padding:0.5em; font-weight:500; width:33.33%;">처방액</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #bbb; text-align:center; padding:0.5em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.hospital_count) }}</td>
+                <td style="border:1px solid #bbb; text-align:center; padding:0.5em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.prescription_count) }}</td>
+                <td style="border:1px solid #bbb; text-align:center; padding:0.5em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.prescription_amount) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- 상세내역보기 버튼 -->
+        <div style="text-align:center; margin-bottom:1.5rem;">
+          <button class="btn-add-md" style="width:100%;" @click="goDetail">상세 내역 보기 ></button>
+        </div>
+        <!-- 세금계산서 발행 요청 표 -->
+        <div style="margin-bottom:1.5rem;">
+          <b style="font-size:1.15rem; font-weight:600; color:#444;">세금계산서 발행 요청</b>
+          <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:1px solid #bbb; table-layout:fixed;">
+            <thead>
+              <tr style="background:#f8f9fa;">
+                <th style="border:1px solid #bbb; padding:0.5em; font-weight:500; width:33.33%;">공급가</th>
+                <th style="border:1px solid #bbb; padding:0.5em; font-weight:500; width:33.33%;">부가세</th>
+                <th style="border:1px solid #bbb; padding:0.5em; font-weight:500; width:33.33%;">합계액</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #bbb; text-align:center; padding:0.5em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.supply_amount) }}</td>
+                <td style="border:1px solid #bbb; text-align:center; padding:0.5em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.vat) }}</td>
+                <td style="border:1px solid #bbb; text-align:center; padding:0.5em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.total_amount) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- 전달사항 박스 (공용+개별 줄바꿈) -->
+        <div style="margin-bottom:1.5rem;">
+          <b style="font-size:1.15rem; font-weight:600; color:#444;">전달사항</b>
+          <div style="border:1px solid #bbb; border-radius:2px; min-height:80px; padding:0.7rem; background:#fff; margin-top:0.7rem; white-space:pre-line;">
+            <template v-if="publicNote && privateNote">
+              {{ publicNote }}<br><br>{{ privateNote }}
             </template>
-          </Column>
-        </DataTable>
+            <template v-else-if="publicNote">
+              {{ publicNote }}
+            </template>
+            <template v-else-if="privateNote">
+              {{ privateNote }}
+            </template>
+            <template v-else>
+              -
+            </template>
+          </div>
+        </div>
+        <!-- 정정요청 내용 표시 -->
+        <div v-if="correctionText" style="margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.3rem;">
+            <b style="font-size:1.15rem; font-weight:600; color: var(--danger);">정정요청</b>
+            <button class="btn-link" style="font-size:0.95rem; color:#1976d2; background:none; border:none; cursor:pointer; padding:0;" @click="onEditCorrection">수정하기</button>
+          </div>
+          <div style="border:1px solid #bbb; border-radius:2px; min-height:60px; padding:0.7rem; background:#fcfcd8; margin-top:0.7rem; white-space:pre-line;">{{ correctionText }}</div>
+        </div>
+        <!-- 하단 버튼 -->
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+          <button class="btn-warning" style="flex:1;" @click="onCorrectionClick" :disabled="correctionDisabled">정정요청</button>
+          <button :class="confirmBtnClass" style="flex:2;" @click="onConfirmClick">{{ confirmBtnLabel }}</button>
+        </div>
       </div>
     </div>
-    
-    <!-- 전달사항 팝업 -->
-    <div v-if="showNoteDialog" class="custom-modal-overlay">
-      <div class="custom-modal">
-        <div class="modal-header">
-          <div class="modal-title">전달사항</div>
-        </div>
-        <div class="modal-body">
-          <div style="white-space: pre-line;">{{ noteValue }}</div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-cancel modal" @click="closeNoteDialog">닫기</button>
+
+    <!-- 정정요청 모달 -->
+    <teleport to="body">
+      <div v-if="showCorrectionModal" class="custom-modal-overlay" @click.self="cancelCorrection">
+        <div class="custom-modal">
+          <div class="modal-header">
+            <div class="modal-title">정정요청 {{ isEditCorrection ? '수정' : '' }}</div>
+          </div>
+          <div class="modal-body">
+            <textarea
+              v-model="correctionInput"
+              placeholder="정정요청 내용을 입력하세요"
+              rows="8"
+              class="input"
+              style="width:100%;">
+            </textarea>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancel modal" @click="cancelCorrection">취소</button>
+            <button class="btn-confirm modal" @click="saveCorrection">저장</button>
+          </div>
         </div>
       </div>
-    </div>
+    </teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import { supabase } from '@/supabase';
@@ -120,6 +145,11 @@ const monthOptions = ref([]);
 const showNoteDialog = ref(false);
 const noteValue = ref('');
 
+// 정정요청/확인 모달 상태
+const showActionModal = ref(false);
+const actionType = ref(''); // 'correction' 또는 'confirm'
+const actionComment = ref('');
+
 const currentUserRegNo = ref('');
 
 const isMobile = computed(() => window.innerWidth <= 768);
@@ -129,15 +159,40 @@ const tableConfig = computed(() => isMobile.value ? userSettlementMonthTableConf
 // 테이블 스크롤 높이 계산 (페이지네이터 없음)
 const tableScrollHeight = computed(() => getTableScrollHeight(false, 40));
 
+const summary = ref({});
+const publicNote = ref('');
+const privateNote = ref('');
+
+// 상태 관리
+const isConfirmed = ref(false); // 정산확정 여부
+const correctionText = ref(''); // 정정요청 내용
+
+// 정산확정 버튼 색상/문구
+const confirmBtnClass = computed(() => isConfirmed.value ? 'btn-dark-gray' : 'btn-confirm');
+const confirmBtnLabel = computed(() => isConfirmed.value ? '확정취소' : '정산확정');
+
+// 정정요청 버튼 비활성화
+const correctionDisabled = computed(() => isConfirmed.value);
+
+// 정정요청 모달 상태
+const showCorrectionModal = ref(false);
+const correctionInput = ref('');
+const isEditCorrection = ref(false);
+
 // 정산월 목록 불러오기 (settlement_months 테이블)
 const fetchMonthOptions = async () => {
+  if (!currentUserRegNo.value) return;
   const { data, error } = await supabase
-    .from('settlement_months')
+    .from('settlements_share')
     .select('settlement_month')
+    .eq('company_reg_no', currentUserRegNo.value)
+    .eq('share', 'y')
     .order('settlement_month', { ascending: false });
   if (!error && data) {
     const unique = Array.from(new Set(data.map(row => row.settlement_month)));
     monthOptions.value = unique;
+    // 최신월을 디폴트로 설정
+    if (unique.length > 0) selectedMonth.value = unique[0];
   }
 };
 
@@ -173,86 +228,107 @@ const getCurrentUser = async () => {
 const fetchMonthList = async () => {
   loading.value = true;
   monthList.value = [];
-  console.log('fetchMonthList_데이터 조회 시작, 사업자등록번호:', currentUserRegNo.value);
-  if (!currentUserRegNo.value) {
+  summary.value = {};
+  publicNote.value = '';
+  privateNote.value = '';
+  if (!currentUserRegNo.value || !selectedMonth.value) {
     loading.value = false;
-    console.log('fetchMonthList_사업자등록번호가 없어서 중단합니다.');
     return;
   }
 
-  try {
-    // 1. 현재 사용자의 모든 정산 데이터 가져오기
-    console.log('fetchMonthList_settlements 테이블 조회 시작');
-    const { data: settlements, error: settlementsError } = await supabase
-      .from('settlements')
-      .select('*')
-      .like('company_reg_no', `%${currentUserRegNo.value}%`);
+  // 1. settlements_share에서 공유여부 확인
+  const { data: shareRows, error: shareError } = await supabase
+    .from('settlements_share')
+    .select('settlement_month, memo')
+    .eq('company_reg_no', currentUserRegNo.value)
+    .eq('share', 'y')
+    .eq('settlement_month', selectedMonth.value)
+    .single();
 
-    if (settlementsError) {
-      console.error('settlements 조회 에러', settlementsError);
-      throw settlementsError;
-    }
-    console.log('fetchMonthList_settlements 조회 결과:', settlements);
-
-    if (!settlements || settlements.length === 0) {
-      console.log('fetchMonthList_settlements 데이터가 없습니다.');
-      monthList.value = [];
-      totalCount.value = 0;
-      loading.value = false;
-      return;
-    }
-
-    // 2. 노트와 등록일자 정보를 위해 모든 정산월 정보 가져오기
-    const { data: allMonths, error: monthsError } = await supabase
-      .from('settlement_months')
-      .select('settlement_month, note, created_at')
-      .order('settlement_month', { ascending: false });
-
-    if (monthsError) throw monthsError;
-
-    const allMonthsMap = new Map((allMonths || []).map(m => [m.settlement_month, m]));
-
-    // 3. 사용자의 정산 데이터에서 고유한 월 목록 추출 및 정렬
-    const userMonths = [...new Set(settlements.map(s => s.settlement_month))].sort().reverse();
-
-    // 4. 월별로 데이터 집계
-    monthList.value = userMonths.map(month => {
-      const rows = settlements.filter(r => r.settlement_month === month);
-      const hospitalSet = new Set(rows.map(r => r.hospital_name));
-      
-      const prescription_count = rows.length;
-      const prescription_amount = rows.reduce((sum, r) => sum + (Number(r.prescription_amount) || 0), 0);
-      const payment_amount = rows.reduce((sum, r) => sum + (Number(r.payment_amount) || 0), 0);
-
-      const monthInfo = allMonthsMap.get(month) || {};
-
-      return {
-        settlement_month: month,
-        hospital_name: hospitalSet.size,
-        prescription_count: prescription_count ? prescription_count.toLocaleString() : '0',
-        prescription_amount: prescription_amount ? prescription_amount.toLocaleString() : '0',
-        payment_amount: payment_amount ? payment_amount.toLocaleString() : '0',
-        note: monthInfo.note || '',
-        created_at: monthInfo.created_at ? format(new Date(monthInfo.created_at), 'yyyy-MM-dd') : '-',
-      };
-    });
-    
-    console.log('fetchMonthList_최종 집계 데이터:', monthList.value);
-    totalCount.value = monthList.value.length;
-
-  } catch (e) {
-    alert('월별 현황 데이터 조회 실패: ' + e.message);
-    console.error('fetchMonthList_에러:', e);
+  if (shareError || !shareRows) {
+    loading.value = false;
+    return;
   }
+
+  // 2. settlements에서 해당 월 데이터 집계
+  const { data: settlements, error: settlementsError } = await supabase
+    .from('settlements')
+    .select('*')
+    .eq('company_reg_no', currentUserRegNo.value)
+    .eq('settlement_month', selectedMonth.value);
+
+  if (settlementsError || !settlements || settlements.length === 0) {
+    loading.value = false;
+    return;
+  }
+
+  // 집계 (항목별 실제 값)
+  const hospitalSet = new Set(settlements.map(r => r.hospital_name));
+  const prescription_count = settlements.length;
+  const prescription_amount = settlements.reduce((sum, r) => sum + (Number(r.prescription_amount) || 0), 0);
+  const payment_amount = settlements.reduce((sum, r) => sum + (Number(r.payment_amount) || 0), 0);
+  const supply_amount = Math.round(payment_amount / 1.1);
+  const vat = payment_amount - supply_amount;
+  const total_amount = payment_amount;
+  summary.value = {
+    hospital_count: hospitalSet.size,
+    prescription_count: prescription_count,
+    prescription_amount: prescription_amount,
+    payment_amount: payment_amount,
+    supply_amount: supply_amount,
+    vat: vat,
+    total_amount: total_amount,
+  };
+
+  // 3. 전달사항(공용)
+  const { data: monthRow } = await supabase
+    .from('settlement_months')
+    .select('note')
+    .eq('settlement_month', selectedMonth.value)
+    .single();
+  publicNote.value = monthRow?.note?.trim() || '';
+
+  // 4. 전달사항(개별)
+  privateNote.value = shareRows.memo?.trim() || '';
+
   loading.value = false;
+};
+
+// 정산확정/정정요청 상태 DB에서 불러오기
+const fetchShareStatus = async () => {
+  if (!selectedMonth.value || !currentUserRegNo.value) {
+    isConfirmed.value = false;
+    correctionText.value = '';
+    return;
+  }
+  const { data, error } = await supabase
+    .from('settlements_share')
+    .select('confirm_status, confirm_comment')
+    .eq('settlement_month', selectedMonth.value)
+    .eq('company_reg_no', currentUserRegNo.value)
+    .single();
+  if (data) {
+    isConfirmed.value = data.confirm_status === '확정';
+    correctionText.value = data.confirm_status === '정정요청' ? (data.confirm_comment || '') : '';
+  } else {
+    isConfirmed.value = false;
+    correctionText.value = '';
+  }
 };
 
 onMounted(async () => {
   await getCurrentUser();
   await fetchMonthOptions();
   await fetchMonthList();
-  // 기본값을 전체로 설정
-  selectedMonth.value = '';
+  if (selectedMonth.value && currentUserRegNo.value) {
+    await fetchShareStatus();
+  }
+});
+
+watch([selectedMonth, currentUserRegNo], async ([month, regNo]) => {
+  if (month && regNo) {
+    await fetchShareStatus();
+  }
 });
 
 const downloadExcel = () => {
@@ -284,8 +360,137 @@ const openNotePopup = (row) => {
 const closeNoteDialog = () => {
   showNoteDialog.value = false;
 };
-const goDetail = (row) => {
+const goDetail = () => {
   // 상세화면(월별 상세)로 이동, 정산월 파라미터 전달
-  router.push(`/settlement/month/${row.settlement_month}`);
+  if (!selectedMonth.value || !currentUserRegNo.value) {
+    alert('정산월 또는 사용자 정보가 없습니다.');
+    return;
+  }
+  router.push({
+    path: `/user/settlement-month-detail`,
+    query: {
+      month: selectedMonth.value,
+      biz_no: currentUserRegNo.value
+    }
+  });
 };
+
+// 정정요청 버튼 클릭
+const requestCorrection = () => {
+  actionType.value = 'correction';
+  actionComment.value = '';
+  showActionModal.value = true;
+};
+
+// 확인 버튼 클릭
+const confirmSettlement = () => {
+  actionType.value = 'confirm';
+  actionComment.value = '';
+  showActionModal.value = true;
+};
+
+// 모달 닫기
+const closeActionModal = () => {
+  showActionModal.value = false;
+  actionType.value = '';
+  actionComment.value = '';
+};
+
+// 정정요청/확인 저장
+const saveAction = async () => {
+  if (!currentUserRegNo.value || !selectedMonth.value) {
+    alert('사용자 정보 또는 정산월이 없습니다.');
+    return;
+  }
+
+  const status = actionType.value === 'correction' ? 'requested' : 'confirmed';
+  const comment = actionComment.value.trim();
+
+  const upsertRow = {
+    settlement_month: selectedMonth.value,
+    company_reg_no: currentUserRegNo.value,
+    confirm_status: status,
+    confirm_comment: comment
+  };
+
+  const { error } = await supabase
+    .from('settlements_share')
+    .upsert([upsertRow], { onConflict: ['settlement_month', 'company_reg_no'] });
+
+  if (error) {
+    alert('저장 실패: ' + error.message);
+  } else {
+    alert(actionType.value === 'correction' ? '정정요청이 저장되었습니다.' : '확인이 저장되었습니다.');
+    closeActionModal();
+    await fetchMonthList(); // 데이터 갱신
+  }
+};
+
+// 정산확정 버튼 클릭
+const onConfirmClick = async () => {
+  if (!isConfirmed.value) {
+    if (window.confirm('정산내역을 확정하시겠습니까?')) {
+      isConfirmed.value = true;
+      // DB에 확정 상태 반영
+      await supabase.from('settlements_share').upsert([
+        {
+          settlement_month: selectedMonth.value,
+          company_reg_no: currentUserRegNo.value,
+          confirm_status: '확정'
+        }
+      ], { onConflict: ['settlement_month', 'company_reg_no'] });
+    }
+  } else {
+    // 확정취소 시 미확인으로 변경
+    isConfirmed.value = false;
+    await supabase.from('settlements_share').upsert([
+      {
+        settlement_month: selectedMonth.value,
+        company_reg_no: currentUserRegNo.value,
+        confirm_status: '미확인'
+      }
+    ], { onConflict: ['settlement_month', 'company_reg_no'] });
+  }
+};
+
+// 정정요청 버튼 클릭
+const onCorrectionClick = () => {
+  isEditCorrection.value = false;
+  correctionInput.value = '';
+  showCorrectionModal.value = true;
+};
+
+// 정정요청 수정 버튼 클릭
+const onEditCorrection = () => {
+  isEditCorrection.value = true;
+  correctionInput.value = correctionText.value;
+  showCorrectionModal.value = true;
+};
+
+// 정정요청 모달 저장
+const saveCorrection = async () => {
+  correctionText.value = correctionInput.value;
+  showCorrectionModal.value = false;
+  window.alert('정정요청이 등록되었습니다.');
+  // DB에 정정요청 상태 반영
+  await supabase.from('settlements_share').upsert([
+    {
+      settlement_month: selectedMonth.value,
+      company_reg_no: currentUserRegNo.value,
+      confirm_status: '정정요청',
+      confirm_comment: correctionText.value
+    }
+  ], { onConflict: ['settlement_month', 'company_reg_no'] });
+};
+
+// 정정요청 모달 취소
+const cancelCorrection = () => {
+  showCorrectionModal.value = false;
+};
+
+// 숫자 천단위 콤마, 소수점 없이 포맷팅 함수
+function formatCurrencyNoDecimal(val) {
+  if (val === undefined || val === null || val === '') return '-';
+  return Number(val).toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+}
 </script>

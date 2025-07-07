@@ -930,6 +930,7 @@ body.modal-open {
   gap: 0.5rem !important;
 }
 
+
 .selected-pharma-item {
   display: flex !important;
   justify-content: space-between !important;
