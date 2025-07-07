@@ -50,6 +50,20 @@
   border: 1px solid var(--gray-600) !important;
 }
 
+/* 정산확정/정정요청 전용 버튼 스타일 */
+.btn-dark-gray {
+  background: var(--gray-800) !important;
+  color: var(--text-white) !important;
+  border: 1px solid var(--gray-800) !important;
+}
+
+.btn-confirm-disabled {
+  background: var(--primary) !important;
+  color: var(--text-white) !important;
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
 /* 호버 효과 - 로그인 / 회원가입 / 확인 / 취소 */
 .btn-login:hover:not(:disabled),
 .btn-signup:hover:not(:disabled),

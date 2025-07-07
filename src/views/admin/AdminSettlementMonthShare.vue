@@ -106,7 +106,10 @@
                 {{ slotProps.data.confirm_status || '-' }}
               </template>
               <template v-else-if="col.field === 'confirm_comment'">
-                {{ slotProps.data.confirm_comment || '-' }}
+                <span v-if="slotProps.data.confirm_comment" class="link" style="color:#1976d2;cursor:pointer;" @click="openRequestModal(slotProps.data.confirm_comment)">
+                  {{ slotProps.data.confirm_comment.length > 10 ? slotProps.data.confirm_comment.slice(0, 10) + '...' : slotProps.data.confirm_comment }}
+                </span>
+                <span v-else>-</span>
               </template>
               <template v-else-if="col.field === 'company_reg_no'">
                 {{ slotProps.data.company_reg_no || '-' }}
@@ -120,10 +123,10 @@
       </div>
     </div>
 
-    <!-- 전달사항 팝업 모달 -->
-    <div v-if="showMemoModal" class="modal-overlay" @click.self="closeMemoModal">
-      <div class="modal">
-        <div class="modal-header">전달사항 입력</div>
+    <!-- 전달사항 모달 (입력/수정) -->
+    <div v-if="showMemoModal" class="custom-modal-overlay" @click.self="closeMemoModal">
+      <div class="custom-modal">
+        <div class="modal-header"><h3 class="modal-title">전달사항</h3></div>
         <div class="modal-body">
           <textarea v-model="memoInput" rows="8" class="input" placeholder="전달사항을 입력하세요"></textarea>
         </div>
@@ -134,16 +137,15 @@
       </div>
     </div>
 
-    <!-- 요청 내용 입력/수정 모달 -->
-    <div v-if="showConfirmCommentModal" class="modal-overlay" @click.self="closeConfirmCommentModal">
-      <div class="modal">
-        <div class="modal-header">정정 요청 내용 입력</div>
+    <!-- 요청내용 모달 (읽기전용) -->
+    <div v-if="showRequestModal" class="custom-modal-overlay" @click.self="closeRequestModal">
+      <div class="custom-modal">
+        <div class="modal-header"><h3 class="modal-title">정정요청</h3></div>
         <div class="modal-body">
-          <textarea v-model="confirmCommentInput" rows="8" class="input" placeholder="정정 요청 내용을 입력하세요"></textarea>
+          <div style="white-space:pre-line; min-height:100px;">{{ requestContent }}</div>
         </div>
         <div class="modal-footer">
-          <button class="btn-cancel modal" @click="closeConfirmCommentModal">취소</button>
-          <button class="btn-confirm modal" @click="saveConfirmCommentModal">저장</button>
+          <button class="btn-cancel modal" @click="closeRequestModal">닫기</button>
         </div>
       </div>
     </div>
@@ -173,6 +175,9 @@ const memoInput = ref('');
 const showConfirmCommentModal = ref(false);
 const selectedConfirmCompany = ref(null);
 const confirmCommentInput = ref('');
+
+const showRequestModal = ref(false);
+const requestContent = ref('');
 
 const isMobile = computed(() => window.innerWidth <= 768);
 
@@ -367,6 +372,14 @@ async function saveMemoModal() {
     fetchCompanies();
   }
   closeMemoModal();
+}
+
+function openRequestModal(content) {
+  requestContent.value = content;
+  showRequestModal.value = true;
+}
+function closeRequestModal() {
+  showRequestModal.value = false;
 }
 
 onMounted(() => {

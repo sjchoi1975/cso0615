@@ -88,8 +88,8 @@
         </div>
         <!-- 하단 버튼 -->
         <div style="display: flex; gap: 1rem; justify-content: center;">
-          <button class="btn-warning" style="flex:1;" @click="onCorrectionClick" :disabled="correctionDisabled">정정요청</button>
-          <button :class="confirmBtnClass" style="flex:2;" @click="onConfirmClick">{{ confirmBtnLabel }}</button>
+          <button :class="correctionBtnClass" style="flex:1;" @click="onCorrectionClick" :disabled="correctionDisabled">{{ correctionBtnLabel }}</button>
+          <button :class="confirmBtnClass" style="flex:2;" @click="onConfirmClick" :disabled="confirmDisabled">{{ confirmBtnLabel }}</button>
         </div>
       </div>
     </div>
@@ -166,13 +166,37 @@ const privateNote = ref('');
 // 상태 관리
 const isConfirmed = ref(false); // 정산확정 여부
 const correctionText = ref(''); // 정정요청 내용
+const currentStatus = ref('미확인'); // 현재 상태: '미확인', '확정', '정정요청'
 
 // 정산확정 버튼 색상/문구
-const confirmBtnClass = computed(() => isConfirmed.value ? 'btn-dark-gray' : 'btn-confirm');
-const confirmBtnLabel = computed(() => isConfirmed.value ? '확정취소' : '정산확정');
+const confirmBtnClass = computed(() => {
+  if (currentStatus.value === '확정') return 'btn-dark-gray';
+  if (currentStatus.value === '정정요청') return 'btn-confirm-disabled';
+  return 'btn-confirm';
+});
 
-// 정정요청 버튼 비활성화
-const correctionDisabled = computed(() => isConfirmed.value);
+const confirmBtnLabel = computed(() => {
+  if (currentStatus.value === '확정') return '확정취소';
+  if (currentStatus.value === '정정요청') return '정산확정';
+  return '정산확정';
+});
+
+// 정산확정 버튼 비활성화 (정정요청 상태에서만)
+const confirmDisabled = computed(() => false);
+
+// 정정요청 버튼 색상/문구
+const correctionBtnClass = computed(() => {
+  if (currentStatus.value === '정정요청') return 'btn-dark-gray';
+  return 'btn-warning';
+});
+
+const correctionBtnLabel = computed(() => {
+  if (currentStatus.value === '정정요청') return '정정요청 취소';
+  return '정정요청';
+});
+
+// 정정요청 버튼 비활성화 (확정 상태에서만)
+const correctionDisabled = computed(() => false);
 
 // 정정요청 모달 상태
 const showCorrectionModal = ref(false);
@@ -297,7 +321,7 @@ const fetchMonthList = async () => {
 // 정산확정/정정요청 상태 DB에서 불러오기
 const fetchShareStatus = async () => {
   if (!selectedMonth.value || !currentUserRegNo.value) {
-    isConfirmed.value = false;
+    currentStatus.value = '미확인';
     correctionText.value = '';
     return;
   }
@@ -308,10 +332,10 @@ const fetchShareStatus = async () => {
     .eq('company_reg_no', currentUserRegNo.value)
     .single();
   if (data) {
-    isConfirmed.value = data.confirm_status === '확정';
+    currentStatus.value = data.confirm_status || '미확인';
     correctionText.value = data.confirm_status === '정정요청' ? (data.confirm_comment || '') : '';
   } else {
-    isConfirmed.value = false;
+    currentStatus.value = '미확인';
     correctionText.value = '';
   }
 };
@@ -428,10 +452,10 @@ const saveAction = async () => {
 
 // 정산확정 버튼 클릭
 const onConfirmClick = async () => {
-  if (!isConfirmed.value) {
+  if (currentStatus.value === '미확인') {
+    // 미확인 -> 확정
     if (window.confirm('정산내역을 확정하시겠습니까?')) {
-      isConfirmed.value = true;
-      // DB에 확정 상태 반영
+      currentStatus.value = '확정';
       await supabase.from('settlements_share').upsert([
         {
           settlement_month: selectedMonth.value,
@@ -440,24 +464,74 @@ const onConfirmClick = async () => {
         }
       ], { onConflict: ['settlement_month', 'company_reg_no'] });
     }
-  } else {
-    // 확정취소 시 미확인으로 변경
-    isConfirmed.value = false;
-    await supabase.from('settlements_share').upsert([
-      {
-        settlement_month: selectedMonth.value,
-        company_reg_no: currentUserRegNo.value,
-        confirm_status: '미확인'
-      }
-    ], { onConflict: ['settlement_month', 'company_reg_no'] });
+  } else if (currentStatus.value === '확정') {
+    // 확정 -> 미확인
+    if (window.confirm('정산 확정을 취소하시겠습니까?')) {
+      currentStatus.value = '미확인';
+      await supabase.from('settlements_share').upsert([
+        {
+          settlement_month: selectedMonth.value,
+          company_reg_no: currentUserRegNo.value,
+          confirm_status: '미확인'
+        }
+      ], { onConflict: ['settlement_month', 'company_reg_no'] });
+    }
+  } else if (currentStatus.value === '정정요청') {
+    // 정정요청 -> 확정
+    if (window.confirm('정정 요청을 취소하고 정산 내역을 확정하시겠습니까?')) {
+      currentStatus.value = '확정';
+      correctionText.value = '';
+      await supabase.from('settlements_share').upsert([
+        {
+          settlement_month: selectedMonth.value,
+          company_reg_no: currentUserRegNo.value,
+          confirm_status: '확정',
+          confirm_comment: null
+        }
+      ], { onConflict: ['settlement_month', 'company_reg_no'] });
+    }
   }
 };
 
 // 정정요청 버튼 클릭
 const onCorrectionClick = () => {
-  isEditCorrection.value = false;
-  correctionInput.value = '';
-  showCorrectionModal.value = true;
+  if (currentStatus.value === '확정') {
+    // 확정 상태에서 정정요청 클릭 시 확인 모달
+    if (window.confirm('정산 확정을 취소하고 정정요청을 하시겠습니까?')) {
+      currentStatus.value = '미확인';
+      // DB에서 확정 상태 해제
+      supabase.from('settlements_share').upsert([
+        {
+          settlement_month: selectedMonth.value,
+          company_reg_no: currentUserRegNo.value,
+          confirm_status: '미확인'
+        }
+      ], { onConflict: ['settlement_month', 'company_reg_no'] });
+      // 정정요청 모달 표시
+      isEditCorrection.value = false;
+      correctionInput.value = '';
+      showCorrectionModal.value = true;
+    }
+  } else if (currentStatus.value === '정정요청') {
+    // 정정요청 상태에서 취소
+    if (window.confirm('정정요청을 취소하시겠습니까?')) {
+      currentStatus.value = '미확인';
+      correctionText.value = '';
+      supabase.from('settlements_share').upsert([
+        {
+          settlement_month: selectedMonth.value,
+          company_reg_no: currentUserRegNo.value,
+          confirm_status: '미확인',
+          confirm_comment: null
+        }
+      ], { onConflict: ['settlement_month', 'company_reg_no'] });
+    }
+  } else {
+    // 미확인 상태에서 정정요청
+    isEditCorrection.value = false;
+    correctionInput.value = '';
+    showCorrectionModal.value = true;
+  }
 };
 
 // 정정요청 수정 버튼 클릭
@@ -469,11 +543,17 @@ const onEditCorrection = () => {
 
 // 정정요청 모달 저장
 const saveCorrection = async () => {
+  if (!correctionInput.value.trim()) {
+    alert('정정요청 내용을 입력해주세요.');
+    return;
+  }
+  
   correctionText.value = correctionInput.value;
+  currentStatus.value = '정정요청';
   showCorrectionModal.value = false;
-  window.alert('정정요청이 등록되었습니다.');
+  
   // DB에 정정요청 상태 반영
-  await supabase.from('settlements_share').upsert([
+  const { error } = await supabase.from('settlements_share').upsert([
     {
       settlement_month: selectedMonth.value,
       company_reg_no: currentUserRegNo.value,
@@ -481,6 +561,12 @@ const saveCorrection = async () => {
       confirm_comment: correctionText.value
     }
   ], { onConflict: ['settlement_month', 'company_reg_no'] });
+
+  if (error) {
+    alert('저장 실패: ' + error.message);
+  } else {
+    window.alert('정정요청이 등록되었습니다.');
+  }
 };
 
 // 정정요청 모달 취소
