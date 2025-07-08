@@ -8,6 +8,7 @@
           <option value="">- 전체 -</option>
           <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
         </select>
+        <input v-model="search" placeholder="거래처, 제약사, 제품 검색" class="input-search wide-mobile-search" />
         <div class="hide-mobile">
         <span>병의원</span>
         <select v-model="selectedHospital" class="input-180" :disabled="!selectedMonth">
@@ -42,13 +43,13 @@
     <div class="table-card">
       <div :style="isMobile ? tableConfig.tableStyle : {}">
         <DataTable
-          :value="settlements"
+          :value="filteredList"
           :loading="loading"
           :paginator="false"
           scrollable
           scrollDirection="both"
           :scrollHeight="tableScrollHeight"
-          :style="{ width: tableConfig.tableWidth, minWidth: isMobile ? tableConfig.tableStyle.minWidth : '100%' }"
+          :style="{ width: tableConfig.tableWidth, minWidth: isMobile ? tableConfig.tableStyle.minWidth : undefined }"
         >
         <template #empty>
             <div v-if="!loading">조회된 데이터가 없습니다.</div>
@@ -124,6 +125,7 @@ const productOptions = ref([]);
 const pageSize = ref(100);
 const first = ref(0);
 const currentUserBizNo = ref(route.query.biz_no || '');
+const search = ref('');
 
 const onPageChange = (event) => {
   first.value = event.first;
@@ -225,6 +227,15 @@ const formatPercentage = (value) => {
   if (!value) return '0%';
   return Math.round(Number(value) * 100) + '%';
 };
+
+const filteredList = computed(() => {
+  if (!search.value) return settlements.value;
+  return settlements.value.filter(item =>
+    (item.client_name || '').includes(search.value) ||
+    (item.pharma_name || '').includes(search.value) ||
+    (item.product_name || '').includes(search.value)
+  );
+});
 
 onMounted(async () => {
   fetchSettlements();

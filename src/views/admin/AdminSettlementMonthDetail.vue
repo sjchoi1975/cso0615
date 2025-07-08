@@ -3,13 +3,15 @@
       <!-- 상단: 필터카드 -->
       <div class="filter-card">
         <div class="filter-row">
+          <span>통합 검색</span>
+          <input v-model="search" placeholder="업체, 거래처, 제약사, 제품명 입력" class="input-search wide-mobile-search" />
           <span>처방월</span>
           <select v-model="selectedPrescriptionMonth" class="input-120">
             <option value="">- 전체 -</option>
             <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
           </select>
           <span>업체명</span>
-          <select v-model="selectedCompany" class="input-240">
+          <select v-model="selectedCompany" class="input-180">
             <option value="">전체</option>
             <option v-for="c in companyOptions" :key="c" :value="c">{{ c }}</option>
           </select>
@@ -25,7 +27,7 @@
           </select>
         </div>
       </div>
-  
+      
       <!-- 중간: 기능카드 -->
       <div class="function-card">
         <div class="total-count">총 {{ totalCount.toLocaleString() }}건</div>
@@ -90,12 +92,13 @@
         <div :style="tableConfig.tableStyle">
           <DataTable
             v-if="!loading"
-            :value="settlements"
+            :value="filteredList"
             :loading="loading"
             :paginator="false"
             scrollable
+            scrollDirection="both"
             :scrollHeight="tableScrollHeight"
-            :style="{ width: tableConfig.tableWidth }"
+            :style="{ width: tableConfig.tableWidth, minWidth: isMobile ? tableConfig.tableStyle.minWidth : undefined }"
             dataKey="id"
             v-model:selection="selectedRows"
           >
@@ -181,12 +184,23 @@
   const route = useRoute();
   
   const selectedRows = ref([]);
+  const search = ref('');
   
   const isMobile = computed(() => window.innerWidth <= 768);
   const tableConfig = computed(() => isMobile.value ? settlementMonthDetailTableConfig.mobile : settlementMonthDetailTableConfig.pc);
   
   // 테이블 스크롤 높이 계산 (페이지네이터 있음)
   const tableScrollHeight = computed(() => getTableScrollHeight(true));
+  
+  const filteredList = computed(() => {
+    if (!search.value) return settlements.value;
+    return settlements.value.filter(item =>
+      (item.company_name || '').includes(search.value) ||
+      (item.client_name || '').includes(search.value) ||
+      (item.pharma_name || '').includes(search.value) ||
+      (item.product_name || '').includes(search.value)
+    );
+  });
   
   const fetchFilterOptions = async () => {
     const baseMonth = route.params.month;

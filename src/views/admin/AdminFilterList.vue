@@ -3,8 +3,9 @@
     <!-- Filter Card -->
     <div class="filter-card">
       <div class="filter-row">
+        <span class="hide-mobile">통합 검색</span>
         <span class="p-input-icon-left">
-          <input v-model="search" placeholder="업체명, 거래처명, 제약사명 검색" class="input-search wide-mobile-search" />
+          <input v-model="search" placeholder="업체명, 거래처명, 제약사명 입력" class="input-search wide-mobile-search" />
         </span>
         <div class="hide-mobile">
           <span>업체</span>

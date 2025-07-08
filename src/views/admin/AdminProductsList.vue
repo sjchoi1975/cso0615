@@ -12,8 +12,9 @@
             </option>
           </select>
         </div>
+        <span class="hide-mobile">통합 검색</span>
         <span class="p-input-icon-left">
-          <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 검색" class="input-search" />
+          <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 입력" class="input-search" />
         </span>
         <div class="hide-mobile">
           <span>급여</span>

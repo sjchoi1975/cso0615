@@ -3,8 +3,9 @@
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
+        <span class="hide-mobile">통합 검색</span>
         <span class="p-input-icon-left">
-          <input v-model="search" placeholder="회사명, 사업자등록번호, 대표자명 검색" class="input-search wide-mobile-search" />
+          <input v-model="search" placeholder="회사명, 사업자등록번호, 대표자명 입력" class="input-search wide-mobile-search" />
         </span>
         <div class="hide-mobile">
           <span>인증</span>
