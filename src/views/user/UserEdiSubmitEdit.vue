@@ -41,7 +41,7 @@
 
       <!-- 메모 -->
       <label class="title-sm" style="margin-top: 2rem;">메모</label>
-      <textarea v-model="memo" class="input" placeholder="요청 메모를 입력해 주세요." rows="8"></textarea>
+      <textarea v-model="memo" class="input" placeholder="요청 메모를 입력해 주세요." rows="6"></textarea>
 
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
         <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
@@ -65,8 +65,18 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-cancel" @click="showCompanyModal = false" style="flex:1;">취소</button>
-          <button class="btn-confirm" @click="showCompanyModal = false" style="flex:2;">선택</button>
+          <button 
+            class="btn-cancel" 
+            @click="showCompanyModal = false" 
+            style="flex:1;">
+            취소
+          </button>
+          <button 
+            class="btn-confirm" 
+            @click="showCompanyModal = false" 
+            style="flex:3;">
+            선택
+          </button>
         </div>
       </div>
     </div>
@@ -91,13 +101,14 @@ const showCompanyModal = ref(false);
 const memo = ref('');
 const isSubmitting = ref(false);
 const companySearch = ref('');
-
-function handleFileSelect(e) {
-  const newFiles = Array.from(e.target.files);
-  selectedFiles.value = [...selectedFiles.value, ...newFiles];
-}
+const hospitalName = ref('');
 
 onMounted(async () => {
+  const hospitalId = route.params.hospitalId;
+  if (hospitalId) {
+    const { data } = await supabase.from('hospitals').select('hospital_name').eq('id', hospitalId).single();
+    hospitalName.value = data?.hospital_name || '';
+  }
   // 기존 데이터 불러오기
   const { data: fileRow } = await supabase.from('edi_files').select('files, memo').eq('id', fileId).single();
   selectedFiles.value = fileRow?.files || [];
@@ -141,9 +152,28 @@ function removeFile(idx) {
 async function submitEdit() {
   if (!selectedFiles.value.length || !selectedCompanies.value.length) return;
   isSubmitting.value = true;
-  // 파일 정보는 이미 업로드된 상태라고 가정 (수정 시 파일 추가/삭제만 반영)
+  const uploadedFiles = [];
+  for (const file of selectedFiles.value) {
+    if (file.url) {
+      // 기존 파일(이미 업로드된 파일)
+      uploadedFiles.push(file);
+    } else {
+      // 새로 추가된 파일(File 객체)
+      const ext = file.name.split('.').pop();
+      const safeName = `edi_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const filePath = `edi_files/${safeName}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage.from('edi-uploads').upload(filePath, file);
+      if (uploadError) {
+        alert('파일 업로드 실패: ' + file.name);
+        isSubmitting.value = false;
+        return;
+      }
+      const { data: { publicUrl } } = supabase.storage.from('edi-uploads').getPublicUrl(uploadData.path);
+      uploadedFiles.push({ original_name: file.name, url: publicUrl });
+    }
+  }
   const { error: fileError } = await supabase.from('edi_files').update({
-    files: selectedFiles.value,
+    files: uploadedFiles,
     memo: memo.value
   }).eq('id', fileId);
   if (fileError) {

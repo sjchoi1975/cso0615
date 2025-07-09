@@ -66,8 +66,19 @@
       <textarea v-model="userRemarks" class="input" placeholder="요청 메모를 입력해 주세요." rows="5"></textarea>
 
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
-        <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="loading || !isFormValid" style="flex:2;">{{ loading ? '요청 중...' : '등록' }}</button>
+        <button
+          type="button" 
+          class="btn-cancel" 
+          @click="goBack" 
+          style="flex:1;">
+          취소
+        </button>
+        <button 
+          type="submit" 
+          class="btn-confirm" :disabled="loading || !isFormValid" 
+          style="flex:3;">
+          {{ loading ? '요청 중...' : '등록' }}
+        </button>
       </div>
     </form>
 
@@ -108,8 +119,18 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-cancel" @click="closeModal" style="flex:1;">취소</button>
-          <button class="btn-confirm" @click="confirmSelection" style="flex:2;">선택</button>
+          <button
+            class="btn-cancel" 
+            @click="closeModal" 
+            style="flex:1;">
+            취소
+          </button>
+          <button 
+            class="btn-confirm" 
+            @click="confirmSelection" 
+            style="flex:3;">
+            선택
+          </button>
         </div>
       </div>
     </div>

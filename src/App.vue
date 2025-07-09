@@ -41,28 +41,6 @@ supabase.auth.getUser().then(async ({ data }) => {
 // 특수 레이아웃 적용 경로 및 네이밍 규칙 관리
 const specialLayoutRoutes = [
   {
-    path: /^\/edi\/submit\/\d+\/\d+$/,
-    async menuName(params) {
-      const { settlementMonthId, hospitalId } = params;
-
-      const { data: month } = await supabase
-        .from('edi_months')
-        .select('settlement_month')
-        .eq('id', settlementMonthId)
-        .single();
-      const monthLabel = month ? month.settlement_month : '';
-      
-      const { data: hospital } = await supabase
-        .from('hospitals')
-        .select('hospital_name')
-        .eq('id', hospitalId)
-        .single();
-      const hospitalName = hospital ? hospital.hospital_name : '';
-
-      return `${monthLabel} - ${hospitalName}`;
-    }
-  },
-  {
     path: /^\/admin\/notices\/create$/,
     menuName: () => '공지사항 작성'
   },
@@ -91,6 +69,47 @@ const specialLayoutRoutes = [
     menuName: () => '거래처 수정'
   },
   // 필요시 추가
+
+  {
+    path: /^\/edi\/submit\/\d+\/\d+$/, // EDI 증빙자료 제출
+    async menuName(params) {
+      const { hospitalId } = params;
+      const { data: hospital } = await supabase
+        .from('hospitals')
+        .select('hospital_name')
+        .eq('id', hospitalId)
+        .single();
+      const hospitalName = hospital ? hospital.hospital_name : '';
+      return hospitalName;
+    }
+  },
+
+  {
+    path: /^\/edi\/submit\/\d+\/\d+\/detail$/, // EDI 증빙자료 제출내역
+    menuName: async (params) => {
+      const { hospitalId } = params;
+      const { data: hospital } = await supabase
+        .from('hospitals')
+        .select('hospital_name')
+        .eq('id', hospitalId)
+        .single();
+      return hospital ? hospital.hospital_name : '';
+    }
+  },
+    
+  {
+    path: /^\/edi\/submit\/\d+\/\d+\/\d+\/edit$/, // EDI 증빙자료 제출내역 수정
+    // (\d+가 3개 들어가야 함: 정산월ID/병원ID/EDI파일ID)
+    menuName: async (params) => {
+      const { hospitalId } = params;
+      const { data: hospital } = await supabase
+        .from('hospitals')
+        .select('hospital_name')
+        .eq('id', hospitalId)
+        .single();
+      return hospital ? hospital.hospital_name : '';
+    }
+  },
 ];
 
 // 이미 specialLayoutRoutes에 /admin/hospitals/edit/ 경로가 없다면 추가
@@ -193,7 +212,7 @@ watch(
     } else {
       document.body.classList.remove('login-page');
     }
-        
+    
     // 스크롤이 필요한 페이지들
     const scrollEnabledPages = [
       '/login', 

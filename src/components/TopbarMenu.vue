@@ -7,7 +7,8 @@
       <button v-if="!showBack && !hideMenuToggle" class="menu-toggle" @click="$emit('toggle-sidebar')">
         <i class="pi pi-bars"></i>
       </button>
-      <span class="logo-title" v-if="showLogo">Company</span>
+      <!-- 로고 타이틀 변경 -->
+      <span class="logo-title" v-if="showLogo">회사명</span>
       <span class="menu-title">{{ menuName }}</span>
     </div>
     <div class="right">

@@ -88,6 +88,7 @@ const goToEdiSubmit = async () => {
   }
   const settlementMonthId = months[0].id;
   router.push(`/edi/submit/${settlementMonthId}`);
+  emit('menu-click'); // 모바일에서 메뉴 닫기
 };
 
 const userMenu = [

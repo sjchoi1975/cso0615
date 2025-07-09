@@ -126,7 +126,7 @@
             {{ correctionBtnLabel }}</button>
           <button
             :class="confirmBtnClass"
-            style="flex:2;"
+            style="flex:3;"
             @click="onConfirmClick"
             :disabled="confirmDisabled">
             {{ confirmBtnLabel }}</button>

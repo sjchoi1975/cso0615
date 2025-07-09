@@ -712,8 +712,8 @@ export const userEdiSubmitTableConfig = {
       { field: 'address', label: '주소', width: '28%', align: 'left', sortable: true },
       { field: 'last_month_files', label: '전월 제출 파일', width: '8%', align: 'center', sortable: false },
       { field: 'current_month_files', label: '당월 제출 파일', width: '8%', align: 'center', sortable: false },
-      { field: 'submit_button', label: '제출하기', width: '8%', align: 'center', type: 'button', icon: 'pi pi-upload' },
-      { field: 'viewDetail', label: '내역보기', width: '8%', align: 'center', type: 'button', icon: 'pi pi-eye' }
+      { field: 'viewDetail', label: '상세보기', width: '8%', align: 'center', type: 'button', icon: 'pi pi-eye' },
+      { field: 'submit_button', label: '제출하기', width: '8%', align: 'center', type: 'button', icon: 'pi pi-upload' }
     ]
   },
 
@@ -732,8 +732,8 @@ export const userEdiSubmitTableConfig = {
       { field: 'address', label: '주소', width: '16%', align: 'left', sortable: true },
       { field: 'last_month_files', label: '전월', width: '8%', align: 'center', sortable: false },
       { field: 'current_month_files', label: '당월', width: '8%', align: 'center', sortable: false },
-      { field: 'submit_button', label: '제출', width: '8%', align: 'center', type: 'button', icon: 'pi pi-upload' },
-      { field: 'viewDetail', label: '내역보기', width: '8%', align: 'center', type: 'button', icon: 'pi pi-eye' }
+      { field: 'viewDetail', label: '상세', width: '8%', align: 'center', type: 'button', icon: 'pi pi-eye' },
+      { field: 'submit_button', label: '제출', width: '8%', align: 'center', type: 'button', icon: 'pi pi-upload' }
     ]
   }
 };

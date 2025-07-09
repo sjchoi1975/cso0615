@@ -20,8 +20,16 @@
         <a :href="getFileUrl(existingLicenseFile)" target="_blank" class="link">파일 보기</a>
       </div>
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
-        <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="loading" style="flex:2;">
+        <button 
+          type="button" 
+          class="btn-cancel" 
+          @click="goList" style="flex:1;">
+          취소
+        </button>
+        <button 
+          type="submit" 
+          class="btn-confirm" :disabled="loading" 
+          style="flex:3;">
           {{ loading ? '저장 중...' : '수정' }}
         </button>
       </div>

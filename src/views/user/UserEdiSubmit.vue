@@ -46,22 +46,25 @@
           >
             <template #body="slotProps">
               <span v-if="col.type === 'index'">{{ slotProps.index + 1 }}</span>
-              <span v-else-if="col.field === 'current_month_files' && slotProps.data.current_month_files !== '-'">
+              <span v-else-if="col.field === 'current_month_files' && slotProps.data.current_month_files != '-'">
                 <span class="file-count-link" @click="goToFileDetail(slotProps.data)">
                   {{ slotProps.data.current_month_files }}
                 </span>
               </span>
               <Button
-                v-else-if="col.field === 'submit_button'"
-                icon="pi pi-upload"
-                class="p-button-text"
-                @click="goToUpload(slotProps.data)"
-              />
-              <Button
                 v-else-if="col.field === 'viewDetail'"
                 icon="pi pi-list"
                 class="p-button-text"
                 @click="goToDetail(slotProps.data)"
+                :disabled="slotProps.data.current_month_files === '-' && slotProps.data.last_month_files === '-'"
+                :class="{ 'p-disabled': slotProps.data.current_month_files === '-' && slotProps.data.last_month_files === '-' }"
+                :style="(slotProps.data.current_month_files === '-' && slotProps.data.last_month_files === '-') ? 'opacity: 0.4;' : ''"
+              />
+              <Button
+                v-else-if="col.field === 'submit_button'"
+                icon="pi pi-upload"
+                class="p-button-text"
+                @click="goToUpload(slotProps.data)"
               />
               <span v-else>{{ slotProps.data[col.field] }}</span>
             </template>
@@ -348,5 +351,7 @@ onUnmounted(() => {
   margin: 0;
   color: var(--text-secondary);
 }
-
+.p-button.p-disabled {
+  opacity: 0.4;
+}
 </style> 

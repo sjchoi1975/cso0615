@@ -3,7 +3,13 @@
     <form class="board-form" @submit.prevent="submit">
       <!-- 파일 선택 -->
       <label class="title-sm">파일 선택<span class="required">*</span></label>
-      <input type="file" multiple @change="handleFileSelect" class="input" style="margin-bottom:0rem;" />
+      <input 
+        type="file" 
+        multiple 
+        @change="handleFileSelect" 
+        class="input" 
+        style="margin-bottom:0rem;" 
+      />
       <ul v-if="selectedFiles.length > 0" style="margin-bottom:1.5rem; padding-left:0; list-style:none;">
         <li
           v-for="(file, idx) in selectedFiles"
@@ -31,7 +37,14 @@
       <label class="title-sm" style="margin-top: 2rem;">제약사 선택<span class="required">*</span></label>
       <button type="button" class="btn-select-wide" @click="showCompanyModal = true">제약사 선택</button>
       <div v-if="selectedCompanies.length > 0" class="selected-pharmas-list" style="margin-bottom: 0rem;">
-        <div v-for="company in selectedCompanies" :key="company.id" class="selected-pharma-item" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+        <div
+          v-for="company in selectedCompanies" 
+          :key="company.id" 
+          class="selected-pharma-item" 
+          style="display: flex; 
+          align-items: center; 
+          justify-content: space-between; 
+          gap: 0.5rem;">
           <span>{{ company.company_name }}</span>
           <button type="button" @click="removeCompany(company.id)" style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
@@ -41,11 +54,23 @@
 
       <!-- 메모 -->
       <label class="title-sm" style="margin-top: 2rem;">메모</label>
-      <textarea v-model="memo" class="input" placeholder="요청 메모를 입력해 주세요." rows="8"></textarea>
+      <textarea v-model="memo" class="input" placeholder="요청 메모를 입력해 주세요." rows="6"></textarea>
 
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
-        <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="isSubmitting || !selectedFiles.length || !selectedCompanies.length" style="flex:2;">{{ isSubmitting ? '제출 중...' : '등록' }}</button>
+        <button
+          type="button" 
+          class="btn-cancel" 
+          @click="goBack" 
+          style="flex:1;">
+          취소
+        </button>
+        <button 
+          type="submit" 
+          class="btn-confirm" 
+          :disabled="isSubmitting || !selectedFiles.length || !selectedCompanies.length" 
+          style="flex:3;">
+          {{ isSubmitting ? '제출 중...' : '제출' }}
+        </button>
       </div>
     </form>
 
@@ -54,7 +79,13 @@
       <div class="custom-modal-filtering">
         <div class="modal-header">
           <h3 class="modal-title">제약사 선택</h3>
-          <input v-model="companySearch" class="input" placeholder="제약사명으로 검색" style="margin-top:0.8rem; margin-bottom:0.2rem;" />
+          <input 
+            v-model="companySearch" 
+            class="input" 
+            placeholder="제약사명으로 검색" 
+            style="margin-top:0.8rem; margin-bottom:0.2rem;" 
+            @keyup.enter="searchCompanies"
+          />
         </div>
         <div class="modal-body">
           <div class="selection-list-container">
@@ -87,13 +118,14 @@ const isSubmitting = ref(false);
 const router = useRouter();
 const route = useRoute();
 const companySearch = ref('');
-
-function handleFileSelect(e) {
-  const newFiles = Array.from(e.target.files);
-  selectedFiles.value = [...selectedFiles.value, ...newFiles];
-}
+const hospitalName = ref('');
 
 onMounted(async () => {
+  const hospitalId = route.params.hospitalId;
+  if (hospitalId) {
+    const { data } = await supabase.from('hospitals').select('hospital_name').eq('id', hospitalId).single();
+    hospitalName.value = data?.hospital_name || '';
+  }
   const { data } = await supabase.from('pharmaceutical_companies').select('id, company_name').order('company_name');
   companies.value = data || [];
 });
