@@ -42,34 +42,40 @@ supabase.auth.getUser().then(async ({ data }) => {
 const specialLayoutRoutes = [
   {
     path: /^\/admin\/notices\/create$/,
-    menuName: () => '공지사항 작성'
+    menuName: () => '공지사항 작성',
+    showBack: true
   },
   {
     path: /^\/admin\/notices\/edit\//,
-    menuName: () => '공지사항 수정'
+    menuName: () => '공지사항 수정',
+    showBack: true
   },
   {
     path: /^\/admin\/products\/create$/,
-    menuName: () => '제품 등록'
+    menuName: () => '제품 등록',
+    showBack: true
   },
   {
     path: /^\/admin\/products\/edit\//,
-    menuName: () => '제품 수정'
+    menuName: () => '제품 수정',
+    showBack: true
   },
   {
     path: /^\/admin\/hospitals\/create$/,
-    menuName: () => '거래처 등록'
+    menuName: () => '거래처 등록',
+    showBack: true
   },
   {
     path: /^\/hospitals\/create$/,
-    menuName: () => '거래처 등록'
+    menuName: () => '거래처 등록',
+    showBack: true
   },
   {
     path: /^\/hospitals\/edit\//,
-    menuName: () => '거래처 수정'
+    menuName: () => '거래처 수정',
+    showBack: true
   },
-  // 필요시 추가
-
+  // EDI 제출 관련 경로
   {
     path: /^\/edi\/submit\/\d+\/\d+$/, // EDI 증빙자료 제출
     async menuName(params) {
@@ -79,11 +85,10 @@ const specialLayoutRoutes = [
         .select('hospital_name')
         .eq('id', hospitalId)
         .single();
-      const hospitalName = hospital ? hospital.hospital_name : '';
-      return hospitalName;
-    }
+      return hospital ? hospital.hospital_name : '';
+    },
+    showBack: true
   },
-
   {
     path: /^\/edi\/submit\/\d+\/\d+\/detail$/, // EDI 증빙자료 제출내역
     menuName: async (params) => {
@@ -94,12 +99,11 @@ const specialLayoutRoutes = [
         .eq('id', hospitalId)
         .single();
       return hospital ? hospital.hospital_name : '';
-    }
+    },
+    showBack: true
   },
-    
   {
     path: /^\/edi\/submit\/\d+\/\d+\/\d+\/edit$/, // EDI 증빙자료 제출내역 수정
-    // (\d+가 3개 들어가야 함: 정산월ID/병원ID/EDI파일ID)
     menuName: async (params) => {
       const { hospitalId } = params;
       const { data: hospital } = await supabase
@@ -108,7 +112,8 @@ const specialLayoutRoutes = [
         .eq('id', hospitalId)
         .single();
       return hospital ? hospital.hospital_name : '';
-    }
+    },
+    showBack: true
   },
 ];
 
@@ -130,9 +135,9 @@ const isLoginOrSignup = computed(() => ['/login', '/signup'].includes(route.path
 
 // 사이드바 표시 여부 결정
 const showSidebar = computed(() => !isLoginOrSignup.value);
-const showCompany = computed(() => !isLoginOrSignup.value && !isSpecialLayout.value);
-const showBack = computed(() => !isLoginOrSignup.value && isSpecialLayout.value);
-const hideMenuToggle = computed(() => !isLoginOrSignup.value && isSpecialLayout.value && isMobile.value);
+const showCompany = computed(() => !isLoginOrSignup.value && (!isSpecialLayout.value || (currentSpecial.value && !currentSpecial.value.showBack)));
+const showBack = computed(() => !isLoginOrSignup.value && isSpecialLayout.value && currentSpecial.value?.showBack);
+const hideMenuToggle = computed(() => !isLoginOrSignup.value && isSpecialLayout.value && currentSpecial.value?.showBack && isMobile.value);
 
 const defaultMenuName = computed(() => {
 const menuNameMap = {
@@ -153,15 +158,21 @@ const menuNameMap = {
   '/filter/list': '필터링 내역',
   '/edi/submit': 'EDI 제출',
   '/settlement/month': '정산내역서',
-  
-   };
-  const path = route.path;
-  const params = route.params;
-  if (path.startsWith('/admin/settlement/month/') && params.year_month) {
-    const [year, month] = params.year_month.split('-');
-    return `월별 정산 현황 > ${year}년 ${parseInt(month, 10)}월`;
-  }
-  return menuNameMap[path] || '';
+};
+
+const path = route.path;
+const params = route.params;
+
+// EDI 제출 경로 처리
+if (path.match(/^\/edi\/submit\/\d+$/)) {
+  return 'EDI 제출';
+}
+
+if (path.startsWith('/admin/settlement/month/') && params.year_month) {
+  const [year, month] = params.year_month.split('-');
+  return `월별 정산 현황 > ${year}년 ${parseInt(month, 10)}월`;
+}
+return menuNameMap[path] || '';
 });
 
 const menuName = ref('');
@@ -266,14 +277,14 @@ function toggleMobileSidebar() {
     </div>
     <TopbarMenu
       v-if="!isLoginOrSignup"
-      :menu-name="menuName"
-      :company-name="userInfo?.company_name || ''"
-      :show-logo="showCompany"
-      :hide-menu-toggle="hideMenuToggle"
-      :show-back="showBack"
+      :menuName="menuName"
+      :companyName="userInfo?.company_name"
+      :showLogo="showCompany"
+      :hideMenuToggle="hideMenuToggle"
+      :showBack="showBack"
       @logout="handleLogout"
       @profile="handleProfile"
-      @toggle-sidebar="toggleMobileSidebar"
+      @toggle-sidebar="sidebarVisible = !sidebarVisible"
     />
     <div class="main-content main-margin" :class="{ 'no-sidebar': !showSidebar }">
       <RouterView />

@@ -2,7 +2,7 @@
   <div class="board">
     <form class="board-form" @submit.prevent="submit">
       <!-- 파일 선택 -->
-      <label class="title-sm">파일 선택<span class="required">*</span></label>
+      <label class="title-sm">증빙 파일<span class="required">*</span></label>
       <input 
         type="file" 
         multiple 
@@ -34,7 +34,7 @@
       </ul>
 
       <!-- 제약사 선택 -->
-      <label class="title-sm" style="margin-top: 2rem;">제약사 선택<span class="required">*</span></label>
+      <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span></label>
       <button type="button" class="btn-select-wide" @click="showCompanyModal = true">제약사 선택</button>
       <div v-if="selectedCompanies.length > 0" class="selected-pharmas-list" style="margin-bottom: 0rem;">
         <div
@@ -53,8 +53,8 @@
       </div>
 
       <!-- 메모 -->
-      <label class="title-sm" style="margin-top: 2rem;">메모</label>
-      <textarea v-model="memo" class="input" placeholder="요청 메모를 입력해 주세요." rows="6"></textarea>
+      <label class="title-sm" style="margin-top: 2rem;">특이 사항</label>
+      <textarea v-model="memo" class="input" placeholder="" rows="6"></textarea>
 
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
         <button
@@ -120,14 +120,38 @@ const route = useRoute();
 const companySearch = ref('');
 const hospitalName = ref('');
 
+function handleFileSelect(event) {
+  const files = Array.from(event.target.files);
+  selectedFiles.value = [...selectedFiles.value, ...files];
+}
+
 onMounted(async () => {
   const hospitalId = route.params.hospitalId;
   if (hospitalId) {
     const { data } = await supabase.from('hospitals').select('hospital_name').eq('id', hospitalId).single();
     hospitalName.value = data?.hospital_name || '';
   }
-  const { data } = await supabase.from('pharmaceutical_companies').select('id, company_name').order('company_name');
+  
+  // EDI가 활성화된 제약사만 조회
+  const { data, error } = await supabase
+    .from('pharmaceutical_companies')
+    .select('id, company_name, edi_comment')
+    .eq('edi_status', 'active')
+    .order('company_name');
+
+  if (error) {
+    console.error('Error fetching pharmaceutical companies:', error);
+    return;
+  }
+
   companies.value = data || [];
+
+  // EDI 안내 메시지가 있는 제약사들의 메시지 표시
+  data.forEach(company => {
+    if (company.edi_comment) {
+      alert(`[${company.company_name}] ${company.edi_comment}`);
+    }
+  });
 });
 
 const filteredCompanies = computed(() => {

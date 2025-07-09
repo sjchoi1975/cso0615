@@ -171,6 +171,24 @@ const fetchMappedHospitals = async () => {
   }
   loading.value = true;
   
+  // 제약사 EDI 상태 확인
+  const { data: pharmaData, error: pharmaError } = await supabase
+    .from('pharmaceutical_companies')
+    .select('*')
+    .eq('edi_status', 'active');
+
+  if (pharmaError) {
+    console.error('Error fetching pharmaceutical companies:', pharmaError);
+    return;
+  }
+
+  // EDI 안내 메시지가 있는 제약사들의 메시지 표시
+  pharmaData.forEach(pharma => {
+    if (pharma.edi_comment) {
+      alert(`[${pharma.company_name}] ${pharma.edi_comment}`);
+    }
+  });
+
   const { data: hospitalMappings, error: hospitalError } = await supabase
     .from('hospital_member_mappings')
     .select('hospitals (*)')

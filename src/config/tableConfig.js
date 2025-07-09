@@ -249,7 +249,7 @@ export const filterRequestsTableConfig = {
 };
 
 
-/* 관리자 - 제약사 관리 =================================================================================== */
+/* 관리자 - 제약사 ===================================================================================== */
 export const pharmaceuticalCompaniesTableConfig = {
   pc: {
     tableWidth: 'calc(100vw - 3rem)',
@@ -258,27 +258,33 @@ export const pharmaceuticalCompaniesTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'company_name', label: '제약사명', width: '70%', align: 'left', sortable: true },
+      { field: 'company_name', label: '제약사명', width: '16%', align: 'left', sortable: true },
+      { field: 'filtering_status', label: '필터링', width: '6%', align: 'center', sortable: false, type: 'toggle' },
+      { field: 'filtering_comment', label: '전달사항', width: '24%', align: 'left', sortable: false },
+      { field: 'edi_status', label: 'EDI 제출', width: '6%', align: 'center', sortable: false, type: 'toggle' },
+      { field: 'edi_comment', label: '전달사항', width: '24%', align: 'left', sortable: false },
       { field: 'created_at', label: '등록일자', width: '8%', align: 'center', sortable: true },
-      { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },
-      { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', icon: 'pi-trash' },
-      { field: 'status', label: '상태', width: '6%', align: 'center', type: 'toggle' }
+      { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', sortable: false },
+      { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', sortable: false }
     ]
   },
-
   mobile: {
     tableWidth: '100vw',
     tableStyle: {
-      minWidth: '100vw',
+      overflowX: 'auto',
+      minWidth: '780px',
       width: '100vw'
     },
     columns: [
-      { field: 'index', label: '순번', width: '12%', align: 'center', sortable: false },
-      { field: 'company_name', label: '제약사명', width: '28%', align: 'left', sortable: true },
-      { field: 'created_at', label: '등록일자', width: '20%', align: 'center', sortable: true },
-      { field: 'edit', label: '수정', width: '10%', align: 'center', type: 'icon', icon: 'pi-pencil' },
-      { field: 'delete', label: '삭제', width: '10%', align: 'center', type: 'icon', icon: 'pi-trash' },
-      { field: 'status', label: '상태', width: '12%', align: 'center', type: 'toggle' }
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      { field: 'company_name', label: '제약사명', width: '16%', align: 'left', sortable: true },
+      { field: 'filtering_status', label: '필터링', width: '6%', align: 'center', sortable: false, type: 'toggle' },
+      { field: 'filtering_comment', label: '전달사항', width: '12%', align: 'left', sortable: false },
+      { field: 'edi_status', label: 'EDI 제출', width: '6%', align: 'center', sortable: false, type: 'toggle' },
+      { field: 'edi_comment', label: '전달사항', width: '12%', align: 'left', sortable: false },
+      { field: 'created_at', label: '등록일자', width: '10%', align: 'center', sortable: true },
+      { field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', sortable: false },
+      { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', sortable: false }
     ]
   }
 };

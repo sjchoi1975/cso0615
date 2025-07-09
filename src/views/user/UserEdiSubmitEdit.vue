@@ -2,7 +2,7 @@
   <div class="board">
     <form class="board-form" @submit.prevent="submitEdit">
       <!-- 파일 선택 -->
-      <label class="title-sm">파일 선택<span class="required">*</span></label>
+      <label class="title-sm">증빙 파일<span class="required">*</span></label>
       <input type="file" multiple @change="handleFileSelect" class="input" style="margin-bottom:0rem;" />
       <ul v-if="selectedFiles.length > 0" style="margin-bottom:1.5rem; padding-left:0; list-style:none;">
         <li
@@ -28,7 +28,7 @@
       </ul>
 
       <!-- 제약사 선택 -->
-      <label class="title-sm" style="margin-top: 2rem;">제약사 선택<span class="required">*</span></label>
+      <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span></label>
       <button type="button" class="btn-select-wide" @click="showCompanyModal = true">제약사 선택</button>
       <div v-if="selectedCompanies.length > 0" class="selected-pharmas-list" style="margin-bottom: 0rem;">
         <div v-for="company in selectedCompanies" :key="company.id" class="selected-pharma-item" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
@@ -40,8 +40,8 @@
       </div>
 
       <!-- 메모 -->
-      <label class="title-sm" style="margin-top: 2rem;">메모</label>
-      <textarea v-model="memo" class="input" placeholder="요청 메모를 입력해 주세요." rows="6"></textarea>
+      <label class="title-sm" style="margin-top: 2rem;">특이 사항</label>
+      <textarea v-model="memo" class="input" placeholder="" rows="6"></textarea>
 
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
         <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>

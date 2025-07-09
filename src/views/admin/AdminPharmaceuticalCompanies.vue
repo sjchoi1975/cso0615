@@ -64,16 +64,50 @@
               <template v-else-if="col.type === 'icon' && col.field === 'delete'">
                 <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDelete(slotProps.data)" />
               </template>
-              <template v-else-if="col.field === 'status'">
+              <template v-else-if="col.field === 'filtering_status'">
                 <div class="custom-toggle-wrap">
                   <input
                     type="checkbox"
-                    :id="'status-' + slotProps.data.id"
-                    :checked="slotProps.data.status === 'active'"
-                    @change="toggleStatus(slotProps.data)"
+                    :id="'filtering-status-' + slotProps.data.id"
+                    :checked="slotProps.data.filtering_status === 'active'"
+                    @change="toggleFilteringStatus(slotProps.data)"
                     class="custom-toggle-checkbox"
                   />
-                  <label :for="'status-' + slotProps.data.id" class="custom-toggle-label"></label>
+                  <label :for="'filtering-status-' + slotProps.data.id" class="custom-toggle-label"></label>
+                </div>
+              </template>
+              <template v-else-if="col.field === 'edi_status'">
+                <div class="custom-toggle-wrap">
+                  <input
+                    type="checkbox"
+                    :id="'edi-status-' + slotProps.data.id"
+                    :checked="slotProps.data.edi_status === 'active'"
+                    @change="toggleEdiStatus(slotProps.data)"
+                    class="custom-toggle-checkbox"
+                  />
+                  <label :for="'edi-status-' + slotProps.data.id" class="custom-toggle-label"></label>
+                </div>
+              </template>
+              <template v-else-if="col.field === 'filtering_comment'">
+                <div class="comment-cell">
+                  <span :title="slotProps.data.filtering_comment">{{ slotProps.data.filtering_comment }}</span>
+                  <i 
+                    v-if="slotProps.data.filtering_comment"
+                    class="pi pi-info-circle"
+                    style="margin-left: 8px; cursor: pointer;"
+                    @click="showFilteringComment(slotProps.data)"
+                  ></i>
+                </div>
+              </template>
+              <template v-else-if="col.field === 'edi_comment'">
+                <div class="comment-cell">
+                  <span :title="slotProps.data.edi_comment">{{ slotProps.data.edi_comment }}</span>
+                  <i 
+                    v-if="slotProps.data.edi_comment"
+                    class="pi pi-info-circle"
+                    style="margin-left: 8px; cursor: pointer;"
+                    @click="showEdiComment(slotProps.data)"
+                  ></i>
                 </div>
               </template>
               <template v-else-if="col.field === 'created_at'">
@@ -108,7 +142,69 @@
               class="input" 
               placeholder="제약사명을 입력하세요"
               required
+              style="margin-bottom: 2rem;"
             />
+          </div>
+          <div class="form-group">
+            <label>필터링</label>
+            <div class="status-input">
+              <div
+                class="custom-toggle-wrap"
+                style="display: flex;
+                justify-content: flex-start;
+                margin-bottom: 1rem;"
+              >
+                <input
+                  type="checkbox"
+                  v-model="formData.filtering_status"
+                  :true-value="'active'"
+                  :false-value="'inactive'"
+                  class="custom-toggle-checkbox"
+                  :id="'modal-filtering-status'"
+                />
+                <label
+                  :for="'modal-filtering-status'" 
+                  class="custom-toggle-label">
+                </label>
+              </div>
+              <textarea
+                v-model="formData.filtering_comment"
+                class="input"
+                placeholder="필터링 관련 안내 메시지 (선택사항)"
+                rows="4"
+                style="margin-bottom: 2rem;"
+              ></textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>EDI 증빙 파일</label>
+            <div class="status-input">
+              <div
+                class="custom-toggle-wrap" 
+                style="display: flex; 
+                justify-content: flex-start; 
+                margin-bottom: 1rem;"
+              >
+                <input
+                  type="checkbox"
+                  v-model="formData.edi_status"
+                  :true-value="'active'"
+                  :false-value="'inactive'"
+                  class="custom-toggle-checkbox"
+                  :id="'modal-edi-status'"
+                />
+                <label
+                  :for="'modal-edi-status'" 
+                  class="custom-toggle-label">
+                </label>
+              </div>
+              <textarea
+                v-model="formData.edi_comment"
+                class="input"
+                placeholder="EDI 관련 안내 메시지 (선택사항)"
+                rows="4"
+              ></textarea>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -121,6 +217,17 @@
         </div>
       </div>
     </div>
+
+    <!-- 상태 안내 메시지 모달 -->
+    <Dialog 
+      v-model:visible="showCommentDialog"
+      :header="commentDialogTitle"
+      :modal="true"
+      :closable="true"
+      :style="{ width: '90%', maxWidth: '500px' }"
+    >
+      <p style="white-space: pre-line;">{{ commentDialogContent }}</p>
+    </Dialog>
   </div>
 </template>
 
@@ -150,8 +257,16 @@ const showModal = ref(false);
 const isEdit = ref(false);
 const formData = ref({
   id: null,
-  company_name: ''
+  company_name: '',
+  filtering_status: 'inactive',
+  edi_status: 'inactive',
+  filtering_comment: '',
+  edi_comment: ''
 });
+
+const showCommentDialog = ref(false);
+const commentDialogTitle = ref('');
+const commentDialogContent = ref('');
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? pharmaceuticalCompaniesTableConfig.mobile : pharmaceuticalCompaniesTableConfig.pc);
@@ -166,7 +281,7 @@ const fetchCompanies = async () => {
     const { data, error } = await supabase
       .from('pharmaceutical_companies')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('company_name', { ascending: true }); // 가나다순 정렬
     
     if (error) throw error;
     
@@ -184,11 +299,18 @@ const fetchCompanies = async () => {
 
 // 필터링된 리스트
 const filteredCompanies = computed(() => {
-  if (!search.value) return companies.value;
+  let result = [...companies.value];
   
-  const keyword = search.value.toLowerCase();
-  return companies.value.filter(company => 
-    company.company_name.toLowerCase().includes(keyword)
+  if (search.value) {
+    const keyword = search.value.toLowerCase();
+    result = result.filter(company => 
+      company.company_name.toLowerCase().includes(keyword)
+    );
+  }
+  
+  // 한글 가나다순 정렬
+  return result.sort((a, b) => 
+    a.company_name.localeCompare(b.company_name, 'ko-KR')
   );
 });
 
@@ -204,7 +326,11 @@ const openCreateModal = () => {
   isEdit.value = false;
   formData.value = {
     id: null,
-    company_name: ''
+    company_name: '',
+    filtering_status: 'active',  // 기본값을 active로 변경
+    edi_status: 'active',      // 기본값을 active로 변경
+    filtering_comment: '',
+    edi_comment: ''
   };
   showModal.value = true;
 };
@@ -213,7 +339,11 @@ const openEditModal = (company) => {
   isEdit.value = true;
   formData.value = {
     id: company.id,
-    company_name: company.company_name
+    company_name: company.company_name,
+    filtering_status: company.filtering_status || 'inactive',
+    edi_status: company.edi_status || 'inactive',
+    filtering_comment: company.filtering_comment || '',
+    edi_comment: company.edi_comment || ''
   };
   showModal.value = true;
 };
@@ -222,7 +352,11 @@ const closeModal = () => {
   showModal.value = false;
   formData.value = {
     id: null,
-    company_name: ''
+    company_name: '',
+    filtering_status: 'inactive',
+    edi_status: 'inactive',
+    filtering_comment: '',
+    edi_comment: ''
   };
 };
 
@@ -240,7 +374,13 @@ const saveCompany = async () => {
       // 수정
       const { error } = await supabase
         .from('pharmaceutical_companies')
-        .update({ company_name: formData.value.company_name.trim() })
+        .update({
+          company_name: formData.value.company_name.trim(),
+          filtering_status: formData.value.filtering_status,
+          edi_status: formData.value.edi_status,
+          filtering_comment: formData.value.filtering_comment.trim() || null,
+          edi_comment: formData.value.edi_comment.trim() || null
+        })
         .eq('id', formData.value.id);
       
       if (error) throw error;
@@ -249,7 +389,11 @@ const saveCompany = async () => {
       // 추가
       const { error } = await supabase
         .from('pharmaceutical_companies')
-        .insert([{ company_name: formData.value.company_name.trim() }]);
+        .insert([{
+          company_name: formData.value.company_name.trim(),
+          filtering_status: 'active',  // 기본값을 active로 변경
+          edi_status: 'active'       // 기본값을 active로 변경
+        }]);
       
       if (error) throw error;
       alert('제약사가 추가되었습니다.');
@@ -342,8 +486,49 @@ async function toggleStatus(company) {
   }
 }
 
+// 필터링 상태 토글
+async function toggleFilteringStatus(company) {
+  const newStatus = company.filtering_status === 'active' ? 'inactive' : 'active';
+  const { error } = await supabase
+    .from('pharmaceutical_companies')
+    .update({ filtering_status: newStatus })
+    .eq('id', company.id);
+  if (!error) {
+    company.filtering_status = newStatus;
+  } else {
+    alert('필터링 상태 변경에 실패했습니다.');
+  }
+}
+
+// EDI 상태 토글
+async function toggleEdiStatus(company) {
+  const newStatus = company.edi_status === 'active' ? 'inactive' : 'active';
+  const { error } = await supabase
+    .from('pharmaceutical_companies')
+    .update({ edi_status: newStatus })
+    .eq('id', company.id);
+  if (!error) {
+    company.edi_status = newStatus;
+  } else {
+    alert('EDI 상태 변경에 실패했습니다.');
+  }
+}
+
+// 필터링 안내 메시지 표시
+function showFilteringComment(company) {
+  commentDialogTitle.value = `${company.company_name} - 필터링 안내`;
+  commentDialogContent.value = company.filtering_comment;
+  showCommentDialog.value = true;
+}
+
+// EDI 안내 메시지 표시
+function showEdiComment(company) {
+  commentDialogTitle.value = `${company.company_name} - EDI 안내`;
+  commentDialogContent.value = company.edi_comment;
+  showCommentDialog.value = true;
+}
+
 onMounted(async () => {
   await fetchCompanies();
 });
 </script>
-

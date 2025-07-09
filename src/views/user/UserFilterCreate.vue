@@ -350,8 +350,21 @@ const fetchMyHospitals = async () => {
 };
 
 const fetchPharmas = async () => {
-  const { data, error } = await supabase.from('pharmaceutical_companies').select('*').order('company_name');
-  if (!error) allPharmas.value = data;
+  const { data, error } = await supabase
+    .from('pharmaceutical_companies')
+    .select('*')
+    .eq('filtering_status', 'active')  // 필터링이 활성화된 제약사만 조회
+    .order('company_name');
+  
+  if (!error) {
+    allPharmas.value = data;
+    // 필터링 안내 메시지가 있는 경우 모달로 표시
+    data.forEach(pharma => {
+      if (pharma.filtering_comment) {
+        alert(`[${pharma.company_name}] ${pharma.filtering_comment}`);
+      }
+    });
+  }
 };
 
 // 파일 변경 핸들러
@@ -459,7 +472,7 @@ onMounted(async () => {
 
 const activeSortedCompanies = computed(() => {
   return allPharmas.value
-    .filter(c => c.status === 'active')
+    .filter(c => c.filtering_status === 'active')  // 필터링 상태로 필터링
     .sort((a, b) => a.company_name.localeCompare(b.company_name, 'ko'));
 });
 

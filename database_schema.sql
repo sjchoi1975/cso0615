@@ -1,9 +1,31 @@
 -- 제약사 테이블
-CREATE TABLE IF NOT EXISTS pharmaceutical_companies (
-  id SERIAL PRIMARY KEY,
-  company_name VARCHAR(255) NOT NULL UNIQUE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE pharmaceutical_companies (
+    id SERIAL PRIMARY KEY,
+    company_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    filtering_status VARCHAR(20) DEFAULT 'inactive',
+    edi_status VARCHAR(20) DEFAULT 'inactive',
+    filtering_comment TEXT,
+    edi_comment TEXT
 );
+
+-- Add RLS policy
+ALTER TABLE pharmaceutical_companies ENABLE ROW LEVEL SECURITY;
+
+-- Allow read access for authenticated users
+CREATE POLICY "Allow read access for authenticated users"
+ON pharmaceutical_companies
+FOR SELECT
+TO authenticated
+USING (true);
+
+-- Allow all access for service_role
+CREATE POLICY "Allow all access for service_role"
+ON pharmaceutical_companies
+FOR ALL
+TO service_role
+USING (true)
+WITH CHECK (true);
 
 -- 병의원 테이블
 CREATE TABLE IF NOT EXISTS hospitals (
@@ -46,20 +68,9 @@ CREATE INDEX IF NOT EXISTS idx_filtering_requests_status ON filtering_requests(s
 CREATE INDEX IF NOT EXISTS idx_filtering_requests_request_date ON filtering_requests(request_date);
 
 -- RLS (Row Level Security) 설정
-ALTER TABLE pharmaceutical_companies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE hospitals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE hospital_member_mappings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE filtering_requests ENABLE ROW LEVEL SECURITY;
-
--- 제약사 테이블 정책 (관리자만 CRUD 가능)
-CREATE POLICY "Admin can manage pharmaceutical companies" ON pharmaceutical_companies
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM members 
-      WHERE id_email = auth.jwt() ->> 'email' 
-      AND role = 'admin'
-    )
-  );
 
 -- 병의원 테이블 정책 (모든 인증된 사용자 조회 가능, 관리자만 생성/수정)
 CREATE POLICY "Users can view hospitals" ON hospitals
@@ -220,6 +231,22 @@ BEGIN
   ORDER BY pc.company_name;
 END;
 $$ LANGUAGE plpgsql;
+
+-- 제약사 테이블에 새로운 컬럼 추가
+ALTER TABLE pharmaceutical_companies
+  ADD COLUMN IF NOT EXISTS filtering_status VARCHAR(20) DEFAULT 'inactive',
+  ADD COLUMN IF NOT EXISTS edi_status VARCHAR(20) DEFAULT 'inactive',
+  ADD COLUMN IF NOT EXISTS filtering_comment TEXT,
+  ADD COLUMN IF NOT EXISTS edi_comment TEXT;
+
+-- 기존 status 컬럼의 값을 filtering_status와 edi_status로 복사
+UPDATE pharmaceutical_companies
+SET filtering_status = status,
+    edi_status = status
+WHERE status IS NOT NULL;
+
+-- 기존 status 컬럼 삭제 (선택사항)
+-- ALTER TABLE pharmaceutical_companies DROP COLUMN IF EXISTS status;
 
 COMMIT;
 
