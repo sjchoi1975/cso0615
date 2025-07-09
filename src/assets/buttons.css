@@ -130,7 +130,7 @@
 
 /* 거래처 선택, 제약사 선택, 정산내역 상세 내역 보기 */
 .btn-select-wide {
-  padding: 0.4rem 0.5rem !important;
+  padding: 0.6rem 0.5rem !important;
   background: var(--gray-100) !important;
   border-color: var(--gray-500) !important;
   color: var(--text-primary) !important;

@@ -15,6 +15,7 @@
           :key="item.label"
         >
           <RouterLink
+            v-if="!item.onClick"
             :to="item.to"
             class="menu-item"
             @click="$emit('menu-click')"
@@ -24,6 +25,17 @@
               <span class="menu-label">{{ item.label }}</span>
             </div>
           </RouterLink>
+          <a
+            v-else
+            href="#"
+            class="menu-item"
+            @click.prevent="item.onClick"
+          >
+            <div class="menu-item-content">
+              <font-awesome-icon :icon="item.icon" class="menu-icon-fa" />
+              <span class="menu-label">{{ item.label }}</span>
+            </div>
+          </a>
         </div>
       </nav>
     </aside>
@@ -60,14 +72,31 @@ const adminMenu = [
   { label: 'EDI 증빙 파일', icon: ['far', 'file-lines'], to: '/admin/edi/list' },
   { label: '정산내역서', icon: ['fas', 'credit-card'], to: '/admin/settlement/month' },
 ];
+
+const goToEdiSubmit = async () => {
+  // 1. 가장 최근 정산월 id 조회
+  const today = new Date().toISOString().split('T')[0];
+  const { data: months } = await supabase
+    .from('edi_months')
+    .select('id')
+    .lte('start_date', today)
+    .gte('end_date', today)
+    .order('settlement_month', { ascending: false });
+  if (!months || months.length === 0) {
+    alert('제출 가능한 정산월이 없습니다.');
+    return;
+  }
+  const settlementMonthId = months[0].id;
+  router.push(`/edi/submit/${settlementMonthId}`);
+};
+
 const userMenu = [
   { label: '공지사항', icon: ['fas', 'bullhorn'], to: '/notice/list' },
   { label: '수수료율', icon: ['fas', 'pills'], to: '/products/list' },
   { label: '거래처', icon: ['far', 'hospital'], to: '/hospitals/list' },
   { label: '필터링 요청', icon: ['fas', 'filter'], to: '/filter/create' },
   { label: '필터링 내역', icon: ['fas', 'list-check'], to: '/filter/list' },
-  { label: 'EDI 제출', icon: ['fas', 'upload'], to: '/edi/submit' },
-  /*{ label: '제출 내역', icon: ['far', 'file-lines'], to: '/edi/list' },*/
+  { label: 'EDI 제출', icon: ['fas', 'upload'], onClick: goToEdiSubmit },
   { label: '정산내역서', icon: ['fas', 'credit-card'], to: '/settlement/month' },
 ];
 const menuItems = computed(() => props.userInfo?.role === 'admin' ? adminMenu : userMenu);

@@ -144,14 +144,28 @@ const router = createRouter({
       component: UserEdiList,
     },
     {
-      path: '/edi/submit',
+      path: '/edi/submit/:settlementMonthId',
       name: 'user-edi-submit',
       component: () => import('@/views/user/UserEdiSubmit.vue'),
+      props: true
     },
     {
-      path: '/edi/submit/upload',
+      path: '/edi/submit/:settlementMonthId/:hospitalId/detail',
+      name: 'UserEdiSubmitDetail',
+      component: () => import('@/views/user/UserEdiSubmitDetail.vue'),
+      props: true
+    },
+    {
+      path: '/edi/submit/:settlementMonthId/:hospitalId',
       name: 'UserEdiSubmitUpload',
-      component: () => import('@/views/user/UserEdiSubmitUpload.vue')
+      component: () => import('@/views/user/UserEdiSubmitUpload.vue'),
+      props: true
+    },
+    {
+      path: '/edi/submit/:settlementMonthId/:hospitalId/edit/:fileId',
+      name: 'UserEdiSubmitEdit',
+      component: () => import('@/views/user/UserEdiSubmitEdit.vue'),
+      props: true
     },
     {
       path: '/settlement/month',

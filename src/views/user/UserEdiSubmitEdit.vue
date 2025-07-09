@@ -1,17 +1,17 @@
 <template>
   <div class="board">
-    <form class="board-form" @submit.prevent="submit">
+    <form class="board-form" @submit.prevent="submitEdit">
       <!-- 파일 선택 -->
       <label class="title-sm">파일 선택<span class="required">*</span></label>
       <input type="file" multiple @change="handleFileSelect" class="input" style="margin-bottom:0rem;" />
       <ul v-if="selectedFiles.length > 0" style="margin-bottom:1.5rem; padding-left:0; list-style:none;">
         <li
           v-for="(file, idx) in selectedFiles"
-          :key="idx"
+          :key="file.url || file.name"
           class="selected-edi-file"
           style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: #eaf6fd; margin-bottom: 0rem;"
         >
-          <span>{{ file.name }}</span>
+          <span>{{ file.original_name || file.name }}</span>
           <button
             type="button"
             @click="removeFile(idx)"
@@ -45,7 +45,7 @@
 
       <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
         <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="isSubmitting || !selectedFiles.length || !selectedCompanies.length" style="flex:2;">{{ isSubmitting ? '제출 중...' : '등록' }}</button>
+        <button type="submit" class="btn-confirm" :disabled="isSubmitting || !selectedFiles.length || !selectedCompanies.length" style="flex:2;">{{ isSubmitting ? '수정 중...' : '수정' }}</button>
       </div>
     </form>
 
@@ -78,24 +78,31 @@ import { ref, onMounted, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter, useRoute } from 'vue-router';
 
+const route = useRoute();
+const router = useRouter();
+const fileId = route.params.fileId; // 수정할 edi_files의 id
+
 const selectedFiles = ref([]);
 const companies = ref([]);
 const selectedCompanies = ref([]);
 const showCompanyModal = ref(false);
 const memo = ref('');
 const isSubmitting = ref(false);
-const router = useRouter();
-const route = useRoute();
 const companySearch = ref('');
 
-function handleFileSelect(e) {
-  const newFiles = Array.from(e.target.files);
-  selectedFiles.value = [...selectedFiles.value, ...newFiles];
-}
-
 onMounted(async () => {
+  // 기존 데이터 불러오기
+  const { data: fileRow } = await supabase.from('edi_files').select('files, memo').eq('id', fileId).single();
+  selectedFiles.value = fileRow?.files || [];
+  memo.value = fileRow?.memo || '';
+
+  // 제약사 전체 목록
   const { data } = await supabase.from('pharmaceutical_companies').select('id, company_name').order('company_name');
   companies.value = data || [];
+
+  // 선택된 제약사 목록
+  const { data: companyRows } = await supabase.from('edi_file_companies').select('company_id, pharmaceutical_companies(company_name)').eq('edi_file_id', fileId);
+  selectedCompanies.value = (companyRows || []).map(c => ({ id: c.company_id, company_name: c.pharmaceutical_companies?.company_name || '' }));
 });
 
 const filteredCompanies = computed(() => {
@@ -103,7 +110,6 @@ const filteredCompanies = computed(() => {
   if (companySearch.value) {
     arr = arr.filter(c => c.company_name.includes(companySearch.value));
   }
-  // 한글 가나다 정렬
   return [...arr].sort((a, b) => (a.company_name || '').localeCompare(b.company_name || '', 'ko'));
 });
 
@@ -121,58 +127,32 @@ function removeCompany(id) {
 function goBack() {
   router.back();
 }
-
 function removeFile(idx) {
   selectedFiles.value.splice(idx, 1);
 }
 
-async function submit() {
+async function submitEdit() {
   if (!selectedFiles.value.length || !selectedCompanies.value.length) return;
   isSubmitting.value = true;
-  const uploadedFiles = [];
-  for (const [idx, file] of selectedFiles.value.entries()) {
-    // 파일명 안전하게 변환 (영문+숫자+확장자)
-    const ext = file.name.split('.').pop();
-    const safeName = `edi_${Date.now()}_${idx}.${ext}`;
-    const filePath = `edi_files/${safeName}`;
-    const { data: uploadData, error: uploadError } = await supabase.storage.from('edi-uploads').upload(filePath, file);
-    if (uploadError) {
-      alert('파일 업로드 실패: ' + file.name);
-      isSubmitting.value = false;
-      return;
-    }
-    const { data: { publicUrl } } = supabase.storage.from('edi-uploads').getPublicUrl(uploadData.path);
-    // 원래 파일명과 저장 경로를 함께 저장
-    uploadedFiles.push({ original_name: file.name, url: publicUrl });
-  }
-  // 라우트 파라미터에서 정산월, 병원ID 추출
-  const settlementMonthId = route.params.settlementMonthId;
-  const hospitalId = route.params.hospitalId;
-  // 로그인 유저 정보 가져오기
-  const { data: { user } } = await supabase.auth.getUser();
-  const memberId = user?.id;
-  const { data: fileRow, error: fileError } = await supabase.from('edi_files').insert({
-    files: uploadedFiles,
-    memo: memo.value,
-    settlement_month_id: settlementMonthId,
-    hospital_id: hospitalId,
-    member_id: memberId
-  }).select().single();
+  // 파일 정보는 이미 업로드된 상태라고 가정 (수정 시 파일 추가/삭제만 반영)
+  const { error: fileError } = await supabase.from('edi_files').update({
+    files: selectedFiles.value,
+    memo: memo.value
+  }).eq('id', fileId);
   if (fileError) {
-    alert('DB 저장 실패: ' + JSON.stringify(fileError));
+    alert('DB 저장 실패');
     isSubmitting.value = false;
     return;
   }
+  // 제약사 매핑 갱신: 기존 삭제 후 새로 추가
+  await supabase.from('edi_file_companies').delete().eq('edi_file_id', fileId);
   for (const company of selectedCompanies.value) {
     await supabase.from('edi_file_companies').insert({
-      edi_file_id: fileRow.id,
+      edi_file_id: fileId,
       company_id: company.id
     });
   }
-  alert('제출 완료!');
-  selectedFiles.value = [];
-  selectedCompanies.value = [];
-  memo.value = '';
+  alert('수정 완료!');
   isSubmitting.value = false;
   router.back();
 }

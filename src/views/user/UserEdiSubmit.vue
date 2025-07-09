@@ -6,7 +6,11 @@
       <div class="filter-card custom-auto-height">
         <div class="filter-row">
           <div class="p-input-icon-right" style="width: 100%;">
-            <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search" />
+            <input 
+              v-model="search" 
+              placeholder="거래처명, 원장명, 사업자번호, 주소 검색" 
+              class="input-search"
+            />
           </div>
         </div>
       </div>
@@ -47,7 +51,18 @@
                   {{ slotProps.data.current_month_files }}
                 </span>
               </span>
-              <Button v-else-if="col.type === 'button'" icon="pi pi-upload" class="p-button-text" @click="goToUpload(slotProps.data)" />
+              <Button
+                v-else-if="col.field === 'submit_button'"
+                icon="pi pi-upload"
+                class="p-button-text"
+                @click="goToUpload(slotProps.data)"
+              />
+              <Button
+                v-else-if="col.field === 'viewDetail'"
+                icon="pi pi-list"
+                class="p-button-text"
+                @click="goToDetail(slotProps.data)"
+              />
               <span v-else>{{ slotProps.data[col.field] }}</span>
             </template>
           </Column>
@@ -190,9 +205,9 @@ const fetchMappedHospitals = async () => {
 
   const { data: files, error: filesError } = await supabase
     .from('edi_files')
-    .select('hospital_id, submission_period_id')
+    .select('hospital_id, settlement_month_id, files')
     .in('hospital_id', hospitalIds)
-    .in('submission_period_id', periodIds)
+    .in('settlement_month_id', periodIds)
     .eq('is_deleted', false);
 
   if (filesError) {
@@ -200,8 +215,9 @@ const fetchMappedHospitals = async () => {
   }
   
   const fileCounts = (files || []).reduce((acc, file) => {
-    const key = `${file.hospital_id}-${file.submission_period_id}`;
-    acc[key] = (acc[key] || 0) + 1;
+    const key = `${file.hospital_id}-${file.settlement_month_id}`;
+    const fileCount = Array.isArray(file.files) ? file.files.length : 0;
+    acc[key] = (acc[key] || 0) + fileCount;
     return acc;
   }, {});
 
@@ -259,6 +275,14 @@ function goToFileDetail(hospital) {
   router.push({ path: `/edi/submit/${selectedMonth.value.id}/${hospital.id}` });
 }
 
+function goToDetail(row) {
+  console.log('goToDetail 호출', row, selectedMonth.value);
+  if (!selectedMonth.value || !row.id) return;
+  const path = `/edi/submit/${selectedMonth.value.id}/${row.id}/detail`;
+  console.log('이동 경로:', path);
+  router.push(path);
+}
+
 function getRemainDays(endDate) {
   const today = new Date();
   const end = new Date(endDate);
@@ -269,18 +293,22 @@ function getRemainDays(endDate) {
   return diff >= 0 ? diff : 0;
 }
 
-function goToUpload(hospital) {
-  if (!selectedMonth.value) return;
-  router.push({ path: `/edi/submit/upload?month=${selectedMonth.value.id}&hospital=${hospital.id}` });
+function goToUpload(row) {
+  if (!selectedMonth.value || !row.id) return;
+  router.push(`/edi/submit/${selectedMonth.value.id}/${row.id}`);
 }
 
 onMounted(async () => {
   window.addEventListener('resize', handleResize);
   await fetchUserData();
   await fetchPrescriptionMonths();
-  if (isSubmissionPeriod.value) {
-    await fetchMappedHospitals();
-  }
+  await fetchMappedHospitals();
+  // 자동 리다이렉트 코드 제거 (아래 코드 삭제)
+  // if (selectedMonth.value && mappedHospitals.value.length > 0) {
+  //   const settlementMonth = selectedMonth.value.settlement_month;
+  //   const hospitalId = mappedHospitals.value[0].id;
+  //   router.replace(`/edi/submit/${settlementMonth}/${hospitalId}`);
+  // }
 });
 
 onUnmounted(() => {
