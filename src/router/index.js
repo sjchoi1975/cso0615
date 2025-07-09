@@ -162,7 +162,7 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/edi/submit/:settlementMonthId/:hospitalId/edit/:fileId',
+      path: '/edi/submit/:settlementMonthId/:hospitalId/:fileId/edit',
       name: 'UserEdiSubmitEdit',
       component: () => import('@/views/user/UserEdiSubmitEdit.vue'),
       props: true

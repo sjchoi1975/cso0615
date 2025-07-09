@@ -31,7 +31,7 @@
         <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
           <button type="button" class="btn-warning" style="min-width: 80px;" @click="goToEdit(item.id)">수정하기</button>
         </div>
-        <hr v-if="idx < fileHistory.length - 1" />
+        <hr style="margin-top: 2rem; margin-bottom: 2rem;" v-if="idx < fileHistory.length - 1" />
       </div>
     </div>
     </form>
@@ -45,6 +45,7 @@ import { useRouter, useRoute } from 'vue-router';
 
 const fileHistory = ref([]);
 const loading = ref(true);
+const router = useRouter();
 const route = useRoute();
 const settlementMonthId = route.params.settlementMonthId;
 const hospitalId = route.params.hospitalId;
@@ -55,7 +56,7 @@ function formatDate(dateStr) {
 }
 
 function goToEdit(fileId) {
-  router.push(`/edi/submit/${settlementMonthId}/${hospitalId}/edit/${fileId}`);
+  router.push(`/edi/submit/${settlementMonthId}/${hospitalId}/${fileId}/edit`);
 }
 
 onMounted(async () => {

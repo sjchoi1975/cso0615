@@ -80,7 +80,9 @@ import { useRouter, useRoute } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
-const fileId = route.params.fileId; // 수정할 edi_files의 id
+const settlementMonthId = route.params.settlementMonthId;
+const hospitalId = route.params.hospitalId;
+const fileId = route.params.fileId;
 
 const selectedFiles = ref([]);
 const companies = ref([]);
@@ -89,6 +91,11 @@ const showCompanyModal = ref(false);
 const memo = ref('');
 const isSubmitting = ref(false);
 const companySearch = ref('');
+
+function handleFileSelect(e) {
+  const newFiles = Array.from(e.target.files);
+  selectedFiles.value = [...selectedFiles.value, ...newFiles];
+}
 
 onMounted(async () => {
   // 기존 데이터 불러오기
