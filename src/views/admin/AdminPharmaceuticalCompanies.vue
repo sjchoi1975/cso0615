@@ -90,24 +90,24 @@
               </template>
               <template v-else-if="col.field === 'filtering_comment'">
                 <div class="comment-cell">
-                  <span :title="slotProps.data.filtering_comment">{{ slotProps.data.filtering_comment }}</span>
-                  <i 
+                  <a 
                     v-if="slotProps.data.filtering_comment"
-                    class="pi pi-info-circle"
-                    style="margin-left: 8px; cursor: pointer;"
+                    class="link"
                     @click="showFilteringComment(slotProps.data)"
-                  ></i>
+                  >
+                    {{ slotProps.data.filtering_comment }}
+                  </a>
                 </div>
               </template>
               <template v-else-if="col.field === 'edi_comment'">
                 <div class="comment-cell">
-                  <span :title="slotProps.data.edi_comment">{{ slotProps.data.edi_comment }}</span>
-                  <i 
+                  <a 
                     v-if="slotProps.data.edi_comment"
-                    class="pi pi-info-circle"
-                    style="margin-left: 8px; cursor: pointer;"
+                    class="link"
                     @click="showEdiComment(slotProps.data)"
-                  ></i>
+                  >
+                    {{ slotProps.data.edi_comment }}
+                  </a>
                 </div>
               </template>
               <template v-else-if="col.field === 'created_at'">
@@ -149,10 +149,14 @@
             <label>필터링</label>
             <div class="status-input">
               <div
-                class="custom-toggle-wrap"
-                style="display: flex;
-                justify-content: flex-start;
-                margin-bottom: 1rem;"
+                class="custom-toggle-wrap custom-toggle-wrap-left" 
+                style="
+                  display: flex; 
+                  justify-content: flex-start; 
+                  margin-bottom: 1rem;
+                  width: 100%;
+                  padding-left: 0;
+                "
               >
                 <input
                   type="checkbox"
@@ -164,7 +168,9 @@
                 />
                 <label
                   :for="'modal-filtering-status'" 
-                  class="custom-toggle-label">
+                  class="custom-toggle-label"
+                  style="margin-left: 0;"
+                >
                 </label>
               </div>
               <textarea
@@ -180,10 +186,13 @@
             <label>EDI 증빙 파일</label>
             <div class="status-input">
               <div
-                class="custom-toggle-wrap" 
-                style="display: flex; 
-                justify-content: flex-start; 
-                margin-bottom: 1rem;"
+                class="custom-toggle-wrap custom-toggle-wrap-left" 
+                style="
+                  display: flex; 
+                  justify-content: flex-start; 
+                  margin-bottom: 1rem;
+                  width: 100%;
+                  padding-left: 0;"
               >
                 <input
                   type="checkbox"
@@ -195,7 +204,9 @@
                 />
                 <label
                   :for="'modal-edi-status'" 
-                  class="custom-toggle-label">
+                  class="custom-toggle-label"
+                  style="margin-left: 0;"
+                >
                 </label>
               </div>
               <textarea
@@ -219,15 +230,19 @@
     </div>
 
     <!-- 상태 안내 메시지 모달 -->
-    <Dialog 
-      v-model:visible="showCommentDialog"
-      :header="commentDialogTitle"
-      :modal="true"
-      :closable="true"
-      :style="{ width: '90%', maxWidth: '500px' }"
-    >
-      <p style="white-space: pre-line;">{{ commentDialogContent }}</p>
-    </Dialog>
+    <div v-if="showCommentDialog" class="custom-modal-overlay" @click.self="showCommentDialog = false">
+      <div class="custom-modal">
+        <div class="modal-header">
+          <div class="modal-title">{{ commentDialogTitle }}</div>
+        </div>
+        <div class="modal-body">
+          <div style="white-space: pre-line;">{{ commentDialogContent }}</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel modal" @click="showCommentDialog = false">닫기</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -514,21 +529,22 @@ async function toggleEdiStatus(company) {
   }
 }
 
-// 필터링 안내 메시지 표시
-function showFilteringComment(company) {
-  commentDialogTitle.value = `${company.company_name} - 필터링 안내`;
+// 필터링 상태 메시지 표시
+const showFilteringComment = (company) => {
+  commentDialogTitle.value = '필터링 전달사항';
   commentDialogContent.value = company.filtering_comment;
   showCommentDialog.value = true;
-}
+};
 
-// EDI 안내 메시지 표시
-function showEdiComment(company) {
-  commentDialogTitle.value = `${company.company_name} - EDI 안내`;
+// EDI 상태 메시지 표시
+const showEdiComment = (company) => {
+  commentDialogTitle.value = 'EDI 증빙파일 전달사항';
   commentDialogContent.value = company.edi_comment;
   showCommentDialog.value = true;
-}
+};
 
 onMounted(async () => {
   await fetchCompanies();
 });
 </script>
+

@@ -134,6 +134,32 @@
         </div>
       </div>
     </div>
+
+    <!-- 전달사항 모달 -->
+    <div v-if="showCommentDialog" class="custom-modal-overlay">
+      <div class="custom-modal">
+        <div class="modal-header">
+          <h3 class="modal-title">전달사항 확인</h3>
+        </div>
+        <div class="modal-body">
+          <div class="comment-content">
+            <template v-for="(pharma, index) in tempSelectedPharmas.filter(p => p.filtering_comment)" :key="pharma.id">
+              <p class="pharma-name">[{{ pharma.company_name }}]</p>
+              <p class="comment-text">{{ pharma.filtering_comment }}</p>
+              <div v-if="index < tempSelectedPharmas.filter(p => p.filtering_comment).length - 1" class="comment-divider"></div>
+            </template>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn-cancel" 
+            @click="confirmCommentDialog" 
+            style="flex:1;">
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -178,6 +204,9 @@ const currentUser = ref(null);
 
 const licenseFile = ref(null);
 
+const showCommentDialog = ref(false);
+const commentDialogContent = ref('');
+
 // 폼 유효성 검사
 const isFormValid = computed(() => {
   const hasValidHospital = hospitalSelectionType.value === 'existing' 
@@ -196,8 +225,12 @@ const filteredModalItems = computed(() => {
     return myHospitals.value.filter(h => h.hospital_name.toLowerCase().includes(modalSearch.value.toLowerCase()));
   }
   if (modalType.value === 'pharma') {
-    if (!modalSearch.value) return allPharmas.value;
-    return allPharmas.value.filter(p => p.company_name.toLowerCase().includes(modalSearch.value.toLowerCase()));
+    let filtered = allPharmas.value;
+    if (modalSearch.value) {
+      filtered = filtered.filter(p => p.company_name.toLowerCase().includes(modalSearch.value.toLowerCase()));
+    }
+    // 한글 가나다순 정렬
+    return filtered.sort((a, b) => a.company_name.localeCompare(b.company_name, 'ko-KR'));
   }
   return [];
 });
@@ -251,10 +284,37 @@ const togglePharmaSelection = (pharma) => {
 const confirmSelection = () => {
   if (modalType.value === 'hospital' && tempSelectedHospital.value) {
     hospitalInfo.value = { ...tempSelectedHospital.value };
+    closeModal();
   }
   if (modalType.value === 'pharma') {
-    selectedPharmas.value = [...tempSelectedPharmas.value];
+    // 새로 선택된 제약사들만 확인
+    const newSelectedPharmas = tempSelectedPharmas.value.filter(
+      newPharma => !selectedPharmas.value.some(
+        existingPharma => existingPharma.id === newPharma.id
+      )
+    );
+    
+    // 새로 선택된 제약사들 중 전달사항이 있는 것들을 확인
+    const pharmasWithComments = newSelectedPharmas.filter(p => p.filtering_comment);
+    
+    if (pharmasWithComments.length > 0) {
+      // 전달사항이 있는 경우 모달 표시
+      commentDialogContent.value = pharmasWithComments
+        .map(p => `[${p.company_name}]\n${p.filtering_comment}`)
+        .join('\n\n');
+      showCommentDialog.value = true;
+    } else {
+      // 전달사항이 없는 경우 바로 선택 완료
+      selectedPharmas.value = [...tempSelectedPharmas.value];
+      closeModal();
+    }
   }
+};
+
+// 전달사항 확인 후 선택 완료
+const confirmCommentDialog = () => {
+  showCommentDialog.value = false;
+  selectedPharmas.value = [...tempSelectedPharmas.value];
   closeModal();
 };
 
@@ -358,12 +418,8 @@ const fetchPharmas = async () => {
   
   if (!error) {
     allPharmas.value = data;
-    // 필터링 안내 메시지가 있는 경우 모달로 표시
-    data.forEach(pharma => {
-      if (pharma.filtering_comment) {
-        alert(`[${pharma.company_name}] ${pharma.filtering_comment}`);
-      }
-    });
+  } else {
+    console.error('제약사 데이터 조회 실패:', error);
   }
 };
 
@@ -493,5 +549,30 @@ console.log(activeSortedCompanies.value);
 }
 .check-icon {
   font-weight: bold;
+}
+
+/* 전달사항 모달 */
+.comment-content {
+  padding: 1rem;
+}
+.pharma-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+}
+.comment-text {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #555;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+}
+
+.comment-divider {
+  height: 1px;
+  background-color: #dee2e6;
+  margin: 1rem 0;
 }
 </style>

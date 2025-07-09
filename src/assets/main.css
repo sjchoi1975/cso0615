@@ -1301,6 +1301,12 @@ div.v3dp__datepicker input[type="text"]:focus,
   align-items: center !important;
   height: 1.4rem !important;
 }
+/* 왼쪽 정렬 */
+.custom-toggle-wrap-left {
+  justify-content: flex-start !important;
+  align-items: center !important;
+}
+
 .custom-toggle-checkbox {
   display: none !important;
 }
