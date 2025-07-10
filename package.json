@@ -20,6 +20,7 @@
     "@fullcalendar/vue3": "^6.1.17",
     "@primevue/themes": "^4.3.6",
     "@supabase/supabase-js": "^2.50.0",
+    "cropperjs": "^2.0.0",
     "datatable": "^2.0.2",
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.13",

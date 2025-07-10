@@ -80,9 +80,9 @@
                 icon="pi pi-list"
                 class="p-button-text"
                 @click="goToDetail(slotProps.data)"
-                :disabled="slotProps.data.current_month_files === '-' && slotProps.data.last_month_files === '-'"
-                :class="{ 'p-disabled': slotProps.data.current_month_files === '-' && slotProps.data.last_month_files === '-' }"
-                :style="(slotProps.data.current_month_files === '-' && slotProps.data.last_month_files === '-') ? 'opacity: 0.4;' : ''"
+                :disabled="!slotProps.data.current_month_files || slotProps.data.current_month_files === 0"
+                :class="{ 'p-disabled': !slotProps.data.current_month_files || slotProps.data.current_month_files === 0 }"
+                :style="(!slotProps.data.current_month_files || slotProps.data.current_month_files === 0) ? 'opacity: 0.4;' : ''"
               />
               <Button
                 v-else-if="col.field === 'submit_button'"
@@ -193,7 +193,7 @@ const fetchMappedHospitals = async () => {
   
   const { data: hospitalMappings, error: hospitalError } = await supabase
     .from('hospital_member_mappings')
-    .select('hospitals (*)')
+    .select('hospital_id, hospitals (*)')
     .eq('member_id', userInfo.value.id);
 
   if (hospitalError) {
@@ -213,43 +213,29 @@ const fetchMappedHospitals = async () => {
   const hospitals = hospitalMappings
     .map(item => item.hospitals)
     .sort((a, b) => a.hospital_name.localeCompare(b.hospital_name, 'ko'));
-    
-  const hospitalIds = hospitals.map(h => h.id);
-  
+
+  const hospitalIds = hospitalMappings.map(h => h.hospital_id);
   const currentMonthId = selectedMonth.value.id;
-  const currentMonthStr = selectedMonth.value.settlement_month;
-  const [year, month] = currentMonthStr.split('-').map(Number);
-  const lastMonthDate = new Date(year, month - 2, 1);
-  const lastMonthYear = lastMonthDate.getFullYear();
-  const lastMonthMonth = (lastMonthDate.getMonth() + 1).toString().padStart(2, '0');
-  const lastMonthStr = `${lastMonthYear}-${lastMonthMonth}`;
 
-  const { data: lastMonthData } = await supabase.from('edi_months').select('id').eq('settlement_month', lastMonthStr).single();
-  const lastMonthId = lastMonthData?.id;
-  
-  const periodIds = [currentMonthId];
-  if (lastMonthId) periodIds.push(lastMonthId);
-
+  // edi_files에서 settlement_month_id, member_id, hospital_id 기준으로 조회
   const { data: ediFiles, error: ediError } = await supabase
     .from('edi_files')
-    .select('id, confirm')
-    .eq('settlement_month', selectedMonth.value.settlement_month)
-    .eq('company_id', userInfo.value.company_id)
-    .eq('is_deleted', false);
+    .select('id, hospital_id, member_id, settlement_month_id, confirm')
+    .eq('settlement_month_id', currentMonthId)
+    .eq('member_id', userInfo.value.id)
+    .in('hospital_id', hospitalIds);
 
   if (ediError) {
     console.error('Error fetching EDI files:', ediError);
   }
 
-  // 병원 데이터에 파일 정보 매핑
   allMappedHospitals.value = hospitalMappings.map(mapping => {
     const hospital = mapping.hospitals;
-    const hospitalFiles = ediFiles?.filter(file => file.client_id === hospital.id) || [];
-    const isConfirmed = hospitalFiles.some(file => file.confirm);
-
+    const fileCount = ediFiles?.filter(file => file.hospital_id === mapping.hospital_id).length || 0;
+    const isConfirmed = ediFiles?.some(file => file.hospital_id === mapping.hospital_id && file.confirm) || false;
     return {
       ...hospital,
-      current_month_files: hospitalFiles.length || '-',
+      current_month_files: fileCount > 0 ? fileCount : '-',
       confirm: isConfirmed
     };
   });
@@ -261,7 +247,7 @@ const fetchMappedHospitals = async () => {
 const applySearch = () => {
   const query = search.value.toLowerCase();
   if (!query) {
-    mappedHospitals.value = [...allMappedHospitals.value];
+    mappedHospitals.value = [...allMappedHospitals.value].sort((a, b) => a.hospital_name.localeCompare(b.hospital_name, 'ko'));
     return;
   }
   mappedHospitals.value = allMappedHospitals.value.filter(h =>
@@ -269,7 +255,7 @@ const applySearch = () => {
     h.director_name?.toLowerCase().includes(query) ||
     h.business_registration_number?.replace(/-/g, '').includes(query) ||
     h.address?.toLowerCase().includes(query)
-  );
+  ).sort((a, b) => a.hospital_name.localeCompare(b.hospital_name, 'ko'));
 };
 
 const clearSearch = () => {

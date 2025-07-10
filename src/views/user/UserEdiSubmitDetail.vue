@@ -108,12 +108,16 @@ onMounted(async () => {
     const { data } = await supabase.from('hospitals').select('hospital_name').eq('id', hospitalId).single();
     hospitalName.value = data?.hospital_name || '';
   }
-  // edi_files 조회 (특정 월+병원)
+  // 로그인 사용자 id 가져오기
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
+  // edi_files 조회 (특정 월+병원+본인)
   const { data: files, error } = await supabase
     .from('edi_files')
-    .select('id, created_at, files, memo')
+    .select('id, created_at, file_url, file_name, memo')
     .eq('settlement_month_id', settlementMonthId)
     .eq('hospital_id', hospitalId)
+    .eq('member_id', userId)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -130,7 +134,7 @@ onMounted(async () => {
       .eq('edi_file_id', file.id);
     result.push({
       ...file,
-      files: Array.isArray(file.files) ? file.files : [],
+      files: [{ url: file.file_url, original_name: file.file_name }],
       companies: (companies || []).map(c => ({
         id: c.company_id,
         name: c.pharmaceutical_companies?.company_name || ''

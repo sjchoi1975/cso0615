@@ -8,6 +8,7 @@
     <link href="https://unpkg.com/primevue@3/resources/primevue.min.css" rel="stylesheet">
     <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
         body {
             margin: 0;
@@ -23,13 +24,80 @@
             flex: 1;
             min-width: 0;
             background: #fff;
-            border: 1px solid #d0d0d0;
-            border-radius: 2px;
+            border: 1px solid #bbb;
+            border-radius: 4px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            user-select: none;
+            opacity: 0.5;
+        }
+        .nav-arrow:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 1;
+        }
+        .nav-arrow.left {
+            left: 20px;
+        }
+        .nav-arrow.right {
+            right: 20px;
+        }
+        
+        .toolbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0);
+            padding: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+        .toolbar-btn {
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+        .toolbar-btn:hover {
+            background-color: rgba(0, 0, 0, 0.35);
+        }
+        .toolbar-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: rgba(0, 0, 0, 0.25);
+        }
+
         .info-section {
             width: 400px;
             background: #f8f9fa;
@@ -46,7 +114,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #fff;
+            background: #ffffff;
         }
         .preview-image img {
             max-width: 100%;
@@ -192,15 +260,40 @@
             color: #fff !important;
         }
 
-
-</style>
+        .confirm-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 20;
+            padding: 0.35rem 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: #333;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            user-select: none;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="preview-section">
+            <div id="confirmBadge" class="confirm-badge">상태</div>
             <div class="preview-image">
                 <img id="previewImage" src="" alt="파일 미리보기">
             </div>
+            <div class="toolbar">
+                <div class="toolbar-btn" onclick="zoomIn()" title="확대"><i class="pi pi-search-plus"></i></div>
+                <div class="toolbar-btn" onclick="zoomOut()" title="축소"><i class="pi pi-search-minus"></i></div>
+                <div class="toolbar-btn" onclick="rotateImage(-90)" title="좌회전"><i class="pi pi-undo"></i></div>
+                <div class="toolbar-btn" onclick="rotateImage(90)" title="우회전"><i class="pi pi-refresh"></i></div>
+                <div class="toolbar-btn" onclick="toggleCrop()" title="크롭">✂</div>
+                <div class="toolbar-btn disabled" id="resetBtn" onclick="resetAll()" title="초기화"><i class="pi pi-history"></i></div>
+                <div class="toolbar-btn disabled" id="saveBtn" onclick="saveEdits()" title="저장"><i class="pi pi-save"></i></div>
+            </div>
+            <div class="nav-arrow left" onclick="navigateTo(-1)">&lt;</div>
+            <div class="nav-arrow right" onclick="navigateTo(1)">&gt;</div>
         </div>
         <div class="info-section">
             <div class="info-row">
@@ -243,30 +336,242 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
+        let allFiles = [];
+        let currentIndex = -1;
+        let cropper = null;
+        let isEdited = false;
+        let isCropping = false;
         let selectedCompanies = [];
         let allCompanies = [];
-        let currentFileId = null;
+        
+        async function initialize(files, index) {
+            if (isEdited) {
+                resetAll();
+            }
+            isEdited = false;
+            isCropping = false;
+            updateActionButtons();
+            
+            allFiles = files;
+            currentIndex = index;
+            
+            const currentFile = allFiles[currentIndex];
+            if (!currentFile) return;
 
-        function formatDateTime(dateTime) {
-            if (!dateTime) return '-';
-            return new Date(dateTime).toLocaleString('sv-SE').slice(0, 16);
+            // 확인 상태 뱃지 표시
+            const confirmBadge = document.getElementById('confirmBadge');
+            if (currentFile.confirm) {
+                confirmBadge.textContent = '확인';
+                confirmBadge.style.background = '#1976d2';
+                confirmBadge.style.color = '#fff';
+            } else {
+                confirmBadge.textContent = '미확인';
+                confirmBadge.style.background = '#333';
+                confirmBadge.style.color = '#fff';
+            }
+
+            const previewImage = document.getElementById('previewImage');
+            previewImage.src = currentFile.file_url;
+            
+            previewImage.onload = () => {
+                setupCropper();
+            };
+
+            document.getElementById('companyName').textContent = currentFile.company_name || '-';
+            document.getElementById('hospitalName').textContent = currentFile.hospital_name || '-';
+            document.getElementById('memo').textContent = currentFile.memo || '-';
+            document.getElementById('createdAt').textContent = new Date(currentFile.created_at).toLocaleString('sv-SE').slice(0, 16);
+            document.getElementById('createdBy').textContent = currentFile.created_by_name || '-';
+            
+            // 제약사 정보 로드 및 표시
+            await loadAndRenderCompanies(currentFile.id);
+            updateNavButtons();
         }
 
-        function updateFileInfo(file) {
-            document.getElementById('previewImage').src = file.file_url;
-            document.getElementById('companyName').textContent = file.company_name || '-';
-            document.getElementById('hospitalName').textContent = file.hospital_name || '-';
-            document.getElementById('memo').textContent = file.memo || '-';
-            document.getElementById('createdAt').textContent = formatDateTime(file.created_at);
-            document.getElementById('createdBy').textContent = file.created_by_name || '-';
-            currentFileId = file.id;
+        function setupCropper() {
+            if (cropper) {
+                cropper.destroy();
+            }
+            const previewImage = document.getElementById('previewImage');
+            const options = {
+                viewMode: 0,
+                dragMode: 'move',
+                autoCrop: false,
+                background: false,
+                zoomable: true,
+                zoomOnWheel: true,
+                responsive: true,
+            };
+            cropper = new Cropper(previewImage, options);
         }
 
-        function updateCompanies(selected, unselected) {
-            selectedCompanies = selected.map(c => c.id);
-            allCompanies = [...selected, ...unselected];
+        function setEdited() {
+            isEdited = true;
+            updateActionButtons();
+        }
+
+        function updateActionButtons() {
+            const resetBtn = document.getElementById('resetBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            if (isEdited) {
+                resetBtn.classList.remove('disabled');
+                saveBtn.classList.remove('disabled');
+            } else {
+                resetBtn.classList.add('disabled');
+                saveBtn.classList.add('disabled');
+            }
+        }
+
+        function toggleCrop() {
+            if (!cropper) return;
+            isCropping = !isCropping;
+            cropper.clear();
+            if (isCropping) {
+                cropper.crop();
+                setEdited();
+            }
+        }
+
+        function rotateImage(degree) {
+            if (cropper) {
+                cropper.rotate(degree);
+                setEdited();
+            }
+        }
+
+        function resetAll() {
+            if (cropper) {
+                cropper.reset();
+                cropper.clear();
+            }
+            isEdited = false;
+            isCropping = false;
+            updateActionButtons();
+        }
+
+        function saveEdits() {
+            if (!isEdited || !cropper) return;
+            // 기존 saveCrop 로직 호출
+            saveCrop();
+        }
+
+        function saveCrop() {
+            if (!cropper) return;
+
+            cropper.getCroppedCanvas().toBlob(async (blob) => {
+                if (!blob) {
+                    alert('이미지를 처리할 수 없습니다.');
+                    return;
+                }
+
+                const currentFile = allFiles[currentIndex];
+                let originalName = currentFile.original_file_name || 'edited_image.png';
+                originalName = originalName.replace(/[^a-zA-Z0-9._-]/g, '_'); // Sanitize file name
+                
+                const fileExtension = originalName.split('.').pop();
+                const baseName = originalName.substring(0, originalName.lastIndexOf('.'));
+                const newFileName = `${baseName}_${Date.now()}.${fileExtension}`;
+                const filePath = `edi-files/${newFileName}`;
+
+                try {
+                    // 1. Supabase Storage에 업로드
+                    const { data: uploadData, error: uploadError } = await window.opener.supabase
+                        .storage
+                        .from('edi-files')
+                        .upload(filePath, blob, {
+                            cacheControl: '3600',
+                            upsert: false
+                        });
+
+                    if (uploadError) throw uploadError;
+
+                    // 2. 업로드된 파일의 Public URL 가져오기
+                    const { data: urlData } = window.opener.supabase
+                        .storage
+                        .from('edi-files')
+                        .getPublicUrl(filePath);
+
+                    // 3. edi_files 테이블 업데이트
+                    const { error: dbError } = await window.opener.supabase
+                        .from('edi_files')
+                        .update({
+                            file_url: urlData.publicUrl,
+                            file_name: newFileName // 또는 original_file_name 유지
+                        })
+                        .eq('id', currentFile.id);
+
+                    if (dbError) throw dbError;
+
+                    // 4. 부모창 목록 새로고침 및 팝업 갱신
+                    alert('이미지가 성공적으로 저장되었습니다.');
+                    await window.opener.fetchFiles(); // 부모창 목록 새로고침
+                    
+                    const updatedParentFiles = window.opener.getFilesForPopup();
+                    initialize(updatedParentFiles, currentIndex);
+
+                } catch (error) {
+                    console.error('Error saving image:', error);
+                    alert(`이미지 저장 중 오류가 발생했습니다: ${error.message}`);
+                }
+            }, 'image/png');
+        }
+
+        function zoomIn() {
+            if (cropper) cropper.zoom(0.1);
+        }
+
+        function zoomOut() {
+            if (cropper) cropper.zoom(-0.1);
+        }
+
+        async function loadAndRenderCompanies(fileId) {
+            // 모든 제약사 목록 가져오기
+            const { data: companies, error: companiesError } = await window.opener.supabase
+                .from('pharmaceutical_companies')
+                .select('id, company_name')
+                .order('company_name', { ascending: true });
+
+            if (companiesError) {
+                console.error('Error fetching pharmaceutical companies:', companiesError);
+                return;
+            }
+            allCompanies = companies;
+
+            // 현재 파일에 매핑된 제약사 목록 가져오기
+            const { data: mappings, error: mappingsError } = await window.opener.supabase
+                .from('edi_file_companies')
+                .select('company_id')
+                .eq('edi_file_id', fileId);
+            
+            if (mappingsError) {
+                console.error('Error fetching file-company mappings:', mappingsError);
+                selectedCompanies = [];
+            } else {
+                selectedCompanies = mappings.map(m => m.company_id);
+            }
+            
             renderCompanyLists();
+        }
+
+        function navigateTo(direction) {
+            if (isEdited) {
+                if (!confirm('편집 중인 내용이 있습니다. 변경사항을 저장하지 않고 이동하시겠습니까?')) {
+                    return;
+                }
+            }
+            const newIndex = currentIndex + direction;
+            if (newIndex >= 0 && newIndex < allFiles.length) {
+                initialize(allFiles, newIndex);
+            }
+        }
+
+        function updateNavButtons() {
+            const leftArrow = document.querySelector('.nav-arrow.left');
+            const rightArrow = document.querySelector('.nav-arrow.right');
+            leftArrow.style.display = currentIndex > 0 ? 'flex' : 'none';
+            rightArrow.style.display = currentIndex < allFiles.length - 1 ? 'flex' : 'none';
         }
 
         function renderCompanyLists() {
@@ -314,6 +619,9 @@
         }
 
         async function saveMapping() {
+            if (currentIndex === -1) return;
+            const currentFileId = allFiles[currentIndex].id;
+            
             try {
                 // 기존 매핑 삭제
                 await window.opener.supabase
@@ -355,6 +663,19 @@
         document.getElementById('searchInput').addEventListener('input', (e) => {
             renderCompanyLists();
         });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                navigateTo(-1);
+            } else if (e.key === 'ArrowRight') {
+                navigateTo(1);
+            }
+        });
+
+        // 부모 창의 최신 파일 목록을 가져오는 헬퍼 함수
+        window.getLatestFiles = () => {
+          return window.opener.getFilesForPopup();
+        }
     </script>
 </body>
 </html> 

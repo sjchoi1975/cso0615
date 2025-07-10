@@ -85,12 +85,12 @@ body.scroll-enabled {
   --primary-light: #bbdefb;    /* 아주 밝은 파랑 */
   --primary-lightest: #e3f2fd; /* 거의 흰색에 가까운 파랑 */
   
-/* 브랜드 색상 - 사용중 */
---primary-dark: #1565c0;     /* 어두운 파랑 */
---primary: #1976d2;          /* 포인트 파랑 */
---primary-mid: #42a5f5;      /* 중간 파랑 */
---primary-light: #bbdefb;    /* 아주 밝은 파랑 */
---primary-lightest: #e3f2fd; /* 거의 흰색에 가까운 파랑 */
+  /* 브랜드 색상 - 사용중 */
+  --primary-dark: #1565c0;     /* 어두운 파랑 */
+  --primary: #1976d2;          /* 포인트 파랑 */
+  --primary-mid: #42a5f5;      /* 중간 파랑 */
+  --primary-light: #bbdefb;    /* 아주 밝은 파랑 */
+  --primary-lightest: #e3f2fd; /* 거의 흰색에 가까운 파랑 */
 
   
   /* 상태 색상 */

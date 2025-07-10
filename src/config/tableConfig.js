@@ -713,16 +713,17 @@ export const userEdiSubmitTableConfig = {
     tableStyle: {
       minWidth: 'calc(100vw - 3rem)'
     },
+    defaultSort: { field: 'hospital_name', order: 'asc' },
     columns: [
-      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'hospital_name', label: '거래처명', width: '12%', align: 'left', sortable: true },
-      { field: 'business_registration_number', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
-      { field: 'director_name', label: '원장명', width: '6%', align: 'center', sortable: true },
-      { field: 'address', label: '주소', width: '16%', align: 'left', sortable: true },
-      { field: 'current_month_files', label: '제출파일', width: '6%', align: 'center', sortable: false },
-      { field: 'confirm', label: '확인', width: '6%', align: 'center', sortable: true },
-      { field: 'viewDetail', label: '상세', width: '6%', align: 'center', type: 'icon' },
-      { field: 'submit_button', label: '제출', width: '6%', align: 'center', type: 'icon' }
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false, type: 'index' },
+      { field: 'hospital_name', label: '거래처명', width: '16%', align: 'left', sortable: true },
+      { field: 'business_registration_number', label: '사업자등록번호', width: '10%', align: 'center', sortable: true },
+      { field: 'director_name', label: '원장명', width: '8%', align: 'center', sortable: true },
+      { field: 'address', label: '주소', width: '30%', align: 'left', sortable: true },
+      { field: 'prev_month_files', label: '전월 제출 파일', width: '8%', align: 'center', sortable: false },
+      { field: 'current_month_files', label: '당월 제출 파일', width: '8%', align: 'center', sortable: false },
+      { field: 'viewDetail', label: '상세', width: '8%', align: 'center', type: 'icon' },
+      { field: 'submit_button', label: '제출', width: '8%', align: 'center', type: 'icon' }
     ]
   },
   mobile: {
@@ -732,12 +733,17 @@ export const userEdiSubmitTableConfig = {
       minWidth: '100vw',
       width: '100vw'
     },
+    defaultSort: { field: 'hospital_name', order: 'asc' },
     columns: [
+      { field: 'index', label: '순번', width: '8%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처명', width: '20%', align: 'left', sortable: true },
-      { field: 'current_month_files', label: '제출파일', width: '10%', align: 'center', sortable: false },
-      { field: 'confirm', label: '확인', width: '10%', align: 'center', sortable: true },
-      { field: 'viewDetail', label: '상세', width: '10%', align: 'center', type: 'icon' },
-      { field: 'submit_button', label: '제출', width: '10%', align: 'center', type: 'icon' }
+      /*{ field: 'business_registration_number', label: '사업자등록번호', width: '10%', align: 'center', sortable: true },
+      { field: 'director_name', label: '원장명', width: '8%', align: 'center', sortable: true },
+      { field: 'address', label: '주소', width: '30%', align: 'left', sortable: true },*/
+      { field: 'prev_month_files', label: '전월', width: '8%', align: 'center', sortable: false },
+      { field: 'current_month_files', label: '당월', width: '8%', align: 'center', sortable: false },
+      { field: 'viewDetail', label: '상세', width: '8%', align: 'center', type: 'icon' },
+      { field: 'submit_button', label: '제출', width: '8%', align: 'center', type: 'icon' }
     ]
   }
 };

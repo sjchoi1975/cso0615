@@ -148,6 +148,8 @@ import JSZip from 'jszip';
 import { adminEdiListTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
 
+window.supabase = supabase;
+
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? adminEdiListTableConfig.mobile : adminEdiListTableConfig.pc);
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
@@ -358,46 +360,20 @@ const openFilePreview = async (file) => {
   filePreviewWindow = window.open('', '_blank', windowFeatures);
   
   if (filePreviewWindow) {
-    // 선택된/미선택된 제약사 분류
-    const selectedPharmaceuticals = pharmaceuticalCompanies.value
-      .filter(company => selectedCompanies.value.includes(company.id))
-      .map(company => ({
-        id: company.id,
-        company_name: company.company_name
-      }));
-      
-    const unselectedPharmaceuticals = pharmaceuticalCompanies.value
-      .filter(company => !selectedCompanies.value.includes(company.id))
-      .map(company => ({
-        id: company.id,
-        company_name: company.company_name
-      }));
-    
-    // HTML 템플릿 불러오기
     const response = await fetch('/src/views/admin/file-preview-template.html');
     const template = await response.text();
     
-    // 템플릿 작성
     filePreviewWindow.document.write(template);
     filePreviewWindow.document.close();
     
     filePreviewWindow.onload = () => {
-      // 데이터 업데이트
-      filePreviewWindow.updateFileInfo({
-        id: file.id,
-        file_url: file.file_url,
-        company_name: file.company_name,
-        hospital_name: file.hospital_name,
-        memo: file.memo,
-        created_at: formatDateTime(file.created_at),
-        created_by_name: file.created_by_name
-      });
-      filePreviewWindow.updateCompanies(selectedPharmaceuticals, unselectedPharmaceuticals);
+      const currentIndex = files.value.findIndex(f => f.id === file.id);
+      filePreviewWindow.initialize(files.value, currentIndex);
     };
     
     // 창이 닫힐 때 위치 저장
     filePreviewWindow.addEventListener('unload', () => {
-      if (!filePreviewWindow.closed) {
+      if (filePreviewWindow && !filePreviewWindow.closed) {
         try {
           lastWindowState.value = {
             width: filePreviewWindow.outerWidth,
@@ -500,6 +476,12 @@ onMounted(() => {
   fetchFiles();
   fetchDropdownOptions();
 });
+
+// 팝업창에서 호출할 수 있도록 함수를 window에 할당
+window.getFilesForPopup = () => {
+  return files.value;
+};
+window.fetchFiles = fetchFiles;
 
 let debounceTimer = null;
 watch([selectedMonth, selectedCompany, selectedHospital], () => {
