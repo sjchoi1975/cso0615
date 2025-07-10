@@ -1,7 +1,9 @@
 <template>
-
-<div class="admin-products-view page-container">
-    <!-- 모바일 필터 카드 스크롤 처리 -->
+  <div class="admin-products-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
+  <!-- 모바일 필터 카드 스크롤 처리 -->
     <div class="filter-card">
       <div class="filter-row">
         <div class="hide-mobile">
@@ -146,9 +148,6 @@
             </template>
           </Column>
         </DataTable>
-        <div v-if="loading" class="table-loading-spinner-center">
-          <img src="/spinner.svg" alt="로딩중" />
-        </div>
       </div>
       <div class="fixed-paginator">
         <Paginator

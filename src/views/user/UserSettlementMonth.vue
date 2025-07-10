@@ -1,5 +1,8 @@
 <template>
   <div class="user-settlement-month-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- 필터카드 -->
     <div class="filter-card">
       <div class="filter-row" style="margin-left:1rem;">

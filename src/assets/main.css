@@ -514,66 +514,6 @@ body.login-page .main-content.main-margin {
 
 
 
-/* ========================================================================================================= */
-/* 모바일
-/* ========================================================================================================= */
-
-
-/* 모바일 필터 카드 검색창 가운데 정렬 */
-@media (max-width: 768px) {
-  .filter-row {
-    width: 100% !important;
-    gap: 0.5rem !important;
-  }
-  .wide-mobile-search {
-    width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    padding: 0.8rem 0.5rem !important;
-    margin: 0 !important;
-  }
-}
-
-/* 1. 기본 스타일: 모든 화면에서 필터를 가로로 정렬 */
-.hide-mobile,
-.filter-hide-mobile {
-  display: flex !important;
-  flex-direction: row;
-  gap: 1rem !important;
-  align-items: center !important;
-}
-
-/* 2. 모바일 스타일: 768px 이하 화면에서만 필터를 숨김 */
-@media (max-width: 768px) {
-  .hide-mobile,
-  .filter-hide-mobile {
-    display: none !important;
-  }
-}
-
-
-
-/* ????????????????????????????????????????????????????????????????????? */
-@media (max-width: 600px) {
-  .table-card {
-    padding-bottom: 48px !important;
-  }
-}
-
-/* ????????????????????????????????????????????????????????????????????? */
-@media (max-width: 768px) {
-  .filter-table-card {
-    margin-top: 3rem !important;
-    margin-bottom: 0 !important;
-    border-radius: 0 !important;
-    border-left: none !important;
-    border-right: none !important;
-  }
-}
-
-
-
-
 
 
 /* ========================================================================================================= */
@@ -830,6 +770,9 @@ body.modal-open {
   transition: border 0.2s !important;
 }
 
+
+
+
 /* 인풋 - 로그인 높이 별도 지정 */
 .input-login {
   padding: 0.75rem 1.0rem !important;
@@ -884,6 +827,69 @@ body.modal-open {
   color: #1976d2 !important;
   background-color: #e3f2fd !important;
 }
+
+
+
+
+
+/* 모바일 필터 카드 검색창 가운데 정렬 */
+@media (max-width: 768px) {
+  .filter-row {
+    width: 100% !important;
+    gap: 0.5rem !important;
+  }
+  .filter-row-center {
+    justify-content: center !important;
+  }
+  .wide-mobile-search {
+    width: 90vw !important;
+    box-sizing: border-box !important;
+    padding: 0.75rem 1rem !important;
+    margin: 0 !important;
+    border-radius: 36px !important;
+    display: flex !important;
+  }
+}
+
+    
+
+
+/* 1. 기본 스타일: 모든 화면에서 필터를 가로로 정렬 */
+.hide-mobile,
+.filter-hide-mobile {
+  display: flex !important;
+  flex-direction: row;
+  gap: 1rem !important;
+  align-items: center !important;
+}
+
+/* 2. 모바일 스타일: 768px 이하 화면에서만 필터를 숨김 */
+@media (max-width: 768px) {
+  .hide-mobile,
+  .filter-hide-mobile {
+    display: none !important;
+  }
+}
+
+
+/* ????????????????????????????????????????????????????????????????????? */
+@media (max-width: 600px) {
+  .table-card {
+    padding-bottom: 48px !important;
+  }
+}
+
+/* ????????????????????????????????????????????????????????????????????? */
+@media (max-width: 768px) {
+  .filter-table-card {
+    margin-top: 3rem !important;
+    margin-bottom: 0 !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+}
+
 
 
 
@@ -1059,6 +1065,7 @@ div.v3dp__datepicker input[type="text"]:focus,
   max-height: 70vh !important;
   overflow-y: auto !important;
 }
+
 
 
 

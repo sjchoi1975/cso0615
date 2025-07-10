@@ -1,25 +1,33 @@
 <template>
   <div class="admin-settlement-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- 필터카드 -->
     <div class="filter-card">
-      <div class="filter-row">
-        <span>처방월</span>
-        <select v-model="selectedPrescriptionMonth" class="input-120" :disabled="!selectedMonth">
-          <option value="">- 전체 -</option>
-          <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
-        </select>
-        <input v-model="search" placeholder="거래처, 제약사, 제품 검색" class="input-search wide-mobile-search" />
+      <div class="filter-row filter-row-center">
+        <span class="hide-mobile">통합 검색</span>        
+          <input
+            v-model="search"
+            class="input-search wide-mobile-search"
+            placeholder="거래처, 제약사, 제품명 입력"
+          />
         <div class="hide-mobile">
-        <span>병의원</span>
-        <select v-model="selectedHospital" class="input-180" :disabled="!selectedMonth">
-          <option value="">- 전체 -</option>
-          <option v-for="h in hospitalOptions" :key="h" :value="h">{{ h }}</option>
-        </select>
-        <span>제품</span>
-        <select v-model="selectedProduct" class="input-180" :disabled="!selectedMonth">
-          <option value="">- 전체 -</option>
-          <option v-for="p in productOptions" :key="p" :value="p">{{ p }}</option>
-        </select>
+          <span>처방월</span>
+            <select v-model="selectedPrescriptionMonth" class="input-120" :disabled="!selectedMonth">
+              <option value="">- 전체 -</option>
+              <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
+            </select>          
+          <span>거래처</span>
+            <select v-model="selectedHospital" class="input-180" :disabled="!selectedMonth">
+              <option value="">- 전체 -</option>
+              <option v-for="h in hospitalOptions" :key="h" :value="h">{{ h }}</option>
+            </select>
+          <span>제품</span>
+            <select v-model="selectedProduct" class="input-180" :disabled="!selectedMonth">
+              <option value="">- 전체 -</option>
+              <option v-for="p in productOptions" :key="p" :value="p">{{ p }}</option>
+            </select>
         </div>
       </div> 
     </div>

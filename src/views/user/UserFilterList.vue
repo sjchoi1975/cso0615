@@ -1,11 +1,15 @@
 <template>
   <div class="user-filter-list-view page-container">
     <!-- Filter Card -->
-    <div class="filter-card custom-auto-height">
-      <div class="filter-row">
+    <div class="filter-card">
+      <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
-        <span class="p-input-icon-left">
-          <input v-model="search" placeholder="거래처명, 제약사명 검색" class="input-search wide-mobile-search" />
+        <span>
+          <input
+            v-model="search"
+            class="input-search wide-mobile-search"
+            placeholder="거래처명, 제약사명 입력"
+          />
         </span>
         <div class="hide-mobile">
         <span>거래처</span>

@@ -1,16 +1,19 @@
 <template>
   <div class="user-edi-submit-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- 제출 가능 기간일 때 -->
     <template v-if="isSubmissionPeriod">
       <!-- Filter Card -->
-      <div class="filter-card custom-auto-height">
-        <div class="filter-row">
+      <div class="filter-card">
+        <div class="filter-row filter-row-center">
           <span class="hide-mobile">통합 검색</span>
-          <div class="p-input-icon-right" style="width: 100%;">
+          <div>
             <input 
               v-model="search" 
-              placeholder="거래처명, 원장명, 사업자번호, 주소 검색" 
-              class="input-search"
+              class="input-search wide-mobile-search"
+              placeholder="거래처명, 원장명, 사업자번호, 주소 입력" 
             />
           </div>
         </div>

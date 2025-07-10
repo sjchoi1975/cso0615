@@ -796,7 +796,7 @@ export const userSettlementMonthDetailTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'hospital_name', label: '병의원', width: '12%', align: 'left', sortable: true },
+      { field: 'hospital_name', label: '거래처', width: '12%', align: 'left', sortable: true },
       { field: 'prescription_month', label: '처방월', width: '6%', align: 'center', sortable: true },
       { field: 'pharma_name', label: '제약사', width: '8%', align: 'left', sortable: true },
       { field: 'product_name', label: '제품명', width: '14%', align: 'left', sortable: true },
@@ -819,7 +819,7 @@ export const userSettlementMonthDetailTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'hospital_name', label: '병의원', width: '12%', align: 'left', sortable: true },
+      { field: 'hospital_name', label: '거래처', width: '12%', align: 'left', sortable: true },
       { field: 'prescription_month', label: '처방월', width: '6%', align: 'center', sortable: true },
       { field: 'pharma_name', label: '제약사', width: '8%', align: 'left', sortable: true },
       { field: 'product_name', label: '제품명', width: '14%', align: 'left', sortable: true },

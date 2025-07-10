@@ -1,14 +1,18 @@
 <template>
-  <div class="admin-notice-view page-container">
+  <div class="page-container">
     <div v-if="loading" class="table-loading-spinner-center">
       <img src="/spinner.svg" alt="로딩중" />
     </div>
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
-      <div class="filter-row">
+      <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
-        <span class="p-input-icon-left">
-          <input v-model="search" placeholder="제목, 내용 검색" class="input-search wide-mobile-search" />
+        <span>
+          <input
+            v-model="search"
+            class="input-search wide-mobile-search"
+            placeholder="제목, 내용 입력"
+          />
         </span>
       </div>
     </div>

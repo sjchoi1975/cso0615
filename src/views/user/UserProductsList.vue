@@ -1,15 +1,15 @@
 <template>
-  <div class="admin-products-view page-container">
+  <!-- <div class="admin-products-view page-container"> -->
+  <div class="page-container">
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
-      <div class="filter-row">
+      <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>        
-        <span class="p-input-icon-left" style="display: flex; align-items: center; flex-grow: 1;">
+        <span>
           <input
             v-model="search"
             class="input-search wide-mobile-search"
-            style="border-radius: 2px !important; flex-grow: 1; min-width: 100px;"
-            placeholder="제약사, 제품명, 보험코드, 성분명 검색"
+            placeholder="제약사, 제품명, 보험코드, 성분명 입력"
           />
         </span>
       </div>
