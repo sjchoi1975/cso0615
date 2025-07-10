@@ -115,6 +115,18 @@ const specialLayoutRoutes = [
     },
     showBack: true
   },
+  {
+    path: /^\/settlement\/month\/detail/,
+    menuName: () => {
+      const month = route.query.month;
+      if (month) {
+        const [year, monthNum] = month.split('-');
+        return `정산내역서 상세 - ${year}년 ${parseInt(monthNum)}월`;
+      }
+      return '정산내역서 상세';
+    },
+    showBack: true
+  },
 ];
 
 // 이미 specialLayoutRoutes에 /admin/hospitals/edit/ 경로가 없다면 추가
@@ -158,6 +170,7 @@ const menuNameMap = {
   '/filter/list': '필터링 내역',
   '/edi/submit': 'EDI 제출',
   '/settlement/month': '정산내역서',
+  '/settlement/month/detail': '정산내역서 상세',
 };
   
   const path = route.path;
@@ -233,6 +246,10 @@ watch(
       '/admin/notices/edit/',
       '/admin/products/create',
       '/admin/products/edit/',
+      '/admin/hospitals/create',
+      '/admin/hospitals/edit/',
+      '/hospitals/create',
+      '/hospitals/edit/',
       '/filter/create',
       '/edi/submit/',
       '/settlement/month'

@@ -434,7 +434,7 @@ const goDetail = () => {
     return;
   }
   router.push({
-    path: `/user/settlement-month-detail`,
+    path: `/settlement/month/detail`,
     query: {
       month: selectedMonth.value,
       biz_no: currentUserRegNo.value

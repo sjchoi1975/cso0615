@@ -173,7 +173,7 @@ const router = createRouter({
       component: UserSettlementMonth,
     },
     {
-      path: '/user/settlement-month-detail',
+      path: '/settlement/month/detail',
       name: 'UserSettlementMonthDatail',
       component: () => import('@/views/user/UserSettlementMonthDatail.vue')
     },

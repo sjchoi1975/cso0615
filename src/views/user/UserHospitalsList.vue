@@ -39,17 +39,17 @@
         />
       </div>
     </div>
-
+    
     <!-- Table Card -->
     <div class="table-card user-hospitals-view-table">
       <div :style="tableConfig.tableStyle">
         <DataTable
           :value="hospitals"
-          :loading="loading"
+          :loading="false"
           :paginator="false"
           scrollable
-          scrollDirection="both"
-          :scrollHeight="tableScrollHeight"
+          :scrollHeight="getTableScrollHeight(false)"
+          scrollDirection="vertical"
           ref="tableRef"
           :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
         >
@@ -91,7 +91,7 @@
       </div>
     </div>
 
-    <!-- Paginator -->
+    <!-- 페이지네이터 미사용
     <div class="fixed-paginator">
       <Paginator
         :rows="pageSize"
@@ -101,6 +101,7 @@
         @page="onPageChange"
       />
     </div>
+    -->
 
     <!-- File Viewer Modal -->
     <div v-if="showFileModal" class="custom-modal-overlay">
@@ -408,3 +409,24 @@ const deleteMapping = async (hospital) => {
 };
 
 </script>
+
+<style scoped>
+.page-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.filter-card,
+.function-card {
+  flex-shrink: 0;
+}
+
+.table-card {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 기존 스타일들... */
+</style>

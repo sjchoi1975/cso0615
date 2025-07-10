@@ -1,12 +1,17 @@
 <template>
   <div class="admin-hospitals-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- Filter Card -->
     <div class="filter-card">
-      <div class="filter-row">
+      <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
-        <span class="p-input-icon-left">
-          <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 입력" class="input-search wide-mobile-search" />
-        </span>
+          <input
+            v-model="search"
+            placeholder="거래처명, 원장명, 사업자등록번호, 주소 입력"
+            class="input-search wide-mobile-search"
+          />
       </div>
     </div>
     
@@ -69,7 +74,7 @@
       <div :style="tableConfig.tableStyle">
         <DataTable
           :value="hospitals"
-          :loading="loading"
+          :loading="false"
           :paginator="false"
           scrollable
           :scrollHeight="tableScrollHeight"
@@ -129,9 +134,6 @@
             </template>
           </Column>
         </DataTable>
-        <div v-if="loading" class="table-loading-spinner-center">
-          <img src="/spinner.svg" alt="로딩중" />
-        </div>
       </div>
     </div>
 

@@ -46,7 +46,7 @@
         />
       </div>
     </div>
-
+    
     <!-- 하단: 테이블카드 -->
     <div class="table-card">
       <div :style="isMobile ? tableConfig.tableStyle : {}">

@@ -1,5 +1,8 @@
 <template>
   <div class="admin-edi-list-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- Filter Card -->
     <div class="filter-card">
       <div class="filter-row">
@@ -63,7 +66,7 @@
         <DataTable
           v-model:selection="selectedFiles"
           :value="files"
-          :loading="loading"
+          :loading="false"
           :paginator="false"
           scrollable
           :scrollHeight="tableScrollHeight"
@@ -99,9 +102,6 @@
             </template>
           </Column>
         </DataTable>
-      </div>
-      <div v-if="loading" class="table-loading-spinner-center">
-        <img src="/spinner.svg" alt="로딩중" />
       </div>
     </div>
     

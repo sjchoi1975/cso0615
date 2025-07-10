@@ -1,10 +1,18 @@
 <template>
-    <div class="admin-settlement-view page-container">
-      <!-- 상단: 필터카드 -->
-      <div class="filter-card">
-        <div class="filter-row">
-          <span>통합 검색</span>
-          <input v-model="search" placeholder="업체, 거래처, 제약사, 제품명 입력" class="input-search wide-mobile-search" />
+  <div class="admin-settlement-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
+    <!-- 상단: 필터카드 -->
+    <div class="filter-card">
+      <div class="filter-row filter-row-center">
+        <span class="hide-mobile">통합 검색</span>
+          <input
+            v-model="search"
+            placeholder="업체, 거래처, 제약사, 제품명 입력"
+            class="input-search wide-mobile-search"
+          />
+        <div class="hide-mobile">
           <span>처방월</span>
           <select v-model="selectedPrescriptionMonth" class="input-120">
             <option value="">- 전체 -</option>
@@ -27,134 +35,131 @@
           </select>
         </div>
       </div>
+    </div>
       
-      <!-- 중간: 기능카드 -->
-      <div class="function-card">
-        <div class="total-count">총 {{ totalCount.toLocaleString() }}건</div>
-        <div style="display: flex; gap:1rem; align-items:center;">
-          <Button
-            icon="pi pi-file-excel"
-            label="템플릿"
-            class="btn-download-md"
-            @click="downloadTemplate"
-            iconPos="left"
-            style="gap:0.5em;"
-          />
-          <Button
-            icon="pi pi-upload"
-            label="엑셀 등록"
-            class="btn-add-md"
-            @click="() => $refs.fileInput.click()"
-            iconPos="left"
-            style="gap:0.5em;"
-          />
-          <input
-            ref="fileInput"
-            type="file"
-            accept=".xlsx,.xls"
-            @change="uploadExcel"
-            style="display:none;"
-          />
-          <Button
-            icon="pi pi-download"
-            label="다운로드"
-            class="btn-download-md"
-            @click="downloadExcel"
-            iconPos="left"
-            style="gap:0.5em;"
-          />
-
-          <Button
-            icon="pi pi-check-square"
-            :label="selectAllText"
-            class="btn-selectall-md"
-            @click="toggleSelectAll"
-            iconPos="left"
-            style="gap:0.5em;"
-          />
-          <Button
-            icon="pi pi-trash"
-            label="삭제"
-            class="btn-delete-md"
-            @click="deleteSelected"
-            severity="danger"
-            iconPos="left"
-            style="gap:0.5em;"
-          />
-        </div>
-      </div>
-        
-      <!-- 하단: 테이블카드 -->
-      <div class="table-card">
-        <div v-if="loading" class="table-loading-spinner-center">
-          <img src="/spinner.svg" alt="로딩중" />
-        </div>
-        <div :style="tableConfig.tableStyle">
-          <DataTable
-            v-if="!loading"
-            :value="filteredList"
-            :loading="loading"
-            :paginator="false"
-            scrollable
-            scrollDirection="both"
-            :scrollHeight="tableScrollHeight"
-            :style="{ width: tableConfig.tableWidth, minWidth: isMobile ? tableConfig.tableStyle.minWidth : undefined }"
-            dataKey="id"
-            v-model:selection="selectedRows"
-          >
-            <Column headerStyle="width: 3rem" :bodyStyle="{ textAlign: 'center' }">
-              <template #body="slotProps">
-                <input
-                  type="checkbox"
-                  v-model="slotProps.data._selected"
-                  @change="onRowSelectChange(slotProps.data)"
-                  class="custom-checkbox"
-                  />
-              </template>
-            </Column>
-            <Column
-              v-for="col in tableConfig.columns"
-              :key="col.field"
-              :field="col.field"
-              :header="col.label"
-              :sortable="col.sortable || false"
-              :style="{ width: col.width, textAlign: col.align }"
-              :bodyStyle="{ textAlign: col.align }"
-            >
-              <template #body="slotProps">
-                <template v-if="col.field === 'index'">
-                  {{ first + slotProps.index + 1 }}
-                </template>
-                <template v-else-if="col.field === 'price' || col.field === 'prescription_amount' || col.field === 'payment_amount'">
-                  {{ formatCurrency(slotProps.data[col.field]) }}
-                </template>
-                <template v-else-if="col.field === 'quantity'">
-                  {{ formatNumber(slotProps.data[col.field]) }}
-                </template>
-                <template v-else-if="col.field === 'commission_rate'">
-                  {{ formatPercentage(slotProps.data[col.field]) }}
-                </template>
-                <template v-else>
-                  {{ slotProps.data[col.field] }}
-                </template>
-              </template>
-            </Column>
-          </DataTable>
-        </div>
-      </div>
-
-      <!-- 하단 고정 페이지네이터 -->
-      <div class="fixed-paginator">
-        <Paginator
-          :rows="pageSize"
-          :totalRecords="totalCount"
-          :first="first"
-          :rowsPerPageOptions="[50, 100, 200, 500]"
-          @page="onPageChange"
+    <!-- 중간: 기능카드 -->
+    <div class="function-card">
+      <div class="total-count">총 {{ totalCount.toLocaleString() }}건</div>
+      <div style="display: flex; gap:1rem; align-items:center;">
+        <Button
+          icon="pi pi-file-excel"
+          label="템플릿"
+          class="btn-download-md"
+          @click="downloadTemplate"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
+        <Button
+          icon="pi pi-upload"
+          label="엑셀 등록"
+          class="btn-add-md"
+          @click="() => $refs.fileInput.click()"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".xlsx,.xls"
+          @change="uploadExcel"
+          style="display:none;"
+        />
+        <Button
+          icon="pi pi-download"
+          label="다운로드"
+          class="btn-download-md"
+          @click="downloadExcel"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
+        <Button
+          icon="pi pi-check-square"
+          :label="selectAllText"
+          class="btn-selectall-md"
+          @click="toggleSelectAll"
+          iconPos="left"
+          style="gap:0.5em;"
+        />
+        <Button
+          icon="pi pi-trash"
+          label="삭제"
+          class="btn-delete-md"
+          @click="deleteSelected"
+          severity="danger"
+          iconPos="left"
+          style="gap:0.5em;"
         />
       </div>
     </div>
-  </template>
+        
+    <!-- 하단: 테이블카드 -->
+    <div class="table-card">
+      <div :style="tableConfig.tableStyle">
+        <DataTable
+          v-if="!loading"
+          :value="filteredList"
+          :loading="false"
+          :paginator="false"
+          scrollable
+          scrollDirection="both"
+          :scrollHeight="tableScrollHeight"
+          :style="{ width: tableConfig.tableWidth, minWidth: isMobile ? tableConfig.tableStyle.minWidth : undefined }"
+          dataKey="id"
+          v-model:selection="selectedRows"
+        >
+        <Column headerStyle="width: 3rem" :bodyStyle="{ textAlign: 'center' }">
+          <template #body="slotProps">
+            <input
+              type="checkbox"
+              v-model="slotProps.data._selected"
+              @change="onRowSelectChange(slotProps.data)"
+              class="custom-checkbox"
+            />
+          </template>
+        </Column>
+        <Column
+          v-for="col in tableConfig.columns"
+          :key="col.field"
+          :field="col.field"
+          :header="col.label"
+          :sortable="col.sortable || false"
+          :style="{ width: col.width, textAlign: col.align }"
+          :bodyStyle="{ textAlign: col.align }"
+        >
+          <template #body="slotProps">
+            <template v-if="col.field === 'index'">
+              {{ first + slotProps.index + 1 }}
+            </template>
+            <template v-else-if="col.field === 'price' || col.field === 'prescription_amount' || col.field === 'payment_amount'">
+              {{ formatCurrency(slotProps.data[col.field]) }}
+            </template>
+            <template v-else-if="col.field === 'quantity'">
+              {{ formatNumber(slotProps.data[col.field]) }}
+            </template>
+            <template v-else-if="col.field === 'commission_rate'">
+              {{ formatPercentage(slotProps.data[col.field]) }}
+            </template>
+            <template v-else>
+              {{ slotProps.data[col.field] }}
+            </template>
+          </template>
+        </Column>
+        </DataTable>
+      </div>
+    </div>
+
+    <!-- 하단 고정 페이지네이터 -->
+    <div class="fixed-paginator">
+      <Paginator
+        :rows="pageSize"
+        :totalRecords="totalCount"
+        :first="first"
+        :rowsPerPageOptions="[50, 100, 200, 500]"
+        @page="onPageChange"
+      />
+    </div>
+  </div>
+</template>
   
   <script setup>
   import { ref, onMounted, computed, watch } from 'vue';

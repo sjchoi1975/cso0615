@@ -5,11 +5,13 @@
     </div>
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
-      <div class="filter-row">
+      <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
-        <span class="p-input-icon-left">
-          <input v-model="search" placeholder="제목, 내용 입력" class="input-search wide-mobile-search" />
-        </span>
+          <input
+            v-model="search"
+            placeholder="제목, 내용 입력"
+            class="input-search wide-mobile-search"
+          />
       </div>
     </div>
     
@@ -31,6 +33,7 @@
       <div :style="tableConfig.tableStyle">
         <DataTable 
           :value="filterednotice"
+          :loading="false"
           :paginator="false"
           :rows="50"
           :rowsPerPageOptions="[20, 50, 100]"

@@ -1,6 +1,9 @@
 <template>
   <!-- <div class="admin-products-view page-container"> -->
   <div class="page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row filter-row-center">
@@ -29,13 +32,13 @@
         />
       </div>
     </div>
-
+    
     <!-- 하단: 테이블카드 -->
     <div class="table-card">
       <div :style="tableConfig.tableStyle">
         <DataTable
           :value="products"
-          :loading="loading"
+          :loading="false"
           :paginator="false"
           scrollable
           scrollDirection="both"

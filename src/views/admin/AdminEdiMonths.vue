@@ -1,5 +1,8 @@
 <template>
   <div class="admin-edi-months-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
@@ -31,7 +34,8 @@
       <div :style="tableConfig.tableStyle">
         <DataTable
           :value="tableData"
-          :loading="loading"
+          :loading="false"
+          :paginator="false"
           v-model:filters="filters"
           :globalFilterFields="['remarks']"
           scrollable

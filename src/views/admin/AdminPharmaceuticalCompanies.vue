@@ -1,9 +1,11 @@
 <template>
   <div class="admin-pharmaceutical-companies-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- 필터카드 -->
-    
     <div class="filter-card">
-      <div class="filter-row">
+      <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="제약사명 입력" class="input-search wide-mobile-search" />
@@ -39,7 +41,7 @@
       <div :style="tableConfig.tableStyle">
         <DataTable
           :value="filteredCompanies"
-          :loading="loading"
+          :loading="false"
           :paginator="false"
           scrollable
           :scrollHeight="tableScrollHeight"

@@ -1,5 +1,8 @@
 <template>
   <div class="admin-settlement-month-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <div class="filter-card">
       <div class="filter-row">
         <span>정산월</span>
@@ -39,7 +42,7 @@
       <div :style="tableConfig.tableStyle">
         <DataTable
           :value="filteredMonthList"
-          :loading="loading"
+          :loading="false"
           :paginator="false"
           scrollable
           :scrollHeight="tableScrollHeight"

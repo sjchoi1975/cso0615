@@ -1,42 +1,57 @@
 <template>
   <div class="user-edi-submit-view page-container">
-    <div v-if="loading" class="table-loading-spinner-center">
+    <!-- 로딩 중일 때 또는 selectedMonth가 null일 때 -->
+    <div v-if="loading || selectedMonth === null" class="table-loading-spinner-center">
       <img src="/spinner.svg" alt="로딩중" />
     </div>
+    
+    <!-- 제출 가능 기간이 아닐 때 -->
+    <div v-else-if="!isSubmissionPeriod" class="notice-card">
+      <div class="notice-icon"><i class="pi pi-info-circle"></i></div>
+      <div class="notice-message">
+        <h3>지금은 EDI 제출 기간이 아닙니다.</h3>
+        <p>관리자가 설정한 제출 기간에만 파일을 제출할 수 있습니다.</p>
+      </div>
+    </div>
+
     <!-- 제출 가능 기간일 때 -->
-    <template v-if="isSubmissionPeriod">
-      <!-- Filter Card -->
-      <div class="filter-card">
-        <div class="filter-row filter-row-center">
-          <span class="hide-mobile">통합 검색</span>
-          <div>
-            <input 
-              v-model="search" 
-              class="input-search wide-mobile-search"
-              placeholder="거래처명, 원장명, 사업자번호, 주소 입력" 
-            />
+    <template v-else>
+      <div class="fixed-header">
+        <!-- Filter Card -->
+        <div class="filter-card">
+          <div class="filter-row filter-row-center">
+            <span class="hide-mobile">통합 검색</span>
+            <div>
+              <input 
+                v-model="search" 
+                class="input-search wide-mobile-search"
+                placeholder="거래처명, 원장명, 사업자번호, 주소 입력" 
+              />
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div class="function-card" style="display: flex; justify-content: flex-end;">
-        <span v-if="selectedMonth" style="font-size: 1.1rem;">
-          제출 기간 :
-          {{ selectedMonth.start_date ? new Date(selectedMonth.start_date).toISOString().slice(0,10) : '' }}
-          ~
-          {{ selectedMonth.end_date ? new Date(selectedMonth.end_date).toISOString().slice(0,10) : '' }}
-          <span v-if="selectedMonth.end_date" class="badge-dn">
-            D-{{ getRemainDays(selectedMonth.end_date) }}
+        
+        <div class="function-card" style="display: flex; justify-content: flex-end;">
+          <span v-if="selectedMonth" style="font-size: 1.1rem;">
+            제출 기간 :
+            {{ selectedMonth.start_date ? new Date(selectedMonth.start_date).toISOString().slice(0,10) : '' }}
+            ~
+            {{ selectedMonth.end_date ? new Date(selectedMonth.end_date).toISOString().slice(0,10) : '' }}
+            <span v-if="selectedMonth.end_date" class="badge-dn">
+              D-{{ getRemainDays(selectedMonth.end_date) }}
+            </span>
           </span>
-        </span>
+        </div>
       </div>
 
-      <div class="table-card">
+      <div class="table-container">
         <DataTable 
           :value="mappedHospitals" 
-          :loading="loading" 
-          scrollable 
-          :scrollHeight="'calc(100vh - 204px)'"
+          :loading="false"
+          :paginator="false"
+          scrollable
+          scrollDirection="vertical"
+          :scrollHeight="isSubmissionPeriod ? getTableScrollHeight(false) : undefined"
           :style="activeTableConfig.tableStyle"
         >
           <Column 
@@ -76,15 +91,6 @@
         </DataTable>
       </div>
     </template>
-    
-    <!-- 제출 가능 기간이 아닐 때 -->
-    <div v-else class="notice-card">
-      <div class="notice-icon"><i class="pi pi-info-circle"></i></div>
-      <div class="notice-message">
-        <h3>지금은 EDI 제출 기간이 아닙니다.</h3>
-        <p>관리자가 설정한 제출 기간에만 파일을 제출할 수 있습니다.</p>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -98,6 +104,7 @@ import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
 import { userEdiSubmitTableConfig as tableConfig } from '@/config/tableConfig';
 import InputText from 'primevue/inputtext';
+import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const toast = useToast();
 const router = useRouter();
@@ -153,12 +160,15 @@ const fetchUserData = async () => {
 
 const fetchPrescriptionMonths = async () => {
   const today = new Date().toISOString().split('T')[0];
+  console.log('Today:', today);
   const { data, error } = await supabase
     .from('edi_months')
     .select('*')
     .lte('start_date', today)
     .gte('end_date', today)
     .order('settlement_month', { ascending: false });
+  console.log('Prescription months data:', data);
+  console.log('Error:', error);
   if (!error && data && data.length > 0) {
     prescriptionMonthObjects.value = data;
     selectedMonth.value = data[0];
@@ -166,6 +176,7 @@ const fetchPrescriptionMonths = async () => {
     prescriptionMonthObjects.value = [];
     selectedMonth.value = null;
   }
+  loading.value = false;  // 여기에 loading 상태 해제 추가
 };
 
 const fetchMappedHospitals = async () => {
@@ -325,6 +336,22 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.page-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.fixed-header {
+  flex-shrink: 0;
+}
+
+
+.table-card {
+  height: 100%;
+}
+
 .submission-period-info {
   font-size: 0.9rem;
   color: var(--text-secondary);
@@ -339,7 +366,7 @@ onUnmounted(() => {
   background-color: var(--gray-100);
   border-radius: var(--border-radius-lg);
   margin-top: 1rem;
-  height: 100%;
+  height: calc(100vh - 200px);
 }
 .notice-icon {
   font-size: 3rem;

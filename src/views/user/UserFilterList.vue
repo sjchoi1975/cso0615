@@ -1,5 +1,8 @@
 <template>
   <div class="user-filter-list-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- Filter Card -->
     <div class="filter-card">
       <div class="filter-row filter-row-center">
@@ -59,8 +62,8 @@
       <div :style="tableConfig.tableStyle">
         <DataTable 
           :value="requests" 
-          :loading="loading" 
-          :paginator="false" 
+          :loading="false"
+          :paginator="false"
           scrollable 
           :scrollHeight="tableScrollHeight"
           :style="{ width: tableConfig.tableWidth, minWidth: tableConfig.tableStyle.minWidth }"
@@ -126,9 +129,6 @@
               </template>
             </template>
           </Column>
-          <div v-if="loading" class="table-loading-spinner-center">
-            <img src="/spinner.svg" alt="로딩중" />
-          </div>
         </DataTable>
       </div>
     </div>

@@ -5,7 +5,7 @@
     </div>
   <!-- 모바일 필터 카드 스크롤 처리 -->
     <div class="filter-card">
-      <div class="filter-row">
+      <div class="filter-row filter-row-center">
         <div class="hide-mobile">
           <span>기준월</span>
           <select v-model="currentMonth.value" class="input-120">
@@ -15,9 +15,11 @@
           </select>
         </div>
         <span class="hide-mobile">통합 검색</span>
-        <span class="p-input-icon-left">
-          <input v-model="search" placeholder="제약사, 제품명, 보험코드, 성분명 입력" class="input-search" />
-        </span>
+          <input
+            v-model="search"
+            placeholder="제약사, 제품명, 보험코드, 성분명 입력"
+            class="input-search wide-mobile-search"
+          />
         <div class="hide-mobile">
           <span>급여</span>
           <select v-model="reimbursement" class="input-100">
@@ -94,7 +96,7 @@
       <div :style="tableConfig.tableStyle">
         <DataTable
           :value="products"
-          :loading="loading"
+          :loading="false"
           :paginator="false"
           :rows="200"
           :rowsPerPageOptions="[100, 200, 500]"

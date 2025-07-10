@@ -161,17 +161,24 @@ console.log('showBack', props.showBack);
   cursor: pointer;
   margin-top: 0.5rem;
   margin-right: 0.5rem;
- }
+  padding: 0;
+}
+
+.menu-toggle.show-back {
+  font-size: 1.4rem !important;
+}
+
+.menu-toggle i {
+  font-size: 1.4rem;
+}
 
 @media (max-width: 900px) {
   .menu-toggle {
     display: inline-block; /* 모바일에서 보임 */
   }
-
   .topbar .menu-title {
     font-size: var(--font-size-130) !important;
     color: #222 !important;
-    padding-left: 0 !important; /* 햄버거 버튼이 있으므로 패딩 제거 */
     white-space: nowrap !important;
   }
 }
@@ -186,6 +193,7 @@ console.log('showBack', props.showBack);
     position: static !important; /* absolute에서 변경 */
     top: auto !important;
     left: auto !important;
+    padding-right: 0.5rem !important; /* 햄버거 버튼이 있으므로 패딩 제거 */
     z-index: 1300;
   }
 }

@@ -1,8 +1,11 @@
 <template>
   <div class="admin-members-view page-container">
+    <div v-if="loading" class="table-loading-spinner-center">
+      <img src="/spinner.svg" alt="로딩중" />
+    </div>
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
-      <div class="filter-row">
+      <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="회사명, 사업자등록번호, 대표자명 입력" class="input-search wide-mobile-search" />
@@ -43,7 +46,7 @@
       <div :style="tableConfig.tableStyle">
         <DataTable
           :value="filteredMembers"
-          :loading="loading"
+          :loading="false"
           :paginator="false"
           scrollable
           :scrollHeight="tableScrollHeight"
@@ -95,9 +98,6 @@
             </template>
           </Column>
         </DataTable>
-        <div v-if="loading" class="table-loading-spinner-center">
-          <img src="/spinner.svg" alt="로딩중" />
-        </div>
       </div>
     </div>
   </div>
