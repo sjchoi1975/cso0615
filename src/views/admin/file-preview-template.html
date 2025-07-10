@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>파일 미리보기</title>
+  <link href="https://unpkg.com/primevue/resources/themes/lara-light-blue/theme.css" rel="stylesheet">
+  <link href="https://unpkg.com/primevue/resources/primevue.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet">
+  <style>
+    body { margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .container {
+      display: flex; 
+      gap: 2rem; 
+      height: calc(100vh - 40px); 
+    }
+    .file-preview { 
+      flex: 1; 
+      min-width: 0; 
+      background: #f8f9fa; 
+      border-radius: 4px; 
+      padding: 1rem; 
+      overflow: auto; 
+    }
+    .file-preview img { 
+      max-width: 100%; 
+      height: auto; 
+    }
+    .file-info { 
+      width: 400px; 
+      padding: 1rem; 
+      background: #fff; 
+      border-radius: 4px; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+      overflow-y: auto; 
+    }
+    .info-row { 
+      margin-bottom: 1rem; 
+    }
+    .info-row label { 
+      display: block; 
+      font-weight: bold; 
+      margin-bottom: 0.25rem; 
+      color: #666; 
+    }
+    .pharmaceutical-companies { 
+      margin: 1rem 0; 
+      max-height: calc(100vh - 400px); 
+      overflow-y: auto; 
+    }
+    .company-item { 
+      display: flex; 
+      align-items: center; 
+      padding: 0.75rem 1rem; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 4px; 
+      margin-bottom: 0.5rem; 
+      cursor: pointer; 
+      transition: all 0.2s; 
+    }
+    .company-item:hover { 
+      background-color: #f3f4f6; 
+    }
+    .company-item.selected { 
+      background-color: #eaf6fd; 
+      border-color: #3B82F6; 
+    }
+    .company-item input[type="checkbox"] { 
+      margin-right: 0.75rem; 
+    }
+    .company-item label { 
+      flex: 1; 
+      cursor: pointer; 
+    }
+    .company-search { 
+      margin-bottom: 1rem; 
+      width: 100%; 
+      padding: 0.5rem; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 4px; 
+    }
+    .company-section { 
+      margin-bottom: 1.5rem; 
+    }
+    .section-title { 
+      font-size: 0.875rem; 
+      color: #666; 
+      margin-bottom: 0.5rem; 
+    }
+    .action-buttons { 
+      margin-top: 1rem; 
+      text-align: right; 
+    }
+    .p-button { 
+      color: #fff; 
+      background: #3B82F6; 
+      border: 1px solid #3B82F6; 
+      padding: 0.5rem 1rem; 
+      border-radius: 4px; 
+      cursor: pointer; 
+    }
+    .p-button:hover { 
+      background: #2563EB; 
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="file-preview">
+      <img id="preview-image" alt="파일 미리보기" style="max-width: 100%; max-height: 90vh;">
+    </div>
+    <div class="file-info">
+      <h3>파일 정보</h3>
+      <div class="info-row">
+        <label>업체명:</label>
+        <span id="company-name">-</span>
+      </div>
+      <div class="info-row">
+        <label>거래처명:</label>
+        <span id="hospital-name">-</span>
+      </div>
+      <div class="info-row">
+        <label>메모:</label>
+        <span id="memo">-</span>
+      </div>
+      <div class="info-row">
+        <label>등록일시:</label>
+        <span id="created-at">-</span>
+      </div>
+      <div class="info-row">
+        <label>등록자:</label>
+        <span id="created-by">-</span>
+      </div>
+      
+      <h3>제약사 매핑</h3>
+      <input type="text" class="company-search" placeholder="제약사명으로 검색" oninput="window.filterCompanies(this.value)">
+      
+      <div class="pharmaceutical-companies">
+        <div class="company-section">
+          <div class="section-title">선택된 제약사</div>
+          <div id="selected-companies"></div>
+        </div>
+        
+        <div class="company-section">
+          <div class="section-title">미선택 제약사</div>
+          <div id="unselected-companies"></div>
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <button class="p-button" onclick="window.opener.savePharmaceuticalCompanies()">저장</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    window.filterCompanies = function(searchText) {
+      const items = document.querySelectorAll('.company-item');
+      items.forEach(item => {
+        const label = item.querySelector('label');
+        const text = label.textContent.toLowerCase();
+        if (text.includes(searchText.toLowerCase())) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    };
+
+    window.renderCompany = function(company, isSelected) {
+      return `
+        <div class="company-item${isSelected ? ' selected' : ''}">
+          <input type="checkbox" id="company-${company.id}"${isSelected ? ' checked' : ''} onchange="window.opener.toggleCompany(${company.id})">
+          <label for="company-${company.id}">${company.name}</label>
+        </div>
+      `;
+    };
+
+    window.updateFileInfo = function(file) {
+      document.title = file.file_name || '파일 미리보기';
+      document.getElementById('preview-image').src = file.file_url;
+      document.getElementById('company-name').textContent = file.company_name || '-';
+      document.getElementById('hospital-name').textContent = file.hospital_name || '-';
+      document.getElementById('memo').textContent = file.memo || '-';
+      document.getElementById('created-at').textContent = file.created_at || '-';
+      document.getElementById('created-by').textContent = file.created_by_name || '-';
+    };
+
+    window.updateCompanies = function(selectedCompanies, unselectedCompanies) {
+      const selectedHtml = selectedCompanies.map(company => window.renderCompany(company, true)).join('');
+      const unselectedHtml = unselectedCompanies.map(company => window.renderCompany(company, false)).join('');
+      
+      document.getElementById('selected-companies').innerHTML = selectedHtml;
+      document.getElementById('unselected-companies').innerHTML = unselectedHtml;
+    };
+  </script>
+</body>
+</html> 

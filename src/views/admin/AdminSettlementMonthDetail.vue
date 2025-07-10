@@ -73,14 +73,6 @@
           style="gap:0.5em;"
         />
         <Button
-          icon="pi pi-check-square"
-          :label="selectAllText"
-          class="btn-selectall-md"
-          @click="toggleSelectAll"
-          iconPos="left"
-          style="gap:0.5em;"
-        />
-        <Button
           icon="pi pi-trash"
           label="삭제"
           class="btn-delete-md"
@@ -97,7 +89,7 @@
       <div :style="tableConfig.tableStyle">
         <DataTable
           v-if="!loading"
-          :value="filteredList"
+          :value="settlements"
           :loading="false"
           :paginator="false"
           scrollable
@@ -107,16 +99,24 @@
           dataKey="id"
           v-model:selection="selectedRows"
         >
-        <Column headerStyle="width: 3rem" :bodyStyle="{ textAlign: 'center' }">
-          <template #body="slotProps">
-            <input
-              type="checkbox"
-              v-model="slotProps.data._selected"
-              @change="onRowSelectChange(slotProps.data)"
-              class="custom-checkbox"
-            />
-          </template>
-        </Column>
+          <Column headerStyle="width: 3rem" :bodyStyle="{ textAlign: 'center' }">
+            <template #body="slotProps">
+              <input
+                type="checkbox"
+                v-model="slotProps.data._selected"
+                @change="onRowSelectChange(slotProps.data)"
+                class="custom-checkbox"
+              />
+            </template>
+            <template #header>
+              <input
+                type="checkbox"
+                :checked="selectedRows.length === settlements.length && settlements.length > 0"
+                @change="toggleSelectAll"
+                class="custom-checkbox"
+              />
+            </template>
+          </Column>
         <Column
           v-for="col in tableConfig.columns"
           :key="col.field"
@@ -251,8 +251,10 @@
   };
   
   const fetchSettlements = async () => {
+    loading.value = true;
     const baseMonth = route.params.month;
     let query = supabase.from('settlements').select('*', { count: 'exact' }).eq('settlement_month', baseMonth);
+
     if (selectedPrescriptionMonth.value) {
       query = query.eq('prescription_month', selectedPrescriptionMonth.value);
     }
@@ -264,17 +266,19 @@
     query = query.range(first.value, first.value + pageSize.value - 1);
     
     const { data, error, count } = await query;
-    if (!error) {
-      settlements.value = data;
-      totalCount.value = count || 0;
-    } else {
+
+    if (error) {
+      console.error('Error fetching settlements:', error);
       settlements.value = [];
       totalCount.value = 0;
+    } else {
+      settlements.value = data.map(item => ({
+        ...item,
+        _selected: selectedRows.value.some(selected => selected.id === item.id)
+      }));
+      totalCount.value = count || 0;
     }
     loading.value = false;
-
-    // 제품 필터 값
-    console.log('제품 필터 값:', selectedProduct.value);
   };
   
   onMounted(() => {
@@ -524,4 +528,20 @@
     }
   };
   </script>
+  
+<style scoped>
+.custom-checkbox {
+  width: 1.2rem !important;
+  height: 1.2rem !important;
+  margin: 0.4rem;
+  cursor: pointer;
+}
+
+:deep(.p-datatable .p-datatable-tbody > tr > td:first-child),
+:deep(.p-datatable .p-datatable-thead > tr > th:first-child) {
+  width: 3rem !important;
+  min-width: 3rem !important;
+  max-width: 3rem !important;
+}
+</style>
   

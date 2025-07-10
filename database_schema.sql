@@ -248,6 +248,61 @@ WHERE status IS NOT NULL;
 -- 기존 status 컬럼 삭제 (선택사항)
 -- ALTER TABLE pharmaceutical_companies DROP COLUMN IF EXISTS status;
 
+-- EDI 파일 목록 뷰 삭제 후 재생성
+DROP VIEW IF EXISTS admin_edi_list_view;
+
+CREATE VIEW admin_edi_list_view AS
+WITH formatted_settlement_month AS (
+    SELECT 
+        id,
+        CASE 
+            WHEN settlement_month ~ '^\d{4}-\d{2}$' THEN settlement_month
+            WHEN settlement_month ~ '^\d{6}$' THEN 
+                substring(settlement_month, 1, 4) || '-' || substring(settlement_month, 5, 2)
+            ELSE settlement_month
+        END as settlement_month
+    FROM edi_months
+)
+SELECT 
+    ef.id,
+    ef.settlement_month_id,
+    em.settlement_month,
+    ef.member_id,
+    m.company_name,
+    m.biz_no as member_biz_no,
+    m.ceo_name as member_ceo_name,
+    ef.hospital_id,
+    h.hospital_name,
+    h.business_registration_number as hospital_biz_no,
+    h.director_name,
+    ef.file_size_bytes,
+    ef.files->0->>'name' as file_name,
+    ef.files->0->>'url' as file_url,
+    ef.memo,
+    ef.is_deleted,
+    ef.created_at,
+    ef.created_by,
+    cb.company_name as created_by_name,
+    ef.updated_at,
+    ef.updated_by,
+    ub.company_name as updated_by_name,
+    (
+        SELECT json_agg(json_build_object(
+            'id', pc.id,
+            'name', pc.company_name
+        ))
+        FROM edi_file_companies efc
+        JOIN pharmaceutical_companies pc ON pc.id = efc.company_id
+        WHERE efc.edi_file_id = ef.id
+    ) as pharmaceutical_companies
+FROM edi_files ef
+LEFT JOIN formatted_settlement_month em ON em.id = ef.settlement_month_id
+LEFT JOIN members m ON m.id = ef.member_id
+LEFT JOIN hospitals h ON h.id = ef.hospital_id
+LEFT JOIN members cb ON cb.id = ef.created_by
+LEFT JOIN members ub ON ub.id = ef.updated_by
+WHERE ef.is_deleted = false;
+
 COMMIT;
 
 --

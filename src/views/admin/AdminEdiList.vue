@@ -33,14 +33,6 @@
       </div>
       <div style="display: flex; gap: 1rem; align-items:center;">
         <Button
-          icon="pi pi-check-square"
-          :label="selectAllText"
-          class="btn-selectall-md"
-          @click="toggleSelectAll"
-          iconPos="left"
-          style="gap:0.5em;"
-        />
-        <Button
           icon="pi pi-download"
           label="일괄 다운로드"
           class="btn-download-all-md"
@@ -64,16 +56,35 @@
     <div class="table-card">
       <div :style="tableConfig.tableStyle">
         <DataTable
-          v-model:selection="selectedFiles"
+          v-if="!loading"
           :value="files"
           :loading="false"
           :paginator="false"
           scrollable
+          scrollDirection="both"
           :scrollHeight="tableScrollHeight"
-          :style="{ width: tableConfig.tableWidth }"
+          :style="{ width: tableConfig.tableWidth, minWidth: isMobile ? tableConfig.tableStyle.minWidth : undefined }"
           dataKey="edi_id"
+          v-model:selection="selectedFiles"
         >
-          <Column selectionMode="multiple" :style="{width: '4%'}" :bodyStyle="{textAlign: 'center'}"></Column>
+          <Column headerStyle="width: 3rem" :bodyStyle="{ textAlign: 'center' }">
+            <template #body="slotProps">
+              <input
+                type="checkbox"
+                v-model="slotProps.data._selected"
+                @change="onRowSelectChange(slotProps.data)"
+                class="custom-checkbox"
+              />
+            </template>
+            <template #header>
+              <input
+                type="checkbox"
+                :checked="selectedFiles.length === files.length && files.length > 0"
+                @change="toggleSelectAll"
+                class="custom-checkbox"
+              />
+            </template>
+          </Column>
           <Column
             v-for="col in tableConfig.columns"
             :key="col.field"
@@ -87,11 +98,14 @@
               <template v-if="col.field === 'index'">
                 {{ first + slotProps.index + 1 }}
               </template>
-               <template v-else-if="col.field === 'created_at'">
+              <template v-else-if="col.field === 'created_at'">
                 {{ formatDateTime(slotProps.data.created_at) }}
               </template>
+              <template v-else-if="col.field === 'pharmaceutical_companies'">
+                {{ formatPharmaceuticalCompanies(slotProps.data.pharmaceutical_companies) }}
+              </template>
               <template v-else-if="col.type === 'icon' && col.field === 'proof_file'">
-                <Button icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFileInNewTab(slotProps.data.file_url)" />
+                <Button icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFilePreview(slotProps.data)" />
               </template>
               <template v-else-if="col.type === 'icon' && col.field === 'download'">
                 <Button icon="pi pi-download" class="p-button-rounded p-button-text" @click="downloadFile(slotProps.data)" />
@@ -133,7 +147,30 @@ const loading = ref(false);
 const first = ref(0);
 const totalCount = ref(0);
 const pageSize = ref(100);
+
+// 체크박스 선택 관련 데이터
 const selectedFiles = ref([]);
+
+// 체크박스 선택 처리 함수
+const onRowSelectChange = (row) => {
+  const index = selectedFiles.value.findIndex(item => item.edi_id === row.edi_id);
+  if (index === -1) {
+    selectedFiles.value.push(row);
+  } else {
+    selectedFiles.value.splice(index, 1);
+  }
+};
+
+// 전체 선택/해제 토글
+const toggleSelectAll = () => {
+  if (selectedFiles.value.length === files.value.length) {
+    selectedFiles.value = [];
+    files.value.forEach(file => file._selected = false);
+  } else {
+    selectedFiles.value = [...files.value];
+    files.value.forEach(file => file._selected = true);
+  }
+};
 
 const selectedMonth = ref('');
 const selectedCompany = ref('');
@@ -143,9 +180,28 @@ const monthOptions = ref([]);
 const companyOptions = ref([]);
 const hospitalOptions = ref([]);
 
+// 파일 미리보기 관련
+const selectedFile = ref(null);
+const pharmaceuticalCompanies = ref([]);
+const selectedCompanies = ref([]);
+let filePreviewWindow = null;
+
+// 창 위치와 크기 저장 (단순히 마지막 상태만 저장)
+const lastWindowState = ref({
+  width: 1200,
+  height: 800,
+  x: undefined,
+  y: undefined
+});
+
 const formatDateTime = (dateTime) => {
   if (!dateTime) return '-';
   return new Date(dateTime).toLocaleString('sv-SE').slice(0, 16);
+};
+
+const formatPharmaceuticalCompanies = (companies) => {
+  if (!companies || !Array.isArray(companies)) return '-';
+  return companies.map(c => c.name).join(', ');
 };
 
 const fetchDropdownOptions = async () => {
@@ -182,11 +238,127 @@ const fetchFiles = async () => {
     } else {
        alert('데이터 조회 실패: ' + error.message);
     }
+    files.value = [];
+    totalCount.value = 0;
   } else {
-    files.value = data;
+    files.value = data.map(file => ({
+      ...file,
+      _selected: selectedFiles.value.some(selected => selected.edi_id === file.edi_id)
+    }));
     totalCount.value = count || 0;
   }
   loading.value = false;
+};
+
+// 제약사 목록 조회
+const fetchPharmaceuticalCompanies = async () => {
+  const { data, error } = await supabase
+    .from('pharmaceutical_companies')
+    .select('id, name')
+    .order('name');
+    
+  if (error) {
+    console.error('Error fetching pharmaceutical companies:', error);
+    return;
+  }
+  
+  pharmaceuticalCompanies.value = data;
+};
+
+// 파일별 제약사 매핑 조회
+const fetchFileCompanies = async (fileId) => {
+  const { data, error } = await supabase
+    .from('edi_file_companies')
+    .select('company_id')
+    .eq('edi_file_id', fileId);
+    
+  if (error) {
+    console.error('Error fetching file companies:', error);
+    return;
+  }
+  
+  selectedCompanies.value = data.map(d => d.company_id);
+};
+
+const openFilePreview = async (file) => {
+  selectedFile.value = file;
+  await fetchPharmaceuticalCompanies();
+  await fetchFileCompanies(file.id);
+  
+  // 이미 열린 창이 있다면 현재 위치 저장하고 닫기
+  if (filePreviewWindow && !filePreviewWindow.closed) {
+    try {
+      lastWindowState.value = {
+        width: filePreviewWindow.outerWidth,
+        height: filePreviewWindow.outerHeight,
+        x: filePreviewWindow.screenX,
+        y: filePreviewWindow.screenY
+      };
+      filePreviewWindow.close();
+    } catch (e) {
+      console.error('Error saving window state:', e);
+    }
+  }
+  
+  // 저장된 위치가 없으면 기본값 설정
+  if (lastWindowState.value.x === undefined || lastWindowState.value.y === undefined) {
+    lastWindowState.value = {
+      width: 1200,
+      height: 800,
+      x: Math.max(0, (window.screen.width - 1200) / 2),
+      y: Math.max(0, (window.screen.height - 800) / 2)
+    };
+  }
+
+  const windowFeatures = [
+    `width=${lastWindowState.value.width}`,
+    `height=${lastWindowState.value.height}`,
+    `left=${lastWindowState.value.x}`,
+    `top=${lastWindowState.value.y}`,
+    'resizable=yes',
+    'scrollbars=yes',
+    'status=no',
+    'menubar=no',
+    'toolbar=no',
+    'location=no'
+  ].join(',');
+
+  filePreviewWindow = window.open('', '_blank', windowFeatures);
+  
+  if (filePreviewWindow) {
+    const selectedPharmaceuticals = pharmaceuticalCompanies.value
+      .filter(company => selectedCompanies.value.includes(company.id));
+    const unselectedPharmaceuticals = pharmaceuticalCompanies.value
+      .filter(company => !selectedCompanies.value.includes(company.id));
+    
+    // HTML 템플릿 불러오기
+    const response = await fetch('/file-preview-template.html');
+    const template = await response.text();
+    
+    // 템플릿 작성
+    filePreviewWindow.document.write(template);
+    filePreviewWindow.document.close();
+    
+    // 데이터 업데이트
+    filePreviewWindow.updateFileInfo(file);
+    filePreviewWindow.updateCompanies(selectedPharmaceuticals, unselectedPharmaceuticals);
+    
+    // 창이 닫힐 때 위치 저장
+    filePreviewWindow.addEventListener('unload', () => {
+      if (!filePreviewWindow.closed) {
+        try {
+          lastWindowState.value = {
+            width: filePreviewWindow.outerWidth,
+            height: filePreviewWindow.outerHeight,
+            x: filePreviewWindow.screenX,
+            y: filePreviewWindow.screenY
+          };
+        } catch (e) {
+          console.error('Error saving window state on unload:', e);
+        }
+      }
+    });
+  }
 };
 
 onMounted(() => {
@@ -211,25 +383,9 @@ const onPageChange = (event) => {
   fetchFiles();
 };
 
-const openFileInNewTab = (fileUrl) => {
-  if (!fileUrl) {
-    alert('파일 경로가 유효하지 않습니다.');
-    return;
-  }
-  window.open(fileUrl, '_blank');
-};
-
 const selectAllText = computed(() => {
   return selectedFiles.value.length === files.value.length && files.value.length > 0 ? '모두 해제' : '모두 선택';
 });
-
-const toggleSelectAll = () => {
-  if (selectedFiles.value.length === files.value.length) {
-    selectedFiles.value = [];
-  } else {
-    selectedFiles.value = [...files.value];
-  }
-};
 
 const batchDownload = async () => {
   if (selectedFiles.value.length === 0) {
@@ -309,37 +465,22 @@ const downloadFile = async (item) => {
   }
 };
 
-const downloadExcel = () => {
-  const exportData = files.value.map((row, index) => ({
-    '순번': first.value + index + 1,
-    '업체명': row.company_name,
-    '업체 사업자번호': row.member_biz_no,
-    '업체 대표자': row.member_ceo_name,
-    '거래처명': row.hospital_name,
-    '거래처 사업자번호': row.hospital_biz_no,
-    '거래처 원장명': row.director_name,
-    '거래처 주소': row.hospital_address,
-    '파일명': row.file_name,
-    '등록일시': formatDateTime(row.created_at),
-    '등록자': row.created_by_name,
-  }));
-  const ws = XLSX.utils.json_to_sheet(exportData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'EDI 증빙파일 목록');
-  XLSX.writeFile(wb, `edi_files_${new Date().toISOString().slice(0, 10)}.xlsx`);
-};
-
 </script>
 
 <style scoped>
-/* PrimeVue DataTable Checkbox Style Override */
-::v-deep(.p-datatable .p-checkbox-box.p-highlight) {
-  background: #3B82F6 !important;
-  border-color: #3B82F6 !important;
+.custom-checkbox {
+  width: 1.2rem !important;
+  height: 1.2rem !important;
+  margin: 0.4rem;
+  cursor: pointer;
 }
 
-/* Hide the checkmark icon when selected */
-::v-deep(.p-datatable .p-checkbox-box.p-highlight .p-checkbox-icon) {
-  visibility: hidden;
+:deep(.p-datatable .p-datatable-tbody > tr > td:first-child),
+:deep(.p-datatable .p-datatable-thead > tr > th:first-child) {
+  width: 3rem !important;
+  min-width: 3rem !important;
+  max-width: 3rem !important;
 }
 </style>
+
+
