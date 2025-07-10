@@ -150,10 +150,22 @@ onMounted(async () => {
     const { data } = await supabase.from('hospitals').select('hospital_name').eq('id', hospitalId).single();
     hospitalName.value = data?.hospital_name || '';
   }
+
   // 기존 데이터 불러오기
-  const { data: fileRow } = await supabase.from('edi_files').select('files, memo').eq('id', fileId).single();
-  selectedFiles.value = fileRow?.files || [];
-  memo.value = fileRow?.memo || '';
+  const { data: fileData } = await supabase
+    .from('edi_files')
+    .select('file_url, file_name, original_file_name, file_size, memo')
+    .eq('id', fileId)
+    .single();
+
+  if (fileData) {
+    selectedFiles.value = [{
+      url: fileData.file_url,
+      name: fileData.original_file_name,
+      size: fileData.file_size
+    }];
+    memo.value = fileData.memo || '';
+  }
 
   // EDI가 활성화된 제약사만 조회
   const { data } = await supabase
@@ -168,6 +180,7 @@ onMounted(async () => {
     .from('edi_file_companies')
     .select('company_id, pharmaceutical_companies(id, company_name, edi_comment)')
     .eq('edi_file_id', fileId);
+  
   selectedCompanies.value = (companyRows || []).map(c => ({
     id: c.company_id,
     company_name: c.pharmaceutical_companies?.company_name || '',
@@ -249,46 +262,100 @@ function removeFile(idx) {
 
 async function submitEdit() {
   if (!selectedFiles.value.length || !selectedCompanies.value.length) return;
+  
   isSubmitting.value = true;
-  const uploadedFiles = [];
-  for (const file of selectedFiles.value) {
-    if (file.url) {
-      // 기존 파일(이미 업로드된 파일)
-      uploadedFiles.push(file);
-    } else {
-      // 새로 추가된 파일(File 객체)
+  
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    const memberId = user?.id;
+    let fileUrl = selectedFiles.value[0].url;
+    let fileName = selectedFiles.value[0].name;
+    let originalFileName = selectedFiles.value[0].name;
+    let fileSize = selectedFiles.value[0].size;
+
+    // 새로운 파일이 선택된 경우
+    if (!fileUrl) {
+      const file = selectedFiles.value[0];
       const ext = file.name.split('.').pop();
-      const safeName = `edi_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const safeName = `edi_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
       const filePath = `edi_files/${safeName}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage.from('edi-uploads').upload(filePath, file);
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('edi-uploads')
+        .upload(filePath, file);
+
       if (uploadError) {
-        alert('파일 업로드 실패: ' + file.name);
+        console.error('파일 업로드 실패:', uploadError);
+        alert('파일 업로드에 실패했습니다.');
         isSubmitting.value = false;
         return;
       }
-      const { data: { publicUrl } } = supabase.storage.from('edi-uploads').getPublicUrl(uploadData.path);
-      uploadedFiles.push({ original_name: file.name, url: publicUrl });
+
+      fileUrl = supabase.storage.from('edi-uploads').getPublicUrl(filePath).data.publicUrl;
+      fileName = safeName;
+      originalFileName = file.name;
+      fileSize = file.size;
     }
-  }
-  const { error: fileError } = await supabase.from('edi_files').update({
-    files: uploadedFiles,
-    memo: memo.value
-  }).eq('id', fileId);
-  if (fileError) {
-    alert('DB 저장 실패');
+
+    // EDI 파일 정보 업데이트
+    const { error: fileError } = await supabase
+      .from('edi_files')
+      .update({
+        file_url: fileUrl,
+        file_name: fileName,
+        original_file_name: originalFileName,
+        file_size: fileSize,
+        memo: memo.value,
+        updated_by: memberId,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', fileId);
+
+    if (fileError) {
+      console.error('EDI 파일 수정 실패:', fileError);
+      alert('EDI 파일 정보 수정에 실패했습니다.');
+      isSubmitting.value = false;
+      return;
+    }
+
+    // 제약사 매핑 갱신
+    const { error: deleteError } = await supabase
+      .from('edi_file_companies')
+      .delete()
+      .eq('edi_file_id', fileId);
+
+    if (deleteError) {
+      console.error('기존 제약사 매핑 삭제 실패:', deleteError);
+      alert('제약사 매핑 수정에 실패했습니다.');
+      isSubmitting.value = false;
+      return;
+    }
+
+    // 새로운 제약사 매핑 생성
+    for (const company of selectedCompanies.value) {
+      const { error: mappingError } = await supabase
+        .from('edi_file_companies')
+        .insert({
+          edi_file_id: fileId,
+          company_id: company.id,
+          created_by: memberId,
+          updated_by: memberId
+        });
+
+      if (mappingError) {
+        console.error('제약사 매핑 추가 실패:', mappingError, company);
+        alert(`제약사 매핑 추가 실패: ${company.company_name}`);
+        // 매핑 실패는 경고만 표시하고 계속 진행
+      }
+    }
+
+    alert('수정이 완료되었습니다.');
+    router.back();
+  } catch (error) {
+    console.error('수정 중 오류 발생:', error);
+    alert('수정 중 오류가 발생했습니다.');
+  } finally {
     isSubmitting.value = false;
-    return;
   }
-  // 제약사 매핑 갱신: 기존 삭제 후 새로 추가
-  await supabase.from('edi_file_companies').delete().eq('edi_file_id', fileId);
-  for (const company of selectedCompanies.value) {
-    await supabase.from('edi_file_companies').insert({
-      edi_file_id: fileId,
-      company_id: company.id
-    });
-  }
-  alert('수정 완료!');
-  isSubmitting.value = false;
-  router.back();
 }
 </script>

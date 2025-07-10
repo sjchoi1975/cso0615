@@ -70,6 +70,11 @@
                   {{ slotProps.data.current_month_files }}
                 </span>
               </span>
+              <span v-else-if="col.field === 'confirm'">
+                <span :class="{ 'text-green-500': slotProps.data.confirm, 'text-red-500': !slotProps.data.confirm }">
+                  {{ slotProps.data.confirm ? '확인' : '미확인' }}
+                </span>
+              </span>
               <Button
                 v-else-if="col.field === 'viewDetail'"
                 icon="pi pi-list"
@@ -204,7 +209,11 @@ const fetchMappedHospitals = async () => {
     return;
   }
 
-  const hospitals = hospitalMappings.map(item => item.hospitals);
+  // 거래처명으로 정렬
+  const hospitals = hospitalMappings
+    .map(item => item.hospitals)
+    .sort((a, b) => a.hospital_name.localeCompare(b.hospital_name, 'ko'));
+    
   const hospitalIds = hospitals.map(h => h.id);
   
   const currentMonthId = selectedMonth.value.id;
@@ -221,35 +230,30 @@ const fetchMappedHospitals = async () => {
   const periodIds = [currentMonthId];
   if (lastMonthId) periodIds.push(lastMonthId);
 
-  const { data: files, error: filesError } = await supabase
+  const { data: ediFiles, error: ediError } = await supabase
     .from('edi_files')
-    .select('hospital_id, settlement_month_id, files')
-    .in('hospital_id', hospitalIds)
-    .in('settlement_month_id', periodIds)
+    .select('id, confirm')
+    .eq('settlement_month', selectedMonth.value.settlement_month)
+    .eq('company_id', userInfo.value.company_id)
     .eq('is_deleted', false);
 
-  if (filesError) {
-    console.error('Error fetching file counts:', filesError);
+  if (ediError) {
+    console.error('Error fetching EDI files:', ediError);
   }
-  
-  const fileCounts = (files || []).reduce((acc, file) => {
-    const key = `${file.hospital_id}-${file.settlement_month_id}`;
-    const fileCount = Array.isArray(file.files) ? file.files.length : 0;
-    acc[key] = (acc[key] || 0) + fileCount;
-    return acc;
-  }, {});
 
-  allMappedHospitals.value = hospitals.map(hospital => {
-    const currentMonthCount = fileCounts[`${hospital.id}-${currentMonthId}`] || 0;
-    const lastMonthCount = lastMonthId ? (fileCounts[`${hospital.id}-${lastMonthId}`] || 0) : 0;
+  // 병원 데이터에 파일 정보 매핑
+  allMappedHospitals.value = hospitalMappings.map(mapping => {
+    const hospital = mapping.hospitals;
+    const hospitalFiles = ediFiles?.filter(file => file.client_id === hospital.id) || [];
+    const isConfirmed = hospitalFiles.some(file => file.confirm);
 
     return {
       ...hospital,
-      last_month_files: lastMonthCount > 0 ? lastMonthCount : '-',
-      current_month_files: currentMonthCount > 0 ? currentMonthCount : '-',
+      current_month_files: hospitalFiles.length || '-',
+      confirm: isConfirmed
     };
   });
-  
+
   applySearch();
   loading.value = false;
 };

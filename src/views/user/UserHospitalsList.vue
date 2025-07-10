@@ -235,13 +235,17 @@ const fetchHospitals = async (pageFirst = 0, pageRows = 100) => {
         }
 
         query = query
-            .range(pageFirst, pageFirst + pageRows - 1)
-            .order('registered_at', { ascending: false });
+            .range(pageFirst, pageFirst + pageRows - 1);
 
         const { data, error, count } = await query;
         if (error) throw error;
 
-        hospitals.value = data.map(item => ({
+        // 데이터를 가져온 후 JavaScript에서 정렬
+        const sortedData = data.sort((a, b) => 
+            a.hospital_name.localeCompare(b.hospital_name, 'ko')
+        );
+
+        hospitals.value = sortedData.map(item => ({
             ...item,
             creator_name: item.creator ? item.creator.company_name : '-',
             updater_name: item.updater ? item.updater.company_name : '-',
@@ -409,24 +413,3 @@ const deleteMapping = async (hospital) => {
 };
 
 </script>
-
-<style scoped>
-.page-container {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.filter-card,
-.function-card {
-  flex-shrink: 0;
-}
-
-.table-card {
-  flex: 1;
-  overflow: hidden;
-}
-
-/* 기존 스타일들... */
-</style>

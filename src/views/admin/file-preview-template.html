@@ -1,195 +1,360 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <title>파일 미리보기</title>
-  <link href="https://unpkg.com/primevue/resources/themes/lara-light-blue/theme.css" rel="stylesheet">
-  <link href="https://unpkg.com/primevue/resources/primevue.min.css" rel="stylesheet">
-  <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet">
-  <style>
-    body { margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .container {
-      display: flex; 
-      gap: 2rem; 
-      height: calc(100vh - 40px); 
-    }
-    .file-preview { 
-      flex: 1; 
-      min-width: 0; 
-      background: #f8f9fa; 
-      border-radius: 4px; 
-      padding: 1rem; 
-      overflow: auto; 
-    }
-    .file-preview img { 
-      max-width: 100%; 
-      height: auto; 
-    }
-    .file-info { 
-      width: 400px; 
-      padding: 1rem; 
-      background: #fff; 
-      border-radius: 4px; 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-      overflow-y: auto; 
-    }
-    .info-row { 
-      margin-bottom: 1rem; 
-    }
-    .info-row label { 
-      display: block; 
-      font-weight: bold; 
-      margin-bottom: 0.25rem; 
-      color: #666; 
-    }
-    .pharmaceutical-companies { 
-      margin: 1rem 0; 
-      max-height: calc(100vh - 400px); 
-      overflow-y: auto; 
-    }
-    .company-item { 
-      display: flex; 
-      align-items: center; 
-      padding: 0.75rem 1rem; 
-      border: 1px solid #e5e7eb; 
-      border-radius: 4px; 
-      margin-bottom: 0.5rem; 
-      cursor: pointer; 
-      transition: all 0.2s; 
-    }
-    .company-item:hover { 
-      background-color: #f3f4f6; 
-    }
-    .company-item.selected { 
-      background-color: #eaf6fd; 
-      border-color: #3B82F6; 
-    }
-    .company-item input[type="checkbox"] { 
-      margin-right: 0.75rem; 
-    }
-    .company-item label { 
-      flex: 1; 
-      cursor: pointer; 
-    }
-    .company-search { 
-      margin-bottom: 1rem; 
-      width: 100%; 
-      padding: 0.5rem; 
-      border: 1px solid #e5e7eb; 
-      border-radius: 4px; 
-    }
-    .company-section { 
-      margin-bottom: 1.5rem; 
-    }
-    .section-title { 
-      font-size: 0.875rem; 
-      color: #666; 
-      margin-bottom: 0.5rem; 
-    }
-    .action-buttons { 
-      margin-top: 1rem; 
-      text-align: right; 
-    }
-    .p-button { 
-      color: #fff; 
-      background: #3B82F6; 
-      border: 1px solid #3B82F6; 
-      padding: 0.5rem 1rem; 
-      border-radius: 4px; 
-      cursor: pointer; 
-    }
-    .p-button:hover { 
-      background: #2563EB; 
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파일 미리보기</title>
+    <link href="https://unpkg.com/primevue@3/resources/themes/lara-light-blue/theme.css" rel="stylesheet">
+    <link href="https://unpkg.com/primevue@3/resources/primevue.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/main.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+        .preview-section {
+            flex: 1;
+            min-width: 0;
+            background: #fff;
+            border: 1px solid #d0d0d0;
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .info-section {
+            width: 400px;
+            background: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .preview-image {
+            flex: 1;
+            overflow: auto;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+        .preview-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .info-row {
+            margin-bottom: 1rem;
+        }
+        .info-row label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: #374151;
+        }
+
+        .info-row span {
+            color: #1f2937;
+        }
+
+        /* EDI 증빙 파일 미리보기 - 등록 정보 */
+        .title-mini {
+            font-size: 0.85rem !important;
+            color:#444 !important;
+            font-weight:400 !important;
+            margin-bottom: 0 !important;
+        }
+        .contents-mini {
+            font-size: 0.95rem !important;
+            color:#222 !important;
+            font-weight:500 !important;
+        }
+
+
+        .company-section {
+            margin-top: 30px;
+        }
+        .company-section h3 {
+            margin: 0 0 15px 0;
+            color: #1f2937;
+        }
+        .company-list {
+            min-height: 180px;
+            max-height: 360px;
+            background: #fcfcfc;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            padding: 0.5rem 0;
+        }
+        .company-item {
+            display: flex;
+            align-items: center;
+            padding: 0.15rem 1rem;
+            cursor: pointer;
+            border-radius: 0;
+            transition: background-color 0.2s;
+            font-size: 1rem;
+        }
+
+        .company-item:hover {
+            background-color: #e3f2fd !important;
+        }
+        .company-item.selected {
+            background-color: none !important;
+            color: #1976d2 !important;
+            font-weight: 500 !important;
+        }
+        .search-box {
+            margin-bottom: 0.75rem;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            font-size: 0.9rem;
+        }
+        .action-buttons {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            border-radius: 4px;
+            justify-content: flex-end;
+        }
+
+        .company-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 4px 4px 4px;
+            border-radius: 8px;
+            margin: 3px;
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+        .remove-tag {
+            margin-left: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #888;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+        .remove-tag:hover {
+            background-color: #a0a0a0;
+        }
+
+        .selected-companies {
+            margin-top: 0.5rem;
+            padding: 0.35rem;
+            background: #eaeaea !important;
+            border-radius: 2px;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-confirm,
+        .btn-cancel {
+            padding: 0.35rem 1.2rem !important;
+            font-size: 1rem !important;
+            font-weight: 400 !important;
+            border: 1px solid transparent !important;
+            border-radius: 4px;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+            text-align: center !important;
+            transition: all 0.2s ease-in-out !important;
+            box-shadow: var(--shadow-sm) !important;
+            font-size: 1rem !important;
+        }
+        .btn-confirm {
+            background: #1976d2 !important;
+            color: #fff !important;
+        }  
+        .btn-cancel {
+            background: #666 !important;
+            color: #fff !important;
+        }
+
+
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="file-preview">
-      <img id="preview-image" alt="파일 미리보기" style="max-width: 100%; max-height: 90vh;">
-    </div>
-    <div class="file-info">
-      <h3>파일 정보</h3>
-      <div class="info-row">
-        <label>업체명:</label>
-        <span id="company-name">-</span>
-      </div>
-      <div class="info-row">
-        <label>거래처명:</label>
-        <span id="hospital-name">-</span>
-      </div>
-      <div class="info-row">
-        <label>메모:</label>
-        <span id="memo">-</span>
-      </div>
-      <div class="info-row">
-        <label>등록일시:</label>
-        <span id="created-at">-</span>
-      </div>
-      <div class="info-row">
-        <label>등록자:</label>
-        <span id="created-by">-</span>
-      </div>
-      
-      <h3>제약사 매핑</h3>
-      <input type="text" class="company-search" placeholder="제약사명으로 검색" oninput="window.filterCompanies(this.value)">
-      
-      <div class="pharmaceutical-companies">
-        <div class="company-section">
-          <div class="section-title">선택된 제약사</div>
-          <div id="selected-companies"></div>
+    <div class="container">
+        <div class="preview-section">
+            <div class="preview-image">
+                <img id="previewImage" src="" alt="파일 미리보기">
+            </div>
         </div>
-        
-        <div class="company-section">
-          <div class="section-title">미선택 제약사</div>
-          <div id="unselected-companies"></div>
+        <div class="info-section">
+            <div class="info-row">
+                <label class="title-mini">업체명</label>
+                <span class="contents-mini" id="companyName"></span>
+            </div>
+            <div class="info-row">
+                <label class="title-mini">거래처명</label>
+                <span class="contents-mini" id="hospitalName"></span>
+            </div>
+            <div class="info-row">
+                <label class="title-mini">메모</label>
+                <span class="contents-mini" id="memo"></span>
+            </div>
+            <div class="info-row">
+                <label class="title-mini">등록일시</label>
+                <span class="contents-mini" id="createdAt"></span>
+            </div>
+            <div class="info-row">
+                <label class="title-mini">등록자</label>
+                <span class="contents-mini" id="createdBy"></span>
+            </div>
+            <hr style="border: 1px solid #ddd;">
+            <div class="info-row">
+                <label class="title-mini" style="font-size: 1rem !important; font-weight: 500 !important;">제약사</label>
+                <div class="selected-companies" id="selectedCompanies">
+                    <!-- 선택된 제약사들이 여기에 표시됩니다 -->
+                </div>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="제약사 검색...">
+                </div>
+                <div class="company-list" id="companyList">
+                    <!-- 제약사 목록이 여기에 표시됩니다 -->
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-cancel" onclick="window.close()">닫기</button>
+                    <button class="btn-confirm" onclick="saveMapping()">확인</button>
+                </div>
+            </div>
         </div>
-      </div>
-      
-      <div class="action-buttons">
-        <button class="p-button" onclick="window.opener.savePharmaceuticalCompanies()">저장</button>
-      </div>
     </div>
-  </div>
-  <script>
-    window.filterCompanies = function(searchText) {
-      const items = document.querySelectorAll('.company-item');
-      items.forEach(item => {
-        const label = item.querySelector('label');
-        const text = label.textContent.toLowerCase();
-        if (text.includes(searchText.toLowerCase())) {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
+
+    <script>
+        let selectedCompanies = [];
+        let allCompanies = [];
+        let currentFileId = null;
+
+        function formatDateTime(dateTime) {
+            if (!dateTime) return '-';
+            return new Date(dateTime).toLocaleString('sv-SE').slice(0, 16);
         }
-      });
-    };
 
-    window.renderCompany = function(company, isSelected) {
-      return `
-        <div class="company-item${isSelected ? ' selected' : ''}">
-          <input type="checkbox" id="company-${company.id}"${isSelected ? ' checked' : ''} onchange="window.opener.toggleCompany(${company.id})">
-          <label for="company-${company.id}">${company.name}</label>
-        </div>
-      `;
-    };
+        function updateFileInfo(file) {
+            document.getElementById('previewImage').src = file.file_url;
+            document.getElementById('companyName').textContent = file.company_name || '-';
+            document.getElementById('hospitalName').textContent = file.hospital_name || '-';
+            document.getElementById('memo').textContent = file.memo || '-';
+            document.getElementById('createdAt').textContent = formatDateTime(file.created_at);
+            document.getElementById('createdBy').textContent = file.created_by_name || '-';
+            currentFileId = file.id;
+        }
 
-    window.updateFileInfo = function(file) {
-      document.title = file.file_name || '파일 미리보기';
-      document.getElementById('preview-image').src = file.file_url;
-      document.getElementById('company-name').textContent = file.company_name || '-';
-      document.getElementById('hospital-name').textContent = file.hospital_name || '-';
-      document.getElementById('memo').textContent = file.memo || '-';
-      document.getElementById('created-at').textContent = file.created_at || '-';
-      document.getElementById('created-by').textContent = file.created_by_name || '-';
-    };
+        function updateCompanies(selected, unselected) {
+            selectedCompanies = selected.map(c => c.id);
+            allCompanies = [...selected, ...unselected];
+            renderCompanyLists();
+        }
 
-    window.updateCompanies = function(selectedCompanies, unselectedCompanies) {
-      const selectedHtml = selectedCompanies.map(company => window.renderCompany(company, true)).join('');
-      const unselectedHtml = unselectedCompanies.map(company => window.renderCompany(company, false)).join('');
-      
-      document.getElementById('selected-companies').innerHTML = selectedHtml;
-      document.getElementById('unselected-companies').innerHTML = unselectedHtml;
-    };
-  </script>
+        function renderCompanyLists() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            // 선택된 제약사 표시
+            const selectedContainer = document.getElementById('selectedCompanies');
+            selectedContainer.innerHTML = selectedCompanies.length > 0 
+                ? selectedCompanies.map(id => {
+                    const company = allCompanies.find(c => c.id === id);
+                    return company ? `<span class="company-tag">${company.company_name}<span class="remove-tag" onclick="toggleCompany(${company.id})">&times;</span></span>` : '';
+                }).join('')
+                : '<span style="color: #6b7280;">선택된 제약사가 없습니다</span>';
+
+            // 정렬 로직 추가
+            const sortedCompanies = [...allCompanies].sort((a, b) => {
+                const aIsSelected = selectedCompanies.includes(a.id);
+                const bIsSelected = selectedCompanies.includes(b.id);
+                if (aIsSelected !== bIsSelected) {
+                    return aIsSelected ? -1 : 1;
+                }
+                return a.company_name.localeCompare(b.company_name, 'ko');
+            });
+
+            // 전체 제약사 목록 표시
+            const listContainer = document.getElementById('companyList');
+            listContainer.innerHTML = sortedCompanies
+                .filter(company => company.company_name.toLowerCase().includes(searchTerm))
+                .map(company => `
+                    <div class="company-item ${selectedCompanies.includes(company.id) ? 'selected' : ''}"
+                         onclick="toggleCompany(${company.id})">
+                        ${company.company_name}
+                    </div>
+                `).join('');
+        }
+
+        function toggleCompany(companyId) {
+            const index = selectedCompanies.indexOf(companyId);
+            if (index === -1) {
+                selectedCompanies.push(companyId);
+            } else {
+                selectedCompanies.splice(index, 1);
+            }
+            renderCompanyLists();
+        }
+
+        async function saveMapping() {
+            try {
+                // 기존 매핑 삭제
+                await window.opener.supabase
+                    .from('edi_file_companies')
+                    .delete()
+                    .eq('edi_file_id', currentFileId);
+
+                // 새로운 매핑 추가
+                if (selectedCompanies.length > 0) {
+                    const mappings = selectedCompanies.map(companyId => ({
+                        edi_file_id: currentFileId,
+                        company_id: companyId
+                    }));
+
+                    const { error: mappingError } = await window.opener.supabase
+                        .from('edi_file_companies')
+                        .insert(mappings);
+
+                    if (mappingError) throw mappingError;
+                }
+
+                // confirm 상태를 true로 업데이트
+                const { error: confirmError } = await window.opener.supabase
+                    .from('edi_files')
+                    .update({ confirm: true })
+                    .eq('id', currentFileId);
+
+                if (confirmError) throw confirmError;
+
+                alert('제약사 매핑이 저장되었습니다.');
+                window.opener.fetchFiles(); // 부모 창 목록 새로고침
+            } catch (error) {
+                console.error('Error saving pharmaceutical companies:', error);
+                alert('제약사 매핑 저장 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 검색 기능
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderCompanyLists();
+        });
+    </script>
 </body>
 </html> 

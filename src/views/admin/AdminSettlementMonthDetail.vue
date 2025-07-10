@@ -532,8 +532,7 @@
 <style scoped>
 .custom-checkbox {
   width: 1.2rem !important;
-  height: 1.2rem !important;
-  margin: 0.4rem;
+  margin: 0 0.4rem;
   cursor: pointer;
 }
 

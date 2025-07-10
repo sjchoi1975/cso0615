@@ -98,11 +98,21 @@
               <template v-if="col.field === 'index'">
                 {{ first + slotProps.index + 1 }}
               </template>
+              <template v-else-if="col.type === 'link'">
+                <span class="link" @click="openFilePreview(slotProps.data)">
+                  {{ slotProps.data[col.field] }}
+                </span>
+              </template>
               <template v-else-if="col.field === 'created_at'">
                 {{ formatDateTime(slotProps.data.created_at) }}
               </template>
               <template v-else-if="col.field === 'pharmaceutical_companies'">
                 {{ formatPharmaceuticalCompanies(slotProps.data.pharmaceutical_companies) }}
+              </template>
+              <template v-else-if="col.field === 'confirm'">
+                <span :class="{ 'text-green-500': slotProps.data.confirm, 'text-red-500': !slotProps.data.confirm }">
+                  {{ slotProps.data.confirm ? '확인' : '미확인' }}
+                </span>
               </template>
               <template v-else-if="col.type === 'icon' && col.field === 'proof_file'">
                 <Button icon="pi pi-file" class="p-button-rounded p-button-text" @click="openFilePreview(slotProps.data)" />
@@ -201,7 +211,7 @@ const formatDateTime = (dateTime) => {
 
 const formatPharmaceuticalCompanies = (companies) => {
   if (!companies || !Array.isArray(companies)) return '-';
-  return companies.map(c => c.name).join(', ');
+  return companies.map(c => c.company_name).join(', ');
 };
 
 const fetchDropdownOptions = async () => {
@@ -254,8 +264,8 @@ const fetchFiles = async () => {
 const fetchPharmaceuticalCompanies = async () => {
   const { data, error } = await supabase
     .from('pharmaceutical_companies')
-    .select('id, name')
-    .order('name');
+    .select('id, company_name')
+    .order('company_name');
     
   if (error) {
     console.error('Error fetching pharmaceutical companies:', error);
@@ -282,9 +292,31 @@ const fetchFileCompanies = async (fileId) => {
 
 const openFilePreview = async (file) => {
   selectedFile.value = file;
-  await fetchPharmaceuticalCompanies();
-  await fetchFileCompanies(file.id);
   
+  // 제약사 목록 조회
+  const { data: companies, error: companiesError } = await supabase
+    .from('pharmaceutical_companies')
+    .select('id, company_name')
+    .order('company_name');
+    
+  if (companiesError) {
+    console.error('Error fetching pharmaceutical companies:', companiesError);
+    return;
+  }
+  pharmaceuticalCompanies.value = companies;
+
+  // 현재 파일의 제약사 매핑 조회
+  const { data: mappings, error: mappingsError } = await supabase
+    .from('edi_file_companies')
+    .select('company_id')
+    .eq('edi_file_id', file.id);
+    
+  if (mappingsError) {
+    console.error('Error fetching file companies:', mappingsError);
+    return;
+  }
+  selectedCompanies.value = mappings.map(m => m.company_id);
+
   // 이미 열린 창이 있다면 현재 위치 저장하고 닫기
   if (filePreviewWindow && !filePreviewWindow.closed) {
     try {
@@ -304,9 +336,9 @@ const openFilePreview = async (file) => {
   if (lastWindowState.value.x === undefined || lastWindowState.value.y === undefined) {
     lastWindowState.value = {
       width: 1200,
-      height: 800,
+      height: window.screen.height,
       x: Math.max(0, (window.screen.width - 1200) / 2),
-      y: Math.max(0, (window.screen.height - 800) / 2)
+      y: 0
     };
   }
 
@@ -326,22 +358,42 @@ const openFilePreview = async (file) => {
   filePreviewWindow = window.open('', '_blank', windowFeatures);
   
   if (filePreviewWindow) {
+    // 선택된/미선택된 제약사 분류
     const selectedPharmaceuticals = pharmaceuticalCompanies.value
-      .filter(company => selectedCompanies.value.includes(company.id));
+      .filter(company => selectedCompanies.value.includes(company.id))
+      .map(company => ({
+        id: company.id,
+        company_name: company.company_name
+      }));
+      
     const unselectedPharmaceuticals = pharmaceuticalCompanies.value
-      .filter(company => !selectedCompanies.value.includes(company.id));
+      .filter(company => !selectedCompanies.value.includes(company.id))
+      .map(company => ({
+        id: company.id,
+        company_name: company.company_name
+      }));
     
     // HTML 템플릿 불러오기
-    const response = await fetch('/file-preview-template.html');
+    const response = await fetch('/src/views/admin/file-preview-template.html');
     const template = await response.text();
     
     // 템플릿 작성
     filePreviewWindow.document.write(template);
     filePreviewWindow.document.close();
     
-    // 데이터 업데이트
-    filePreviewWindow.updateFileInfo(file);
-    filePreviewWindow.updateCompanies(selectedPharmaceuticals, unselectedPharmaceuticals);
+    filePreviewWindow.onload = () => {
+      // 데이터 업데이트
+      filePreviewWindow.updateFileInfo({
+        id: file.id,
+        file_url: file.file_url,
+        company_name: file.company_name,
+        hospital_name: file.hospital_name,
+        memo: file.memo,
+        created_at: formatDateTime(file.created_at),
+        created_by_name: file.created_by_name
+      });
+      filePreviewWindow.updateCompanies(selectedPharmaceuticals, unselectedPharmaceuticals);
+    };
     
     // 창이 닫힐 때 위치 저장
     filePreviewWindow.addEventListener('unload', () => {
@@ -358,6 +410,89 @@ const openFilePreview = async (file) => {
         }
       }
     });
+  }
+};
+
+// 제약사 업데이트 함수 추가
+const updatePharmaceuticalCompanies = async (fileId, companies) => {
+  const { error } = await supabase
+    .from('edi_files')
+    .update({
+      pharmaceutical_companies: {
+        companies: companies.map(id => ({
+          id,
+          name: pharmaceuticalCompanies.value.find(c => c.id === id)?.company_name
+        }))
+      }
+    })
+    .eq('id', fileId);
+
+  if (error) {
+    console.error('Error updating pharmaceutical companies:', error);
+    return false;
+  }
+  return true;
+};
+
+// 제약사 선택/해제 처리
+const toggleCompany = async (companyId) => {
+  const selectedIndex = selectedCompanies.value.findIndex(id => id === companyId);
+  if (selectedIndex === -1) {
+    selectedCompanies.value.push(companyId);
+  } else {
+    selectedCompanies.value.splice(selectedIndex, 1);
+  }
+
+  // 선택된 제약사와 미선택 제약사 목록 업데이트
+  const selectedPharmaceuticals = pharmaceuticalCompanies.value
+    .filter(company => selectedCompanies.value.includes(company.id));
+  const unselectedPharmaceuticals = pharmaceuticalCompanies.value
+    .filter(company => !selectedCompanies.value.includes(company.id));
+  
+  // 팝업 창의 목록 업데이트
+  if (filePreviewWindow && !filePreviewWindow.closed) {
+    filePreviewWindow.updateCompanies(selectedPharmaceuticals, unselectedPharmaceuticals);
+  }
+};
+
+// 제약사 매핑 저장
+const savePharmaceuticalCompanies = async () => {
+  if (!selectedFile.value) return;
+
+  try {
+    // edi_file_companies 테이블에서 기존 매핑 삭제
+    const { error: deleteError } = await supabase
+      .from('edi_file_companies')
+      .delete()
+      .eq('edi_file_id', selectedFile.value.id);
+
+    if (deleteError) throw deleteError;
+
+    // 새로운 매핑 추가
+    if (selectedCompanies.value.length > 0) {
+      const { error: insertError } = await supabase
+        .from('edi_file_companies')
+        .insert(
+          selectedCompanies.value.map(companyId => ({
+            edi_file_id: selectedFile.value.id,
+            company_id: companyId
+          }))
+        );
+
+      if (insertError) throw insertError;
+    }
+
+    // 파일 미리보기 창 닫기
+    if (filePreviewWindow && !filePreviewWindow.closed) {
+      filePreviewWindow.close();
+    }
+
+    // 목록 새로고침
+    await fetchFiles();
+
+  } catch (error) {
+    console.error('Error saving pharmaceutical companies:', error);
+    alert('제약사 매핑 저장 중 오류가 발생했습니다.');
   }
 };
 
@@ -387,81 +522,116 @@ const selectAllText = computed(() => {
   return selectedFiles.value.length === files.value.length && files.value.length > 0 ? '모두 해제' : '모두 선택';
 });
 
+// 일괄 다운로드
 const batchDownload = async () => {
   if (selectedFiles.value.length === 0) {
     alert('다운로드할 파일을 선택해주세요.');
     return;
   }
 
-  const zip = new JSZip();
-  const promises = selectedFiles.value.map(async (file) => {
-    try {
-      const response = await fetch(file.file_url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${file.file_url}`);
+  loading.value = true;
+  try {
+    const zip = new JSZip();
+    
+    // 선택된 각 파일을 다운로드하여 ZIP에 추가
+    for (const file of selectedFiles.value) {
+      try {
+        const response = await fetch(file.file_url);
+        const blob = await response.blob();
+        zip.file(file.file_name, blob);
+      } catch (error) {
+        console.error(`파일 다운로드 실패 (${file.file_name}):`, error);
       }
-      const blob = await response.blob();
-      
-      const companyName = file.company_name || '업체명';
-      const hospitalName = file.hospital_name || '거래처명';
-      const settlementMonth = file.settlement_month || '정산월';
-      
-      const url = new URL(file.file_url);
-      const path = decodeURIComponent(url.pathname);
-      const extension = path.substring(path.lastIndexOf('.'));
-      const newFilename = `${companyName}_${hospitalName}_${settlementMonth}${extension}`;
-
-      zip.file(newFilename, blob);
-    } catch (error) {
-      console.error('Error processing file for zipping:', error);
     }
-  });
-
-  await Promise.all(promises);
-
-  zip.generateAsync({ type: 'blob' }).then((content) => {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(content);
-    link.download = `edi_files_${new Date().toISOString().slice(0,10)}.zip`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
-  });
+    
+    // ZIP 파일 생성 및 다운로드
+    const content = await zip.generateAsync({ type: 'blob' });
+    const url = window.URL.createObjectURL(content);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `EDI_files_${new Date().toISOString().slice(0, 10)}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  } catch (error) {
+    console.error('일괄 다운로드 실패:', error);
+    alert('일괄 다운로드에 실패했습니다.');
+  } finally {
+    loading.value = false;
+  }
 };
 
-const downloadFile = async (item) => {
-  if (!item.file_url) {
-    alert('파일 경로가 유효하지 않습니다.');
+// 엑셀 다운로드
+const downloadExcel = () => {
+  if (!files.value.length) {
+    alert('다운로드할 데이터가 없습니다.');
     return;
   }
+  
+  const headers = [
+    '순번', '업체명', '사업자번호', '대표자',
+    '거래처명', '사업자번호', '원장명',
+    '파일명', '제약사', '메모', '등록일시'
+  ];
+  
+  const data = files.value.map((item, index) => [
+    first.value + index + 1,
+    item.company_name,
+    item.member_biz_no,
+    item.member_ceo_name,
+    item.hospital_name,
+    item.hospital_biz_no,
+    item.director_name,
+    item.file_name,
+    formatPharmaceuticalCompanies(item.pharmaceutical_companies),
+    item.memo,
+    formatDateTime(item.created_at)
+  ]);
+  
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'EDI목록');
+  
+  // 컬럼 너비 설정
+  ws['!cols'] = [
+    { wch: 6 },  // 순번
+    { wch: 15 }, // 업체명
+    { wch: 12 }, // 사업자번호
+    { wch: 10 }, // 대표자
+    { wch: 20 }, // 거래처명
+    { wch: 12 }, // 사업자번호
+    { wch: 10 }, // 원장명
+    { wch: 30 }, // 파일명
+    { wch: 30 }, // 제약사
+    { wch: 20 }, // 메모
+    { wch: 16 }  // 등록일시
+  ];
+  
+  const fileName = `EDI목록_${new Date().toISOString().slice(0,10)}.xlsx`;
+  XLSX.writeFile(wb, fileName);
+};
+
+const downloadFile = async (file) => {
+  if (!file.file_url) {
+    alert('파일 URL이 없습니다.');
+    return;
+  }
+  
   try {
-    const response = await fetch(item.file_url);
-    if (!response.ok) {
-      throw new Error('파일을 가져오는 데 실패했습니다.');
-    }
+    const response = await fetch(file.file_url);
     const blob = await response.blob();
-    
-    const companyName = item.company_name || '업체명';
-    const hospitalName = item.hospital_name || '거래처명';
-    const settlementMonth = item.settlement_month || '정산월';
-    
-    const url = new URL(item.file_url);
-    const path = decodeURIComponent(url.pathname);
-    const extension = path.substring(path.lastIndexOf('.'));
-
-    const newFilename = `${companyName}_${hospitalName}_${settlementMonth}${extension}`;
-
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = newFilename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.file_name || 'download';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
   } catch (error) {
-    console.error('Error downloading file:', error);
-    alert('파일 다운로드에 실패했습니다: ' + error.message);
+    console.error('파일 다운로드 실패:', error);
+    alert('파일 다운로드에 실패했습니다.');
   }
 };
 
@@ -470,8 +640,7 @@ const downloadFile = async (item) => {
 <style scoped>
 .custom-checkbox {
   width: 1.2rem !important;
-  height: 1.2rem !important;
-  margin: 0.4rem;
+  margin: 0 0.4rem;
   cursor: pointer;
 }
 
@@ -480,6 +649,15 @@ const downloadFile = async (item) => {
   width: 3rem !important;
   min-width: 3rem !important;
   max-width: 3rem !important;
+}
+
+.link {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: none;
+}
+.link:hover {
+  text-decoration: underline;
 }
 </style>
 

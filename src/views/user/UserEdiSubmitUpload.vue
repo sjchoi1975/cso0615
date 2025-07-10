@@ -267,52 +267,83 @@ function removeFile(idx) {
 
 async function submit() {
   if (!selectedFiles.value.length || !selectedCompanies.value.length) return;
+  
   isSubmitting.value = true;
-  const uploadedFiles = [];
-  for (const [idx, file] of selectedFiles.value.entries()) {
-    // 파일명 안전하게 변환 (영문+숫자+확장자)
-    const ext = file.name.split('.').pop();
-    const safeName = `edi_${Date.now()}_${idx}.${ext}`;
-    const filePath = `edi_files/${safeName}`;
-    const { data: uploadData, error: uploadError } = await supabase.storage.from('edi-uploads').upload(filePath, file);
-    if (uploadError) {
-      alert('파일 업로드 실패: ' + file.name);
-      isSubmitting.value = false;
-      return;
+  
+  try {
+    // 라우트 파라미터에서 정산월, 병원ID 추출
+    const settlementMonthId = route.params.settlementMonthId;
+    const hospitalId = route.params.hospitalId;
+    // 로그인 유저 정보 가져오기
+    const { data: { user } } = await supabase.auth.getUser();
+    const memberId = user?.id;
+
+    // 각 파일마다 개별 레코드 생성
+    for (const file of selectedFiles.value) {
+      // 1. 파일 업로드
+      const ext = file.name.split('.').pop();
+      const safeName = `edi_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+      const filePath = `edi_files/${safeName}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('edi-uploads')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('파일 업로드 실패:', uploadError);
+        alert(`파일 업로드 실패: ${file.name}`);
+        continue;
+      }
+
+      const fileUrl = supabase.storage.from('edi-uploads').getPublicUrl(filePath).data.publicUrl;
+
+      // 2. EDI 파일 레코드 생성
+      const { data: ediFile, error: ediError } = await supabase
+        .from('edi_files')
+        .insert({
+          settlement_month_id: settlementMonthId,
+          hospital_id: hospitalId,
+          member_id: memberId,
+          file_url: fileUrl,
+          file_name: safeName,
+          original_file_name: file.name,
+          file_size: file.size,
+          memo: memo.value
+        })
+        .select()
+        .single();
+
+      if (ediError) {
+        console.error('EDI 파일 등록 실패:', ediError);
+        alert(`EDI 파일 등록 실패: ${file.name}`);
+        continue;
+      }
+
+      // 3. 제약사 매핑 생성
+      for (const company of selectedCompanies.value) {
+        const { error: mappingError } = await supabase
+          .from('edi_file_companies')
+          .insert({
+            edi_file_id: ediFile.id,
+            company_id: company.id,
+            created_by: memberId
+          });
+
+        if (mappingError) {
+          console.error('제약사 매핑 실패:', mappingError);
+          // 매핑 실패는 경고만 표시하고 계속 진행
+          alert(`제약사 매핑 실패: ${company.company_name}`);
+        }
+      }
     }
-    const { data: { publicUrl } } = supabase.storage.from('edi-uploads').getPublicUrl(uploadData.path);
-    // 원래 파일명과 저장 경로를 함께 저장
-    uploadedFiles.push({ original_name: file.name, url: publicUrl });
-  }
-  // 라우트 파라미터에서 정산월, 병원ID 추출
-  const settlementMonthId = route.params.settlementMonthId;
-  const hospitalId = route.params.hospitalId;
-  // 로그인 유저 정보 가져오기
-  const { data: { user } } = await supabase.auth.getUser();
-  const memberId = user?.id;
-  const { data: fileRow, error: fileError } = await supabase.from('edi_files').insert({
-    files: uploadedFiles,
-    memo: memo.value,
-    settlement_month_id: settlementMonthId,
-    hospital_id: hospitalId,
-    member_id: memberId
-  }).select().single();
-  if (fileError) {
-    alert('DB 저장 실패: ' + JSON.stringify(fileError));
+
+    alert('EDI 등록이 완료되었습니다.');
+    router.back();
+  } catch (error) {
+    console.error('EDI 등록 중 오류 발생:', error);
+    alert('EDI 등록 중 오류가 발생했습니다.');
+  } finally {
     isSubmitting.value = false;
-    return;
   }
-  for (const company of selectedCompanies.value) {
-    await supabase.from('edi_file_companies').insert({
-      edi_file_id: fileRow.id,
-      company_id: company.id
-    });
-  }
-  alert('제출 완료!');
-  selectedFiles.value = [];
-  selectedCompanies.value = [];
-  memo.value = '';
-  isSubmitting.value = false;
-  router.back();
 }
 </script>

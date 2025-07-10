@@ -137,6 +137,7 @@ CREATE TABLE edi_files (
   file_name TEXT NOT NULL, -- 원본 파일명
   file_size INTEGER, -- 파일 크기
   is_deleted BOOLEAN DEFAULT FALSE, -- 삭제여부 (소프트 삭제)
+  confirm BOOLEAN DEFAULT FALSE, -- 제약사 확인 여부
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(), -- 등록일자
   created_by UUID REFERENCES auth.users(id), -- 등록자
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(), -- 수정일자
@@ -198,6 +199,41 @@ CREATE POLICY "사용자는 자신의 회사 EDI 파일 삭제" ON edi_files
     )
   );
 
+-- EDI 파일-제약사 매핑 테이블
+CREATE TABLE edi_file_companies (
+    id SERIAL PRIMARY KEY,
+    edi_file_id INTEGER REFERENCES edi_files(id) ON DELETE CASCADE,
+    company_id INTEGER REFERENCES pharmaceutical_companies(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_by UUID REFERENCES auth.users(id),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_by UUID REFERENCES auth.users(id),
+    UNIQUE(edi_file_id, company_id)
+);
+
+-- RLS 정책 설정
+ALTER TABLE edi_file_companies ENABLE ROW LEVEL SECURITY;
+
+-- 관리자는 모든 매핑 조회/수정 가능
+CREATE POLICY "관리자는 모든 매핑 관리" ON edi_file_companies
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM members m
+            WHERE m.id = auth.uid()
+            AND m.role = 'admin'
+        )
+    );
+
+-- 사용자는 자신의 회사 EDI 파일의 매핑만 조회/수정 가능
+CREATE POLICY "사용자는 자신의 매핑 관리" ON edi_file_companies
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM edi_files ef
+            WHERE ef.id = edi_file_companies.edi_file_id
+            AND ef.member_id = auth.uid()
+        )
+    );
+
 -- Filtering requests distinct options functions
 CREATE OR REPLACE FUNCTION get_distinct_request_members()
 RETURNS TABLE(uid uuid, company_name text) AS $$
@@ -248,10 +284,12 @@ WHERE status IS NOT NULL;
 -- 기존 status 컬럼 삭제 (선택사항)
 -- ALTER TABLE pharmaceutical_companies DROP COLUMN IF EXISTS status;
 
--- EDI 파일 목록 뷰 삭제 후 재생성
+-- 1. 뷰 삭제
 DROP VIEW IF EXISTS admin_edi_list_view;
 
-CREATE VIEW admin_edi_list_view AS
+-- 3. 새로운 뷰 생성
+-- EDI 파일 목록 뷰 생성
+CREATE OR REPLACE VIEW admin_edi_list_view AS
 WITH formatted_settlement_month AS (
     SELECT 
         id,
@@ -262,6 +300,16 @@ WITH formatted_settlement_month AS (
             ELSE settlement_month
         END as settlement_month
     FROM edi_months
+),
+file_counts AS (
+    SELECT 
+        settlement_month_id,
+        member_id,
+        hospital_id,
+        COUNT(*) as file_count
+    FROM edi_files
+    WHERE is_deleted = false
+    GROUP BY settlement_month_id, member_id, hospital_id
 )
 SELECT 
     ef.id,
@@ -275,33 +323,40 @@ SELECT
     h.hospital_name,
     h.business_registration_number as hospital_biz_no,
     h.director_name,
-    ef.file_size_bytes,
-    ef.files->0->>'name' as file_name,
-    ef.files->0->>'url' as file_url,
+    h.address,
+    ef.file_size,
+    ef.file_name,
+    ef.original_file_name,
+    ef.file_url,
     ef.memo,
     ef.is_deleted,
+    ef.confirm,
     ef.created_at,
     ef.created_by,
     cb.company_name as created_by_name,
     ef.updated_at,
     ef.updated_by,
     ub.company_name as updated_by_name,
+    fc.file_count,
     (
         SELECT json_agg(json_build_object(
             'id', pc.id,
-            'name', pc.company_name
+            'company_name', pc.company_name
         ))
         FROM edi_file_companies efc
         JOIN pharmaceutical_companies pc ON pc.id = efc.company_id
         WHERE efc.edi_file_id = ef.id
     ) as pharmaceutical_companies
-FROM edi_files ef
-LEFT JOIN formatted_settlement_month em ON em.id = ef.settlement_month_id
-LEFT JOIN members m ON m.id = ef.member_id
-LEFT JOIN hospitals h ON h.id = ef.hospital_id
-LEFT JOIN members cb ON cb.id = ef.created_by
-LEFT JOIN members ub ON ub.id = ef.updated_by
-WHERE ef.is_deleted = false;
+FROM 
+    edi_files ef
+    LEFT JOIN formatted_settlement_month em ON em.id = ef.settlement_month_id
+    LEFT JOIN members m ON m.id = ef.member_id
+    LEFT JOIN hospitals h ON h.id = ef.hospital_id
+    LEFT JOIN members cb ON cb.id = ef.created_by
+    LEFT JOIN members ub ON ub.id = ef.updated_by
+    LEFT JOIN file_counts fc ON fc.settlement_month_id = ef.settlement_month_id 
+        AND fc.member_id = ef.member_id 
+        AND fc.hospital_id = ef.hospital_id;
 
 COMMIT;
 
