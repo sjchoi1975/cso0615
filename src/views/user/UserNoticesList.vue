@@ -6,6 +6,7 @@
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
+        <span class="hide-mobile">통합 검색</span>
         <span class="p-input-icon-left">
           <input v-model="search" placeholder="제목, 내용 검색" class="input-search wide-mobile-search" />
         </span>

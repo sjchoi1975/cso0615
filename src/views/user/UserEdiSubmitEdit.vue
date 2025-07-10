@@ -29,7 +29,7 @@
 
       <!-- 제약사 선택 -->
       <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span></label>
-      <button type="button" class="btn-select-wide" @click="showCompanyModal = true">제약사 선택</button>
+      <button type="button" class="btn-select-wide" @click="openPharmaModal">제약사 선택</button>
       <div v-if="selectedCompanies.length > 0" class="selected-pharmas-list" style="margin-bottom: 0rem;">
         <div v-for="company in selectedCompanies" :key="company.id" class="selected-pharma-item" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
           <span>{{ company.company_name }}</span>
@@ -54,28 +54,65 @@
       <div class="custom-modal-filtering">
         <div class="modal-header">
           <h3 class="modal-title">제약사 선택</h3>
-          <input v-model="companySearch" class="input" placeholder="제약사명으로 검색" style="margin-top:0.8rem; margin-bottom:0.2rem;" />
+          <input 
+            v-model="companySearch" 
+            class="input" 
+            placeholder="제약사명으로 검색" 
+            style="margin-top:0.75rem; margin-bottom:0.25rem;" 
+          />
         </div>
         <div class="modal-body">
           <div class="selection-list-container">
-            <div v-for="company in filteredCompanies" :key="company.id" class="pharma-modal-item" :class="{ selected: isCompanySelected(company.id) }" @click="toggleCompanySelection(company)">
+            <div 
+              v-for="company in filteredCompanies" 
+              :key="company.id"
+              class="pharma-modal-item"
+              :class="{ selected: isPharmaSelectedInModal(company.id) }"
+              @click="togglePharmaSelection(company)"
+            >
               <span class="pharma-name">{{ company.company_name }}</span>
-              <span v-if="isCompanySelected(company.id)" class="check-icon">✓</span>
+              <span v-if="isPharmaSelectedInModal(company.id)" class="check-icon">✓</span>
             </div>
           </div>
         </div>
         <div class="modal-footer">
           <button 
             class="btn-cancel" 
-            @click="showCompanyModal = false" 
+            @click="closeModal" 
             style="flex:1;">
             취소
           </button>
           <button 
             class="btn-confirm" 
-            @click="showCompanyModal = false" 
+            @click="confirmSelection" 
             style="flex:3;">
             선택
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 전달사항 모달 -->
+    <div v-if="showCommentDialog" class="custom-modal-overlay">
+      <div class="custom-modal">
+        <div class="modal-header">
+          <h3 class="modal-title">전달사항 확인</h3>
+        </div>
+        <div class="modal-body">
+          <div class="comment-content">
+            <template v-for="(company, index) in tempSelectedCompanies.filter(p => p.edi_comment)" :key="company.id">
+              <p class="pharma-name">[{{ company.company_name }}]</p>
+              <p class="comment-text">{{ company.edi_comment }}</p>
+              <div v-if="index < tempSelectedCompanies.filter(p => p.edi_comment).length - 1" class="comment-divider"></div>
+            </template>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn-cancel" 
+            @click="confirmCommentDialog" 
+            style="flex:1;">
+            확인
           </button>
         </div>
       </div>
@@ -103,6 +140,10 @@ const isSubmitting = ref(false);
 const companySearch = ref('');
 const hospitalName = ref('');
 
+// 모달 관련 상태
+const tempSelectedCompanies = ref([]);
+const showCommentDialog = ref(false);
+
 onMounted(async () => {
   const hospitalId = route.params.hospitalId;
   if (hospitalId) {
@@ -114,13 +155,24 @@ onMounted(async () => {
   selectedFiles.value = fileRow?.files || [];
   memo.value = fileRow?.memo || '';
 
-  // 제약사 전체 목록
-  const { data } = await supabase.from('pharmaceutical_companies').select('id, company_name').order('company_name');
+  // EDI가 활성화된 제약사만 조회
+  const { data } = await supabase
+    .from('pharmaceutical_companies')
+    .select('id, company_name, edi_comment')
+    .eq('edi_status', 'active')
+    .order('company_name');
   companies.value = data || [];
 
   // 선택된 제약사 목록
-  const { data: companyRows } = await supabase.from('edi_file_companies').select('company_id, pharmaceutical_companies(company_name)').eq('edi_file_id', fileId);
-  selectedCompanies.value = (companyRows || []).map(c => ({ id: c.company_id, company_name: c.pharmaceutical_companies?.company_name || '' }));
+  const { data: companyRows } = await supabase
+    .from('edi_file_companies')
+    .select('company_id, pharmaceutical_companies(id, company_name, edi_comment)')
+    .eq('edi_file_id', fileId);
+  selectedCompanies.value = (companyRows || []).map(c => ({
+    id: c.company_id,
+    company_name: c.pharmaceutical_companies?.company_name || '',
+    edi_comment: c.pharmaceutical_companies?.edi_comment || ''
+  }));
 });
 
 const filteredCompanies = computed(() => {
@@ -131,20 +183,66 @@ const filteredCompanies = computed(() => {
   return [...arr].sort((a, b) => (a.company_name || '').localeCompare(b.company_name || '', 'ko'));
 });
 
-function isCompanySelected(id) {
-  return selectedCompanies.value.some(c => c.id === id);
-}
-function toggleCompanySelection(company) {
-  const idx = selectedCompanies.value.findIndex(c => c.id === company.id);
-  if (idx > -1) selectedCompanies.value.splice(idx, 1);
-  else selectedCompanies.value.push(company);
-}
+// 모달 관련 함수들
+const openPharmaModal = () => {
+  tempSelectedCompanies.value = [...selectedCompanies.value];
+  showCompanyModal.value = true;
+};
+
+const closeModal = () => {
+  showCompanyModal.value = false;
+  companySearch.value = '';
+};
+
+const isPharmaSelectedInModal = (pharmaId) => {
+  return tempSelectedCompanies.value.some(p => p.id === pharmaId);
+};
+
+const togglePharmaSelection = (company) => {
+  const index = tempSelectedCompanies.value.findIndex(p => p.id === company.id);
+  if (index > -1) {
+    tempSelectedCompanies.value.splice(index, 1);
+  } else {
+    tempSelectedCompanies.value.push(company);
+  }
+};
+
+const confirmSelection = () => {
+  // 새로 선택된 제약사들만 확인
+  const newSelectedPharmas = tempSelectedCompanies.value.filter(
+    newPharma => !selectedCompanies.value.some(
+      existingPharma => existingPharma.id === newPharma.id
+    )
+  );
+  
+  // 새로 선택된 제약사들 중 전달사항이 있는 것들을 확인
+  const pharmasWithComments = newSelectedPharmas.filter(p => p.edi_comment);
+  
+  if (pharmasWithComments.length > 0) {
+    // 전달사항이 있는 경우 모달 표시
+    showCommentDialog.value = true;
+  } else {
+    // 전달사항이 없는 경우 바로 선택 완료
+    selectedCompanies.value = [...tempSelectedCompanies.value];
+    closeModal();
+  }
+};
+
+// 전달사항 확인 후 선택 완료
+const confirmCommentDialog = () => {
+  showCommentDialog.value = false;
+  selectedCompanies.value = [...tempSelectedCompanies.value];
+  closeModal();
+};
+
 function removeCompany(id) {
   selectedCompanies.value = selectedCompanies.value.filter(c => c.id !== id);
 }
+
 function goBack() {
   router.back();
 }
+
 function removeFile(idx) {
   selectedFiles.value.splice(idx, 1);
 }

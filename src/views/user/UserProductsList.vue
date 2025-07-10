@@ -3,6 +3,7 @@
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row">
+        <span class="hide-mobile">통합 검색</span>        
         <span class="p-input-icon-left" style="display: flex; align-items: center; flex-grow: 1;">
           <input
             v-model="search"

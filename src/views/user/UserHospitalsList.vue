@@ -3,6 +3,7 @@
     <!-- Filter Card -->
     <div class="filter-card">
       <div class="filter-row">
+        <span class="hide-mobile">통합 검색</span>
         <div class="p-input-icon-right" style="width: 100%;">
           <input v-model="search" placeholder="거래처명, 원장명, 사업자번호, 주소 검색" class="input-search wide-mobile-search" />
         </div>

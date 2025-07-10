@@ -159,20 +159,20 @@ const menuNameMap = {
   '/edi/submit': 'EDI 제출',
   '/settlement/month': '정산내역서',
 };
-
-const path = route.path;
-const params = route.params;
+  
+  const path = route.path;
+  const params = route.params;
 
 // EDI 제출 경로 처리
 if (path.match(/^\/edi\/submit\/\d+$/)) {
   return 'EDI 제출';
 }
 
-if (path.startsWith('/admin/settlement/month/') && params.year_month) {
-  const [year, month] = params.year_month.split('-');
-  return `월별 정산 현황 > ${year}년 ${parseInt(month, 10)}월`;
-}
-return menuNameMap[path] || '';
+  if (path.startsWith('/admin/settlement/month/') && params.year_month) {
+    const [year, month] = params.year_month.split('-');
+    return `월별 정산 현황 > ${year}년 ${parseInt(month, 10)}월`;
+  }
+  return menuNameMap[path] || '';
 });
 
 const menuName = ref('');

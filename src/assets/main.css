@@ -809,149 +809,6 @@ body.modal-open {
 
 
 /* ========================================================================================================= */
-/* input-search 아래에 또 있음!!! - 중복이면 삭제 필요!!!
-/* ========================================================================================================= */
-
-
-/* 필터링 요청 - 거래처명, 원장명 입력 인풋 박스 */
-.input-table,
-.input-search-filter {
-  width: 100% !important;
-  padding: 0.5rem !important;
-  border: 1px solid #ddd !important;
-  border-radius: 2px !important;
-  font-size: var(--font-size-base) !important;
-}
-
-.pharma-badge {
-  display: inline-flex !important;
-  align-items: center !important;
-  background: #e3f2fd !important;
-  color: #1976d2 !important;
-  border-radius: 12px !important;
-  padding: 0.25rem 0.75rem !important;
-  font-size: 0.95rem !important;
-}
-
-.form-actions-table {
-  display: flex !important;
-  justify-content: flex-end !important;
-  gap: 1rem !important;
-  padding: 1.5rem 1rem !important;
-  border-top: 1px solid #e5e7eb !important;
-}
-
-/* 인라인 선택 목록 스타일 */
-.selection-list-container {
-  max-height: 70vh !important;
-  overflow-y: auto !important;
-}
-
-
-
-/* 거래처, 제약사 선택 모달 ================================================================================= */
-.hospital-item,
-.pharma-modal-item {
-  padding: 0.5rem 0.5rem !important;
-  border-bottom: 1px solid #eee !important;
-  cursor: pointer !important;
-}
-
-.hospital-item:hover,
-.pharma-modal-item:hover {
-  background-color: var(--primary-lightest) !important;
-}
-
-.hospital-item:last-child,
-.pharma-modal-item:last-child {
-  border-bottom: none !important;
-}
-
-
-
-/* 거래처 선택 모달 ======================================================================================== */
-.hospital-name {
-  color: #444 !important;
-  font-size: 1.15rem !important;
-  font-weight: 600 !important;
-}
-
-.hospital-info,
-.hospital-address {
-  color: #666 !important;
-  font-size: 1.0rem !important;
-}
-
-.hospital-name.selected,
-.hospital-info.selected {
-  color: var(--primary) !important;
-  background-color: var(--primary-lightest) !important;
-}
-
-
-/* 제약사 선택 모달 ======================================================================================== */
-.pharma-modal-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #444!important;
-  font-size: 1.15rem !important;
-  font-weight: 600 !important;
-}
-
-.pharma-modal-item.selected {
-  color: var(--primary) !important;
-  background-color: var(--primary-lightest) !important;
-}
-
-.check-icon {
-  color: var(--primary) !important;
-  padding: 0 1rem 0 0 !important;
-  font-weight: 600 !important;
-}
-
-.no-data {
-  padding: 1rem;
-  text-align: center;
-  color: #888;
-}
-
-.selected-item-display {
-  margin-top: 0.5rem;
-}
-
-.selected-pharmas-list {
-  margin-top: 1rem !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.5rem !important;
-}
-
-
-.selected-pharma-item {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  font-size: 1.0rem !important;
-  background-color: var(--primary-lightest) !important;
-  border: 1px solid var(--gray-300) !important;
-  padding: 0.5rem 1.5rem !important;
-  border-radius: var(--border-radius) !important;
-}
-
-.selected-edi-file {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  font-size: 1.0rem !important;
-  background-color: var(--gray-100) !important;
-  border: none !important;
-  padding: 0.65rem 1.5rem !important;
-  border-radius: 0 !important;
-}
-
-
-/* ========================================================================================================= */
 /* 인풋 박스, 검색창, 드롭다운 스타일
 /* ========================================================================================================= */
 
@@ -1160,6 +1017,156 @@ div.v3dp__datepicker input[type="text"]:focus,
 
 
 
+
+
+
+
+/* ========================================================================================================= */
+/* input-search 아래에 (위에?) 또 있음!!! - 중복이면 삭제 필요!!!
+/* ========================================================================================================= */
+
+
+/* 필터링 요청 - 거래처명, 원장명 입력 인풋 박스 */
+.input-table,
+.input-search-filter {
+  width: 100% !important;
+  padding: 0.5rem !important;
+  border: 1px solid #ddd !important;
+  border-radius: 2px !important;
+  font-size: var(--font-size-base) !important;
+}
+
+.pharma-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: #e3f2fd !important;
+  color: #1976d2 !important;
+  border-radius: 12px !important;
+  padding: 0.25rem 0.75rem !important;
+  font-size: 0.95rem !important;
+}
+
+.form-actions-table {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 1rem !important;
+  padding: 1.5rem 1rem !important;
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* 인라인 선택 목록 스타일 */
+.selection-list-container {
+  max-height: 70vh !important;
+  overflow-y: auto !important;
+}
+
+
+
+/* 거래처, 제약사 선택 모달 ================================================================================= */
+.hospital-item,
+.pharma-modal-item {
+  padding: 0.5rem 0.5rem !important;
+  border-bottom: 1px solid #eee !important;
+  cursor: pointer !important;
+}
+
+.hospital-item:hover,
+.pharma-modal-item:hover {
+  background-color: var(--primary-lightest) !important;
+}
+
+.hospital-item:last-child,
+.pharma-modal-item:last-child {
+  border-bottom: none !important;
+}
+
+
+
+/* 거래처 선택 모달 ======================================================================================== */
+.hospital-name {
+  color: #444 !important;
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+}
+
+.hospital-info,
+.hospital-address {
+  color: #666 !important;
+  font-size: 1.0rem !important;
+}
+
+.hospital-name.selected,
+.hospital-info.selected {
+  color: var(--primary) !important;
+  background-color: var(--primary-lightest) !important;
+}
+
+
+/* 제약사 선택 모달 ======================================================================================== */
+.pharma-modal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #444!important;
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+}
+
+.pharma-modal-item.selected {
+  color: var(--primary) !important;
+  background-color: var(--primary-lightest) !important;
+}
+
+.check-icon {
+  color: var(--primary) !important;
+  padding: 0 1rem 0 0 !important;
+  font-weight: 600 !important;
+}
+
+.no-data {
+  padding: 1rem;
+  text-align: center;
+  color: #888;
+}
+
+.selected-item-display {
+  margin-top: 0.5rem;
+}
+
+.selected-pharmas-list {
+  margin-top: 1rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+}
+
+
+.selected-pharma-item {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 1.0rem !important;
+  background-color: var(--primary-lightest) !important;
+  border: 1px solid var(--gray-300) !important;
+  padding: 0.5rem 1.5rem !important;
+  border-radius: var(--border-radius) !important;
+}
+
+.selected-edi-file {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 1.0rem !important;
+  background-color: var(--gray-100) !important;
+  border: none !important;
+  padding: 0.65rem 1.5rem !important;
+  border-radius: 0 !important;
+}
+
+
+
+
+
 /* ========================================================================================================= */
 /* TXT 스타일
 /* ========================================================================================================= */
@@ -1217,12 +1224,6 @@ div.v3dp__datepicker input[type="text"]:focus,
 
 
 
-
-
-
-
-
-
 .link {
   display: inline-block !important;
   color: var(--primary) !important;
@@ -1271,6 +1272,31 @@ div.v3dp__datepicker input[type="text"]:focus,
 .text-left   { text-align: left !important; }
 .text-right  { text-align: right !important; }
 
+
+
+/* 필터링 요청, EDI 증빙파일 등록 - 제약사 관리 전달사항 모달 */
+.comment-content {
+  padding: 1rem;
+}
+.pharma-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+}
+.comment-text {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #555;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+}
+.comment-divider {
+  height: 1px;
+  background-color: #dee2e6;
+  margin: 1rem 0;
+}
 
 
 
@@ -1616,6 +1642,7 @@ button.p-paginator-page:hover {
 /* ========================================================================================================= */
 /* 기타
 /* ========================================================================================================= */
+
 
 /* 로딩 스피너 커스텀 */
 .table-loading-spinner-center {
