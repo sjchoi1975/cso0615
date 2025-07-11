@@ -221,6 +221,11 @@ body.scroll-enabled {
   flex-direction: column !important;
 }
 
+
+
+
+
+
 /* 기타 ===================================================================================================== */
 
 .fade-enter-active,
@@ -851,7 +856,7 @@ body.modal-open {
     box-sizing: border-box !important;
     padding: 0.75rem 1rem !important;
     margin: 0 auto !important;
-    border: 1px solid #999 !important;
+    border: 1px solid #888 !important;
     border-radius: 36px !important;
     display: flex !important;
   }
@@ -2254,8 +2259,33 @@ border-color: var(--danger) !important;
 
 
 
+/* 지금은 EDI 제출 기간이 아닙니다. */
 
-
-
+.notice-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem;
+  background-color: #fff;
+  border-radius: var(--border-radius-lg);
+  margin-top: 1rem;
+  height: calc(100vh - 200px);
+}
+.notice-icon {
+  font-size: 3rem;
+  color: var(--primary-blue);
+  margin-bottom: 1rem;
+}
+.notice-message h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+.notice-message p {
+  margin: 0;
+  color: var(--text-secondary);
+}
 
 

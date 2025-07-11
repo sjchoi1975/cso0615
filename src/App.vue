@@ -246,7 +246,7 @@ watch(
       '/profile/edit',
       '/admin/notices/create', 
       '/admin/notices/detail/',  // 동적 라우트 체크를 위해 끝에 /만 남김
-      '/admin/notices/edit/',
+      '/admin/notices/edit/',    // 동적 라우트 체크를 위해 끝에 /만 남김
       '/admin/products/create',
       '/admin/products/edit/',
       '/admin/hospitals/create',
@@ -255,13 +255,17 @@ watch(
       '/hospitals/edit/',
       '/filter/create',
       '/edi/submit/',
-      '/settlement/month'
+      '/settlement/month',
+      // =============================
+      // [중요] 루트 App.vue에서만 있던 경로 (2024-06-07 기준)
+      // '/edi/files/' 경로는 루트 App.vue에만 있었으나 혹시 모를 호환성/누락 방지 위해 추가함
+      // 실제 사용 여부는 추후 확인 필요
+      '/edi/files/',
+      // =============================
     ];
     
     // 동적 라우트를 포함한 페이지 체크
-    const isScrollEnabled = scrollEnabledPages.some(page => 
-      newPath.startsWith(page)
-    );
+    const isScrollEnabled = scrollEnabledPages.some(page => newPath === page);
     
     if (isScrollEnabled) {
       document.documentElement.classList.add('scroll-enabled');

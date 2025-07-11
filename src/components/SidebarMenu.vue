@@ -82,12 +82,9 @@ const goToEdiSubmit = async () => {
     .lte('start_date', today)
     .gte('end_date', today)
     .order('settlement_month', { ascending: false });
-  if (!months || months.length === 0) {
-    alert('제출 가능한 정산월이 없습니다.');
-    return;
-  }
-  const settlementMonthId = months[0].id;
-  router.push(`/edi/submit/${settlementMonthId}`);
+  const settlementMonthId = months && months.length > 0 ? months[0].id : null;
+  // 무조건 EDI 제출 화면으로 이동
+  router.push(settlementMonthId ? `/edi/submit/${settlementMonthId}` : '/edi/submit');
   emit('menu-click'); // 모바일에서 메뉴 닫기
 };
 

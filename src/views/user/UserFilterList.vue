@@ -6,39 +6,49 @@
     <!-- Filter Card -->
     <div class="filter-card">
       <div class="filter-row filter-row-center">
-        <span class="hide-mobile">통합 검색</span>
-        <span>
-          <input
-            v-model="search"
-            class="input-search wide-mobile-search"
-            placeholder="거래처명, 제약사명 입력"
-          />
-        </span>
-        <div class="hide-mobile">
-        <span>거래처</span>
-        <select v-model="selectedHospital" class="input-180">
-          <option value="">- 전체 -</option>
-          <option v-for="hospital in hospitalOptions" :key="hospital.id" :value="hospital.id">{{ hospital.hospital_name }}</option>
-        </select>
-        <span>제약사</span>
-        <select v-model="selectedPharma" class="input-180">
-          <option value="">- 전체 -</option>
-          <option v-for="pharma in pharmaOptions" :key="pharma.id" :value="pharma.id">{{ pharma.company_name }}</option>
-        </select>
-        <span>구분</span>
-        <select v-model="selectedFilterType" class="filter-dropdown">
-          <option value="">- 전체 -</option>
-          <option value="new">신규</option>
-          <option value="transfer">이관</option>
-        </select>
-        <span>상태</span>
-        <select v-model="selectedStatus" class="filter-dropdown">
-          <option value="">- 전체 -</option>
-          <option value="pending">대기</option>
-          <option value="approved">승인</option>
-          <option value="rejected">반려</option>
-        </select>
-        </div>
+        <!-- PC 화면: 통합검색+필터+버튼 -->
+        <template v-if="!isMobile">
+          <span class="hide-mobile">통합 검색</span>
+          <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="거래처명, 제약사명 입력" @keyup.enter="onSearch" />
+          <span class="hide-mobile">거래처</span>
+          <select v-model="selectedHospital" class="input-180 hide-mobile">
+            <option value="">- 전체 -</option>
+            <option v-for="hospital in hospitalOptions" :key="hospital.id" :value="hospital.id">{{ hospital.hospital_name }}</option>
+          </select>
+          <span class="hide-mobile">제약사</span>
+          <select v-model="selectedPharma" class="input-180 hide-mobile">
+            <option value="">- 전체 -</option>
+            <option v-for="pharma in pharmaOptions" :key="pharma.id" :value="pharma.id">{{ pharma.company_name }}</option>
+          </select>
+          <span class="hide-mobile">구분</span>
+          <select v-model="selectedFilterType" class="filter-dropdown hide-mobile">
+            <option value="">- 전체 -</option>
+            <option value="new">신규</option>
+            <option value="transfer">이관</option>
+          </select>
+          <span class="hide-mobile">상태</span>
+          <select v-model="selectedStatus" class="filter-dropdown hide-mobile">
+            <option value="">- 전체 -</option>
+            <option value="pending">대기</option>
+            <option value="approved">승인</option>
+            <option value="rejected">반려</option>
+          </select>
+          <button type="button" class="btn-search hide-mobile" @click="onSearch" :disabled="!isSearchEnabled">검색</button>
+          <button type="button" class="btn-reset hide-mobile" @click="onReset">
+            <i class="pi pi-refresh" style="font-size: 1rem;"></i>
+            초기화
+          </button>
+        </template>
+        <!-- 모바일 화면: 통합검색+X+돋보기만 -->
+        <template v-else>
+          <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
+            <input v-model="search" class="input-search wide-mobile-search" placeholder="거래처명, 제약사명 입력" @keyup.enter="onSearch"/>
+            <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
+              style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+            <i class="pi pi-search search-btn-icon" @click="search.length >= 2 && onSearch()"
+              style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -119,6 +129,15 @@
                 <span class="table-title" :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
                   {{ slotProps.data.hospital_name }}
                 </span>
+              </template>
+              <template v-else-if="col.field === 'business_registration_number'">
+                <span>{{ slotProps.data.business_registration_number }}</span>
+              </template>
+              <template v-else-if="col.field === 'director_name'">
+                <span>{{ slotProps.data.director_name }}</span>
+              </template>
+              <template v-else-if="col.field === 'address'">
+                <span>{{ slotProps.data.address }}</span>
               </template>
               <template v-else-if="col.field === 'pharmaceutical_company_name'">
                 <span class="table-title":class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
@@ -249,7 +268,7 @@ const fetchRequests = async () => {
 
   const from = first.value;
   const to = from + pageSize.value - 1;
-  query = query.range(from, to).order('is_processed', { ascending: true }).order('sort_date', { ascending: false });
+  query = query.range(from, to);
 
   const { data, error, count } = await query;
 
@@ -313,6 +332,38 @@ const resetFilters = () => {
   selectedPharma.value = '';
   selectedStatus.value = '';
   selectedFilterType.value = '';
+};
+
+const isSearched = ref(false);
+
+const isSearchEnabled = computed(() =>
+  search.value.length >= 2 ||
+  selectedHospital.value ||
+  selectedPharma.value ||
+  selectedFilterType.value ||
+  selectedStatus.value
+);
+
+const onSearch = () => {
+  if (!isSearchEnabled.value) return;
+  first.value = 0;
+  isSearched.value = true;
+  fetchRequests();
+};
+
+const onReset = () => {
+  if (isSearched.value) {
+    search.value = '';
+    selectedHospital.value = '';
+    selectedPharma.value = '';
+    selectedStatus.value = '';
+    selectedFilterType.value = '';
+    first.value = 0;
+    isSearched.value = false;
+    fetchRequests();
+  } else {
+    search.value = '';
+  }
 };
 
 </script>

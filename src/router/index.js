@@ -168,6 +168,11 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/edi/submit',
+      name: 'user-edi-submit-empty',
+      component: () => import('@/views/user/UserEdiSubmit.vue')
+    },
+    {
       path: '/settlement/month',
       name: 'user-settlement-month',
       component: UserSettlementMonth,

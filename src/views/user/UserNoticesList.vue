@@ -1,4 +1,5 @@
 <template>
+
   <div class="page-container">
     <div v-if="loading" class="table-loading-spinner-center">
       <img src="/spinner.svg" alt="로딩중" />
@@ -11,14 +12,14 @@
         <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="제목, 내용 입력" />
         <button type="button" class="btn-search hide-mobile" @click="onSearch" :disabled="search.length < 2">검색</button>
         <button type="button" class="btn-reset hide-mobile"  @click="onReset">
-          <i class="pi pi-refresh" style="font-size: 1.1em;"></i>
+          <i class="pi pi-refresh" style="font-size: 1rem;"></i>
           초기화
         </button>
-
+        
         <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
           <input v-model="search" class="input-search wide-mobile-search" placeholder="제목, 내용 입력" @keyup.enter="onSearch"/>
           <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
-            style="position: absolute; right: 4.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+            style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
           <i class="pi pi-search search-btn-icon" @click="search.length >= 2 && onSearch()"
             style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
         </div>

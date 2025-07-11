@@ -1,11 +1,10 @@
 <template>
   <div class="user-edi-submit-view page-container">
-    <!-- 로딩 중일 때 또는 selectedMonth가 null일 때 -->
-    <div v-if="loading || selectedMonth === null" class="table-loading-spinner-center">
+    <!-- 로딩 중일 때만 스피너 -->
+    <div v-if="loading" class="table-loading-spinner-center">
       <img src="/spinner.svg" alt="로딩중" />
     </div>
-    
-    <!-- 제출 가능 기간이 아닐 때 -->
+    <!-- 제출 가능 기간이 아닐 때(정산월 없음 포함) -->
     <div v-else-if="!isSubmissionPeriod" class="notice-card">
       <div class="notice-icon"><i class="pi pi-info-circle"></i></div>
       <div class="notice-message">
@@ -13,21 +12,32 @@
         <p>관리자가 설정한 제출 기간에만 파일을 제출할 수 있습니다.</p>
       </div>
     </div>
-
     <!-- 제출 가능 기간일 때 -->
     <template v-else>
       <div class="fixed-header">
         <!-- Filter Card -->
         <div class="filter-card">
           <div class="filter-row filter-row-center">
-            <span class="hide-mobile">통합 검색</span>
-            <div>
-              <input 
-                v-model="search" 
-                class="input-search wide-mobile-search"
-                placeholder="거래처명, 원장명, 사업자번호, 주소 입력" 
-              />
-            </div>
+            <!-- PC 화면: 통합검색+버튼 -->
+            <template v-if="screenWidth > 768">
+              <span class="hide-mobile">통합 검색</span>
+              <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="거래처명, 원장명, 사업자등록번호, 주소 입력" @keyup.enter="onSearch" />
+              <button type="button" class="btn-search hide-mobile" @click="onSearch" :disabled="search.length < 2">검색</button>
+              <button type="button" class="btn-reset hide-mobile" @click="onReset">
+                <i class="pi pi-refresh" style="font-size: 1rem;"></i>
+                초기화
+              </button>
+            </template>
+            <!-- 모바일 화면: 통합검색+X+돋보기만 -->
+            <template v-else>
+              <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
+                <input v-model="search" class="input-search wide-mobile-search" placeholder="거래처명, 원장명, 사업자등록번호, 주소 입력" @keyup.enter="onSearch"/>
+                <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
+                  style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+                <i class="pi pi-search search-btn-icon" @click="search.length >= 2 && onSearch()"
+                  style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+              </div>
+            </template>
           </div>
         </div>
         
@@ -146,14 +156,23 @@ const modalHospital = ref(null);
 const modalFiles = ref([]);
 
 const search = ref('');
+const isSearched = ref(false);
 
-let debounceTimer = null;
-watch(search, () => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
+const onSearch = () => {
+  if (search.value.length < 2) return;
+  isSearched.value = true;
+  applySearch();
+};
+
+const onReset = () => {
+  if (isSearched.value) {
+    search.value = '';
+    isSearched.value = false;
     applySearch();
-  }, 300);
-});
+  } else {
+    search.value = '';
+  }
+};
 
 const isSubmissionPeriod = computed(() => !!selectedMonth.value);
 
@@ -334,17 +353,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.page-container {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
 
 .fixed-header {
   flex-shrink: 0;
 }
-
 
 .table-card {
   height: 100%;
@@ -354,32 +366,7 @@ onUnmounted(() => {
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
-.notice-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 3rem;
-  background-color: var(--gray-100);
-  border-radius: var(--border-radius-lg);
-  margin-top: 1rem;
-  height: calc(100vh - 200px);
-}
-.notice-icon {
-  font-size: 3rem;
-  color: var(--primary-blue);
-  margin-bottom: 1rem;
-}
-.notice-message h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-  color: var(--text-primary);
-}
-.notice-message p {
-  margin: 0;
-  color: var(--text-secondary);
-}
+
 .p-button.p-disabled {
   opacity: 0.4;
 }

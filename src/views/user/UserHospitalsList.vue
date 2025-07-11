@@ -6,14 +6,23 @@
     <!-- Filter Card -->
     <div class="filter-card">
       <div class="filter-row filter-row-center">
+
         <span class="hide-mobile">통합 검색</span>
-        <div>
-          <input
-            v-model="search"
-            class="input-search wide-mobile-search"
-            placeholder="거래처명, 원장명, 사업자번호, 주소 입력"
-          />
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="거래처명, 원장명, 사업자등록번호, 주소 입력" />
+        <button type="button" class="btn-search hide-mobile" @click="onSearch" :disabled="search.length < 2">검색</button>
+        <button type="button" class="btn-reset hide-mobile"  @click="onReset">
+          <i class="pi pi-refresh" style="font-size: 1rem;"></i>
+          초기화
+        </button>
+        
+        <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="거래처명, 원장명, 사업자등록번호, 주소 입력" @keyup.enter="onSearch"/>
+          <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
+            style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+          <i class="pi pi-search search-btn-icon" @click="search.length >= 2 && onSearch()"
+            style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
         </div>
+
       </div>
     </div>
     
@@ -157,6 +166,7 @@ const totalCount = ref(0);
 const pageSize = ref(100);
 const appliedSearch = ref('');
 const currentFilePath = ref(null);
+const isSearched = ref(false);
 
 // Modal state
 const showFileModal = ref(false);
@@ -271,20 +281,32 @@ const fetchHospitals = async (pageFirst = 0, pageRows = 100) => {
     }
 };
 
-let debounceTimer = null;
-watch(search, (newVal) => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    appliedSearch.value = newVal.trim();
-    first.value = 0;
-    fetchHospitals(0, pageSize.value);
-  }, 300);
-});
+// watch(search, ...) 등 실시간 검색 완전 제거
 
 const onPageChange = (event) => {
   first.value = event.first;
   pageSize.value = event.rows;
   fetchHospitals(event.first, event.rows);
+};
+
+const onSearch = () => {
+  if (search.value.length < 2) return;
+  appliedSearch.value = search.value.trim();
+  first.value = 0;
+  isSearched.value = true;
+  fetchHospitals(0, pageSize.value);
+};
+
+const onReset = () => {
+  if (isSearched.value) {
+    search.value = '';
+    appliedSearch.value = '';
+    first.value = 0;
+    isSearched.value = false;
+    fetchHospitals(0, pageSize.value);
+  } else {
+    search.value = '';
+  }
 };
 
 onMounted(() => {

@@ -1,5 +1,4 @@
 <template>
-  <!-- <div class="admin-products-view page-container"> -->
   <div class="page-container">
     <div v-if="loading" class="table-loading-spinner-center">
       <img src="/spinner.svg" alt="로딩중" />
@@ -7,14 +6,23 @@
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row filter-row-center">
-        <span class="hide-mobile">통합 검색</span>        
-        <span>
-          <input
-            v-model="search"
-            class="input-search wide-mobile-search"
-            placeholder="제약사, 제품명, 보험코드, 성분명 입력"
-          />
-        </span>
+
+        <span class="hide-mobile">통합 검색</span>
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="제약사, 제품명, 보험코드, 성분명 입력" />
+        <button type="button" class="btn-search hide-mobile" @click="onSearch" :disabled="search.length < 2">검색</button>
+        <button type="button" class="btn-reset hide-mobile"  @click="onReset">
+          <i class="pi pi-refresh" style="font-size: 1rem;"></i>
+          초기화
+        </button>
+        
+        <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="제약사, 제품명, 보험코드, 성분명 입력" @keyup.enter="onSearch"/>
+          <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
+            style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+          <i class="pi pi-search search-btn-icon" @click="search.length >= 2 && onSearch()"
+            style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+        </div>
+
       </div>
     </div>
 
@@ -110,6 +118,7 @@ import { saveAs } from 'file-saver';
 
 const search = ref('');
 const appliedSearch = ref('');
+const isSearched = ref(false);
 const products = ref([]);
 const loading = ref(false);
 const first = ref(0);
@@ -182,17 +191,26 @@ const fetchProducts = async (pageFirst = 0, pageRows = 200) => {
   loading.value = false;
 };
 
-watch(search, (newVal) => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    const searchTerm = newVal.trim();
-    if (searchTerm.length >= 2 || searchTerm.length === 0) {
-      appliedSearch.value = searchTerm;
-      first.value = 0;
-      fetchProducts(0, pageSize.value);
-    }
-  }, 300); // 300ms 디바운스
-});
+const onSearch = () => {
+  const searchTerm = search.value.trim();
+  if (searchTerm.length < 2) return;
+  appliedSearch.value = searchTerm;
+  first.value = 0;
+  isSearched.value = true;
+  fetchProducts(0, pageSize.value);
+};
+
+const onReset = () => {
+  if (!isSearched.value) {
+    search.value = '';
+    return;
+  }
+  search.value = '';
+  appliedSearch.value = '';
+  first.value = 0;
+  isSearched.value = false;
+  fetchProducts(0, pageSize.value);
+};
 
 onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser();

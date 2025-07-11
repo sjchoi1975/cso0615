@@ -3,159 +3,169 @@
     <div v-if="loading" class="table-loading-spinner-center">
       <img src="/spinner.svg" alt="로딩중" />
     </div>
-    <!-- 필터카드 -->
-    <div class="filter-card">
-      <div class="filter-row" style="margin-left:1rem;">
-        <span>정산월</span>
-        <select v-model="selectedMonth" class="input-120">
-          <option value="">- 전체 -</option>
-          <option v-for="m in monthOptions" :key="m" :value="m">
-            {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
-          </option>
-        </select>
+    <!-- 정산내역이 없을 때 안내카드 -->
+    <div v-else-if="!monthOptions.length" class="notice-card">
+      <div class="notice-icon"><i class="pi pi-info-circle"></i></div>
+      <div class="notice-message">
+        <h3>아직 정산내역서가 없습니다.</h3>
+        <p>EDI를 제출하신 회원은 정산내역서를 확인할 수 있습니다.</p>
       </div>
     </div>
-    
-    <!-- board-form: 정산내역, 세금계산서, 전달사항 -->
-    <div class="board">
-      <div class="board-form">
-        <!-- 정산내역 표 -->
-        <div style="margin-bottom:0.5rem;">
-          <b class="title-sm">정산내역</b>
-          <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:2px solid #666; table-layout:fixed;">
-            <thead>
-              <tr style="background:#f8f9fa;">
-                <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">거래처</th>
-                <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">처방건</th>
-                <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">처방액</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.hospital_count) }}</td>
-                <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.prescription_count) }}</td>
-                <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.prescription_amount) }}</td>
-              </tr>
-            </tbody>
-          </table>
+    <!-- 기존 내용: 정산내역이 있을 때만 노출 -->
+    <template v-else>
+      <!-- 필터카드 -->
+      <div class="filter-card">
+        <div class="filter-row" style="margin-left:1rem;">
+          <span>정산월</span>
+          <select v-model="selectedMonth" class="input-120">
+            <option value="">- 전체 -</option>
+            <option v-for="m in monthOptions" :key="m" :value="m">
+              {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
+            </option>
+          </select>
         </div>
-        <!-- 상세내역보기 버튼 -->
-        <div style="text-align:center; margin-bottom:1.5rem;">
-          <button class="btn-select-wide" style="width:100%;" @click="goDetail">상세 내역 보기 ></button>
-        </div>
-        <!-- 세금계산서 발행 요청 표 -->
-        <div style="margin-bottom:1.5rem;">
-          <b class="title-sm">세금계산서 발행 요청</b>
-          <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:2px solid #666; table-layout:fixed;">
-            <thead>
-              <tr style="background:#f8f9fa;">
-                <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">공급가</th>
-                <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">부가세</th>
-                <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">합계액</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.supply_amount) }}</td>
-                <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.vat) }}</td>
-                <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.total_amount) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- 전달사항 박스 (공용+개별 줄바꿈) -->
-        <div style="margin-bottom:1.5rem;">
-          <b class="title-sm">전달사항</b>
-          <div style="border:1px solid #bbb;
-            border-radius:2px;
-            min-height:80px;
-            padding:0.7rem;
-            background:#fff;
-            margin-top:0.7rem;
-            white-space:pre-line;">
-            <template v-if="publicNote && privateNote">
-              {{ publicNote }}<br><br>{{ privateNote }}
-            </template>
-            <template v-else-if="publicNote">
-              {{ publicNote }}
-            </template>
-            <template v-else-if="privateNote">
-              {{ privateNote }}
-            </template>
-            <template v-else>
-              -
-            </template>
+      </div>
+      <!-- board-form: 정산내역, 세금계산서, 전달사항 -->
+      <div class="board">
+        <div class="board-form">
+          <!-- 정산내역 표 -->
+          <div style="margin-bottom:0.5rem;">
+            <b class="title-sm">정산내역</b>
+            <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:2px solid #666; table-layout:fixed;">
+              <thead>
+                <tr style="background:#f8f9fa;">
+                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">거래처</th>
+                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">처방건</th>
+                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">처방액</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.hospital_count) }}</td>
+                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.prescription_count) }}</td>
+                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.prescription_amount) }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </div>
-        <!-- 정정요청 내용 표시 -->
-        <div v-if="correctionText">
-          <div style="display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:0"
-          >
-            <b class="title-sm-danger">정정요청</b>
+          <!-- 상세내역보기 버튼 -->
+          <div style="text-align:center; margin-bottom:1.5rem;">
+            <button class="btn-select-wide" style="width:100%;" @click="goDetail">상세 내역 보기 ></button>
+          </div>
+          <!-- 세금계산서 발행 요청 표 -->
+          <div style="margin-bottom:1.5rem;">
+            <b class="title-sm">세금계산서 발행 요청</b>
+            <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:2px solid #666; table-layout:fixed;">
+              <thead>
+                <tr style="background:#f8f9fa;">
+                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">공급가</th>
+                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">부가세</th>
+                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">합계액</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.supply_amount) }}</td>
+                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.vat) }}</td>
+                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.total_amount) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- 전달사항 박스 (공용+개별 줄바꿈) -->
+          <div style="margin-bottom:1.5rem;">
+            <b class="title-sm">전달사항</b>
+            <div style="border:1px solid #bbb;
+              border-radius:2px;
+              min-height:80px;
+              padding:0.7rem;
+              background:#fff;
+              margin-top:0.7rem;
+              white-space:pre-line;">
+              <template v-if="publicNote && privateNote">
+                {{ publicNote }}<br><br>{{ privateNote }}
+              </template>
+              <template v-else-if="publicNote">
+                {{ publicNote }}
+              </template>
+              <template v-else-if="privateNote">
+                {{ privateNote }}
+              </template>
+              <template v-else>
+                -
+              </template>
+            </div>
+          </div>
+          <!-- 정정요청 내용 표시 -->
+          <div v-if="correctionText">
+            <div style="display:flex;
+              justify-content:space-between;
+              align-items:center;
+              margin-bottom:0"
+            >
+              <b class="title-sm-danger">정정요청</b>
+              <button
+                style="font-size:0.95rem;
+                color:#1976d2;
+                background:none;
+                border:none;
+                cursor:pointer;
+                padding:0;
+                text-decoration:underline;"
+                @click="onEditCorrection">수정하기</button>
+            </div>
+            <div
+              style="border:1px solid #bbb;
+              border-radius:2px;
+              min-height:60px;
+              padding:0.7rem;
+              background:#fcfcd8;
+              margin-top:0.7rem;
+              white-space:pre-line;">
+              {{ correctionText }}</div>
+          </div>
+          <!-- 하단 버튼 -->
+          <div class="btn-row">
             <button
-              style="font-size:0.95rem;
-              color:#1976d2;
-              background:none;
-              border:none;
-              cursor:pointer;
-              padding:0;
-              text-decoration:underline;"
-              @click="onEditCorrection">수정하기</button>
+              :class="correctionBtnClass"
+              style="flex:1;"
+              @click="onCorrectionClick"
+              :disabled="correctionDisabled">
+              {{ correctionBtnLabel }}</button>
+            <button
+              :class="confirmBtnClass"
+              style="flex:3;"
+              @click="onConfirmClick"
+              :disabled="confirmDisabled">
+              {{ confirmBtnLabel }}</button>
           </div>
-          <div
-            style="border:1px solid #bbb;
-            border-radius:2px;
-            min-height:60px;
-            padding:0.7rem;
-            background:#fcfcd8;
-            margin-top:0.7rem;
-            white-space:pre-line;">
-            {{ correctionText }}</div>
-        </div>
-        <!-- 하단 버튼 -->
-        <div class="btn-row">
-          <button
-            :class="correctionBtnClass"
-            style="flex:1;"
-            @click="onCorrectionClick"
-            :disabled="correctionDisabled">
-            {{ correctionBtnLabel }}</button>
-          <button
-            :class="confirmBtnClass"
-            style="flex:3;"
-            @click="onConfirmClick"
-            :disabled="confirmDisabled">
-            {{ confirmBtnLabel }}</button>
         </div>
       </div>
-    </div>
 
-    <!-- 정정요청 모달 -->
-    <teleport to="body">
-      <div v-if="showCorrectionModal" class="custom-modal-overlay" @click.self="cancelCorrection">
-        <div class="custom-modal">
-          <div class="modal-header">
-            <div class="modal-title">정정요청 {{ isEditCorrection ? '수정' : '' }}</div>
-          </div>
-          <div class="modal-body">
-            <textarea
-              v-model="correctionInput"
-              placeholder="정정요청 내용을 입력하세요"
-              rows="8"
-              class="input"
-              style="width:100%;">
-            </textarea>
-          </div>
-          <div class="modal-footer">
-            <button class="btn-cancel modal" @click="cancelCorrection">취소</button>
-            <button class="btn-confirm modal" @click="saveCorrection">저장</button>
+      <!-- 정정요청 모달 -->
+      <teleport to="body">
+        <div v-if="showCorrectionModal" class="custom-modal-overlay" @click.self="cancelCorrection">
+          <div class="custom-modal">
+            <div class="modal-header">
+              <div class="modal-title">정정요청 {{ isEditCorrection ? '수정' : '' }}</div>
+            </div>
+            <div class="modal-body">
+              <textarea
+                v-model="correctionInput"
+                placeholder="정정요청 내용을 입력하세요"
+                rows="8"
+                class="input"
+                style="width:100%;">
+              </textarea>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-cancel modal" @click="cancelCorrection">취소</button>
+              <button class="btn-confirm modal" @click="saveCorrection">저장</button>
+            </div>
           </div>
         </div>
-      </div>
-    </teleport>
+      </teleport>
+    </template>
   </div>
 </template>
 
