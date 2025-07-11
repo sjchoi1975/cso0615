@@ -360,7 +360,7 @@ const openFilePreview = async (file) => {
   filePreviewWindow = window.open('', '_blank', windowFeatures);
   
   if (filePreviewWindow) {
-    const response = await fetch('/src/views/admin/file-preview-template.html');
+    const response = await fetch('/file-preview-template.html');
     const template = await response.text();
     
     filePreviewWindow.document.write(template);
