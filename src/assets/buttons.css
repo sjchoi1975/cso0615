@@ -8,6 +8,7 @@
 .btn-confirm,
 .btn-warning,
 .btn-edit,
+.btn-pwchange,
 .btn-dark-gray,
 .btn-confirm-disabled,
 .btn-cancel {
@@ -55,6 +56,12 @@
   border: 1px solid var(--gray-600) !important;
 }
 
+.btn-pwchange {
+  background: var(--gray-700) !important;
+  color: var(--text-white) !important;
+  border: 1px solid var(--gray-600) !important;
+}
+
 /* 정산확정/정정요청 전용 버튼 스타일 */
 .btn-dark-gray {
   background: var(--gray-800) !important;
@@ -69,15 +76,12 @@
   cursor: not-allowed !important;
 }
 
-.btn-edit {
-  padding: 0.5rem 2rem !important;
-}
-
 /* 호버 효과 - 로그인 / 회원가입 / 확인 / 취소 */
 .btn-login:hover:not(:disabled),
 .btn-signup:hover:not(:disabled),
 .btn-confirm:hover:not(:disabled),
 .btn-edit:hover:not(:disabled),
+.btn-pwchange:hover:not(:disabled),
 .btn-cancel:hover:not(:disabled) {
   opacity: 0.75 !important;
   transform: translateY(0px) !important;
@@ -90,6 +94,7 @@
 .btn-signup:disabled,
 .btn-confirm:disabled,
 .btn-edit:disabled,
+.btn-pwchange:disabled,
 .btn-cancel:disabled {
   opacity: 0.5 !important;
   box-shadow: none !important;

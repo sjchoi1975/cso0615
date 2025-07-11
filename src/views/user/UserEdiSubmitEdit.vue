@@ -43,7 +43,7 @@
       <label class="title-sm" style="margin-top: 2rem;">특이 사항</label>
       <textarea v-model="memo" class="input" placeholder="" rows="6"></textarea>
 
-      <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
+      <div class="btn-row">
         <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
         <button type="submit" class="btn-confirm" :disabled="isSubmitting || !selectedFiles.length || !selectedCompanies.length" style="flex:2;">{{ isSubmitting ? '수정 중...' : '수정' }}</button>
       </div>

@@ -16,7 +16,7 @@
       <label>사업자등록증</label>
       <input type="file" @change="onFileChange" class="input" />
       <!-- 담당 업체 선택 섹션 추가 -->
-      <label>담당 업체 (선택)</label>
+      <label>담당 업체</label>
       <button type="button" class="btn-secondary" @click="openMemberModal">업체 선택</button>
       <div v-if="selectedMembers.length > 0" class="selected-members" style="margin-top: 0.5rem;">
         <div class="selected-title">선택된 업체 ({{ selectedMembers.length }}곳):</div>
@@ -27,7 +27,7 @@
           </div>
         </div>
       </div>
-      <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
+      <div class="btn-row">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
         <button type="submit" class="btn-confirm" :disabled="loading" style="flex:2;">
           {{ loading ? '저장 중...' : '등록' }}

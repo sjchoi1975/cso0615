@@ -65,15 +65,22 @@
           >
             <template #body="slotProps">
               <span v-if="col.type === 'index'">{{ slotProps.index + 1 }}</span>
+
+              <span v-if="col.field === 'hospital_name'">
+                <div class="table-title">
+                  {{ slotProps.data.hospital_name }}
+                </div>
+              </span>
+
+
               <span v-else-if="col.field === 'current_month_files' && slotProps.data.current_month_files != '-'">
                 <span class="file-count-link" @click="goToFileDetail(slotProps.data)">
                   {{ slotProps.data.current_month_files }}
                 </span>
               </span>
-              <span v-else-if="col.field === 'confirm'">
-                <span :class="{ 'text-green-500': slotProps.data.confirm, 'text-red-500': !slotProps.data.confirm }">
-                  {{ slotProps.data.confirm ? '확인' : '미확인' }}
-                </span>
+              <span v-else-if="col.field === 'prev_month_files'">
+                <span v-if="slotProps.data.prev_month_files != '-'">{{ slotProps.data.prev_month_files }}</span>
+                <span v-else>-</span>
               </span>
               <Button
                 v-else-if="col.field === 'viewDetail'"
@@ -236,6 +243,7 @@ const fetchMappedHospitals = async () => {
     return {
       ...hospital,
       current_month_files: fileCount > 0 ? fileCount : '-',
+      prev_month_files: fileCount > 0 ? fileCount : '-', // 전월 제출 파일 수 추가
       confirm: isConfirmed
     };
   });

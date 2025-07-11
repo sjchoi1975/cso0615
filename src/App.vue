@@ -143,7 +143,7 @@ const currentSpecial = computed(() => {
 });
 
 const isSpecialLayout = computed(() => !!currentSpecial.value);
-const isLoginOrSignup = computed(() => ['/login', '/signup'].includes(route.path));
+const isLoginOrSignup = computed(() => ['/login', '/signup', '/reset-password'].includes(route.path));
 
 // 사이드바 표시 여부 결정
 const showSidebar = computed(() => !isLoginOrSignup.value);
@@ -207,8 +207,9 @@ const handleLogout = async () => {
 }
 const handleProfile = () => {
   // 내 정보 변경 로직(추후 구현)
-  alert('내 정보 변경 기능은 추후 제공됩니다.')
-}
+  // 안내 alert 완전 제거
+  // 기존: alert('내 정보 변경 기능은 추후 제공됩니다.')
+};
 
 function handleMenuClick() {
   if (window.innerWidth <= 900) sidebarVisible.value = false

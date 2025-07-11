@@ -10,25 +10,25 @@
       </label>
       <label>아이디</label>
       <input type="email" v-model="user.email" class="input" disabled />
-      <label>회사명</label>
+      <label>회사명<span class="required">*</span></label>
       <input type="text" v-model="user.company_name" class="input" />
-      <label>대표자명</label>
+      <label>대표자명<span class="required">*</span></label>
       <input type="text" v-model="user.ceo_name" class="input" />
-      <label>사업자등록번호</label>
+      <label>사업자등록번호<span class="required">*</span></label>
       <input type="text" v-model="user.biz_no" class="input" @input="formatBizNo" maxlength="12" />
       <label>주소</label>
-      <input type="text" v-model="user.address" class="input" />
+      <input type="text" v-model="user.address" placeholder="" class="input" />
       <label>CSO 신고번호</label>
-      <input type="text" v-model="user.cso_regist_no" class="input" />
+      <input type="text" v-model="user.cso_regist_no" placeholder="숫자와 - (하이픈)만 입력" class="input" />
       <label>담당자명</label>
-      <input type="text" v-model="user.manager_name" class="input" />
+      <input type="text" v-model="user.manager_name" placeholder="" class="input" />
       <label>휴대폰 번호</label>
-      <input type="text" v-model="user.handphone" class="input" @input="formatPhone" maxlength="13" />
+      <input type="text" v-model="user.handphone" placeholder="숫자만 입력" class="input" @input="formatPhone" maxlength="13" />
       <label>이메일(연락용)</label>
-      <input type="email" v-model="user.contact_email" class="input" />
-      <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
-        <Button label="취소" class="btn-cancel" @click.prevent="goToCancel"/>
-        <Button label="저장" class="btn-signup" @click.prevent="goToSave"/>
+      <input type="email" v-model="user.contact_email" placeholder="" class="input" />
+      <div class="btn-row">
+        <Button label="취소" class="btn-cancel" @click.prevent="goToCancel" style="flex:1;"/>
+        <Button label="저장" class="btn-signup" @click.prevent="goToSave" style="flex:3;"/>
       </div>
     </form>
   </div>
@@ -116,16 +116,25 @@ function goToCancel() {
 }
 
 async function goToSave() {
-  // 유효성 검사
+  // 필수값 체크
+  if (!user.value.company_name) {
+    alert('회사명을 입력해 주세요.');
+    return;
+  }
+  if (!user.value.ceo_name) {
+    alert('대표자명을 입력해 주세요.');
+    return;
+  }
   if (!validateBizNo(user.value.biz_no)) {
     alert('사업자등록번호를 올바르게 입력해 주세요. (예: 123-45-67890)');
     return;
   }
-  if (!validatePhone(user.value.handphone)) {
+  // 휴대폰, 이메일 등은 입력하지 않아도 됨
+  if (user.value.handphone && !validatePhone(user.value.handphone)) {
     alert('휴대폰 번호를 올바르게 입력해 주세요. (예: 010-1234-5678)');
     return;
   }
-  if (!validateEmail(user.value.contact_email)) {
+  if (user.value.contact_email && !validateEmail(user.value.contact_email)) {
     alert('이메일 형식이 올바르지 않습니다.');
     return;
   }

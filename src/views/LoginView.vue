@@ -51,9 +51,13 @@
           </span>
         </button>
       </div>
-      <button type="submit" class="btn-login" style="margin-top: 2rem;;">로그인</button>
-      <span class="link" style="text-align: center; margin-top: 1.6rem;" @click="goSignup">회원가입</span>
+      <button type="submit" class="btn-login" style="margin-top: 2rem;">로그인</button>
+      <div style="text-align: center; margin-top: 1.6rem; display: flex; justify-content: center; gap: 2rem;">
+        <a href="#" class="link" @click.prevent="showResetPwModal = true">비밀번호 재설정</a>
+        <span class="link" style="text-decoration: underline;" @click="goSignup">회원가입</span>
+      </div>        
     </form>
+    <ResetPasswordModal :visible="showResetPwModal" @close="showResetPwModal = false" />
   </div>
 </template>
 
@@ -61,12 +65,14 @@
 import { ref, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
+import ResetPasswordModal from './ResetPasswordModal.vue';
 
 const email = ref('');
 const password = ref('');
 const loading = ref(false);
 const router = useRouter();
 const showPassword = ref(false);
+const showResetPwModal = ref(false);
 
 const login = async () => {
   if (!email.value || !password.value) {

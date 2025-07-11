@@ -107,23 +107,25 @@
               </template>
               <template v-else-if="col.field === 'updated_at'">
                 <span v-if="slotProps.data.updated_at && new Date(slotProps.data.updated_at).getTime() !== new Date(slotProps.data.request_date).getTime()">
-                  {{ new Date(slotProps.data.updated_at).toLocaleString('sv-SE').slice(0, 16) }}
+                  {{ new Date(slotProps.data.updated_at).toISOString().slice(0, 10) }}
                 </span>
                 <span v-else>-</span>
               </template>
               <template v-else-if="col.field === 'request_date'">
-                {{ slotProps.data.request_date ? new Date(slotProps.data.request_date).toLocaleString('sv-SE').slice(0, 16) : '' }}
+                {{ slotProps.data.request_date ? new Date(slotProps.data.request_date).toISOString().slice(0, 10) : '' }}
               </template>
+
               <template v-else-if="col.field === 'hospital_name'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                <span class="table-title" :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
                   {{ slotProps.data.hospital_name }}
                 </span>
               </template>
               <template v-else-if="col.field === 'pharmaceutical_company_name'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                <span class="table-title":class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
                   {{ slotProps.data.pharmaceutical_company_name }}
                 </span>
               </template>
+
               <template v-else>
                 <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
               </template>

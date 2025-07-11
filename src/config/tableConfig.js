@@ -565,7 +565,7 @@ export const userNoticesTableConfig = {
     columns: [
       { field: 'id', label: '순번', width: '14%', align: 'center', sortable: false },
       { field: 'title', label: '제목', width: '58%', align: 'left', sortable: true },
-      { field: 'created_at', label: '작성일시', width: '28%', align: 'center', sortable: true }
+      { field: 'created_at', label: '작성일자', width: '28%', align: 'center', sortable: true }
     ]
   }
 };
@@ -676,10 +676,10 @@ export const userFilterRequestsTableConfig = {
       { field: 'hospital_name', label: '거래처명', width: '18%', align: 'left', sortable: false },
       { field: 'pharmaceutical_company_name', label: '제약사', width: '10%', align: 'left', sortable: false },
       { field: 'status', label: '결과', width: '8%', align: 'center', sortable: false },
-      { field: 'admin_comments', label: '전달사항', width: '18%', align: 'left', sortable: false },
-      { field: 'updated_at', label: '처리일시', width: '10%', align: 'center', sortable: false },
-      { field: 'user_remarks', label: '요청사항', width: '18%', align: 'left', sortable: false },
-      { field: 'request_date', label: '요청일시', width: '10%', align: 'center', sortable: false }
+      { field: 'admin_comments', label: '전달사항', width: '20%', align: 'left', sortable: false },
+      { field: 'updated_at', label: '처리일자', width: '8%', align: 'center', sortable: false },
+      { field: 'user_remarks', label: '요청사항', width: '20%', align: 'left', sortable: false },
+      { field: 'request_date', label: '요청일자', width: '8%', align: 'center', sortable: false }
     ]
   },
 
@@ -694,12 +694,12 @@ export const userFilterRequestsTableConfig = {
       /*{ field: 'index', label: '순번', width: '6%', align: 'center', sortable: false },*/
       { field: 'filter_type', label: '구분', width: '6%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처명', width: '16%', align: 'left', sortable: false },
-      { field: 'pharmaceutical_company_name', label: '제약사', width: '10%', align: 'left', sortable: false },
+      { field: 'pharmaceutical_company_name', label: '제약사', width: '14%', align: 'left', sortable: false },
       { field: 'status', label: '결과', width: '8%', align: 'center', sortable: false },
-      { field: 'admin_comments', label: '전달사항', width: '10%', align: 'left', sortable: false },
-      { field: 'updated_at', label: '처리일시', width: '16%', align: 'center', sortable: false },
-      { field: 'user_remarks', label: '요청사항', width: '10%', align: 'left', sortable: false },
-      { field: 'request_date', label: '요청일시', width: '16%', align: 'center', sortable: false }
+      { field: 'admin_comments', label: '전달사항', width: '12%', align: 'left', sortable: false },
+      { field: 'updated_at', label: '처리일자', width: '12%', align: 'center', sortable: false },
+      { field: 'user_remarks', label: '요청사항', width: '12%', align: 'left', sortable: false },
+      { field: 'request_date', label: '요청일자', width: '12%', align: 'center', sortable: false }
     ]
   }
 };

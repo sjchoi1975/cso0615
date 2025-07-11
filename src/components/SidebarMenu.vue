@@ -218,7 +218,7 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
 }
 
 .menu-item:hover {
-  background: var(--primary-light);
+  background: var(--primary-lightest);
   color: #222;
 }
 

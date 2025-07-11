@@ -137,7 +137,7 @@
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label>제약사명</label>
+            <label class="label-0rem">제약사명</label>
             <input 
               v-model="formData.company_name" 
               type="text" 
@@ -148,7 +148,7 @@
             />
           </div>
           <div class="form-group">
-            <label>필터링</label>
+            <label class="label-0rem">필터링</label>
             <div class="status-input">
               <div
                 class="custom-toggle-wrap custom-toggle-wrap-left" 
@@ -185,7 +185,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>EDI 증빙 파일</label>
+            <label class="label-0rem">EDI 증빙 파일</label>
             <div class="status-input">
               <div
                 class="custom-toggle-wrap custom-toggle-wrap-left" 

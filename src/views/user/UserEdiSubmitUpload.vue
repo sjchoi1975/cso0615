@@ -56,7 +56,7 @@
       <label class="title-sm" style="margin-top: 2rem;">특이 사항</label>
       <textarea v-model="memo" class="input" placeholder="" rows="6"></textarea>
 
-      <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
+      <div class="btn-row">
         <button
           type="button" 
           class="btn-cancel" 

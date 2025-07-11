@@ -61,9 +61,17 @@
               <template v-if="col.field === 'index'">
                 {{ first + slotProps.index + 1 }}
               </template>
+
+              <template v-if="col.field === 'product_name'">
+                <div class="table-title-link">
+                  {{ slotProps.data.product_name }}
+                </div>
+              </template>
+
               <template v-else-if="col.field === 'commission_rate'">
                 {{ formatCommissionRate(getUserCommission(slotProps.data)) }}
               </template>
+
               <template v-else-if="col.field === 'price'">
                 {{ slotProps.data.price != null ? slotProps.data.price.toLocaleString() : '' }}
               </template>

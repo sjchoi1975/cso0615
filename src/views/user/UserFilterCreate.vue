@@ -65,7 +65,7 @@
       <label class="title-sm" style="margin-top: 1.5rem;">메모</label>
       <textarea v-model="userRemarks" class="input" placeholder="요청 메모를 입력해 주세요." rows="5"></textarea>
 
-      <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
+      <div class="btn-row">
         <button
           type="button" 
           class="btn-cancel" 

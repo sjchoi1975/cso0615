@@ -2,7 +2,7 @@
   <div class="board">
     <form @submit.prevent="onSubmit" class="board-form-720">
       <div style="margin-bottom: 1.5rem;">
-        <label style="margin-bottom: 0.75rem;">제목</label>
+        <label class="label-05rem">제목</label>
         <input 
           v-model="title" 
           ref="titleInput"
@@ -12,7 +12,7 @@
         />
       </div>
       <div style="margin-bottom: 1.5rem;">
-        <label style="margin-bottom: 0.75rem;">중요 공지</label>
+        <label class="label-05rem">중요 공지</label>
         <div class="checkbox-wrapper">
           <input 
             type="checkbox" 
@@ -20,25 +20,25 @@
             v-model="isImportant" 
             class="custom-checkbox"
           />
-          <label for="important" class="checkbox-label">중요 공지로 설정 (상단 고정)</label>
+          <label for="important" class="label-09-666">중요 공지로 설정 (상단 고정)</label>
         </div>
       </div>
       <div style="margin-bottom: 2rem;">
-        <label style="margin-bottom: 0.75rem;">내용</label>
+        <label class="label-05rem">내용</label>
         <textarea
           v-model="content"
           ref="textarea"
-          rows="12"
+          rows="16"
           class="input"
           placeholder="내용을 입력하세요"
-          style="resize: vertical; min-height: 20rem; width: 100%;"
+          style="resize: vertical;"
           @input="autoResize"
           required
         ></textarea>
       </div>
       <div style="display: flex; gap: 1rem; justify-content: flex-end;">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canSubmit }" style="flex:2;">
+        <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canSubmit }" style="flex:3;">
           작성
         </button>
       </div>

@@ -66,6 +66,13 @@
               <template v-if="col.field === 'index'">
                 {{ first + slotProps.index + 1 }}
               </template>
+
+              <template v-if="col.field === 'hospital_name'">
+                <div class="table-title-link">
+                  {{ slotProps.data.hospital_name }}
+                </div>
+              </template>
+
               <template v-else-if="col.type === 'icon' && col.field === 'edit'">
                 <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="goToEditPage(slotProps.data.id)" />
               </template>

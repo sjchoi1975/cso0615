@@ -36,7 +36,7 @@
         <option value="active">활성</option>
         <option value="inactive">비활성</option>
       </select>
-      <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
+      <div style="display: flex; gap: 1rem; margin-top: 1.2rem;">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
         <button type="submit" class="btn-confirm" :disabled="loading" style="flex:2;">등록</button>
       </div>

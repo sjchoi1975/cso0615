@@ -2,15 +2,14 @@
   <div class="auth-root">
     <form @submit.prevent="signup" class="board-form">
       <h2 class="Signup-title">회원가입</h2>
-      <label>아이디
-        <span class="required">*</span>
+      <label>아이디<span class="required">*</span>
       </label>
       <input v-model="idEmail" 
         type="email" 
         placeholder="이메일" 
         class="input" 
         required />
-      <label>비밀번호 <span class="required">*</span></label>
+      <label>비밀번호<span class="required">*</span></label>
       <div class="input-eye-wrap">
         <input :type="showPassword ? 'text' : 'password'" 
           v-model="password" 
@@ -52,7 +51,7 @@
           </span>
         </button>
       </div>
-      <label>비밀번호 확인 <span class="required">*</span></label>
+      <label>비밀번호 확인<span class="required">*</span></label>
       <div class="input-eye-wrap">
         <input :type="showConfirmPassword ? 'text' : 'password'" 
           v-model="confirmPassword" 
@@ -98,11 +97,11 @@
       <div v-if="showPasswordMismatch" class="password-error">
         비밀번호가 일치하지 않습니다.
       </div>
-      <label>회사명 <span class="required">*</span></label>
+      <label>회사명<span class="required">*</span></label>
       <input v-model="companyName" placeholder="" class="input" required />
-      <label>대표자명 <span class="required">*</span></label>
+      <label>대표자명<span class="required">*</span></label>
       <input v-model="ceoName" placeholder="" class="input" required />
-      <label>사업자등록번호 <span class="required">*</span></label>
+      <label>사업자등록번호<span class="required">*</span></label>
       <input v-model="bizNo" placeholder="숫자만 입력" class="input" required />
       <label>주소</label>
       <input v-model="address" placeholder="" class="input" />
@@ -114,9 +113,9 @@
       <input v-model="handphone" placeholder="숫자만 입력" class="input" />
       <label>이메일(연락용)</label>
       <input v-model="contactEmail" type="email" placeholder="" class="input" />
-      <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
+      <div class="btn-row">
         <button type="button" class="btn-cancel" @click="goLogin" style="flex:1;">취소</button>
-        <button type="submit" class="btn-signup" :disabled="loading" style="flex:2;">회원가입</button>
+        <button type="submit" class="btn-signup" :disabled="loading" style="flex:3;">회원가입</button>
       </div>
     </form>
   </div>

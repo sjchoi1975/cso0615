@@ -51,7 +51,7 @@
             <template v-if="col.field === 'title'">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <span v-if="data.is_important" class="important-badge">중요</span>
-                <a @click="toggleExpand(data.id)" style="cursor: pointer; color: #2196f3; text-decoration: underline;">
+                <a @click="toggleExpand(data.id)" class="table-title-link">
                   {{ data.title }}
                 </a>
               </div>

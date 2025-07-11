@@ -22,7 +22,7 @@
         <!-- 정산내역 표 -->
         <div style="margin-bottom:0.5rem;">
           <b class="title-sm">정산내역</b>
-          <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:1px solid #bbb; table-layout:fixed;">
+          <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:2px solid #666; table-layout:fixed;">
             <thead>
               <tr style="background:#f8f9fa;">
                 <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">거래처</th>
@@ -41,13 +41,12 @@
         </div>
         <!-- 상세내역보기 버튼 -->
         <div style="text-align:center; margin-bottom:1.5rem;">
-
           <button class="btn-select-wide" style="width:100%;" @click="goDetail">상세 내역 보기 ></button>
         </div>
         <!-- 세금계산서 발행 요청 표 -->
         <div style="margin-bottom:1.5rem;">
           <b class="title-sm">세금계산서 발행 요청</b>
-          <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:1px solid #bbb; table-layout:fixed;">
+          <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:2px solid #666; table-layout:fixed;">
             <thead>
               <tr style="background:#f8f9fa;">
                 <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">공급가</th>
@@ -89,11 +88,11 @@
           </div>
         </div>
         <!-- 정정요청 내용 표시 -->
-        <div v-if="correctionText" style="margin-bottom:1.5rem;">
+        <div v-if="correctionText">
           <div style="display:flex;
             justify-content:space-between;
             align-items:center;
-            margin-bottom:0.3rem;"
+            margin-bottom:0"
           >
             <b class="title-sm-danger">정정요청</b>
             <button
@@ -117,10 +116,7 @@
             {{ correctionText }}</div>
         </div>
         <!-- 하단 버튼 -->
-        <div style="display: flex;
-          gap: 1rem;
-          justify-content: center;"
-        >
+        <div class="btn-row">
           <button
             :class="correctionBtnClass"
             style="flex:1;"

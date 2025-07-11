@@ -26,19 +26,12 @@
       <input type="text" v-model="user.handphone" class="input" disabled />
       <label>이메일(연락용)</label>
       <input type="email" v-model="user.contact_email" class="input" disabled />
-      <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem; gap: 1rem;">
-        <Button
-          label="비밀번호 변경"
-          @click.prevent="goToChangePw"
-          class="btn-signup"
-          style="padding: 0.35rem 1rem !important;
-                 font-size: 0.95rem !important;
-                 background: #555 !important;
-                 color: #fff !important;"
-        />
-        <Button label="정보 수정" class="btn-edit" @click.prevent="goToEdit" />
+      <div class="btn-row">
+        <Button label="비밀번호 변경" class="btn-pwchange" @click.prevent="openPwModal" style="flex:1;" />
+        <Button label="정보 수정" class="btn-edit" @click.prevent="goToEdit" style="flex:3;" />
       </div>
     </form>
+    <UserChangePasswordModal :visible="showPwModal" @close="closePwModal" @success="onPwChangeSuccess" />
   </div>
 </template>
 
@@ -48,6 +41,7 @@ import TopbarMenu from '@/components/TopbarMenu.vue';
 import Button from 'primevue/button';
 import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
+import UserChangePasswordModal from './UserChangePasswordModal.vue';
 
 const router = useRouter();
 const user = ref({
@@ -61,6 +55,7 @@ const user = ref({
   handphone: '',
   contact_email: ''
 });
+const showPwModal = ref(false);
 
 onMounted(async () => {
   const { data: { user: supaUser } } = await supabase.auth.getUser();
@@ -88,8 +83,14 @@ onMounted(async () => {
 function goToEdit() {
   router.push('/profile/edit');
 }
-function goToChangePw() {
-  router.push('/profile/password');
+function openPwModal() {
+  showPwModal.value = true;
+}
+function closePwModal() {
+  showPwModal.value = false;
+}
+function onPwChangeSuccess() {
+  // 필요시 안내 또는 새로고침 등 추가 가능
 }
 </script>
 

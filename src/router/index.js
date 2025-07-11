@@ -203,6 +203,14 @@ const router = createRouter({
       component: () => import('@/views/user/UserProfileEdit.vue'),
     },
     {
+      path: '/profile/password',
+      redirect: '/profile'
+    },
+    {
+      path: '/reset-password',
+      component: () => import('@/views/ResetPasswordView.vue')
+    },
+    {
       path: '/admin/hospitals/list',
       name: 'AdminHospitalsList',
       component: () => import('@/views/admin/AdminHospitalsList.vue'),
