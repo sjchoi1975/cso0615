@@ -7,12 +7,8 @@
     <div class="filter-card">
       <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
-          <input
-            v-model="search"
-            placeholder="업체명, 거래처명, 제약사명 입력"
-            class="input-search wide-mobile-search"
-          />
-        <div class="hide-mobile">
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="업체명, 거래처명, 제약사명 입력" />
+        <div class="hide-mobile" style="display: flex; gap: 0.5rem; align-items: center;">
           <span>업체</span>
           <select v-model="selectedMember" class="input-180">
             <option value="">- 전체 -</option>
@@ -41,6 +37,19 @@
             <option value="approved">승인</option>
             <option value="rejected">반려</option>
           </select>
+          <button type="button" class="btn-search" @click="onSearch" :disabled="!isSearchEnabled">검색</button>
+          <button type="button" class="btn-reset" @click="onReset">
+            <i class="pi pi-refresh" style="font-size: 1rem;"></i>
+            초기화
+          </button>
+        </div>
+        <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="업체명, 거래처명, 제약사명 입력" @keyup.enter="onSearch"/>
+          <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onClearSearch"
+            style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+          <i class="pi pi-search search-btn-icon" @click="isSearchEnabled && onSearch()"
+            :class="{ 'disabled': !isSearchEnabled }"
+            style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
         </div>
       </div>
     </div>
@@ -64,7 +73,7 @@
     <div class="table-card">
       <div :style="tableConfig.tableStyle">
         <DataTable
-          :value="requests"
+          :value="filteredList"
           :loading="false"
           :paginator="false"
           scrollable
@@ -155,7 +164,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -172,12 +181,14 @@ const tableConfig = computed(() => isMobile.value ? filterRequestsTableConfig.mo
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const requests = ref([]);
+const filteredList = ref([]);
 const loading = ref(false);
 const first = ref(0);
 const totalCount = ref(0);
 const pageSize = ref(100);
 
 const search = ref('');
+const isSearched = ref(false);
 
 // Filter states
 const selectedMember = ref('');
@@ -197,6 +208,16 @@ const currentRemark = ref('');
 const showAdminCommentsModal = ref(false);
 const adminComments = ref('');
 const selectedRequest = ref(null);
+
+// 검색 활성화 조건
+const isSearchEnabled = computed(() => {
+  return search.value.length >= 2 || 
+         selectedMember.value || 
+         selectedHospital.value || 
+         selectedPharma.value || 
+         selectedStatus.value || 
+         selectedFilterType.value;
+});
 
 // Fetch dropdown options
 const fetchDropdownOptions = async () => {
@@ -246,27 +267,67 @@ const fetchRequests = async () => {
 
   const from = first.value;
   const to = from + pageSize.value - 1;
-  query = query.range(from, to).order('is_processed', { ascending: true }).order('sort_date', { ascending: false });
+  query = query.range(from, to);
 
   const { data, error, count } = await query;
 
   if (error) {
     alert('데이터 조회 실패: ' + error.message);
   } else {
-    requests.value = data;
+    // 정렬: 1. 대기건 최우선, 2. 각 그룹 내에서 최신순
+    const sortedData = data.sort((a, b) => {
+      // 1. 대기건이 최우선
+      if (a.status === 'pending' && b.status !== 'pending') return -1;
+      if (a.status !== 'pending' && b.status === 'pending') return 1;
+      
+      // 2. 각 그룹 내에서 요청일시 기준 최신순
+      const dateA = new Date(a.request_date);
+      const dateB = new Date(b.request_date);
+      return dateB - dateA; // 최신이 위로
+    });
+
+    requests.value = sortedData;
+    filteredList.value = sortedData;
     totalCount.value = count || 0;
   }
   loading.value = false;
 };
 
+// 검색 실행
+const onSearch = () => {
+  if (!isSearchEnabled.value) return;
+  isSearched.value = true;
+  first.value = 0;
+  fetchRequests();
+};
+
+// 초기화
+const onReset = () => {
+  search.value = '';
+  selectedMember.value = '';
+  selectedHospital.value = '';
+  selectedPharma.value = '';
+  selectedStatus.value = '';
+  selectedFilterType.value = '';
+  isSearched.value = false;
+  first.value = 0;
+  fetchRequests();
+};
+
+// 검색어만 초기화 (모바일 X 버튼)
+const onClearSearch = () => {
+  if (isSearched.value) {
+    // 검색 후: 전체 초기화
+    onReset();
+  } else {
+    // 검색 전: 검색어만 삭제
+    search.value = '';
+  }
+};
+
 onMounted(() => {
     fetchRequests();
     fetchDropdownOptions();
-});
-
-watch([search, selectedMember, selectedHospital, selectedPharma, selectedStatus, selectedFilterType], () => {
-  first.value = 0;
-  fetchRequests();
 });
 
 const onPageChange = (event) => {
@@ -321,7 +382,7 @@ const saveAdminComments = async () => {
 };
 
 const downloadExcel = () => {
-  const exportData = requests.value.map(row => ({
+  const exportData = filteredList.value.map(row => ({
     '요청일시': new Date(row.request_date).toLocaleString('sv-SE').slice(0, 16),
     '업체명': row.member_name,
     '구분': row.filter_type === 'new' ? '신규' : '이관',
@@ -334,15 +395,6 @@ const downloadExcel = () => {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '필터링요청목록');
   XLSX.writeFile(wb, `필터링목록_${new Date().toISOString().slice(0, 10)}.xlsx`);
-};
-
-const resetFilters = () => {
-  search.value = '';
-  selectedMember.value = '';
-  selectedHospital.value = '';
-  selectedPharma.value = '';
-  selectedStatus.value = '';
-  selectedFilterType.value = '';
 };
 
 function formatDateTime(val) {

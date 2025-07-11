@@ -6,21 +6,15 @@
   <!-- 모바일 필터 카드 스크롤 처리 -->
     <div class="filter-card">
       <div class="filter-row filter-row-center">
-        <div class="hide-mobile">
+        <span class="hide-mobile">통합 검색</span>
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="제약사, 제품명, 보험코드, 성분명 입력" />
+        <div class="hide-mobile" style="display: flex; gap: 0.5rem; align-items: center;">
           <span>기준월</span>
-          <select v-model="currentMonth.value" class="input-120">
+          <select v-model="currentMonth" class="input-120">
             <option v-for="m in monthOptions" :key="m" :value="m">
               {{ m.slice(0,4) + '년 ' + parseInt(m.slice(5,7)) + '월' }}
             </option>
           </select>
-        </div>
-        <span class="hide-mobile">통합 검색</span>
-          <input
-            v-model="search"
-            placeholder="제약사, 제품명, 보험코드, 성분명 입력"
-            class="input-search wide-mobile-search"
-          />
-        <div class="hide-mobile">
           <span>급여</span>
           <select v-model="reimbursement" class="input-100">
             <option value="">- 전체 -</option>
@@ -33,6 +27,19 @@
             <option value="active">활성</option>
             <option value="inactive">비활성</option>
           </select>
+          <button type="button" class="btn-search" @click="onSearch" :disabled="!isSearchEnabled">검색</button>
+          <button type="button" class="btn-reset"  @click="onReset">
+            <i class="pi pi-refresh" style="font-size: 1rem;"></i>
+            초기화
+          </button>
+        </div>
+        <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="제약사, 제품명, 보험코드, 성분명 입력" @keyup.enter="onSearch"/>
+          <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
+            style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+          <i class="pi pi-search search-btn-icon" @click="isSearchEnabled && onSearch()"
+            :class="{ 'disabled': !isSearchEnabled }"
+            style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
         </div>
       </div>
     </div>
@@ -181,24 +188,27 @@ import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const router = useRouter();
 
-const currentMonth = ref({ value: '' });
-const monthOptions = ref([]);
-
 const search = ref('');
 const reimbursement = ref('');
 const status = ref('');
-
+const currentMonth = ref('');
+const monthOptions = ref([]);
 const products = ref([]);
 const loading = ref(false);
 const totalCount = ref(0);
 const first = ref(0);
 const pageSize = ref(200);
+const isSearched = ref(false);
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? productsTableConfig.mobile : productsTableConfig.pc);
-
-// 테이블 스크롤 높이 계산 (페이지네이터 있음)
+const tableRef = ref(null);
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
+
+const isSearchEnabled = computed(() => {
+  // 검색어 2글자 이상 또는 세부 필터(기준월, 급여, 상태) 중 하나라도 선택 시 활성화
+  return search.value.length >= 2 || !!currentMonth.value || !!reimbursement.value || !!status.value;
+});
 
 const fetchMonthOptions = async () => {
   // product_months 테이블에서 기준월 목록 불러오기
@@ -212,84 +222,75 @@ const fetchMonthOptions = async () => {
   } else {
     const uniqueMonths = [...new Set(data.map(row => row.base_month).filter(m => m))];
     monthOptions.value = uniqueMonths;
-    if (uniqueMonths.length > 0 && !currentMonth.value.value) {
-      currentMonth.value.value = uniqueMonths[0];
+    if (uniqueMonths.length > 0) {
+      currentMonth.value = uniqueMonths[0];
     }
   }
 };
 
-onMounted(async () => {
-  await fetchMonthOptions();
-  fetchProducts(0, pageSize.value);
-});
-
-onActivated(async () => {
-  await fetchProducts(first.value, pageSize.value);
-});
-
-let debounceTimer = null;
-watch(
-  [() => currentMonth.value.value, search, reimbursement, status],
-  () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      first.value = 0;
-      fetchProducts(0, pageSize.value);
-    }, 300);
-  },
-  { deep: true }
-);
-
-const tableRef = ref(null);
-
-const fetchProducts = async (pageFirst = 0, pageRows = 200) => {
+// 최초 200개만 불러오기 (선택된 기준월만)
+const fetchInitialProducts = async () => {
   loading.value = true;
-  let query = supabase
-    .from('products')
-    .select('*', { count: 'exact' });
-
-  // 기준월 필터
-  if (currentMonth.value.value) {
-    query = query.eq('base_month', currentMonth.value.value);
+  let query = supabase.from('products').select('*', { count: 'exact' });
+  if (currentMonth.value) {
+    query = query.eq('base_month', currentMonth.value);
   }
-  
-  // 상태 필터
-  if (status.value) {
-    query = query.eq('status', status.value);
-  }
-
-  // 급여 필터
-  if (reimbursement.value) {
-    query = query.eq('reimbursement', reimbursement.value);
-  }
-
-  // 쉼표로 구분된 AND 조건 검색
-  if (search.value) {
-    const searchTerms = search.value.split(',').map(term => term.trim()).filter(term => term);
-    if (searchTerms.length > 0) {
-      const orConditions = searchTerms.map(term => 
-        `or(pharmacist.ilike.%${term}%,product_name.ilike.%${term}%,insurance_code.ilike.%${term}%,Ingredient.ilike.%${term}%)`
-      ).join(',');
-      query = query.or(orConditions);
-    }
-  }
-
-  query = query.range(pageFirst, pageFirst + pageRows - 1)
-    .order('pharmacist', { ascending: true })
-    .order('product_name', { ascending: true });
-
-  const { data, error, count } = await query;
-
-  if (error) {
-    console.error("Error fetching products:", error);
-    products.value = [];
-    totalCount.value = 0;
-  } else {
+  query = query.range(0, pageSize.value - 1);
+  const { data, count, error } = await query;
+  if (!error) {
     products.value = data;
     totalCount.value = count;
   }
   loading.value = false;
 };
+
+// 검색/필터 시 전체 결과 받아오기 (선택된 기준월만)
+const fetchFilteredProducts = async () => {
+  loading.value = true;
+  let query = supabase.from('products').select('*', { count: 'exact' });
+  if (currentMonth.value) {
+    query = query.eq('base_month', currentMonth.value);
+  }
+  if (status.value) {
+    query = query.eq('status', status.value);
+  }
+  if (reimbursement.value) {
+    query = query.eq('reimbursement', reimbursement.value);
+  }
+  if (search.value.length >= 2) {
+    const keyword = search.value.toLowerCase();
+    query = query.or(`pharmacist.ilike.%${keyword}%,product_name.ilike.%${keyword}%,insurance_code.ilike.%${keyword}%,Ingredient.ilike.%${keyword}%`);
+  }
+  const { data, count, error } = await query;
+  if (!error) {
+    products.value = data.slice(0, pageSize.value); // 200개만 화면에
+    totalCount.value = count;
+  }
+  loading.value = false;
+};
+
+onMounted(async () => {
+  await fetchMonthOptions();
+  await fetchInitialProducts();
+});
+
+function onSearch() {
+  if (!isSearchEnabled.value) return;
+  isSearched.value = true;
+  fetchFilteredProducts();
+}
+function onReset() {
+  if (isSearched.value) {
+    search.value = '';
+    reimbursement.value = '';
+    status.value = '';
+    currentMonth.value = monthOptions.value.length > 0 ? monthOptions.value[0] : '';
+    isSearched.value = false;
+    fetchInitialProducts();
+  } else {
+    search.value = '';
+  }
+}
 
 const onPageChange = (event) => {
   first.value = event.first;
@@ -313,7 +314,7 @@ const searchProducts = () => {
 
 const resetFilters = () => {
   if (monthOptions.value.length > 0) {
-    currentMonth.value.value = monthOptions.value[0];
+    currentMonth.value = monthOptions.value[0];
   }
   search.value = '';
   reimbursement.value = '';
@@ -416,7 +417,7 @@ const uploadExcel = async (e) => {
     const sheet = workbook.Sheets[sheetName];
     const json = XLSX.utils.sheet_to_json(sheet);
     const rows = json.map(row => ({
-      base_month: row['기준월'] ? String(row['기준월']).slice(0, 7) : currentMonth.value.value,
+      base_month: row['기준월'] ? String(row['기준월']).slice(0, 7) : currentMonth.value,
       pharmacist: row['제약사'] || '',
       classification: row['분류명'] || '',
       product_name: row['제품명'] || '',
@@ -455,7 +456,7 @@ const deleteAllProducts = async () => {
   if (!confirm(`현재 조건에 맞는 모든 제품(${totalCount.value}개)을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
   loading.value = true;
 
-  let query = supabase.from('products').delete().eq('base_month', currentMonth.value.value);
+  let query = supabase.from('products').delete().eq('base_month', currentMonth.value);
   if (search.value) {
     const keyword = search.value.toLowerCase();
     query = query.or(`pharmacist.ilike.%${keyword}%,product_name.ilike.%${keyword}%,insurance_code.ilike.%${keyword}%,Ingredient.ilike.%${keyword}%`);

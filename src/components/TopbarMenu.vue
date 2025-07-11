@@ -230,6 +230,10 @@ console.log('showBack', props.showBack);
 }
 
 @media (max-width: 900px) {
+  .profile-circle {
+    width: 2.4rem !important;
+    height: 2.4rem !important;
+}
   .profile-dropdown-box {
     min-width: 120px !important;
     right: 0 !important;

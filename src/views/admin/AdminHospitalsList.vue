@@ -7,11 +7,19 @@
     <div class="filter-card">
       <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
-          <input
-            v-model="search"
-            placeholder="거래처명, 원장명, 사업자등록번호, 주소 입력"
-            class="input-search wide-mobile-search"
-          />
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="거래처명, 원장명, 사업자등록번호, 주소 입력" />
+        <button type="button" class="btn-search hide-mobile" @click="onSearch" :disabled="search.length < 2">검색</button>
+        <button type="button" class="btn-reset hide-mobile"  @click="onReset">
+          <i class="pi pi-refresh" style="font-size: 1rem;"></i>
+          초기화
+        </button>
+        <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="거래처명, 원장명, 사업자등록번호, 주소 입력" @keyup.enter="onSearch"/>
+          <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
+            style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+          <i class="pi pi-search search-btn-icon" @click="search.length >= 2 && onSearch()"
+            style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+        </div>
       </div>
     </div>
     
@@ -212,6 +220,7 @@ const router = useRouter();
 const hospitals = ref([]);
 const loading = ref(false);
 const search = ref('');
+const isSearched = ref(false);
 const appliedSearch = ref('');
 const totalCount = ref(0);
 const pageSize = ref(100);
@@ -561,15 +570,23 @@ onMounted(() => {
   fetchHospitals(0, pageSize.value);
 });
 
-// 실시간 검색을 위한 watch 추가
-let debounceTimer = null;
-watch(search, (newValue) => {
-  if (debounceTimer) clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
+function onSearch() {
+  if (search.value.length < 2) return;
+  isSearched.value = true;
+  appliedSearch.value = search.value.trim();
+  first.value = 0;
+  fetchHospitals(0, pageSize.value);
+}
+function onReset() {
+  if (isSearched.value) {
+    search.value = '';
+    appliedSearch.value = '';
+    isSearched.value = false;
     first.value = 0;
-    appliedSearch.value = newValue.trim();
     fetchHospitals(0, pageSize.value);
-  }, 300); // 300ms 디바운스
-});
+  } else {
+    search.value = '';
+  }
+}
 
 </script>

@@ -7,17 +7,27 @@
     <div class="filter-card">
       <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
-          <input
-            v-model="search"
-            placeholder="제목, 내용 입력"
-            class="input-search wide-mobile-search"
-          />
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="제목, 내용 입력" />
+        <button type="button" class="btn-search hide-mobile" @click="onSearch" :disabled="search.length < 2">검색</button>
+        <button type="button" class="btn-reset hide-mobile"  @click="onReset">
+          <i class="pi pi-refresh" style="font-size: 1rem;"></i>
+          초기화
+        </button>
+        <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="제목, 내용 입력" @keyup.enter="onSearch"/>
+          <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
+            style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+          <i class="pi pi-search search-btn-icon" @click="search.length >= 2 && onSearch()"
+            style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+        </div>
       </div>
     </div>
     
     <!-- 중간: 기능카드 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount }}건</div>
+      <div class="total-count">
+        총 {{ notices.length }}건
+      </div>
       <Button
         icon="pi pi-pencil"
         label="신규 등록"
@@ -32,7 +42,7 @@
     <div class="table-card">
       <div :style="tableConfig.tableStyle">
         <DataTable 
-          :value="filterednotice"
+          :value="notices.slice(first, first + pageSize)"
           :loading="false"
           :paginator="false"
           :rows="50"
@@ -131,20 +141,23 @@ const pageSize = ref(50);
 const first = ref(0);
 const expandedRows = ref({});
 const loading = ref(false);
+const isSearched = ref(false); // 검색 실행 여부
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? noticeTableConfig.mobile : noticeTableConfig.pc);
-
-// 테이블 스크롤 높이 계산 (페이지네이터 있음)
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
-// 공지 불러오기 (전체 데이터)
 const fetchNotices = async () => {
   loading.value = true;
-  const { data, error } = await supabase
+  let query = supabase
     .from('notices')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .select('*');
+  if (search.value && search.value.length >= 2) {
+    const keyword = search.value;
+    query = query.or(`title.ilike.%${keyword}%,content.ilike.%${keyword}%`);
+  }
+  query = query.order('created_at', { ascending: false });
+  const { data, error } = await query;
   if (!error) {
     notices.value = data;
   }
@@ -159,29 +172,20 @@ const onPageChange = (event) => {
   first.value = event.first;
 };
 
-// 검색 등 필터링 및 중요 공지 상단 고정 (slice로 페이지 데이터만 반환)
-const filteredAll = computed(() => {
-  let filtered = notices.value;
-  if (search.value) {
-    const keyword = search.value.toLowerCase();
-    filtered = filtered.filter(
-      n =>
-        (n.title && n.title.toLowerCase().includes(keyword)) ||
-        (n.content && n.content.toLowerCase().includes(keyword))
-    );
+function onSearch() {
+  if (search.value.length < 2) return;
+  isSearched.value = true;
+  fetchNotices();
+}
+function onReset() {
+  if (isSearched.value) {
+    search.value = '';
+    isSearched.value = false;
+    fetchNotices();
+  } else {
+    search.value = '';
   }
-  const importantNotices = filtered.filter(n => n.is_important);
-  const normalNotices = filtered.filter(n => !n.is_important);
-  return [...importantNotices, ...normalNotices];
-});
-
-// 페이지네이터 개수 설정
-const filterednotice = computed(() => {
-  return filteredAll.value.slice(first.value, first.value + 50);
-});
-
-
-const totalCount = computed(() => filteredAll.value.length);
+}
 
 // 날짜 포맷팅 (한국시각)
 const formatDate = (dateString) => {

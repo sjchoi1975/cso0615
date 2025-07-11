@@ -5,13 +5,10 @@
     </div>
     <!-- Filter Card -->
     <div class="filter-card">
-      <div class="filter-row">
-          <span>정산월</span>
-          <select v-model="selectedMonth" class="input-120">
-            <option value="">- 전체 -</option>
-            <option v-for="month in monthOptions" :key="month" :value="month">{{ month }}</option>
-          </select>
-        <div class="hide-mobile">
+      <div class="filter-row filter-row-center">
+        <span class="hide-mobile">통합 검색</span>
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="업체명, 거래처명, 제약사명 입력" @keyup.enter="onSearch" />
+        <div class="hide-mobile" style="display: flex; gap: 0.5rem; align-items: center;">
           <span>업체</span>
           <select v-model="selectedCompany" class="input-180">
             <option value="">- 전체 -</option>
@@ -22,10 +19,27 @@
             <option value="">- 전체 -</option>
             <option v-for="hospital in hospitalOptions" :key="hospital.hospital_id" :value="hospital.hospital_id">{{ hospital.hospital_name }}</option>
           </select>
+          <span>제약사</span>
+          <select v-model="selectedPharma" class="input-180">
+            <option value="">- 전체 -</option>
+            <option v-for="pharma in pharmaOptions" :key="pharma.id" :value="pharma.id">{{ pharma.company_name }}</option>
+          </select>
+          <button type="button" class="btn-search" @click="onSearch" :disabled="!isSearchEnabled">검색</button>
+          <button type="button" class="btn-reset" @click="onReset">
+            <i class="pi pi-refresh" style="font-size: 1rem;"></i>
+            초기화
+          </button>
+        </div>
+        <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%; margin-top: 0.5rem;">
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="업체명, 거래처명, 제약사명 입력" @keyup.enter="onSearch"/>
+          <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onClearSearch"
+            style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+          <i class="pi pi-search search-btn-icon" @click="isSearchEnabled && onSearch()"
+            :class="{ 'disabled': !isSearchEnabled }"
+            style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
         </div>
       </div>
     </div>
-
     <!-- Function Card -->
     <div class="function-card">
       <div class="total-count">
@@ -51,13 +65,12 @@
         />
       </div>
     </div>
-    
     <!-- Table Card -->
     <div class="table-card">
       <div :style="tableConfig.tableStyle">
         <DataTable
           v-if="!loading"
-          :value="files"
+          :value="filteredList"
           :loading="false"
           :paginator="false"
           scrollable
@@ -128,7 +141,6 @@
         </DataTable>
       </div>
     </div>
-    
     <!-- Paginator -->
     <div class="fixed-paginator">
       <Paginator :rows="pageSize" :totalRecords="totalCount" :first="first" @page="onPageChange" />
@@ -155,6 +167,7 @@ const tableConfig = computed(() => isMobile.value ? adminEdiListTableConfig.mobi
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const files = ref([]);
+const filteredList = ref([]);
 const loading = ref(false);
 const first = ref(0);
 const totalCount = ref(0);
@@ -184,13 +197,24 @@ const toggleSelectAll = () => {
   }
 };
 
-const selectedMonth = ref('');
+const search = ref('');
+const isSearched = ref(false);
+
 const selectedCompany = ref('');
 const selectedHospital = ref('');
+const selectedPharma = ref('');
 
-const monthOptions = ref([]);
 const companyOptions = ref([]);
 const hospitalOptions = ref([]);
+const pharmaOptions = ref([]);
+
+// 검색 활성화 조건: 검색어 2글자 이상 or 세부 필터 중 하나라도 선택
+const isSearchEnabled = computed(() => {
+  return search.value.length >= 2 ||
+    selectedCompany.value ||
+    selectedHospital.value ||
+    selectedPharma.value;
+});
 
 // 파일 미리보기 관련
 const selectedFile = ref(null);
@@ -216,25 +240,42 @@ const formatPharmaceuticalCompanies = (companies) => {
   return companies.map(c => c.company_name).join(', ');
 };
 
+// 드롭다운 옵션 로딩 및 최신월 디폴트
 const fetchDropdownOptions = async () => {
-  const { data, error } = await supabase.from('admin_edi_list_view').select('settlement_month, member_id, company_name, hospital_id, hospital_name');
+  const { data, error } = await supabase.from('admin_edi_list_view').select('member_id, company_name, hospital_id, hospital_name, pharmaceutical_companies');
   if (error) {
     console.error('Error fetching dropdown options:', error);
     return;
   }
-
   if (data) {
-    monthOptions.value = [...new Set(data.map(item => item.settlement_month))].filter(Boolean).sort().reverse();
-    companyOptions.value = [...new Map(data.map(item => [item.member_id, { member_id: item.member_id, company_name: item.company_name }])).values()].filter(c => c.member_id);
-    hospitalOptions.value = [...new Map(data.map(item => [item.hospital_id, { hospital_id: item.hospital_id, hospital_name: item.hospital_name }])).values()].filter(h => h.hospital_id);
+    companyOptions.value = [...new Map(data.map(item => [item.member_id, { member_id: item.member_id, company_name: item.company_name }])).values()]
+      .filter(c => c.member_id)
+      .sort((a, b) => a.company_name.localeCompare(b.company_name, 'ko-KR'));
+    hospitalOptions.value = [...new Map(data.map(item => [item.hospital_id, { hospital_id: item.hospital_id, hospital_name: item.hospital_name }])).values()]
+      .filter(h => h.hospital_id)
+      .sort((a, b) => a.hospital_name.localeCompare(b.hospital_name, 'ko-KR'));
+    // 제약사 옵션 추출 (전체 데이터에서)
+    const allPharmas = [];
+    data.forEach(row => {
+      if (Array.isArray(row.pharmaceutical_companies)) {
+        row.pharmaceutical_companies.forEach(pharma => {
+          if (pharma && pharma.id && pharma.company_name) {
+            allPharmas.push({ id: pharma.id, company_name: pharma.company_name });
+          }
+        });
+      }
+    });
+    const uniquePharmas = Array.from(
+      new Map(allPharmas.map(p => [p.id, p])).values()
+    );
+    pharmaOptions.value = uniquePharmas.sort((a, b) => a.company_name.localeCompare(b.company_name, 'ko-KR'));
   }
 };
 
+// 파일 데이터 로딩
 const fetchFiles = async () => {
   loading.value = true;
   let query = supabase.from('admin_edi_list_view').select('*', { count: 'exact' });
-
-  if (selectedMonth.value) query = query.eq('settlement_month', selectedMonth.value);
   if (selectedCompany.value) query = query.eq('member_id', selectedCompany.value);
   if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
 
@@ -243,21 +284,45 @@ const fetchFiles = async () => {
   query = query.range(from, to).order('created_at', { ascending: false });
 
   const { data, error, count } = await query;
-
   if (error) {
-    if (error.code === '42P01') {
-       alert('데이터 조회 실패: "admin_edi_list_view"가 존재하지 않습니다. 관리자에게 문의하여 데이터베이스 뷰를 생성해주세요.');
-    } else {
-       alert('데이터 조회 실패: ' + error.message);
-    }
+    console.log('Supabase error:', error);
     files.value = [];
+    filteredList.value = [];
     totalCount.value = 0;
   } else {
-    files.value = data.map(file => ({
+    console.log('원본 데이터:', data);
+    let result = data.map(file => ({
       ...file,
       _selected: selectedFiles.value.some(selected => selected.edi_id === file.edi_id)
     }));
-    totalCount.value = count || 0;
+
+    // 통합검색(2글자 이상)
+    if (search.value.length >= 2) {
+      const keyword = search.value.toLowerCase();
+      result = result.filter(file => {
+        const company = (file.company_name || '').toLowerCase();
+        const hospital = (file.hospital_name || '').toLowerCase();
+        const pharma = Array.isArray(file.pharmaceutical_companies)
+          ? file.pharmaceutical_companies.some(pharma => (pharma.company_name || '').toLowerCase().includes(keyword))
+          : false;
+        return company.includes(keyword) || hospital.includes(keyword) || pharma;
+      });
+      console.log('통합검색 적용 후:', result);
+    }
+
+    // 제약사 필터
+    if (selectedPharma.value) {
+      result = result.filter(file =>
+        Array.isArray(file.pharmaceutical_companies) &&
+        file.pharmaceutical_companies.some(pharma => String(pharma.id) === String(selectedPharma.value))
+      );
+      console.log('제약사 필터 적용 후:', result);
+    }
+
+    files.value = result;
+    filteredList.value = result;
+    totalCount.value = result.length;
+    console.log('최종 결과:', result);
   }
   loading.value = false;
 };
@@ -472,6 +537,30 @@ const savePharmaceuticalCompanies = async () => {
   }
 };
 
+const onSearch = () => {
+  console.log('onSearch 실행', {
+    search: search.value,
+    selectedCompany: selectedCompany.value,
+    selectedHospital: selectedHospital.value,
+    selectedPharma: selectedPharma.value
+  });
+  if (!isSearchEnabled.value) return;
+  isSearched.value = true;
+  first.value = 0;
+  fetchFiles();
+};
+
+const onReset = () => {
+  console.log('onReset 실행');
+  search.value = '';
+  selectedCompany.value = '';
+  selectedHospital.value = '';
+  selectedPharma.value = '';
+  isSearched.value = false;
+  first.value = 0;
+  fetchFiles();
+};
+
 onMounted(() => {
   fetchFiles();
   fetchDropdownOptions();
@@ -482,15 +571,6 @@ window.getFilesForPopup = () => {
   return files.value;
 };
 window.fetchFiles = fetchFiles;
-
-let debounceTimer = null;
-watch([selectedMonth, selectedCompany, selectedHospital], () => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    first.value = 0;
-    fetchFiles();
-  }, 300);
-});
 
 const onPageChange = (event) => {
   first.value = event.first;

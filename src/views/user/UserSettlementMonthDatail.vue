@@ -172,17 +172,8 @@ const onSearch = () => {
   if (!isSearchEnabled.value) return;
   first.value = 0;
   isSearched.value = true;
-  // 필터링 적용 (실제 필드명에 맞게 수정)
-  filteredList.value = settlements.value.filter(item =>
-    (!search.value ||
-      (item.hospital_name || '').includes(search.value) ||
-      (item.pharma_name || '').includes(search.value) ||
-      (item.product_name || '').includes(search.value)
-    ) &&
-    (!selectedPrescriptionMonth.value || item.prescription_month === selectedPrescriptionMonth.value) &&
-    (!selectedHospital.value || item.hospital_name === selectedHospital.value) &&
-    (!selectedProduct.value || item.product_name === selectedProduct.value)
-  );
+  // 검색 버튼 클릭 시에만 필터링 적용
+  fetchSettlements();
 };
 
 const onReset = () => {
@@ -194,7 +185,7 @@ const onReset = () => {
     first.value = 0;
     isSearched.value = false;
     // 전체 데이터로 초기화
-    filteredList.value = settlements.value;
+    fetchSettlements();
   } else {
     search.value = '';
   }
@@ -224,9 +215,17 @@ const fetchSettlements = async () => {
     .eq('company_reg_no', currentUserBizNo.value.trim());
 
   if (selectedMonth.value) query = query.eq('settlement_month', selectedMonth.value);
-  if (selectedPrescriptionMonth.value) query = query.eq('prescription_month', selectedPrescriptionMonth.value);
-  if (selectedHospital.value) query = query.eq('hospital_name', selectedHospital.value);
-  if (selectedProduct.value) query = query.eq('product_name', selectedProduct.value);
+  // 검색 버튼 클릭 시에만 필터 적용
+  if (isSearched.value) {
+    // 통합검색 (2글자 이상)
+    if (search.value.length >= 2) {
+      query = query.or(`hospital_name.ilike.%${search.value}%,pharma_name.ilike.%${search.value}%,product_name.ilike.%${search.value}%`);
+    }
+    // 세부 필터
+    if (selectedPrescriptionMonth.value) query = query.eq('prescription_month', selectedPrescriptionMonth.value);
+    if (selectedHospital.value) query = query.eq('hospital_name', selectedHospital.value);
+    if (selectedProduct.value) query = query.eq('product_name', selectedProduct.value);
+  }
 
   query = query.range(first.value, first.value + pageSize.value - 1).order('prescription_month', { ascending: false });
 

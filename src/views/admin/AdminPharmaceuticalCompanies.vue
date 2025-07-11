@@ -7,9 +7,22 @@
     <div class="filter-card">
       <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
-        <span class="p-input-icon-left">
-          <input v-model="search" placeholder="제약사명 입력" class="input-search wide-mobile-search" />
-        </span>
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="제약사명 입력" />
+        <div class="hide-mobile" style="display: flex; gap: 0.5rem; align-items: center;">
+          <button type="button" class="btn-search" @click="onSearch" :disabled="!isSearchEnabled">검색</button>
+          <button type="button" class="btn-reset" @click="onReset">
+            <i class="pi pi-refresh" style="font-size: 1rem;"></i>
+            초기화
+          </button>
+        </div>
+        <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="제약사명 입력" @keyup.enter="onSearch"/>
+          <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onClearSearch"
+            style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+          <i class="pi pi-search search-btn-icon" @click="isSearchEnabled && onSearch()"
+            :class="{ 'disabled': !isSearchEnabled }"
+            style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+        </div>
       </div>
     </div>
 
@@ -40,7 +53,7 @@
     <div class="table-card">
       <div :style="tableConfig.tableStyle">
         <DataTable
-          :value="filteredCompanies"
+          :value="filteredList"
           :loading="false"
           :paginator="false"
           scrollable
@@ -261,8 +274,10 @@ import { pharmaceuticalCompaniesTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
 
 const companies = ref([]);
+const filteredList = ref([]);
 const loading = ref(true);
 const search = ref('');
+const isSearched = ref(false);
 const totalCount = ref(0);
 const pageSize = 10;
 const first = ref(0);
@@ -291,6 +306,11 @@ const tableConfig = computed(() => isMobile.value ? pharmaceuticalCompaniesTable
 // 테이블 스크롤 높이 계산 (페이지네이터 있음)
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
+// 검색 활성화 조건
+const isSearchEnabled = computed(() => {
+  return search.value.length >= 2;
+});
+
 // 제약사 데이터 불러오기
 const fetchCompanies = async () => {
   loading.value = true;
@@ -307,6 +327,12 @@ const fetchCompanies = async () => {
       created_at: new Date(item.created_at).toLocaleDateString('ko-KR')
     }));
     
+    // 가나다순 정렬
+    companies.value.sort((a, b) => 
+      a.company_name.localeCompare(b.company_name, 'ko-KR')
+    );
+    
+    filteredList.value = companies.value;
     totalCount.value = companies.value.length;
   } catch (e) {
     alert('제약사 데이터 조회 실패: ' + e.message);
@@ -314,22 +340,45 @@ const fetchCompanies = async () => {
   loading.value = false;
 };
 
-// 필터링된 리스트
-const filteredCompanies = computed(() => {
-  let result = [...companies.value];
+// 검색 실행
+const onSearch = () => {
+  if (!isSearchEnabled.value) return;
+  isSearched.value = true;
   
-  if (search.value) {
-    const keyword = search.value.toLowerCase();
-    result = result.filter(company => 
-      company.company_name.toLowerCase().includes(keyword)
-    );
-  }
+  const keyword = search.value.toLowerCase();
+  const result = companies.value.filter(company => 
+    company.company_name.toLowerCase().includes(keyword)
+  );
   
-  // 한글 가나다순 정렬
-  return result.sort((a, b) => 
+  // 가나다순 정렬
+  filteredList.value = result.sort((a, b) => 
     a.company_name.localeCompare(b.company_name, 'ko-KR')
   );
-});
+  
+  totalCount.value = filteredList.value.length;
+};
+
+// 초기화
+const onReset = () => {
+  search.value = '';
+  isSearched.value = false;
+  // 가나다순 정렬된 전체 목록으로 복원
+  filteredList.value = companies.value.sort((a, b) => 
+    a.company_name.localeCompare(b.company_name, 'ko-KR')
+  );
+  totalCount.value = companies.value.length;
+};
+
+// 검색어만 초기화 (모바일 X 버튼)
+const onClearSearch = () => {
+  if (isSearched.value) {
+    // 검색 후: 전체 초기화
+    onReset();
+  } else {
+    // 검색 전: 검색어만 삭제
+    search.value = '';
+  }
+};
 
 // 제약사 선택 모달용 목록 생성 (가나다순, 활성만)
 const activeSortedCompanies = computed(() => {
@@ -456,14 +505,14 @@ const deleteCompany = async (company) => {
 
 // 엑셀 다운로드
 const downloadExcel = () => {
-  if (!filteredCompanies.value.length) {
+  if (!filteredList.value.length) {
     alert('다운로드할 데이터가 없습니다.');
     return;
   }
   
   const headers = ['순번', '제약사명', '등록일'];
   
-  const data = filteredCompanies.value.map((item, index) => [
+  const data = filteredList.value.map((item, index) => [
     index + 1,
     item.company_name,
     item.created_at

@@ -32,10 +32,10 @@ export const noticeTableConfig = {
     columns: [
       /*{ field: 'id', label: '순번', width: '10%', align: 'center', sortable: false },*/
       { field: 'title', label: '제목', width: '40%', align: 'left', sortable: false },
-      { field: 'created_at', label: '작성일자', width: '24%', align: 'center', sortable: false },
+      { field: 'created_at', label: '작성일자', width: '22%', align: 'center', sortable: false },
       { field: 'edit', label: '수정', width: '12%', align: 'center', sortable: false },
       { field: 'delete', label: '삭제', width: '12%', align: 'center', sortable: false },
-      { field: 'status', label: '상태', width: '12%', align: 'center', sortable: false }
+      { field: 'status', label: '상태', width: '14%', align: 'center', sortable: false }
     ]
   }
 }; 
@@ -51,9 +51,9 @@ export const membersTableConfig = {
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'id_email', label: '아이디', width: '8%', align: 'left', sortable: true },
-      { field: 'company_name', label: '회사명', width: '10%', align: 'left', sortable: true },
+      { field: 'company_name', label: '업체명', width: '10%', align: 'left', sortable: true },
       { field: 'biz_no', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
-      { field: 'ceo_name', label: '대표자명', width: '6%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자', width: '6%', align: 'center', sortable: true },
       { field: 'address', label: '주소', width: '12%', align: 'left', sortable: true },
       { field: 'cso_regist_no', label: 'CSO 신고번호', width: '8%', align: 'center', sortable: true },
       { field: 'manager_name', label: '담당자', width: '6%', align: 'center', sortable: true },
@@ -69,15 +69,15 @@ export const membersTableConfig = {
     tableWidth: '100vw',
     tableStyle: {
       overflowX: 'auto',
-      minWidth: '1600px',
+      minWidth: '1400px',
       width: '100vw'
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'id_email', label: '아이디', width: '8%', align: 'left', sortable: true },
-      { field: 'company_name', label: '회사명', width: '10%', align: 'left', sortable: true },
+      { field: 'company_name', label: '업체명', width: '10%', align: 'left', sortable: true },
       { field: 'biz_no', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
-      { field: 'ceo_name', label: '대표자명', width: '6%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자', width: '6%', align: 'center', sortable: true },
       { field: 'address', label: '주소', width: '12%', align: 'left', sortable: true },
       { field: 'cso_regist_no', label: 'CSO 신고번호', width: '10%', align: 'center', sortable: true },
       { field: 'manager_name', label: '담당자', width: '6%', align: 'center', sortable: true },
@@ -230,23 +230,20 @@ export const filterRequestsTableConfig = {
     tableWidth: '100vw',
     tableStyle: {
       overflowX: 'auto',
-      minWidth: '960px',
+      minWidth: '1200px',
       width: '100vw'
     },
     columns: [
-      { field: 'index', label: '순번', width: '5%', align: 'center', sortable: false },
-      { field: 'request_date', label: '요청일시', width: '14%', align: 'center', sortable: false },
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      { field: 'request_date', label: '요청일시', width: '12%', align: 'center', sortable: false },
       { field: 'member_name', label: '업체명', width: '12%', align: 'left', sortable: false },
-      { field: 'filter_type', label: '구분', width: '5%', align: 'center', sortable: false },
-      { field: 'hospital_name', label: '거래처명', width: '16%', align: 'left', sortable: false },
-      { field: 'business_registration_number', label: '사업자등록번호', width: '10%', align: 'center', sortable: false },
-      { field: 'director_name', label: '원장명', width: '8%', align: 'center', sortable: false },
-      { field: 'address', label: '주소', width: '16%', align: 'left', sortable: false },
-      { field: 'pharmaceutical_company_name', label: '제약사', width: '14%', align: 'left', sortable: false },
-      { field: 'user_remarks', label: '요청사항', width: '8%', align: 'left', sortable: false },
+      { field: 'filter_type', label: '구분', width: '6%', align: 'center', sortable: false },
+      { field: 'hospital_name', label: '거래처명', width: '12%', align: 'left', sortable: false },
+      { field: 'pharmaceutical_company_name', label: '제약사', width: '10%', align: 'left', sortable: false },
+      { field: 'user_remarks', label: '회원 요청사항', width: '12%', align: 'left', sortable: false },
       { field: 'status', label: '처리결과', width: '8%', align: 'center', sortable: false },
-      { field: 'admin_comments', label: '전달사항', width: '8%', align: 'left', sortable: false },
-      { field: 'updated_at', label: '수정일시', width: '14%', align: 'center', sortable: false }
+      { field: 'admin_comments', label: '회원 전달사항', width: '12%', align: 'left', sortable: false },
+      { field: 'updated_at', label: '수정일시', width: '12%', align: 'center', sortable: false }
     ]
   }
 };
@@ -443,7 +440,7 @@ export const settlementMonthShareTableConfig = {
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'company_name', label: '업체명', width: '9%', align: 'left', sortable: true },
       { field: 'company_reg_no', label: '사업자등록번호', width: '7%', align: 'center', sortable: true },
-      { field: 'ceo_name', label: '대표자명', width: '6%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자', width: '6%', align: 'center', sortable: true },
       { field: 'hospital_count', label: '거래처수', width: '6%', align: 'center', sortable: true },
       { field: 'prescription_count', label: '처방건수', width: '6%', align: 'center', sortable: true },
       { field: 'prescription_amount', label: '처방액', width: '6%', align: 'right', sortable: true },
@@ -469,7 +466,7 @@ export const settlementMonthShareTableConfig = {
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'company_name', label: '업체명', width: '9%', align: 'left', sortable: true },
       { field: 'company_reg_no', label: '사업자등록번호', width: '7%', align: 'center', sortable: true },
-      { field: 'ceo_name', label: '대표자명', width: '6%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자', width: '6%', align: 'center', sortable: true },
       { field: 'hospital_count', label: '거래처수', width: '6%', align: 'center', sortable: true },
       { field: 'prescription_count', label: '처방건수', width: '6%', align: 'center', sortable: true },
       { field: 'prescription_amount', label: '처방액', width: '7%', align: 'right', sortable: true },

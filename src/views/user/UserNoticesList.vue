@@ -1,5 +1,4 @@
 <template>
-
   <div class="page-container">
     <div v-if="loading" class="table-loading-spinner-center">
       <img src="/spinner.svg" alt="로딩중" />
