@@ -241,6 +241,7 @@ watch(
     const scrollEnabledPages = [
       '/login', 
       '/signup', 
+      '/profile/',
       '/admin/notices/create', 
       '/admin/notices/detail/',  // 동적 라우트 체크를 위해 끝에 /만 남김
       '/admin/notices/edit/',
