@@ -83,7 +83,6 @@ const specialLayoutRoutes = [
     path: /^\/user\/settlement-month-detail.*month=(\d{4}-\d{2})/,
     menuName: (params) => `정산내역서 상세 - ${params[1].slice(0,4)}년 ${params[1].slice(5,7)}월`
   },
-  // 필요시 추가
 ];
 
 // 이미 specialLayoutRoutes에 /admin/hospitals/edit/ 경로가 없다면 추가
@@ -155,10 +154,6 @@ watch(
 const handleLogout = async () => {
   await supabase.auth.signOut()
   router.push('/login')
-}
-const handleProfile = () => {
-  // 내 정보 변경 로직(추후 구현)
-  alert('내 정보 변경 기능은 추후 제공됩니다.')
 }
 
 function handleMenuClick() {
@@ -240,6 +235,7 @@ function toggleMobileSidebar() {
       class="content-overlay" 
       @click="toggleMobileSidebar">
     </div>
+    <!-- 내 정보 페이지에서는 메인 TopbarMenu 숨김 -->
     <TopbarMenu
       v-if="!isLoginOrSignup"
       :menu-name="menuName"
@@ -248,7 +244,6 @@ function toggleMobileSidebar() {
       :hide-menu-toggle="hideMenuToggle"
       :show-back="showBack"
       @logout="handleLogout"
-      @profile="handleProfile"
       @toggle-sidebar="toggleMobileSidebar"
     />
     <div class="main-content main-margin" :class="{ 'no-sidebar': !showSidebar }">

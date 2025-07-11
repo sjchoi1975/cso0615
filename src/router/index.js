@@ -193,6 +193,16 @@ const router = createRouter({
       component: UserNoticesDatail,
     },
     {
+      path: '/profile',
+      name: 'UserProfileView',
+      component: () => import('@/views/user/UserProfileView.vue'),
+    },
+    {
+      path: '/profile/edit',
+      name: 'UserProfileEdit',
+      component: () => import('@/views/user/UserProfileEdit.vue'),
+    },
+    {
       path: '/admin/hospitals/list',
       name: 'AdminHospitalsList',
       component: () => import('@/views/admin/AdminHospitalsList.vue'),

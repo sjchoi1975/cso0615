@@ -1178,6 +1178,16 @@ div.v3dp__datepicker input[type="text"]:focus,
 /* TXT 스타일
 /* ========================================================================================================= */
 
+
+/* 소제목 - EDI 업로드 - 파일 선택, 선택된 파일, 등록된 파일.. */
+.title-lg {
+  font-size: var(--font-size-150) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+}
+
+
 /* 소제목 - EDI 업로드 - 파일 선택, 선택된 파일, 등록된 파일.. */
 .title-md {
   font-size: var(--font-size-110) !important;
@@ -1205,6 +1215,7 @@ div.v3dp__datepicker input[type="text"]:focus,
   label {
   font-size: var(--font-size-100) !important;
   display: block !important;
+  margin-bottom: -0.5rem !important;
 }
 
 

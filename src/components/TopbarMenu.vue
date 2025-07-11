@@ -7,13 +7,11 @@
       <button v-if="!showBack && !hideMenuToggle" class="menu-toggle" @click="$emit('toggle-sidebar')">
         <i class="pi pi-bars"></i>
       </button>
-      <!-- 로고 타이틀 변경 -->
       <span class="logo-title" v-if="showLogo">회사명</span>
       <span class="menu-title">{{ menuName }}</span>
     </div>
     <div class="right">
       <div class="profile-dropdown-wrapper" ref="dropdownRef">
-        <!-- PC/모바일 모두: 동그라미+첫글자 -->
         <span class="profile-circle profile-trigger" @click="toggleDropdown">
           {{ companyInitial }}
         </span>
@@ -63,6 +61,7 @@ const onLogout = () => {
   dropdownOpen.value = false;
 };
 const onProfile = () => {
+  router.push('/profile');
   emit('profile');
   dropdownOpen.value = false;
 };
