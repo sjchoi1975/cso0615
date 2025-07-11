@@ -237,6 +237,21 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+  // 루트 경로 접근 시 리다이렉트 처리
+  if (to.path === '/') {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return next('/login');
+    }
+    // 사용자 정보에서 관리자 여부 확인 (예: user.user_metadata.is_admin)
+    // 실제 프로젝트에 맞게 관리자 판별 로직 수정 필요
+    const isAdmin = user.user_metadata?.is_admin;
+    if (isAdmin) {
+      return next('/admin/notice/list');
+    } else {
+      return next('/notice/list');
+    }
+  }
   // 로그인, 회원가입 페이지는 항상 허용
   if (to.path === '/login' || to.path === '/signup') {
     return next();
