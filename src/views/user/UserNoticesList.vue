@@ -6,31 +6,40 @@
     <!-- 상단: 필터카드 -->
     <div class="filter-card">
       <div class="filter-row filter-row-center">
+
         <span class="hide-mobile">통합 검색</span>
-        <span>
-          <input
-            v-model="search"
-            class="input-search wide-mobile-search"
-            placeholder="제목, 내용 입력"
-          />
-        </span>
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="제목, 내용 입력" />
+        <button type="button" class="btn-search hide-mobile" @click="onSearch" :disabled="search.length < 2">검색</button>
+        <button type="button" class="btn-reset hide-mobile"  @click="onReset">
+          <i class="pi pi-refresh" style="font-size: 1.1em;"></i>
+          초기화
+        </button>
+
+        <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="제목, 내용 입력" @keyup.enter="onSearch"/>
+          <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
+            style="position: absolute; right: 4.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+          <i class="pi pi-search search-btn-icon" @click="search.length >= 2 && onSearch()"
+            style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+        </div>
+
       </div>
     </div>
 
     <!-- 중간: 기능카드 -->
     <div class="function-card">
-      <div class="total-count">총 {{ totalCount }}건</div>
+      <div class="total-count">총 {{ notices.length }}건</div>
     </div>
 
     <!-- 하단: 테이블카드 -->
     <div class="table-card">
       <DataTable 
-        :value="filterednotice"
+        :value="notices.slice(first, first + pageSize)"
         :paginator="false"
         :rows="50"
         :rowsPerPageOptions="[20, 50, 100]"
         :first="first"
-        :totalRecords="totalCount"
+        :totalRecords="notices.length"
         @page="onPageChange"
         scrollable
         :scrollHeight="tableScrollHeight"
@@ -75,7 +84,7 @@
     <div class="fixed-paginator">
       <Paginator
         :rows="pageSize"
-        :totalRecords="totalCount"
+        :totalRecords="notices.length"
         :first="first"
         :rowsPerPageOptions="[20, 50, 100]"
         @page="onPageChange"
@@ -101,6 +110,7 @@ const pageSize = ref(50);
 const first = ref(0);
 const expandedRows = ref({});
 const loading = ref(false);
+const isSearched = ref(false); // 검색 실행 여부
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userNoticesTableConfig.mobile : userNoticesTableConfig.pc);
@@ -110,11 +120,16 @@ const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const fetchNotices = async () => {
   loading.value = true;
-  const { data, error } = await supabase
+  let query = supabase
     .from('notices')
     .select('*')
     .eq('status', 'active')
     .order('created_at', { ascending: false });
+  if (search.value && search.value.length >= 2) {
+    const keyword = search.value;
+    query = query.or(`title.ilike.%${keyword}%,content.ilike.%${keyword}%`);
+  }
+  const { data, error } = await query;
   if (!error) {
     notices.value = data;
   }
@@ -129,26 +144,8 @@ const onPageChange = (event) => {
   first.value = event.first;
 };
 
-const filteredAll = computed(() => {
-  let filtered = notices.value;
-  if (search.value) {
-    const keyword = search.value.toLowerCase();
-    filtered = filtered.filter(
-      n =>
-        (n.title && n.title.toLowerCase().includes(keyword)) ||
-        (n.content && n.content.toLowerCase().includes(keyword))
-    );
-  }
-  const importantNotices = filtered.filter(n => n.is_important);
-  const normalNotices = filtered.filter(n => !n.is_important);
-  return [...importantNotices, ...normalNotices];
-});
-
-const filterednotice = computed(() => {
-  return filteredAll.value.slice(first.value, first.value + pageSize.value);
-});
-
-const totalCount = computed(() => filteredAll.value.length);
+// filteredAll, filterednotice, totalCount computed 제거
+// 화면에는 notices.value.slice(first.value, first.value + pageSize.value) 등으로 직접 사용
 
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -162,7 +159,6 @@ const goDetail = (id) => {
   router.push(`/notice/detail/${id}`);
 };
 
-// 확장 토글 함수
 const toggleExpand = (id) => {
   if (expandedRows.value[id]) {
     delete expandedRows.value[id];
@@ -170,4 +166,19 @@ const toggleExpand = (id) => {
     expandedRows.value[id] = true;
   }
 };
+
+function onSearch() {
+  if (search.value.length < 2) return;
+  isSearched.value = true;
+  fetchNotices();
+}
+function onReset() {
+  if (isSearched.value) {
+    search.value = '';
+    isSearched.value = false;
+    fetchNotices();
+  } else {
+    search.value = '';
+  }
+}
 </script>

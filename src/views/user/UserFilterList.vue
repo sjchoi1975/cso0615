@@ -160,7 +160,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -265,11 +265,6 @@ const fetchRequests = async () => {
 onMounted(() => {
     fetchRequests();
     fetchDropdownOptions();
-});
-
-watch([search, selectedHospital, selectedPharma, selectedStatus, selectedFilterType], () => {
-  first.value = 0;
-  fetchRequests();
 });
 
 const onPageChange = (event) => {

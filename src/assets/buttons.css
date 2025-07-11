@@ -8,6 +8,8 @@
 .btn-confirm,
 .btn-warning,
 .btn-edit,
+.btn-search,
+/*.btn-reset,*/
 .btn-pwchange,
 .btn-dark-gray,
 .btn-confirm-disabled,
@@ -30,20 +32,25 @@
   justify-content: flex-end !important;
 }
 
+
+
 /* 색상 스타일 - 로그인 / 회원가입 / 확인 / 취소 */
 .btn-login { 
   padding: 0.75rem 2rem !important;
   background: var(--primary) !important;
   color: var(--text-white) !important;
 }
+
 .btn-signup {
   background: var(--primary) !important;
   color: var(--text-white) !important;
 }
+
 .btn-confirm {
   background: var(--primary) !important;
   color: var(--text-white) !important;
 }  
+
 .btn-warning,
 .btn-edit {
   background: var(--warning) !important;
@@ -62,6 +69,32 @@
   border: 1px solid var(--gray-600) !important;
 }
 
+.btn-search {
+  background: var(--primary) !important;
+  color: var(--text-white) !important;
+  border: 1px solid var(--primary) !important;
+  padding: 0.32rem 1rem !important;
+  justify-content: flex-end !important;
+}
+
+.btn-reset {
+  background: none !important;
+  color: #444 !important;
+  padding: 1rem 0.5rem !important;
+  font-size: var(--font-size-95) !important;
+  font-weight: 400 !important;
+  border: none !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.btn-reset:hover:not(:disabled) {
+  color: #1976d2 !important;
+}
+
+
 /* 정산확정/정정요청 전용 버튼 스타일 */
 .btn-dark-gray {
   background: var(--gray-800) !important;
@@ -76,12 +109,15 @@
   cursor: not-allowed !important;
 }
 
+
 /* 호버 효과 - 로그인 / 회원가입 / 확인 / 취소 */
 .btn-login:hover:not(:disabled),
 .btn-signup:hover:not(:disabled),
 .btn-confirm:hover:not(:disabled),
 .btn-edit:hover:not(:disabled),
 .btn-pwchange:hover:not(:disabled),
+.btn-search:hover:not(:disabled),
+.btn-reset:hover:not(:disabled),
 .btn-cancel:hover:not(:disabled) {
   opacity: 0.75 !important;
   transform: translateY(0px) !important;
@@ -89,12 +125,15 @@
   transition: all 0.2s ease-in-out !important;
 }
 
+
 /* 비활성화 상태 */
 .btn-login:disabled,
 .btn-signup:disabled,
 .btn-confirm:disabled,
 .btn-edit:disabled,
 .btn-pwchange:disabled,
+.btn-search:disabled,
+.btn-reset:disabled,
 .btn-cancel:disabled {
   opacity: 0.5 !important;
   box-shadow: none !important;
@@ -256,7 +295,10 @@ button:focus,
   color: var(--danger) !important;
 }
 
-
+/* 검색 아이콘 */
+.search-btn-icon {
+  font-size: 1.2em !important;
+}
 
 
 
