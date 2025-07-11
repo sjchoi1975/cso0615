@@ -112,6 +112,9 @@
                 </span>
                 <span v-else>-</span>
               </template>
+              <template v-else-if="col.field === 'company_name'">
+                <span class="table-title-link">{{ slotProps.data.company_name }}</span>
+              </template>
               <template v-else-if="col.field === 'company_reg_no'">
                 {{ slotProps.data.company_reg_no || '-' }}
               </template>

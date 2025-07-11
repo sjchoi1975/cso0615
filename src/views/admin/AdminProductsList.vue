@@ -151,6 +151,9 @@
                   class="custom-toggle-checkbox"
                 /><label :for="'status-' + slotProps.data.id" class="custom-toggle-label"></label>
               </template>
+              <template v-else-if="col.field === 'product_name'">
+                <span class="table-title-link">{{ slotProps.data.product_name }}</span>
+              </template>
               <template v-else>
                 <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
               </template>

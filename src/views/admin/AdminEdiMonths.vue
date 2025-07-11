@@ -67,6 +67,9 @@
                   <i class="pi pi-list" style="font-size: 1.2rem; color: #4B5563;"></i>
                 </button>
               </template>
+              <template v-else-if="col.field === 'settlement_month'">
+                <span class="table-title-link">{{ slotProps.data.settlement_month }}</span>
+              </template>
               <template v-else-if="col.field === 'remarks'">
                 <span v-if="slotProps.data.remarks" class="link" @click="openNoticeModal(slotProps.data.remarks)">
                   {{ slotProps.data.remarks }}

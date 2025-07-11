@@ -124,6 +124,15 @@
                   {{ slotProps.data.user_remarks }}
                 </span>
               </template>
+              <template v-else-if="col.field === 'member_name'">
+                <span class="table-title-link">{{ slotProps.data.member_name }}</span>
+              </template>
+              <template v-else-if="col.field === 'hospital_name'">
+                <span class="table-title-link">{{ slotProps.data.hospital_name }}</span>
+              </template>
+              <template v-else-if="col.field === 'pharmaceutical_company_name'">
+                <span class="table-title-link">{{ slotProps.data.pharmaceutical_company_name }}</span>
+              </template>
               <template v-else>
                 <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
               </template>

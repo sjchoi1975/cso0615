@@ -64,7 +64,7 @@ export const membersTableConfig = {
       { field: 'created_at', label: '가입일자', width: '8%', align: 'center', sortable: true }
     ]
   },
-
+  
   mobile: {
     tableWidth: '100vw',
     tableStyle: {
@@ -215,9 +215,9 @@ export const filterRequestsTableConfig = {
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
       { field: 'request_date', label: '요청일시', width: '8%', align: 'center', sortable: false },
-      { field: 'member_name', label: '업체명', width: '12%', align: 'left', sortable: false },
+      { field: 'member_name', label: '업체명', width: '10%', align: 'left', sortable: false },
       { field: 'filter_type', label: '구분', width: '6%', align: 'center', sortable: false },
-      { field: 'hospital_name', label: '거래처명', width: '12%', align: 'left', sortable: false },
+      { field: 'hospital_name', label: '거래처명', width: '14%', align: 'left', sortable: false },
       { field: 'pharmaceutical_company_name', label: '제약사', width: '10%', align: 'left', sortable: false },
       { field: 'user_remarks', label: '회원 요청사항', width: '16%', align: 'left', sortable: false },
       { field: 'status', label: '처리결과', width: '8%', align: 'center', sortable: false },
@@ -503,10 +503,10 @@ export const settlementMonthDetailTableConfig = {
       { field: 'insurance_code', label: '보험코드', width: '7%', align: 'center', sortable: true },
       { field: 'price', label: '약가', width: '4%', align: 'right', sortable: true },
       { field: 'quantity', label: '수량', width: '5%', align: 'right', sortable: true },
-      { field: 'prescription_amount', label: '처방액', width: '7%', align: 'right', sortable: true },
+      { field: 'prescription_amount', label: '처방액', width: '6%', align: 'right', sortable: true },
       { field: 'commission_rate', label: '수수료율', width: '5%', align: 'center', sortable: false },
-      { field: 'payment_amount', label: '지급액', width: '7%', align: 'right', sortable: false },
-      { field: 'remarks', label: '비고', width: '7%', align: 'left', sortable: false }
+      { field: 'payment_amount', label: '지급액', width: '6%', align: 'right', sortable: false },
+      { field: 'remarks', label: '비고', width: '9%', align: 'left', sortable: false }
     ]
   },
   

@@ -95,6 +95,7 @@
                   @change="e => onChangeGrade(slotProps.data, e.target.value)"
                   class="grade-dropdown"
                 >
+
                   <option value="A">A</option>
                   <option value="B">B</option>
                   <option value="C">C</option>
@@ -102,6 +103,9 @@
               </template>
               <template v-else-if="col.field === 'created_at'">
                 {{ slotProps.data.created_at ? new Date(slotProps.data.created_at).toISOString().split('T')[0] : '' }}
+              </template>
+              <template v-else-if="col.field === 'company_name'">
+                <span class="table-title-link">{{ slotProps.data.company_name }}</span>
               </template>
               <template v-else>
                 <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>

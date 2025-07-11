@@ -125,10 +125,13 @@
                 </span>
                 <span v-else>-</span>
               </template>
+              <template v-else-if="col.field === 'hospital_name'">
+                <span class="table-title-link">{{ slotProps.data.hospital_name }}</span>
+              </template>
               <template v-else-if="col.field === 'mapped_members'">
                 <div v-if="slotProps.data.mapped_members && slotProps.data.mapped_members.length > 0">
                   <div v-for="(company, index) in slotProps.data.mapped_members" :key="index">
-                    {{ company }}
+                    <span class="table-title-link">{{ company }}</span>
                   </div>
                 </div>
                 <span v-else>-</span>

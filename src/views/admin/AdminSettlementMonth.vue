@@ -88,6 +88,9 @@
                   {{ slotProps.data.note }}
                 </span>
               </template>
+              <template v-else-if="col.field === 'settlement_month'">
+                <span class="table-title-link">{{ slotProps.data.settlement_month }}</span>
+              </template>
               <template v-else>
                 {{ slotProps.data[col.field] }}
               </template>

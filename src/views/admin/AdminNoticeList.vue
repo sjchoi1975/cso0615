@@ -57,6 +57,7 @@
           :columns="tableConfig.columns"
           :style="{ width: tableConfig.tableWidth }"
         >
+
           <Column
             v-for="col in tableConfig.columns"
             :key="col.field"
@@ -93,7 +94,7 @@
                   @click="deleteNotice(data.id)" />
               </template>
               <template v-else-if="col.field === 'title'">
-                <a @click="toggleExpand(data.id)" style="cursor: pointer; color: var(--primary); text-decoration: underline;">
+                <a @click="toggleExpand(data.id)" class="table-title-link">
                   {{ data.title }}
                 </a>
               </template>
