@@ -105,109 +105,22 @@
             border-radius: 2px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .info-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .basic-info {
-            flex-shrink: 0;
-            margin-bottom: 0;
-        }
-
-        .company-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-        }
-
-        .company-header {
-            flex-shrink: 0;
-            margin-bottom: 0rem;
-        }
-
-        .company-header h3 {
-            margin: 0 0 15px 0;
-            color: #1f2937;
-        }
-
-        .selected-companies {
-            padding: 0.35rem;
-            background: #eaeaea !important;
-            border-radius: 2px;
-            font-size: 0.9rem;
-            margin-top: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .search-box {
-            margin-bottom: 0.75rem;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 2px;
-            font-size: 0.9rem;
-        }
-
-        .company-list {
-            flex: 1;
-            background: #fcfcfc;
             overflow-y: auto;
-            border: 1px solid #ccc;
-            border-radius: 2px;
-            padding: 0.5rem 0;
-            min-height: 0;
         }
-
-        .action-buttons {
-            flex-shrink: 0;
-            margin-top: 1rem;
-            display: flex;
-            gap: 1rem;
-            border-radius: 4px;
-            justify-content: flex-end;
-        }
-
         .preview-image {
             flex: 1;
             overflow: auto;
             padding: 0;
             display: flex;
-            align-items: center;  /* 다시 center로 변경 */
-            justify-content: center;  /* 좌우 중앙은 유지 */
+            align-items: center;
+            justify-content: center;
             background: #ffffff;
-            position: relative;
         }
-
-        /* 이미지 로딩 중 깜빡임 방지 */
         .preview-image img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            object-position: center; /* 추가 */
-            transform-origin: center center; /* 추가 - 중앙 기준 변형 */
-            /*opacity: 0;  /* 처음에는 숨김 */
-            /*transition: opacity 0.2s ease;  /* 부드러운 페이드인 */
         }
-
-        /* CropperJS 초기화 완료 후 보이기 */
-        .preview-image img.loaded {
-            opacity: 1;
-        }
-
-        
-
         .info-row {
             margin-bottom: 1rem;
         }
@@ -235,6 +148,23 @@
             font-weight:500 !important;
         }
 
+
+        .company-section {
+            margin-top: 30px;
+        }
+        .company-section h3 {
+            margin: 0 0 15px 0;
+            color: #1f2937;
+        }
+        .company-list {
+            min-height: 180px;
+            max-height: 360px;
+            background: #fcfcfc;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            padding: 0.5rem 0;
+        }
         .company-item {
             display: flex;
             align-items: center;
@@ -242,7 +172,7 @@
             cursor: pointer;
             border-radius: 0;
             transition: background-color 0.2s;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         .company-item:hover {
@@ -252,6 +182,23 @@
             background-color: none !important;
             color: #1976d2 !important;
             font-weight: 500 !important;
+        }
+        .search-box {
+            margin-bottom: 0.75rem;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            font-size: 0.9rem;
+        }
+        .action-buttons {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            border-radius: 4px;
+            justify-content: flex-end;
         }
 
         .company-tag {
@@ -281,9 +228,18 @@
             background-color: #a0a0a0;
         }
 
+        .selected-companies {
+            margin-top: 0.5rem;
+            padding: 0.35rem;
+            background: #eaeaea !important;
+            border-radius: 2px;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
         .btn-confirm,
         .btn-cancel {
-            padding: 0.3rem 1.2rem !important;
+            padding: 0.35rem 1.2rem !important;
             font-size: 1rem !important;
             font-weight: 400 !important;
             border: 1px solid transparent !important;
@@ -293,6 +249,7 @@
             text-align: center !important;
             transition: all 0.2s ease-in-out !important;
             box-shadow: var(--shadow-sm) !important;
+            font-size: 1rem !important;
         }
         .btn-confirm {
             background: #1976d2 !important;
@@ -341,50 +298,42 @@
             <div class="nav-arrow right" onclick="navigateTo(1)">&gt;</div>
         </div>
         <div class="info-section">
-            <div class="info-content">
-                <div class="basic-info">
-                    <div class="info-row">
-                        <label class="title-mini">업체명</label>
-                        <span class="contents-mini" id="companyName"></span>
-                    </div>
-                    <div class="info-row">
-                        <label class="title-mini">거래처명</label>
-                        <span class="contents-mini" id="hospitalName"></span>
-                    </div>
-                    <div class="info-row">
-                        <label class="title-mini">메모</label>
-                        <span class="contents-mini" id="memo"></span>
-                    </div>
-                    <div class="info-row">
-                        <label class="title-mini">등록일시</label>
-                        <span class="contents-mini" id="createdAt"></span>
-                    </div>
-                    <div class="info-row">
-                        <label class="title-mini">등록자</label>
-                        <span class="contents-mini" id="createdBy"></span>
-                    </div>
-                    <hr style="border: 1px solid #ddd; margin: 1rem 0;">
-                </div>
-                
-                <div class="company-section">
-                    <div class="company-header">
-                        <label class="title-mini" style="font-size: 1rem !important; font-weight: 500 !important;">제약사</label>
-                        <div class="selected-companies" id="selectedCompanies">
-                            <!-- 선택된 제약사들이 여기에 표시됩니다 -->
-                        </div>
-                        <div class="search-box">
-                            <input type="text" id="searchInput" placeholder="제약사 검색...">
-                        </div>
-                    </div>
-                    <div class="company-list" id="companyList">
-                        <!-- 제약사 목록이 여기에 표시됩니다 -->
-                    </div>
-                </div>
+            <div class="info-row">
+                <label class="title-mini">업체명</label>
+                <span class="contents-mini" id="companyName"></span>
             </div>
-            
-            <div class="action-buttons">
-                <button class="btn-cancel" onclick="window.close()">닫기</button>
-                <button class="btn-confirm" onclick="saveMapping()">확인</button>
+            <div class="info-row">
+                <label class="title-mini">거래처명</label>
+                <span class="contents-mini" id="hospitalName"></span>
+            </div>
+            <div class="info-row">
+                <label class="title-mini">메모</label>
+                <span class="contents-mini" id="memo"></span>
+            </div>
+            <div class="info-row">
+                <label class="title-mini">등록일시</label>
+                <span class="contents-mini" id="createdAt"></span>
+            </div>
+            <div class="info-row">
+                <label class="title-mini">등록자</label>
+                <span class="contents-mini" id="createdBy"></span>
+            </div>
+            <hr style="border: 1px solid #ddd;">
+            <div class="info-row">
+                <label class="title-mini" style="font-size: 1rem !important; font-weight: 500 !important;">제약사</label>
+                <div class="selected-companies" id="selectedCompanies">
+                    <!-- 선택된 제약사들이 여기에 표시됩니다 -->
+                </div>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="제약사 검색...">
+                </div>
+                <div class="company-list" id="companyList">
+                    <!-- 제약사 목록이 여기에 표시됩니다 -->
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-cancel" onclick="window.close()">닫기</button>
+                    <button class="btn-confirm" onclick="saveMapping()">확인</button>
+                </div>
             </div>
         </div>
     </div>
@@ -449,19 +398,13 @@
             }
             const previewImage = document.getElementById('previewImage');
             const options = {
-                viewMode: 0, // 0에서 1로 변경
+                viewMode: 0,
                 dragMode: 'move',
                 autoCrop: false,
                 background: false,
                 zoomable: true,
                 zoomOnWheel: true,
                 responsive: true,
-                center: false, // 추가 - 중앙 기준
-                scalable: true, // 추가
-                cropBoxResizable: true, // 추가
-                toggleDragModeOnDblclick: false,
-                minContainerWidth: 0,
-                minContainerHeight: 0,  // 추가
             };
             cropper = new Cropper(previewImage, options);
         }
@@ -737,4 +680,4 @@
         }
     </script>
 </body>
-</html>
+</html> 
