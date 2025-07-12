@@ -278,7 +278,23 @@ async function submit() {
     const { data: { user } } = await supabase.auth.getUser();
     const memberId = user?.id;
 
-    // 각 파일마다 개별 레코드 생성
+    // 다음 제출 순서 번호 가져오기
+    const { data: nextSeqData, error: seqError } = await supabase
+      .rpc('get_next_submission_seq', {
+        p_settlement_month_id: settlementMonthId,
+        p_member_id: memberId,
+        p_hospital_id: hospitalId
+      });
+
+    if (seqError) {
+      console.error('제출 순서 번호 가져오기 실패:', seqError);
+      alert('제출 순서 번호를 가져오는데 실패했습니다.');
+      return;
+    }
+
+    const submissionSeq = nextSeqData || 1;
+
+    // 각 파일마다 개별 레코드 생성 (동일한 submission_seq 사용)
     for (const file of selectedFiles.value) {
       // 1. 파일 업로드
       const ext = file.name.split('.').pop();
@@ -308,7 +324,8 @@ async function submit() {
           file_name: safeName,
           original_file_name: file.name,
           file_size: file.size,
-          memo: memo.value
+          memo: memo.value,
+          submission_seq: submissionSeq
         })
         .select()
         .single();

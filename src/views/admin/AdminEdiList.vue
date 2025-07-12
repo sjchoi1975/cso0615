@@ -303,7 +303,7 @@ const fetchFiles = async () => {
   loading.value = true;
   
   try {
-    let query = supabase.from('admin_edi_list_view').select('*', { count: 'exact' });
+    let query = supabase.from('edi_list_admin_view').select('*', { count: 'exact' });
     
     // 검색 버튼 클릭 시에만 필터 적용
     if (isSearched.value) {

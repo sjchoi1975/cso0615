@@ -10,11 +10,11 @@
         <label
           class="title-sm"
           style="margin-top: 0rem; margin-bottom: 0.5rem;">
-          제출파일
+          제출 파일
         </label>
         <ul style="font-size:1.1rem; margin-left:1rem; padding-left:1.2em;">
-          <li v-for="file in item.files" :key="file.url" style="margin-bottom:0.35em;">
-            <a :href="file.url" target="_blank">{{ file.original_name }}</a>
+          <li v-for="file in item.files" :key="file.id" style="margin-bottom:0.35em;">
+            <a :href="file.file_url" target="_blank">{{ file.original_file_name }}</a>
           </li>
         </ul>
 
@@ -25,7 +25,7 @@
         </label>
         <ul style="font-size:1.1rem; margin-left:1rem; padding-left:1.2em;">
           <li v-for="c in item.companies" :key="c.id" style="margin-bottom:0.35em;">
-            {{ c.name }}
+            {{ c.company_name }}
           </li>
         </ul>
 
@@ -111,37 +111,32 @@ onMounted(async () => {
   // 로그인 사용자 id 가져오기
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id;
-  // edi_files 조회 (특정 월+병원+본인)
-  const { data: files, error } = await supabase
-    .from('edi_files')
-    .select('id, created_at, file_url, file_name, memo')
+  
+  // edi_list_user_view에서 제출 단위별로 조회
+  const { data: submissions, error } = await supabase
+    .from('edi_list_user_view')
+    .select('*')
     .eq('settlement_month_id', settlementMonthId)
     .eq('hospital_id', hospitalId)
     .eq('member_id', userId)
-    .order('created_at', { ascending: false });
+    .order('submission_seq', { ascending: false });
 
   if (error) {
+    console.error('Error fetching submissions:', error);
     loading.value = false;
     return;
   }
 
-  // 각 파일별로 연결된 제약사 조회
-  const result = [];
-  for (const file of files) {
-    const { data: companies } = await supabase
-      .from('edi_file_companies')
-      .select('company_id, pharmaceutical_companies(company_name)')
-      .eq('edi_file_id', file.id);
-    result.push({
-      ...file,
-      files: [{ url: file.file_url, original_name: file.file_name }],
-      companies: (companies || []).map(c => ({
-        id: c.company_id,
-        name: c.pharmaceutical_companies?.company_name || ''
-      }))
-    });
-  }
-  fileHistory.value = result;
+  // 제출 단위별로 데이터 정리
+  fileHistory.value = (submissions || []).map(submission => ({
+    id: submission.submission_id,
+    submission_seq: submission.submission_seq,
+    created_at: submission.created_at,
+    memo: submission.memo,
+    files: submission.files || [],
+    companies: submission.companies || []
+  }));
+  
   loading.value = false;
 });
 </script>

@@ -97,9 +97,9 @@
                 icon="pi pi-list"
                 class="p-button-text"
                 @click="goToDetail(slotProps.data)"
-                :disabled="!slotProps.data.current_month_files || slotProps.data.current_month_files === 0"
-                :class="{ 'p-disabled': !slotProps.data.current_month_files || slotProps.data.current_month_files === 0 }"
-                :style="(!slotProps.data.current_month_files || slotProps.data.current_month_files === 0) ? 'opacity: 0.4;' : ''"
+                :disabled="!slotProps.data.submission_count || slotProps.data.submission_count === 0"
+                :class="{ 'p-disabled': !slotProps.data.submission_count || slotProps.data.submission_count === 0 }"
+                :style="(!slotProps.data.submission_count || slotProps.data.submission_count === 0) ? 'opacity: 0.4;' : ''"
               />
               <Button
                 v-else-if="col.field === 'submit_button'"
@@ -243,27 +243,53 @@ const fetchMappedHospitals = async () => {
   const hospitalIds = hospitalMappings.map(h => h.hospital_id);
   const currentMonthId = selectedMonth.value.id;
 
-  // edi_files에서 settlement_month_id, member_id, hospital_id 기준으로 조회
-  const { data: ediFiles, error: ediError } = await supabase
+  // edi_files 테이블에서 직접 파일 개수 조회
+  const { data: fileCounts, error: fileCountError } = await supabase
     .from('edi_files')
-    .select('id, hospital_id, member_id, settlement_month_id, confirm')
+    .select('hospital_id')
+    .eq('settlement_month_id', currentMonthId)
+    .eq('member_id', userInfo.value.id)
+    .eq('is_deleted', false)
+    .in('hospital_id', hospitalIds);
+
+  if (fileCountError) {
+    console.error('Error fetching file counts:', fileCountError);
+  }
+
+  // 병원별 파일 개수 계산
+  const fileCountByHospital = {};
+  fileCounts?.forEach(file => {
+    fileCountByHospital[file.hospital_id] = (fileCountByHospital[file.hospital_id] || 0) + 1;
+  });
+
+  // edi_list_user_view에서 제출 단위별로 조회 (확인 여부 체크용)
+  const { data: submissions, error: submissionError } = await supabase
+    .from('edi_list_user_view')
+    .select('*')
     .eq('settlement_month_id', currentMonthId)
     .eq('member_id', userInfo.value.id)
     .in('hospital_id', hospitalIds);
 
-  if (ediError) {
-    console.error('Error fetching EDI files:', ediError);
+  if (submissionError) {
+    console.error('Error fetching EDI submissions:', submissionError);
   }
 
   allMappedHospitals.value = hospitalMappings.map(mapping => {
     const hospital = mapping.hospitals;
-    const fileCount = ediFiles?.filter(file => file.hospital_id === mapping.hospital_id).length || 0;
-    const isConfirmed = ediFiles?.some(file => file.hospital_id === mapping.hospital_id && file.confirm) || false;
+    const hospitalSubmissions = submissions?.filter(sub => sub.hospital_id === mapping.hospital_id) || [];
+    
+    // 실제 파일 개수
+    const totalFiles = fileCountByHospital[mapping.hospital_id] || 0;
+    
+    // 확인 여부 체크
+    const isConfirmed = hospitalSubmissions.some(sub => sub.confirm) || false;
+    
     return {
       ...hospital,
-      current_month_files: fileCount > 0 ? fileCount : '-',
-      prev_month_files: fileCount > 0 ? fileCount : '-', // 전월 제출 파일 수 추가
-      confirm: isConfirmed
+      current_month_files: totalFiles > 0 ? totalFiles : '-',
+      prev_month_files: '-', // 전월은 항상 "-"
+      confirm: isConfirmed,
+      submission_count: hospitalSubmissions.length
     };
   });
 

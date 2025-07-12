@@ -94,9 +94,15 @@
                   @click="deleteNotice(data.id)" />
               </template>
               <template v-else-if="col.field === 'title'">
-                <a @click="toggleExpand(data.id)" class="table-title-link">
-                  {{ data.title }}
-                </a>
+                <div 
+                  style="display: flex; align-items: center; gap: 0.5rem;"
+                  :class="{ 'important-notice-row': data.is_important }"
+                >
+                  <span v-if="data.is_important" class="important-icon">📌</span>
+                  <a @click="toggleExpand(data.id)" class="table-title-link">
+                    {{ data.title }}
+                  </a>
+                </div>
               </template>
               <template v-else>
                 {{ data[col.field] }}
@@ -157,7 +163,8 @@ const fetchNotices = async () => {
     const keyword = search.value;
     query = query.or(`title.ilike.%${keyword}%,content.ilike.%${keyword}%`);
   }
-  query = query.order('created_at', { ascending: false });
+  query = query.order('is_important', { ascending: false })  // 중요 공지 우선
+    .order('created_at', { ascending: false });
   const { data, error } = await query;
   if (!error) {
     notices.value = data;

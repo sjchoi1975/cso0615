@@ -583,9 +583,9 @@ export const userNoticesTableConfig = {
       width: '100vw'
     },
     columns: [
-      { field: 'id', label: '순번', width: '14%', align: 'center', sortable: false },
-      { field: 'title', label: '제목', width: '58%', align: 'left', sortable: false },
-      { field: 'created_at', label: '작성일자', width: '28%', align: 'center', sortable: false }
+      { field: 'id', label: '순번', width: '12%', align: 'center', sortable: false },
+      { field: 'title', label: '제목', width: '64%', align: 'left', sortable: false },
+      { field: 'created_at', label: '작성일자', width: '24%', align: 'center', sortable: false }
     ]
   }
 };

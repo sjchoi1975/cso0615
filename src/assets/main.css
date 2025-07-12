@@ -2281,3 +2281,42 @@ button.p-paginator-page:hover {
 }
 
 
+
+/* ========================================================================================================= */
+/* 중요 공지 스타일
+/* ========================================================================================================= */
+
+
+
+/* 중요 아이콘 */
+.p-datatable .important-icon {
+  font-size: 1.1rem !important;
+  color: #856404 !important;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .important-icon {
+    font-size: 1rem !important;
+  }
+}
+
+
+
+/* 중요 공지 스타일 - 우선순위 강화 */
+.p-datatable .p-datatable-tbody tr .important-notice-row {
+  background-color: #fff9de !important;
+  border-radius: 4px !important;
+  padding: 0.25rem 0.5rem !important;
+}
+
+
+
+/* 테이블 행 전체에 중요 공지 배경 적용 */
+.p-datatable .p-datatable-tbody tr:has(.important-notice-row) {
+  background-color: #fff9de !important;
+}
+
+
+
+

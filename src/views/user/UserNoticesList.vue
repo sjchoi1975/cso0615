@@ -58,8 +58,11 @@
         >
           <template #body="{ data }">
             <template v-if="col.field === 'title'">
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span v-if="data.is_important" class="important-badge">중요</span>
+              <div 
+                style="display: flex; align-items: center; gap: 0.5rem;"
+                :class="{ 'important-notice-row': data.is_important }"
+              >
+                <span v-if="data.is_important" class="important-icon">📌</span>
                 <a @click="toggleExpand(data.id)" class="table-title-link">
                   {{ data.title }}
                 </a>
@@ -124,6 +127,7 @@ const fetchNotices = async () => {
     .from('notices')
     .select('*')
     .eq('status', 'active')
+    .order('is_important', { ascending: false })  // 중요 공지 우선
     .order('created_at', { ascending: false });
   if (search.value && search.value.length >= 2) {
     const keyword = search.value;
