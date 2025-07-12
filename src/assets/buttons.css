@@ -229,44 +229,6 @@ button:focus,
 
 
 
-/* 미사용 버튼
-.btn-primary-md,
-.btn-secondary-md,
-.btn-save-md,
-.btn-confirm-md,
-.btn-edit-md,
-.btn-cancel-md,
-.btn-close-md,
-.btn-danger-md{
-.btn-upload-md,
-.btn-select-md,
-
-/* 색상 스타일
-.btn-primary-md { 
-  background: var(--primary) !important;
-  border-color: var(--primary) !important;
-  color: var(--text-white) !important;
-}
-.btn-cancel-md {
-  background: #fff !important;
-  border-color: var(--gray-400) !important;
-  color: var(--gray-900) !important;
-}
-
-/* 호버 효과 - 기존존
-.btn-primary-md:hover:not(:disabled),
-.btn-cancel-md:hover:not(:disabled) {
-  opacity: 0.75 !important;
-  transform: translateY(0px) !important;
-  box-shadow: var(--shadow) !important;
-  transition: all 0.2s ease-in-out !important;
-}
-
-*/
-
-
-
-
 /* ========================================================================================================= */
 /* 아이콘 버튼
 /* ========================================================================================================= */
@@ -407,6 +369,44 @@ button:focus,
   vertical-align: middle;
 }
 
+/* 확인 배지 스타일 */
+.badge-confirm {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  width: 3.2rem;
+  border-radius: 2px;
+  font-size: 0.825rem;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.badge-confirm-confirmed {
+  background-color: #1976d2;
+  color: #ffffff;
+}
+
+.badge-confirm-unconfirmed {
+  background-color: #666666;
+  color: #ffffff;
+}
+
+.badge-confirm-clickable {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.badge-confirm-clickable:hover {
+  opacity: 0.8;
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -418,6 +418,46 @@ button:focus,
 /* ========================================================================================= */
 /* ========================================================================================= */
 /* ========================================================================================= */
+
+
+
+
+
+/* 미사용 버튼
+.btn-primary-md,
+.btn-secondary-md,
+.btn-save-md,
+.btn-confirm-md,
+.btn-edit-md,
+.btn-cancel-md,
+.btn-close-md,
+.btn-danger-md{
+.btn-upload-md,
+.btn-select-md,
+
+/* 색상 스타일
+.btn-primary-md { 
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--text-white) !important;
+}
+.btn-cancel-md {
+  background: #fff !important;
+  border-color: var(--gray-400) !important;
+  color: var(--gray-900) !important;
+}
+
+/* 호버 효과 - 기존존
+.btn-primary-md:hover:not(:disabled),
+.btn-cancel-md:hover:not(:disabled) {
+  opacity: 0.75 !important;
+  transform: translateY(0px) !important;
+  box-shadow: var(--shadow) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+*/
+
 
 
 /*

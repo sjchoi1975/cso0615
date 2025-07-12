@@ -89,7 +89,7 @@
                 </span>
               </template>
               <template v-else-if="col.field === 'settlement_month'">
-                <span class="table-title-link">{{ slotProps.data.settlement_month }}</span>
+                <span class="table-title-link">{{ formatSettlementMonth(slotProps.data.settlement_month) }}</span>
               </template>
               <template v-else>
                 {{ slotProps.data[col.field] }}
@@ -403,6 +403,14 @@ watch(monthOptions, (opts) => {
 function goToShare(row) {
   router.push({ name: 'AdminSettlementMonthShare', params: { month: row.settlement_month } });
 }
+
+// 정산월 포맷 함수 (2025-05 → 2025년 5월)
+const formatSettlementMonth = (settlementMonth) => {
+  if (!settlementMonth) return '';
+  const year = settlementMonth.slice(0, 4);
+  const month = parseInt(settlementMonth.slice(5, 7));
+  return `${year}년 ${month}월`;
+};
 </script>
 
 <style scoped>

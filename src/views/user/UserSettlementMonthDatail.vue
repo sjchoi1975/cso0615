@@ -13,7 +13,7 @@
           <span class="hide-mobile">처방월</span>
           <select v-model="selectedPrescriptionMonth" class="input-120 hide-mobile" :disabled="!selectedMonth">
             <option value="">- 전체 -</option>
-            <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
+            <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ formatPrescriptionMonth(p) }}</option>
           </select>
           <span class="hide-mobile">거래처</span>
           <select v-model="selectedHospital" class="input-180 hide-mobile" :disabled="!selectedMonth">
@@ -332,6 +332,14 @@ const fetchFilterOptions = async () => {
     .eq('company_reg_no', currentUserBizNo.value)
     .eq('settlement_month', selectedMonth.value);
   productOptions.value = products ? [...new Set(products.map(row => row.product_name))].sort() : [];
+};
+
+// 처방월 포맷 함수 (2025-05 → 2025년 5월)
+const formatPrescriptionMonth = (prescriptionMonth) => {
+  if (!prescriptionMonth) return '';
+  const year = prescriptionMonth.slice(0, 4);
+  const month = parseInt(prescriptionMonth.slice(5, 7));
+  return `${year}년 ${month}월`;
 };
 </script>
 

@@ -29,7 +29,7 @@
           </button>
         </div>
         <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
-          <input v-model="search" class="input-search wide-mobile-search" placeholder="회사명, 사업자등록번호, 대표자명 입력" @keyup.enter="onSearch"/>
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="업체명, 사업자등록번호, 대표자명 입력" @keyup.enter="onSearch"/>
           <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
             style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
           <i class="pi pi-search search-btn-icon" @click="isSearchEnabled && onSearch()"

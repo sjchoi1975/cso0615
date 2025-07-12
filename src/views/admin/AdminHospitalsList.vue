@@ -7,14 +7,14 @@
     <div class="filter-card">
       <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
-        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="거래처명, 원장명, 사업자등록번호, 주소 입력" />
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="거래처명, 원장명, 사업자등록번호, 업체명 입력" />
         <button type="button" class="btn-search hide-mobile" @click="onSearch" :disabled="search.length < 2">검색</button>
         <button type="button" class="btn-reset hide-mobile"  @click="onReset">
           <i class="pi pi-refresh" style="font-size: 1rem;"></i>
           초기화
         </button>
         <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%;">
-          <input v-model="search" class="input-search wide-mobile-search" placeholder="거래처명, 원장명, 사업자등록번호, 주소 입력" @keyup.enter="onSearch"/>
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="거래처명, 원장명, 사업자등록번호, 업체명 입력" @keyup.enter="onSearch"/>
           <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onReset"
             style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
           <i class="pi pi-search search-btn-icon" @click="search.length >= 2 && onSearch()"
@@ -357,7 +357,37 @@ const deleteAllHospitals = async () => {
     let hospitalsQuery = supabase.from('hospitals').select('id');
     if (appliedSearch.value) {
         const keyword = `%${appliedSearch.value}%`;
-        hospitalsQuery = hospitalsQuery.or(`hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword},address.ilike.${keyword}`);
+        
+        // 업체명으로 검색하는 경우 먼저 members 테이블에서 검색
+        const { data: matchingMembers, error: memberError } = await supabase
+          .from('members')
+          .select('id')
+          .ilike('company_name', keyword);
+        
+        if (memberError) {
+          console.error('Member search error:', memberError);
+          return;
+        }
+        
+        const memberIds = matchingMembers?.map(m => m.id) || [];
+        
+        // 찾은 member_id들로 hospital_member_mappings에서 hospital_id 조회
+        const hospitalIdsFromMembers = memberIds.length > 0 ? await supabase
+          .from('hospital_member_mappings')
+          .select('hospital_id')
+          .in('member_id', memberIds) : { data: [] };
+        
+        const memberSearchHospitalIds = hospitalIdsFromMembers.data?.map(item => item.hospital_id) || [];
+        
+        if (memberSearchHospitalIds.length > 0) {
+          // 기본 필드 검색 또는 업체명으로 찾은 거래처 ID로 검색
+          const basicFilter = `hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword}`;
+          hospitalsQuery = hospitalsQuery.or(`${basicFilter},id.in.(${memberSearchHospitalIds.join(',')})`);
+        } else {
+          // 업체명으로 찾은 결과가 없으면 기본 필드만 검색
+          const basicFilter = `hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword}`;
+          hospitalsQuery = hospitalsQuery.or(basicFilter);
+        }
     }
     const { data: hospitalsToDelete, error: getHospitalsError } = await hospitalsQuery;
     if(getHospitalsError) throw getHospitalsError;
@@ -477,18 +507,58 @@ const downloadFile = async () => {
 const fetchHospitals = async (pageFirst = 0, pageRows = 100) => {
   loading.value = true;
   try {
-    let countQuery = supabase.from('hospitals').select('*', { count: 'exact', head: true });
-    let dataQuery = supabase.from('hospitals').select(`
-      *,
-      creator:registered_by ( company_name ),
-      updater:updated_by ( company_name )
-    `);
-
+    let countQuery, dataQuery;
+    
     if (appliedSearch.value) {
       const keyword = `%${appliedSearch.value}%`;
-      const orFilter = `hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword},address.ilike.${keyword}`;
-      countQuery = countQuery.or(orFilter);
-      dataQuery = dataQuery.or(orFilter);
+      
+      // 업체명으로 검색하는 경우 먼저 members 테이블에서 검색
+      const { data: matchingMembers, error: memberError } = await supabase
+        .from('members')
+        .select('id')
+        .ilike('company_name', keyword);
+      
+      if (memberError) {
+        console.error('Member search error:', memberError);
+        return;
+      }
+      
+      const memberIds = matchingMembers?.map(m => m.id) || [];
+      
+      // 찾은 member_id들로 hospital_member_mappings에서 hospital_id 조회
+      const hospitalIdsFromMembers = memberIds.length > 0 ? await supabase
+        .from('hospital_member_mappings')
+        .select('hospital_id')
+        .in('member_id', memberIds) : { data: [] };
+      
+      const memberSearchHospitalIds = hospitalIdsFromMembers.data?.map(item => item.hospital_id) || [];
+      
+      // 기본 필드 검색과 업체명 검색 결과를 합침
+      countQuery = supabase.from('hospitals').select('*', { count: 'exact', head: true });
+      dataQuery = supabase.from('hospitals').select(`
+        *,
+        creator:registered_by ( company_name ),
+        updater:updated_by ( company_name )
+      `);
+      
+      if (memberSearchHospitalIds.length > 0) {
+        // 기본 필드 검색 또는 업체명으로 찾은 거래처 ID로 검색
+        const basicFilter = `hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword}`;
+        countQuery = countQuery.or(`${basicFilter},id.in.(${memberSearchHospitalIds.join(',')})`);
+        dataQuery = dataQuery.or(`${basicFilter},id.in.(${memberSearchHospitalIds.join(',')})`);
+      } else {
+        // 업체명으로 찾은 결과가 없으면 기본 필드만 검색
+        const basicFilter = `hospital_name.ilike.${keyword},director_name.ilike.${keyword},business_registration_number.ilike.${keyword}`;
+        countQuery = countQuery.or(basicFilter);
+        dataQuery = dataQuery.or(basicFilter);
+      }
+    } else {
+      countQuery = supabase.from('hospitals').select('*', { count: 'exact', head: true });
+      dataQuery = supabase.from('hospitals').select(`
+        *,
+        creator:registered_by ( company_name ),
+        updater:updated_by ( company_name )
+      `);
     }
 
     // 1. Fetch total count

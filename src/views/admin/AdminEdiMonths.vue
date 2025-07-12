@@ -68,7 +68,7 @@
                 </button>
               </template>
               <template v-else-if="col.field === 'settlement_month'">
-                <span class="table-title">{{ slotProps.data.settlement_month }}</span>
+                <span class="table-title">{{ formatSettlementMonth(slotProps.data.settlement_month) }}</span>
               </template>
               <template v-else-if="col.field === 'remarks'">
                 <span v-if="slotProps.data.remarks" class="link" @click="openNoticeModal(slotProps.data.remarks)">
@@ -357,6 +357,14 @@ function closeNoticeModal() {
   showNoticeModal.value = false;
   noticeContent.value = '';
 }
+
+// 정산월 포맷 함수 (2025-06 → 2025년 6월)
+const formatSettlementMonth = (settlementMonth) => {
+  if (!settlementMonth) return '';
+  const year = settlementMonth.slice(0, 4);
+  const month = parseInt(settlementMonth.slice(5, 7));
+  return `${year}년 ${month}월`;
+};
 </script>
 
 <style>

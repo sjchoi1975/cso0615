@@ -12,7 +12,7 @@
           <span>처방월</span>
           <select v-model="selectedPrescriptionMonth" class="input-120">
             <option value="">- 전체 -</option>
-            <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ p }}</option>
+            <option v-for="p in prescriptionMonthOptions" :key="p" :value="p">{{ formatPrescriptionMonth(p) }}</option>
           </select>
           <span>업체명</span>
           <select v-model="selectedCompany" class="input-180">
@@ -532,6 +532,14 @@ const onRowSelectChange = (row) => {
   } else {
     selectedRows.value = selectedRows.value.filter(r => r.id !== row.id);
   }
+};
+
+// 처방월 포맷 함수 (2025-05 → 2025년 5월)
+const formatPrescriptionMonth = (prescriptionMonth) => {
+  if (!prescriptionMonth) return '';
+  const year = prescriptionMonth.slice(0, 4);
+  const month = parseInt(prescriptionMonth.slice(5, 7));
+  return `${year}년 ${month}월`;
 };
 </script>
   

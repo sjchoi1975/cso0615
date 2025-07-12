@@ -140,10 +140,10 @@
         }
 
         .selected-companies {
-            padding: 0.35rem;
+            padding: 0.2rem;
             background: #eaeaea !important;
             border-radius: 2px;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             margin-top: 0.75rem;
             margin-bottom: 0.75rem;
         }
@@ -160,13 +160,16 @@
             font-size: 0.9rem;
         }
 
+
+
+        
         .company-list {
             flex: 1;
             background: #fcfcfc;
             overflow-y: auto;
             border: 1px solid #ccc;
             border-radius: 2px;
-            padding: 0.5rem 0;
+            padding: 0;
             min-height: 0;
         }
 
@@ -209,7 +212,7 @@
         
 
         .info-row {
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
         .info-row label {
             display: block;
@@ -251,6 +254,11 @@
         .company-item.selected {
             background-color: none !important;
             color: #1976d2 !important;
+            font-weight: 500 !important;
+        }
+        .company-item.selected {
+            background-color: #1976d2 !important;
+            color: #fff !important;
             font-weight: 500 !important;
         }
 
@@ -340,6 +348,7 @@
             <div class="nav-arrow left" onclick="navigateTo(-1)">&lt;</div>
             <div class="nav-arrow right" onclick="navigateTo(1)">&gt;</div>
         </div>
+
         <div class="info-section">
             <div class="info-content">
                 <div class="basic-info">

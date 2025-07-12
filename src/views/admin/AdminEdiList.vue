@@ -24,6 +24,12 @@
             <option value="">- 전체 -</option>
             <option v-for="pharma in pharmaOptions" :key="pharma.id" :value="pharma.id">{{ pharma.company_name }}</option>
           </select>
+          <span>확인</span>
+          <select v-model="selectedConfirm" class="input-100">
+            <option value="">- 전체 -</option>
+            <option value="true">확인</option>
+            <option value="false">미확인</option>
+          </select>
           <button type="button" class="btn-search" @click="onSearch" :disabled="!isSearchEnabled">검색</button>
           <button type="button" class="btn-reset" @click="onReset">
             <i class="pi pi-refresh" style="font-size: 1rem;"></i>
@@ -50,6 +56,7 @@
           icon="pi pi-download"
           label="일괄 다운로드"
           class="btn-download-all-md"
+          :class="{ 'p-disabled': selectedFiles.length === 0 }"
           @click="batchDownload"
           :disabled="selectedFiles.length === 0"
           iconPos="left"
@@ -129,7 +136,12 @@
                 <span class="table-title">{{ formatPharmaceuticalCompanies(slotProps.data.pharmaceutical_companies) }}</span>
               </template>
               <template v-else-if="col.field === 'confirm'">
-                <span :class="{ 'text-green-500': slotProps.data.confirm, 'text-red-500': !slotProps.data.confirm }">
+                <span 
+                  class="badge-confirm badge-confirm-clickable" 
+                  :class="{ 'badge-confirm-confirmed': slotProps.data.confirm, 'badge-confirm-unconfirmed': !slotProps.data.confirm }"
+                  @click="toggleConfirmStatus(slotProps.data)"
+                  :title="slotProps.data.confirm ? '클릭하여 미확인으로 변경' : '클릭하여 확인으로 변경'"
+                >
                   {{ slotProps.data.confirm ? '확인' : '미확인' }}
                 </span>
               </template>
@@ -209,6 +221,7 @@ const isSearched = ref(false);
 const selectedCompany = ref('');
 const selectedHospital = ref('');
 const selectedPharma = ref('');
+const selectedConfirm = ref('');
 
 const companyOptions = ref([]);
 const hospitalOptions = ref([]);
@@ -219,7 +232,8 @@ const isSearchEnabled = computed(() => {
   return search.value.length >= 2 ||
     selectedCompany.value ||
     selectedHospital.value ||
-    selectedPharma.value;
+    selectedPharma.value ||
+    selectedConfirm.value;
 });
 
 // 파일 미리보기 관련
@@ -284,10 +298,11 @@ const fetchFiles = async () => {
   let query = supabase.from('admin_edi_list_view').select('*', { count: 'exact' });
   if (selectedCompany.value) query = query.eq('member_id', selectedCompany.value);
   if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
+  if (selectedConfirm.value) query = query.eq('confirm', selectedConfirm.value === 'true');
 
   const from = first.value;
   const to = from + pageSize.value - 1;
-  query = query.range(from, to).order('created_at', { ascending: false });
+  query = query.range(from, to).order('confirm', { ascending: true }).order('created_at', { ascending: false });
 
   const { data, error, count } = await query;
   if (error) {
@@ -562,6 +577,7 @@ const onReset = () => {
   selectedCompany.value = '';
   selectedHospital.value = '';
   selectedPharma.value = '';
+  selectedConfirm.value = '';
   isSearched.value = false;
   first.value = 0;
   fetchFiles();
@@ -606,9 +622,9 @@ const batchDownload = async () => {
       try {
         const response = await fetch(file.file_url);
         const blob = await response.blob();
-        zip.file(file.file_name, blob);
+        zip.file(file.original_file_name || file.file_name, blob);
       } catch (error) {
-        console.error(`파일 다운로드 실패 (${file.file_name}):`, error);
+        console.error(`파일 다운로드 실패 (${file.original_file_name || file.file_name}):`, error);
       }
     }
     
@@ -692,7 +708,7 @@ const downloadFile = async (file) => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = file.file_name || 'download';
+    a.download = file.original_file_name || file.file_name || 'download';
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -703,9 +719,42 @@ const downloadFile = async (file) => {
   }
 };
 
+// 확인 상태 토글
+const toggleConfirmStatus = async (file) => {
+  const newConfirmStatus = !file.confirm;
+  
+  try {
+    // 데이터베이스 업데이트
+    const { error } = await supabase
+      .from('edi_files')
+      .update({ confirm: newConfirmStatus })
+      .eq('id', file.id);
+    
+    if (error) {
+      console.error('Error updating confirm status:', error);
+      alert('확인 상태 변경에 실패했습니다.');
+      return;
+    }
+    
+    // 로컬 데이터 업데이트
+    file.confirm = newConfirmStatus;
+    
+    // 선택된 파일 목록도 업데이트
+    const selectedIndex = selectedFiles.value.findIndex(selected => selected.edi_id === file.edi_id);
+    if (selectedIndex !== -1) {
+      selectedFiles.value[selectedIndex].confirm = newConfirmStatus;
+    }
+    
+  } catch (error) {
+    console.error('Error toggling confirm status:', error);
+    alert('확인 상태 변경 중 오류가 발생했습니다.');
+  }
+};
+
 </script>
 
 <style scoped>
+
 .custom-checkbox {
   width: 1.2rem !important;
   margin: 0 0.4rem;
@@ -719,13 +768,10 @@ const downloadFile = async (file) => {
   max-width: 3rem !important;
 }
 
-.link {
-  color: #007bff;
-  cursor: pointer;
-  text-decoration: none;
-}
-.link:hover {
-  text-decoration: underline;
+/* 버튼 비활성화 스타일 */
+:deep(.p-button.p-disabled) {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
 }
 </style>
 
