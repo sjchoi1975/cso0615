@@ -30,7 +30,7 @@
             <option value="new">신규</option>
             <option value="transfer">이관</option>
           </select>
-          <span>상태</span>
+          <span>처리 결과</span>
           <select v-model="selectedStatus" class="filter-dropdown">
             <option value="">- 전체 -</option>
             <option value="pending">대기</option>
@@ -91,7 +91,9 @@
           >
             <template #body="slotProps">
               <template v-if="col.field === 'index'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ first + slotProps.index + 1 }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ first + slotProps.index + 1 }}
+                </span>
               </template>
               <template v-else-if="col.field === 'request_date'">
                 {{ formatDateTime(slotProps.data.request_date) }}
@@ -100,10 +102,13 @@
                 {{ formatDateTime(slotProps.data.updated_at) }}
               </template>
               <template v-else-if="col.field === 'filter_type'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}
+                </span>
               </template>
               <template v-else-if="col.field === 'status'">
-                <select v-model="slotProps.data.status" @change="updateStatus(slotProps.data)" :class="['status-select', `status-select-${slotProps.data.status}`]">
+                <select v-model="slotProps.data.status" @change="updateStatus(slotProps.data)" 
+                  :class="['status-select', `status-select-${slotProps.data.status}`]">
                   <option value="pending">대기</option>
                   <option value="approved">승인</option>
                   <option value="rejected">반려</option>
@@ -120,50 +125,77 @@
                 </span>
               </template>
               <template v-else-if="col.field === 'user_remarks'">
-                <span v-if="slotProps.data.user_remarks" class="link" @click="openRemarksModal(slotProps.data.user_remarks)">
+                <span v-if="slotProps.data.user_remarks" class="link" 
+                  @click="openRemarksModal(slotProps.data.user_remarks)">
                   {{ slotProps.data.user_remarks }}
                 </span>
               </template>
               <template v-else-if="col.field === 'member_name'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title': slotProps.data.status !== 'rejected' }">{{ slotProps.data.member_name }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title'
+                  : slotProps.data.status !== 'rejected' }">{{ slotProps.data.member_name }}
+                  </span>
               </template>
               <template v-else-if="col.field === 'hospital_name'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title': slotProps.data.status !== 'rejected' }">{{ slotProps.data.hospital_name }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title'
+                  : slotProps.data.status !== 'rejected' }">{{ slotProps.data.hospital_name }}
+                  </span>
               </template>
               <template v-else-if="col.field === 'pharmacist_name'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title': slotProps.data.status !== 'rejected' }">{{ slotProps.data.pharmacist_name }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title'
+                  : slotProps.data.status !== 'rejected' }">{{ slotProps.data.pharmacist_name }}
+                  </span>
               </template>
               <template v-else-if="col.field === 'ceo_name'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.ceo_name }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ slotProps.data.ceo_name }}
+                </span>
               </template>
               <template v-else-if="col.field === 'created_at'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ formatDateTime(slotProps.data.created_at) }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ formatDateTime(slotProps.data.created_at) }}
+                </span>
               </template>
               <template v-else-if="col.field === 'processed_at'">
                 <span v-if="slotProps.data.processed_at">
-                  {{ isMobile.value ? new Date(slotProps.data.processed_at).toISOString().slice(0, 10) : (new Date(slotProps.data.processed_at).getFullYear() + '-' + String(new Date(slotProps.data.processed_at).getMonth() + 1).padStart(2, '0') + '-' + String(new Date(slotProps.data.processed_at).getDate()).padStart(2, '0') + ' ' + String(new Date(slotProps.data.processed_at).getHours()).padStart(2, '0') + ':' + String(new Date(slotProps.data.processed_at).getMinutes()).padStart(2, '0')) }}
+                  {{ isMobile.value ? new Date(slotProps.data.processed_at).toISOString().slice(0, 10)
+                    : (new Date(slotProps.data.processed_at).getFullYear() + '-' 
+                    + String(new Date(slotProps.data.processed_at).getMonth() + 1).padStart(2, '0') 
+                    + '-' + String(new Date(slotProps.data.processed_at).getDate()).padStart(2, '0') 
+                    + ' ' + String(new Date(slotProps.data.processed_at).getHours()).padStart(2, '0') 
+                    + ':' + String(new Date(slotProps.data.processed_at).getMinutes()).padStart(2, '0')) }}
                 </span>
                 <span v-else>-</span>
               </template>
               <template v-else-if="col.field === 'member_comments'">
-                <span v-if="slotProps.data.member_comments" class="link" @click="openRemarksModal(slotProps.data.member_comments)">
+                <span v-if="slotProps.data.member_comments" class="link" 
+                  @click="openRemarksModal(slotProps.data.member_comments)">
                   {{ slotProps.data.member_comments }}
                 </span>
               </template>
               <template v-else-if="col.field === 'member_biz_no'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.member_biz_no }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ slotProps.data.member_biz_no }}
+                </span>
               </template>
               <template v-else-if="col.field === 'hospita_biz_no'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_biz_no }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ slotProps.data.hospita_biz_no }}
+                </span>
               </template>
               <template v-else-if="col.field === 'hospita_director_name'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_director_name }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ slotProps.data.hospita_director_name }}
+                </span>
               </template>
               <template v-else-if="col.field === 'hospita_address'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_address }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ slotProps.data.hospita_address }}
+                </span>
               </template>
               <template v-else>
-                <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
+                <span :title="slotProps.data[col.field]">
+                  {{ slotProps.data[col.field] }}
+                </span>
               </template>
             </template>
           </Column>

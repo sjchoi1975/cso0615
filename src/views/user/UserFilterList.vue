@@ -89,12 +89,12 @@
           >
             <template #body="slotProps">
               <template v-if="col.field === 'index'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                <span :class="getStatusClass(slotProps.data.status)">
                   {{ first + slotProps.index + 1 }}
                 </span>
               </template>
               <template v-else-if="col.field === 'filter_type'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                <span :class="getStatusClass(slotProps.data.status)">
                   {{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}
                 </span>
               </template>
@@ -106,57 +106,76 @@
                 </select>
               </template>
               <template v-else-if="col.field === 'admin_comments'">
-                <span v-if="slotProps.data.admin_comments" class="link" @click="openAdminCommentsModal(slotProps.data.admin_comments)">
+                <span v-if="slotProps.data.admin_comments" class="link" 
+                  @click="openAdminCommentsModal(slotProps.data.admin_comments)">
                   {{ slotProps.data.admin_comments }}
                 </span>
               </template>
               <template v-else-if="col.field === 'user_remarks'">
-                <span v-if="slotProps.data.user_remarks" class="link" @click="openUserRemarksModal(slotProps.data.user_remarks)">
+                <span v-if="slotProps.data.user_remarks" class="link" 
+                  @click="openUserRemarksModal(slotProps.data.user_remarks)">
                   {{ slotProps.data.user_remarks }}
                 </span>
               </template>
               <template v-else-if="col.field === 'member_comments'">
-                <span v-if="slotProps.data.member_comments" class="link" @click="openUserRemarksModal(slotProps.data.member_comments)">
+                <span v-if="slotProps.data.member_comments" class="link" 
+                  @click="openUserRemarksModal(slotProps.data.member_comments)">
                   {{ slotProps.data.member_comments }}
                 </span>
               </template>
               <template v-else-if="col.field === 'updated_at'">
                 <span v-if="slotProps.data.updated_at && new Date(slotProps.data.updated_at).getTime() !== new Date(slotProps.data.request_date).getTime()">
-                  {{ formatDateTime(slotProps.data.updated_at, isMobile.value) }}
+                  {{ formatDateTime(slotProps.data.updated_at, false) }}
                 </span>
                 <span v-else>-</span>
               </template>
               <template v-else-if="col.field === 'request_date'">
-                {{ formatDateTime(slotProps.data.request_date, isMobile.value) }}
+                <span :class="getStatusClass(slotProps.data.status)">
+                  {{ formatDateTime(slotProps.data.request_date, false) }}
+                </span>
               </template>
               <template v-else-if="col.field === 'processed_at'">
-                <span v-if="slotProps.data.processed_at">
-                  {{ isMobile.value ? new Date(slotProps.data.processed_at).toISOString().slice(0, 10) : (new Date(slotProps.data.processed_at).getFullYear() + '-' + String(new Date(slotProps.data.processed_at).getMonth() + 1).padStart(2, '0') + '-' + String(new Date(slotProps.data.processed_at).getDate()).padStart(2, '0') + ' ' + String(new Date(slotProps.data.processed_at).getHours()).padStart(2, '0') + ':' + String(new Date(slotProps.data.processed_at).getMinutes()).padStart(2, '0')) }}
+                <span v-if="slotProps.data.processed_at" :class="getStatusClass(slotProps.data.status)">
+                  {{ formatDateTime(slotProps.data.processed_at, false) }}
                 </span>
                 <span v-else>-</span>
               </template>
               <template v-else-if="col.field === 'created_at'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
-                  {{ isMobile.value ? new Date(slotProps.data.created_at).toISOString().slice(0, 10) : (new Date(slotProps.data.created_at).getFullYear() + '-' + String(new Date(slotProps.data.created_at).getMonth() + 1).padStart(2, '0') + '-' + String(new Date(slotProps.data.created_at).getDate()).padStart(2, '0') + ' ' + String(new Date(slotProps.data.created_at).getHours()).padStart(2, '0') + ':' + String(new Date(slotProps.data.created_at).getMinutes()).padStart(2, '0')) }}
+                <span :class="getStatusClass(slotProps.data.status)">
+                  {{ formatDateTime(slotProps.data.created_at, false) }}
                 </span>
               </template>
               <template v-else-if="col.field === 'member_biz_no'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.member_biz_no }}</span>
+                <span :class="getStatusClass(slotProps.data.status)">
+                  {{ slotProps.data.member_biz_no }}
+                </span>
               </template>
               <template v-else-if="col.field === 'hospita_biz_no'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_biz_no }}</span>
+                <span :class="getStatusClass(slotProps.data.status)">
+                  {{ slotProps.data.hospita_biz_no }}
+                </span>
               </template>
               <template v-else-if="col.field === 'hospita_director_name'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_director_name }}</span>
+                <span :class="getStatusClass(slotProps.data.status)">
+                  {{ slotProps.data.hospita_director_name }}
+                </span>
               </template>
               <template v-else-if="col.field === 'hospita_address'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_address }}</span>
+                <span :class="getStatusClass(slotProps.data.status)">
+                  {{ slotProps.data.hospita_address }}
+                </span>
               </template>
               <template v-else-if="col.field === 'pharmacist_name'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title': slotProps.data.status !== 'rejected' }">{{ slotProps.data.pharmacist_name }}</span>
+                <span :class="slotProps.data.status === 'rejected' ? 'rejected-cell' 
+                  : slotProps.data.status === 'pending' ? 'pending-cell' 
+                  : 'table-title'">{{ slotProps.data.pharmacist_name }}
+                </span>
               </template>
               <template v-else-if="col.field === 'hospital_name'">
-                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title': slotProps.data.status !== 'rejected' }">{{ slotProps.data.hospital_name }}</span>
+                <span :class="slotProps.data.status === 'rejected' ? 'rejected-cell' 
+                  : slotProps.data.status === 'pending' ? 'pending-cell' 
+                  : 'table-title-link'">{{ slotProps.data.hospital_name }}
+                </span>
               </template>
 
               <template v-else>
@@ -229,6 +248,13 @@ const tableConfig = computed(() => isMobile.value ? userFilterRequestsTableConfi
 
 // 테이블 스크롤 높이 계산 (페이지네이터 있음)
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
+
+// 상태에 따른 스타일 클래스 결정 함수
+const getStatusClass = (status) => {
+  if (status === 'rejected') return 'rejected-cell';
+  if (status === 'pending') return 'pending-cell';
+  return '';
+};
 
 const fetchDropdownOptions = async () => {
   const { data: { user } } = await supabase.auth.getUser();
