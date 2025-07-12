@@ -261,92 +261,114 @@ const formatPharmaceuticalCompanies = (companies) => {
   return companies.map(c => c.company_name).join(', ');
 };
 
-// 드롭다운 옵션 로딩 및 최신월 디폴트
-const fetchDropdownOptions = async () => {
-  const { data, error } = await supabase.from('admin_edi_list_view').select('member_id, company_name, hospital_id, hospital_name, pharmaceutical_companies');
-  if (error) {
-    console.error('Error fetching dropdown options:', error);
-    return;
-  }
-  if (data) {
-    companyOptions.value = [...new Map(data.map(item => [item.member_id, { member_id: item.member_id, company_name: item.company_name }])).values()]
-      .filter(c => c.member_id)
-      .sort((a, b) => a.company_name.localeCompare(b.company_name, 'ko-KR'));
-    hospitalOptions.value = [...new Map(data.map(item => [item.hospital_id, { hospital_id: item.hospital_id, hospital_name: item.hospital_name }])).values()]
-      .filter(h => h.hospital_id)
-      .sort((a, b) => a.hospital_name.localeCompare(b.hospital_name, 'ko-KR'));
-    // 제약사 옵션 추출 (전체 데이터에서)
-    const allPharmas = [];
-    data.forEach(row => {
-      if (Array.isArray(row.pharmaceutical_companies)) {
-        row.pharmaceutical_companies.forEach(pharma => {
-          if (pharma && pharma.id && pharma.company_name) {
-            allPharmas.push({ id: pharma.id, company_name: pharma.company_name });
-          }
-        });
-      }
-    });
-    const uniquePharmas = Array.from(
-      new Map(allPharmas.map(p => [p.id, p])).values()
-    );
-    pharmaOptions.value = uniquePharmas.sort((a, b) => a.company_name.localeCompare(b.company_name, 'ko-KR'));
-  }
+// 기존 fetchDropdownOptions 함수 제거됨 - setFilterOptions로 대체
+
+// 필터 옵션 설정 함수 추가
+const setFilterOptions = () => {
+  const data = files.value;
+  
+  // 업체 옵션 (company_name 기준으로 유니크하게)
+  const uniqueCompanies = [...new Set(data.map(item => item.company_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
+  companyOptions.value = uniqueCompanies.map(name => {
+    const item = data.find(d => d.company_name === name);
+    return { member_id: item.member_id, company_name: name };
+  });
+
+  // 거래처 옵션 (hospital_name 기준으로 유니크하게)  
+  const uniqueHospitals = [...new Set(data.map(item => item.hospital_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
+  hospitalOptions.value = uniqueHospitals.map(name => {
+    const item = data.find(d => d.hospital_name === name);
+    return { hospital_id: item.hospital_id, hospital_name: name };
+  });
+
+  // 제약사 옵션 추출 (pharmaceutical_companies 배열에서)
+  const allPharmas = [];
+  data.forEach(row => {
+    if (Array.isArray(row.pharmaceutical_companies)) {
+      row.pharmaceutical_companies.forEach(pharma => {
+        if (pharma && pharma.id && pharma.company_name) {
+          allPharmas.push({ id: pharma.id, company_name: pharma.company_name });
+        }
+      });
+    }
+  });
+  const uniquePharmas = Array.from(
+    new Map(allPharmas.map(p => [p.id, p])).values()
+  );
+  pharmaOptions.value = uniquePharmas.sort((a, b) => a.company_name.localeCompare(b.company_name, 'ko-KR'));
 };
 
 // 파일 데이터 로딩
 const fetchFiles = async () => {
   loading.value = true;
-  let query = supabase.from('admin_edi_list_view').select('*', { count: 'exact' });
-  if (selectedCompany.value) query = query.eq('member_id', selectedCompany.value);
-  if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
-  if (selectedConfirm.value) query = query.eq('confirm', selectedConfirm.value === 'true');
+  
+  try {
+    let query = supabase.from('admin_edi_list_view').select('*', { count: 'exact' });
+    
+    // 검색 버튼 클릭 시에만 필터 적용
+    if (isSearched.value) {
+      // 통합 검색 (서버 사이드에서 처리)
+      if (search.value && search.value.length >= 2) {
+        query = query.or(`company_name.ilike.%${search.value}%,hospital_name.ilike.%${search.value}%`);
+      }
+      
+      // 세부 필터 적용
+      if (selectedCompany.value) query = query.eq('member_id', selectedCompany.value);
+      if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
+      if (selectedConfirm.value) query = query.eq('confirm', selectedConfirm.value === 'true');
+    }
+    
+    const from = first.value;
+    const to = from + pageSize.value - 1;
+    query = query.range(from, to).order('confirm', { ascending: true }).order('created_at', { ascending: false });
 
-  const from = first.value;
-  const to = from + pageSize.value - 1;
-  query = query.range(from, to).order('confirm', { ascending: true }).order('created_at', { ascending: false });
-
-  const { data, error, count } = await query;
-  if (error) {
-    console.log('Supabase error:', error);
-    files.value = [];
-    filteredList.value = [];
-    totalCount.value = 0;
-  } else {
-    console.log('원본 데이터:', data);
-    let result = data.map(file => ({
-      ...file,
-      _selected: selectedFiles.value.some(selected => selected.edi_id === file.edi_id)
-    }));
-
-    // 통합검색(2글자 이상)
-    if (search.value.length >= 2) {
-      const keyword = search.value.toLowerCase();
-      result = result.filter(file => {
-        const company = (file.company_name || '').toLowerCase();
-        const hospital = (file.hospital_name || '').toLowerCase();
-        const pharma = Array.isArray(file.pharmaceutical_companies)
-          ? file.pharmaceutical_companies.some(pharma => (pharma.company_name || '').toLowerCase().includes(keyword))
-          : false;
-        return company.includes(keyword) || hospital.includes(keyword) || pharma;
-      });
-      console.log('통합검색 적용 후:', result);
+    const { data, error, count } = await query;
+    
+    if (error) {
+      console.error('Supabase error:', error);
+      files.value = [];
+      filteredList.value = [];
+      totalCount.value = 0;
+      companyOptions.value = [];
+      hospitalOptions.value = [];
+      pharmaOptions.value = [];
+      return;
     }
 
-    // 제약사 필터
-    if (selectedPharma.value) {
+    let result = data || [];
+    
+    // 제약사 필터만 클라이언트에서 처리 (배열 구조 때문에)
+    if (isSearched.value && selectedPharma.value) {
       result = result.filter(file =>
         Array.isArray(file.pharmaceutical_companies) &&
         file.pharmaceutical_companies.some(pharma => String(pharma.id) === String(selectedPharma.value))
       );
-      console.log('제약사 필터 적용 후:', result);
     }
+
+    // 체크박스 선택 상태 복원
+    result = result.map(file => ({
+      ...file,
+      _selected: selectedFiles.value.some(selected => selected.edi_id === file.edi_id)
+    }));
 
     files.value = result;
     filteredList.value = result;
-    totalCount.value = result.length;
-    console.log('최종 결과:', result);
+    totalCount.value = (isSearched.value && selectedPharma.value) ? result.length : (count || 0);
+    
+    // 검색 결과를 기반으로 필터 옵션 업데이트
+    setFilterOptions();
+    
+  } catch (error) {
+    console.error('Error fetching files:', error);
+    files.value = [];
+    filteredList.value = [];
+    totalCount.value = 0;
+    companyOptions.value = [];
+    hospitalOptions.value = [];
+    pharmaOptions.value = [];
+  } finally {
+    loading.value = false;
   }
-  loading.value = false;
 };
 
 // 제약사 목록 조회
@@ -560,12 +582,6 @@ const savePharmaceuticalCompanies = async () => {
 };
 
 const onSearch = () => {
-  console.log('onSearch 실행', {
-    search: search.value,
-    selectedCompany: selectedCompany.value,
-    selectedHospital: selectedHospital.value,
-    selectedPharma: selectedPharma.value
-  });
   if (!isSearchEnabled.value) return;
   isSearched.value = true;
   first.value = 0;
@@ -573,7 +589,6 @@ const onSearch = () => {
 };
 
 const onReset = () => {
-  console.log('onReset 실행');
   search.value = '';
   selectedCompany.value = '';
   selectedHospital.value = '';
@@ -584,9 +599,19 @@ const onReset = () => {
   fetchFiles();
 };
 
+// 검색어만 초기화 (모바일 X 버튼)
+const onClearSearch = () => {
+  if (isSearched.value) {
+    // 검색 후: 전체 초기화
+    onReset();
+  } else {
+    // 검색 전: 검색어만 삭제
+    search.value = '';
+  }
+};
+
 onMounted(() => {
   fetchFiles();
-  fetchDropdownOptions();
 });
 
 // 팝업창에서 호출할 수 있도록 함수를 window에 할당
@@ -598,8 +623,6 @@ window.fetchFiles = fetchFiles;
 const onPageChange = (event) => {
   first.value = event.first;
   pageSize.value = event.rows;
-  selectedCompany.value = '';
-  selectedHospital.value = '';
   fetchFiles();
 };
 

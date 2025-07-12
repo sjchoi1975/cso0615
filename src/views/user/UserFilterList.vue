@@ -256,33 +256,22 @@ const getStatusClass = (status) => {
   return '';
 };
 
-const fetchDropdownOptions = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+// 기존 fetchDropdownOptions 함수 제거됨 - setFilterOptions로 대체
 
-  const { data, error } = await supabase
-    .from('admin_filter_list_view')
-    .select('hospital_id, hospital_name, pharmacist_name')
-    .eq('member_id', user.id);
+// 필터 옵션 설정 함수 추가
+const setFilterOptions = () => {
+  const data = requests.value;
   
-  if (error) {
-    console.error('Error fetching dropdown options:', error);
-    return;
-  }
+  // 거래처 옵션 (hospital_name 기준으로 유니크하게)
+  const uniqueHospitals = [...new Set(data.map(item => item.hospital_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
+  hospitalOptions.value = uniqueHospitals.map(name => {
+    const item = data.find(d => d.hospital_name === name);
+    return { id: item.hospital_id, hospital_name: name };
+  });
 
-  if (data) {
-    console.log('드롭다운 데이터:', data); // 실제 데이터 확인용
-    const uniqueHospitals = [...new Map(data.map(item => 
-      [item.hospital_id, { id: item.hospital_id, hospital_name: item.hospital_name }]
-    )).values()].filter(Boolean);
-    hospitalOptions.value = uniqueHospitals.filter(h => h.id);
-
-    // 제약사명 중복 제거 (pharmacist_name)
-    const uniquePharmas = [...new Map(data.map(item => 
-      [item.pharmacist_name, { id: item.pharmacist_name, company_name: item.pharmacist_name }]
-    )).values()].filter(Boolean);
-    pharmaOptions.value = uniquePharmas.filter(p => p.id);
-  }
+  // 제약사 옵션 (pharmacist_name 기준으로 유니크하게)
+  const uniquePharmas = [...new Set(data.map(item => item.pharmacist_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
+  pharmaOptions.value = uniquePharmas.map(name => ({ id: name, company_name: name }));
 };
 
 const fetchRequests = async () => {
@@ -293,6 +282,8 @@ const fetchRequests = async () => {
     loading.value = false;
     requests.value = [];
     totalCount.value = 0;
+    hospitalOptions.value = [];
+    pharmaOptions.value = [];
     return;
   }
 
@@ -301,14 +292,17 @@ const fetchRequests = async () => {
     .select(`*`, { count: 'exact' })
     .eq('member_id', user.id);
 
-  // 통합검색: 거래처명, 제약사명(실제 컬럼명: hospital_name, pharmacist_name)
-  if (search.value) {
-    query = query.or(`hospital_name.ilike.%${search.value}%,pharmacist_name.ilike.%${search.value}%`);
+  // 검색 버튼 클릭 시에만 필터 적용
+  if (isSearched.value) {
+    // 통합검색: 거래처명, 제약사명(실제 컬럼명: hospital_name, pharmacist_name)
+    if (search.value && search.value.length >= 2) {
+      query = query.or(`hospital_name.ilike.%${search.value}%,pharmacist_name.ilike.%${search.value}%`);
+    }
+    if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
+    if (selectedPharma.value) query = query.eq('pharmacist_name', selectedPharma.value);
+    if (selectedStatus.value) query = query.eq('status', selectedStatus.value);
+    if (selectedFilterType.value) query = query.eq('filter_type', selectedFilterType.value);
   }
-  if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
-  if (selectedPharma.value) query = query.eq('pharmacist_name', selectedPharma.value);
-  if (selectedStatus.value) query = query.eq('status', selectedStatus.value);
-  if (selectedFilterType.value) query = query.eq('filter_type', selectedFilterType.value);
 
   const from = first.value;
   const to = from + pageSize.value - 1;
@@ -317,7 +311,11 @@ const fetchRequests = async () => {
   const { data, error, count } = await query;
 
   if (error) {
-    alert('데이터 조회 실패: ' + error.message);
+    console.error('Error fetching requests:', error);
+    requests.value = [];
+    totalCount.value = 0;
+    hospitalOptions.value = [];
+    pharmaOptions.value = [];
   } else {
     // 관리자와 동일한 정렬: 1. 미처리건(대기)이 위, 2. 각 그룹 내 최신순
     const sortedData = data.sort((a, b) => {
@@ -329,13 +327,15 @@ const fetchRequests = async () => {
     });
     requests.value = sortedData;
     totalCount.value = count || 0;
+    
+    // 검색 결과를 기반으로 필터 옵션 업데이트
+    setFilterOptions();
   }
   loading.value = false;
 };
 
 onMounted(() => {
     fetchRequests();
-    fetchDropdownOptions();
 });
 
 const onPageChange = (event) => {

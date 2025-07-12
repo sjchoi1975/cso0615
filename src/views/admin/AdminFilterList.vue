@@ -17,12 +17,12 @@
           <span>거래처</span>
           <select v-model="selectedHospital" class="input-180">
             <option value="">- 전체 -</option>
-            <option v-for="hospital in hospitalOptions" :key="hospital.id" :value="hospital.id">{{ hospital.hospital_name }}</option>
+            <option v-for="hospital in hospitalOptions" :key="hospital.uid" :value="hospital.uid">{{ hospital.hospital_name }}</option>
           </select>
           <span>제약사</span>
           <select v-model="selectedPharma" class="input-180">
             <option value="">- 전체 -</option>
-            <option v-for="pharma in pharmaOptions" :key="pharma.id" :value="pharma.id">{{ pharma.company_name }}</option>
+            <option v-for="pharma in pharmaOptions" :key="pharma.pharmacist_name" :value="pharma.pharmacist_name">{{ pharma.pharmacist_name }}</option>
           </select>
           <span>구분</span>
           <select v-model="selectedFilterType" class="filter-dropdown">
@@ -73,7 +73,7 @@
     <div class="table-card">
       <div :style="tableConfig.tableStyle">
         <DataTable
-          :value="filteredList"
+          :value="filteringRequests"
           :loading="false"
           :paginator="false"
           scrollable
@@ -250,8 +250,7 @@ const tableConfig = computed(() => isMobile.value ? filterRequestsTableConfig.mo
 // 테이블 스크롤 높이 계산 (페이지네이터 있음)
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
-const requests = ref([]);
-const filteredList = ref([]);
+const filteringRequests = ref([]);
 const loading = ref(false);
 const first = ref(0);
 const totalCount = ref(0);
@@ -289,85 +288,91 @@ const isSearchEnabled = computed(() => {
          selectedFilterType.value;
 });
 
-// Fetch dropdown options
-const fetchDropdownOptions = async () => {
-  const { data, error } = await supabase
-    .from('admin_filter_list_view')
-    .select('member_id, member_name, hospital_id, hospital_name, pharmaceutical_company_id, pharmaceutical_company_name');
+// 필터 옵션 설정 함수 추가
+const setFilterOptions = () => {
+  const data = filteringRequests.value;
+  
+  // 업체 옵션 (member_name 기준으로 유니크하게)
+  const uniqueMembers = [...new Set(data.map(item => item.member_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
+  memberOptions.value = uniqueMembers.map(name => {
+    const item = data.find(d => d.member_name === name);
+    return { uid: item.member_id, company_name: name };
+  });
 
-  if (error) {
-    console.error('Error fetching dropdown options:', error);
-    return;
-  }
+  // 거래처 옵션 (hospital_name 기준으로 유니크하게)  
+  const uniqueHospitals = [...new Set(data.map(item => item.hospital_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
+  hospitalOptions.value = uniqueHospitals.map(name => {
+    const item = data.find(d => d.hospital_name === name);
+    return { uid: item.hospital_id, hospital_name: name };
+  });
 
-  if (data) {
-    const uniqueMembers = [...new Map(data.map(item => 
-      [item.member_id, { uid: item.member_id, company_name: item.member_name }]
-    )).values()].filter(Boolean);
-    memberOptions.value = uniqueMembers.filter(m => m.uid);
-
-    const uniqueHospitals = [...new Map(data.map(item => 
-      [item.hospital_id, { id: item.hospital_id, hospital_name: item.hospital_name }]
-    )).values()].filter(Boolean);
-    hospitalOptions.value = uniqueHospitals.filter(h => h.id);
-
-    const uniquePharmas = [...new Map(data.map(item => 
-      [item.pharmaceutical_company_id, { id: item.pharmaceutical_company_id, company_name: item.pharmaceutical_company_name }]
-    )).values()].filter(Boolean);
-    pharmaOptions.value = uniquePharmas.filter(p => p.id);
-  }
+  // 제약사 옵션 (pharmacist_name 기준으로 유니크하게)
+  const uniquePharmas = [...new Set(data.map(item => item.pharmacist_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
+  pharmaOptions.value = uniquePharmas.map(name => ({ pharmacist_name: name }));
 };
 
-// Fetch data
-const fetchRequests = async () => {
+// 필터링 요청 데이터 로딩
+const fetchFilteringRequests = async () => {
   loading.value = true;
-  let query = supabase
-    .from('admin_filter_list_view')
-    .select(`*`, { count: 'exact' });
-
-  if (search.value) {
-    query = query.or(`member_name.ilike.%${search.value}%,hospital_name.ilike.%${search.value}%,pharmacist_name.ilike.%${search.value}%`);
-  }
-  if (selectedMember.value) query = query.eq('member_id', selectedMember.value);
-  if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
-  if (selectedPharma.value) query = query.eq('pharmaceutical_company_id', selectedPharma.value);
-  if (selectedStatus.value) query = query.eq('status', selectedStatus.value);
-  if (selectedFilterType.value) query = query.eq('filter_type', selectedFilterType.value);
-
-  const from = first.value;
-  const to = from + pageSize.value - 1;
-  query = query.range(from, to);
-
-  const { data, error, count } = await query;
-
-  if (error) {
-    alert('데이터 조회 실패: ' + error.message);
-  } else {
-    // 정렬: 1. 대기건 최우선, 2. 각 그룹 내에서 최신순
-    const sortedData = data.sort((a, b) => {
-      // 1. 대기건이 최우선
-      if (a.status === 'pending' && b.status !== 'pending') return -1;
-      if (a.status !== 'pending' && b.status === 'pending') return 1;
+  
+  try {
+    let query = supabase.from('admin_filter_list_view').select('*', { count: 'exact' });
+    
+    // 검색 버튼 클릭 시에만 필터 적용
+    if (isSearched.value) {
+      // 통합검색 (2글자 이상)
+      if (search.value.length >= 2) {
+        query = query.or(`member_name.ilike.%${search.value}%,hospital_name.ilike.%${search.value}%,pharmacist_name.ilike.%${search.value}%`);
+      }
+      // 세부 필터
+      if (selectedMember.value) query = query.eq('member_id', selectedMember.value);
+      if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
+      if (selectedPharma.value) query = query.eq('pharmacist_name', selectedPharma.value);
+      if (selectedStatus.value) query = query.eq('status', selectedStatus.value);
+    }
+    
+    const from = first.value;
+    const to = from + pageSize.value - 1;
+    query = query.range(from, to).order('created_at', { ascending: false });
+    
+    const { data, error, count } = await query;
+    
+    if (error) {
+      console.error('Error fetching filtering requests:', error);
+      filteringRequests.value = [];
+      totalCount.value = 0;
+      memberOptions.value = [];
+      hospitalOptions.value = [];
+      pharmaOptions.value = [];
+    } else {
+      filteringRequests.value = data || [];
+      totalCount.value = count || 0;
       
-      // 2. 각 그룹 내에서 요청일시 기준 최신순
-      const dateA = new Date(a.request_date);
-      const dateB = new Date(b.request_date);
-      return dateB - dateA; // 최신이 위로
-    });
-
-    requests.value = sortedData;
-    filteredList.value = sortedData;
-    totalCount.value = count || 0;
+      // 검색 결과를 기반으로 필터 옵션 업데이트
+      setFilterOptions();
+    }
+  } catch (error) {
+    console.error('Error in fetchFilteringRequests:', error);
+    filteringRequests.value = [];
+    totalCount.value = 0;
+    memberOptions.value = [];
+    hospitalOptions.value = [];
+    pharmaOptions.value = [];
+  } finally {
+    loading.value = false;
   }
-  loading.value = false;
 };
+
+// 기존 fetchDropdownOptions 함수 제거됨 - setFilterOptions로 대체
+
+// 기존 fetchRequests 함수 제거됨 - fetchFilteringRequests로 대체
 
 // 검색 실행
 const onSearch = () => {
   if (!isSearchEnabled.value) return;
   isSearched.value = true;
   first.value = 0;
-  fetchRequests();
+  fetchFilteringRequests();
 };
 
 // 초기화
@@ -380,7 +385,7 @@ const onReset = () => {
   selectedFilterType.value = '';
   isSearched.value = false;
   first.value = 0;
-  fetchRequests();
+  fetchFilteringRequests();
 };
 
 // 검색어만 초기화 (모바일 X 버튼)
@@ -395,14 +400,13 @@ const onClearSearch = () => {
 };
 
 onMounted(() => {
-    fetchRequests();
-    fetchDropdownOptions();
+    fetchFilteringRequests();
 });
 
 const onPageChange = (event) => {
   first.value = event.first;
   pageSize.value = event.rows;
-  fetchRequests();
+  fetchFilteringRequests();
 };
 
 const updateStatus = async (request) => {
@@ -419,7 +423,7 @@ const updateStatus = async (request) => {
     alert('상태 업데이트 실패: ' + error.message);
   } else {
     alert('처리결과가 변경되었습니다.');
-    fetchRequests();
+    fetchFilteringRequests();
   }
 };
 
@@ -451,17 +455,17 @@ const saveAdminComments = async () => {
   } else {
     alert('전달사항이 저장되었습니다.');
     closeAdminCommentsModal();
-    fetchRequests();
+    fetchFilteringRequests();
   }
 };
 
 const downloadExcel = () => {
-  const exportData = filteredList.value.map(row => ({
+  const exportData = filteringRequests.value.map(row => ({
     '요청일시': new Date(row.request_date).toLocaleString('sv-SE').slice(0, 16),
     '업체명': row.member_name,
     '구분': row.filter_type === 'new' ? '신규' : '이관',
     '거래처명': row.hospital_name,
-    '제약사': row.pharmaceutical_company_name,
+    '제약사': row.pharmacist_name,
     '요청비고': row.user_remarks,
     '처리결과': row.status === 'pending' ? '대기' : row.status === 'approved' ? '승인' : '반려',
   }));

@@ -7,7 +7,7 @@
     <div class="filter-card">
       <div class="filter-row filter-row-center">
         <span class="hide-mobile">통합 검색</span>
-        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="업체, 거래처, 제약사, 제품명 입력" @keyup.enter="onSearch" />
+        <input v-model="search" class="input-search wide-mobile-search hide-mobile" placeholder="업체, 거래처, 제약사명 입력" @keyup.enter="onSearch" />
         <div class="hide-mobile" style="display: flex; gap: 0.5rem; align-items: center;">
           <span>처방월</span>
           <select v-model="selectedPrescriptionMonth" class="input-120">
@@ -24,10 +24,10 @@
             <option value="">전체</option>
             <option v-for="h in hospitalOptions" :key="h" :value="h">{{ h }}</option>
           </select>
-          <span>제품</span>
-          <select v-model="selectedProduct" class="input-240">
+          <span>제약사</span>
+          <select v-model="selectedPharma" class="input-240">
             <option value="">전체</option>
-            <option v-for="p in productOptions" :key="p" :value="p">{{ p }}</option>
+            <option v-for="p in pharmaOptions" :key="p" :value="p">{{ p }}</option>
           </select>
           <button type="button" class="btn-search" @click="onSearch" :disabled="!isSearchEnabled">검색</button>
           <button type="button" class="btn-reset" @click="onReset">
@@ -36,7 +36,7 @@
           </button>
         </div>
         <div class="mobile-search-wrap hide-pc" style="position: relative; width: 100%; margin-top: 0.5rem;">
-          <input v-model="search" class="input-search wide-mobile-search" placeholder="업체, 거래처, 제약사, 제품명 입력" @keyup.enter="onSearch"/>
+          <input v-model="search" class="input-search wide-mobile-search" placeholder="업체, 거래처, 제약사명 입력" @keyup.enter="onSearch"/>
           <i v-if="search.length > 0" class="pi pi-times-circle search-clear-icon" @click="onClearSearch"
             style="position: absolute; right: 4.8rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
           <i class="pi pi-search search-btn-icon" @click="isSearchEnabled && onSearch()"
@@ -117,8 +117,8 @@
             <template v-else-if="col.field === 'hospital_name'">
               <span class="table-title">{{ slotProps.data.hospital_name }}</span>
             </template>
-            <template v-else-if="col.field === 'product_name'">
-              <span class="table-title">{{ slotProps.data.product_name }}</span>
+            <template v-else-if="col.field === 'pharma_name'">
+              <span class="table-title">{{ slotProps.data.pharma_name }}</span>
             </template>
             <template v-else>
               {{ slotProps.data[col.field] }}
@@ -160,11 +160,11 @@ const totalCount = ref(0);
 const selectedPrescriptionMonth = ref('');
 const selectedCompany = ref('');
 const selectedHospital = ref('');
-const selectedProduct = ref('');
+const selectedPharma = ref('');
 const prescriptionMonthOptions = ref([]);
 const companyOptions = ref([]);
 const hospitalOptions = ref([]);
-const productOptions = ref([]);
+const pharmaOptions = ref([]);
 const pageSize = ref(100);
 const first = ref(0);
 const route = useRoute();
@@ -183,7 +183,7 @@ const isSearchEnabled = computed(() => {
     selectedPrescriptionMonth.value ||
     selectedCompany.value ||
     selectedHospital.value ||
-    selectedProduct.value;
+    selectedPharma.value;
 });
 
 // 검색 실행
@@ -200,7 +200,7 @@ const onReset = () => {
   selectedPrescriptionMonth.value = '';
   selectedCompany.value = '';
   selectedHospital.value = '';
-  selectedProduct.value = '';
+  selectedPharma.value = '';
   isSearched.value = false;
   first.value = 0;
   fetchSettlements();
@@ -215,43 +215,14 @@ const onClearSearch = () => {
   }
 };
 
-// 실제 필터링 함수 - 검색 버튼 클릭 시에만 적용하도록 변경
-// const filterSettlements = () => {
-//   let result = [...settlements.value];
-//   // 통합검색
-//   if (search.value.length >= 2) {
-//     const keyword = search.value.toLowerCase();
-//     result = result.filter(item => {
-//       const company = (item.company_name || '').toLowerCase();
-//       const hospital = (item.hospital_name || '').toLowerCase();
-//       const pharma = (item.pharma_name || '').toLowerCase();
-//       const product = (item.product_name || '').toLowerCase();
-//       return company.includes(keyword) || hospital.includes(keyword) || pharma.includes(keyword) || product.includes(keyword);
-//     });
-//   }
-//   // 세부 필터
-//   if (selectedPrescriptionMonth.value) {
-//     result = result.filter(item => item.prescription_month === selectedPrescriptionMonth.value);
-//   }
-//   if (selectedCompany.value) {
-//     result = result.filter(item => item.company_name === selectedCompany.value);
-//   }
-//   if (selectedHospital.value) {
-//     result = result.filter(item => item.hospital_name === selectedHospital.value);
-//   }
-//   if (selectedProduct.value) {
-//     result = result.filter(item => item.product_name === selectedProduct.value);
-//   }
-//   filteredList.value = result;
-//   totalCount.value = result.length;
-// };
+// 실제 필터링 함수 제거 - 서버 사이드에서 처리
 
 const setFilterOptions = () => {
   const data = settlements.value;
   prescriptionMonthOptions.value = [...new Set(data.map(item => item.prescription_month))].filter(Boolean).sort().reverse();
   companyOptions.value = [...new Set(data.map(item => item.company_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
   hospitalOptions.value = [...new Set(data.map(item => item.hospital_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
-  productOptions.value = [...new Set(data.map(item => item.product_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
+  pharmaOptions.value = [...new Set(data.map(item => item.pharma_name))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ko-KR'));
 };
 
 const fetchSettlements = async () => {
@@ -264,13 +235,13 @@ const fetchSettlements = async () => {
   if (isSearched.value) {
     // 통합검색 (2글자 이상)
     if (search.value.length >= 2) {
-      query = query.or(`company_name.ilike.%${search.value}%,hospital_name.ilike.%${search.value}%,pharma_name.ilike.%${search.value}%,product_name.ilike.%${search.value}%`);
+      query = query.or(`company_name.ilike.%${search.value}%,hospital_name.ilike.%${search.value}%,pharma_name.ilike.%${search.value}%`);
     }
     // 세부 필터
     if (selectedPrescriptionMonth.value) query = query.eq('prescription_month', selectedPrescriptionMonth.value);
     if (selectedCompany.value) query = query.eq('company_name', selectedCompany.value);
     if (selectedHospital.value) query = query.eq('hospital_name', selectedHospital.value);
-    if (selectedProduct.value) query = query.eq('product_name', selectedProduct.value);
+    if (selectedPharma.value) query = query.eq('pharma_name', selectedPharma.value);
   }
   
   const { data, error } = await query;
@@ -281,7 +252,7 @@ const fetchSettlements = async () => {
     prescriptionMonthOptions.value = [];
     companyOptions.value = [];
     hospitalOptions.value = [];
-    productOptions.value = [];
+    pharmaOptions.value = [];
   } else {
     settlements.value = data;
     filteredList.value = data;
@@ -295,32 +266,9 @@ onMounted(() => {
   fetchSettlements();
 });
 
-// 정산월 변경 시 필터 옵션 업데이트
-watch(selectedPrescriptionMonth, async () => {
-  selectedCompany.value = '';
-  selectedHospital.value = '';
-  selectedProduct.value = '';
-  await fetchFilterOptions();
-  await fetchSettlements();
-});
-
-// 필터 변경 시 데이터 다시 불러오기
-watch(selectedCompany, async () => {
-  selectedHospital.value = '';
-  selectedProduct.value = '';
-  await fetchFilterOptions();
-  await fetchSettlements();
-});
-watch(selectedHospital, async () => {
-  selectedProduct.value = '';
-  await fetchFilterOptions();
-  await fetchSettlements();
-});
+// 복잡한 watch 로직 제거 - 검색 버튼 클릭 시에만 필터 적용
 
 // 제품 선택 시 즉시 필터 적용 제거 - 검색 버튼 클릭 시에만 적용
-// watch(selectedProduct, async () => {
-//   await fetchSettlements();
-// });
 
 const totalQuantity = computed(() => settlements.value.reduce((sum, r) => sum + (Number(r.quantity) || 0), 0));
 const totalPrescriptionAmount = computed(() => settlements.value.reduce((sum, r) => sum + (Number(r.prescription_amount) || 0), 0));
@@ -351,17 +299,7 @@ const deleteRow = async (id) => {
   await supabase.from('settlements').delete().eq('id', id);
   fetchSettlements();
 };
-const addRow = async () => {
-  const { error } = await supabase.from('settlements').insert([newRow.value]);
-  if (!error) {
-    alert('추가되었습니다.');
-    Object.keys(newRow.value).forEach(k => newRow.value[k] = '');
-    fetchSettlements();
-    fetchFilterOptions();
-  } else {
-    alert('추가 실패: ' + error.message);
-  }
-};
+// addRow 함수 제거 - 사용되지 않음
 
 const downloadExcel = () => {
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -480,7 +418,6 @@ const uploadExcel = async (event) => {
     } else {
       alert('엑셀 등록 성공!');
       fetchSettlements();
-      fetchFilterOptions();
     }
   };
   reader.readAsBinaryString(file);
