@@ -129,7 +129,7 @@
                 {{ formatDate(slotProps.data.created_at) }}
               </template>
               <template v-else-if="col.field === 'company_name'">
-                <span class="table-title-link">{{ slotProps.data.company_name }}</span>
+                <span class="table-title">{{ slotProps.data.company_name }}</span>
               </template>
               <template v-else>
                 <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>

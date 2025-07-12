@@ -115,34 +115,48 @@
                   {{ slotProps.data.user_remarks }}
                 </span>
               </template>
+              <template v-else-if="col.field === 'member_comments'">
+                <span v-if="slotProps.data.member_comments" class="link" @click="openUserRemarksModal(slotProps.data.member_comments)">
+                  {{ slotProps.data.member_comments }}
+                </span>
+              </template>
               <template v-else-if="col.field === 'updated_at'">
                 <span v-if="slotProps.data.updated_at && new Date(slotProps.data.updated_at).getTime() !== new Date(slotProps.data.request_date).getTime()">
-                  {{ new Date(slotProps.data.updated_at).toISOString().slice(0, 10) }}
+                  {{ formatDateTime(slotProps.data.updated_at, isMobile.value) }}
                 </span>
                 <span v-else>-</span>
               </template>
               <template v-else-if="col.field === 'request_date'">
-                {{ slotProps.data.request_date ? new Date(slotProps.data.request_date).toISOString().slice(0, 10) : '' }}
+                {{ formatDateTime(slotProps.data.request_date, isMobile.value) }}
               </template>
-
+              <template v-else-if="col.field === 'processed_at'">
+                <span v-if="slotProps.data.processed_at">
+                  {{ isMobile.value ? new Date(slotProps.data.processed_at).toISOString().slice(0, 10) : (new Date(slotProps.data.processed_at).getFullYear() + '-' + String(new Date(slotProps.data.processed_at).getMonth() + 1).padStart(2, '0') + '-' + String(new Date(slotProps.data.processed_at).getDate()).padStart(2, '0') + ' ' + String(new Date(slotProps.data.processed_at).getHours()).padStart(2, '0') + ':' + String(new Date(slotProps.data.processed_at).getMinutes()).padStart(2, '0')) }}
+                </span>
+                <span v-else>-</span>
+              </template>
+              <template v-else-if="col.field === 'created_at'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
+                  {{ isMobile.value ? new Date(slotProps.data.created_at).toISOString().slice(0, 10) : (new Date(slotProps.data.created_at).getFullYear() + '-' + String(new Date(slotProps.data.created_at).getMonth() + 1).padStart(2, '0') + '-' + String(new Date(slotProps.data.created_at).getDate()).padStart(2, '0') + ' ' + String(new Date(slotProps.data.created_at).getHours()).padStart(2, '0') + ':' + String(new Date(slotProps.data.created_at).getMinutes()).padStart(2, '0')) }}
+                </span>
+              </template>
+              <template v-else-if="col.field === 'member_biz_no'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.member_biz_no }}</span>
+              </template>
+              <template v-else-if="col.field === 'hospita_biz_no'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_biz_no }}</span>
+              </template>
+              <template v-else-if="col.field === 'hospita_director_name'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_director_name }}</span>
+              </template>
+              <template v-else-if="col.field === 'hospita_address'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_address }}</span>
+              </template>
+              <template v-else-if="col.field === 'pharmacist_name'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title': slotProps.data.status !== 'rejected' }">{{ slotProps.data.pharmacist_name }}</span>
+              </template>
               <template v-else-if="col.field === 'hospital_name'">
-                <span class="table-title" :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
-                  {{ slotProps.data.hospital_name }}
-                </span>
-              </template>
-              <template v-else-if="col.field === 'business_registration_number'">
-                <span>{{ slotProps.data.business_registration_number }}</span>
-              </template>
-              <template v-else-if="col.field === 'director_name'">
-                <span>{{ slotProps.data.director_name }}</span>
-              </template>
-              <template v-else-if="col.field === 'address'">
-                <span>{{ slotProps.data.address }}</span>
-              </template>
-              <template v-else-if="col.field === 'pharmaceutical_company_name'">
-                <span class="table-title":class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">
-                  {{ slotProps.data.pharmaceutical_company_name }}
-                </span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title': slotProps.data.status !== 'rejected' }">{{ slotProps.data.hospital_name }}</span>
               </template>
 
               <template v-else>
@@ -187,6 +201,7 @@ import Paginator from 'primevue/paginator';
 import * as XLSX from 'xlsx';
 import { userFilterRequestsTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
+import { formatDateTime } from '@/utils/dateFormatter';
 import Button from 'primevue/button';
 
 const requests = ref([]);
@@ -221,7 +236,7 @@ const fetchDropdownOptions = async () => {
 
   const { data, error } = await supabase
     .from('admin_filter_list_view')
-    .select('hospital_id, hospital_name, pharmaceutical_company_id, pharmaceutical_company_name')
+    .select('hospital_id, hospital_name, pharmacist_name')
     .eq('member_id', user.id);
   
   if (error) {
@@ -230,13 +245,15 @@ const fetchDropdownOptions = async () => {
   }
 
   if (data) {
+    console.log('드롭다운 데이터:', data); // 실제 데이터 확인용
     const uniqueHospitals = [...new Map(data.map(item => 
       [item.hospital_id, { id: item.hospital_id, hospital_name: item.hospital_name }]
     )).values()].filter(Boolean);
     hospitalOptions.value = uniqueHospitals.filter(h => h.id);
 
+    // 제약사명 중복 제거 (pharmacist_name)
     const uniquePharmas = [...new Map(data.map(item => 
-      [item.pharmaceutical_company_id, { id: item.pharmaceutical_company_id, company_name: item.pharmaceutical_company_name }]
+      [item.pharmacist_name, { id: item.pharmacist_name, company_name: item.pharmacist_name }]
     )).values()].filter(Boolean);
     pharmaOptions.value = uniquePharmas.filter(p => p.id);
   }
@@ -258,11 +275,12 @@ const fetchRequests = async () => {
     .select(`*`, { count: 'exact' })
     .eq('member_id', user.id);
 
+  // 통합검색: 거래처명, 제약사명(실제 컬럼명: hospital_name, pharmacist_name)
   if (search.value) {
-    query = query.or(`hospital_name.ilike.%${search.value}%,pharmaceutical_company_name.ilike.%${search.value}%`);
+    query = query.or(`hospital_name.ilike.%${search.value}%,pharmacist_name.ilike.%${search.value}%`);
   }
   if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
-  if (selectedPharma.value) query = query.eq('pharmaceutical_company_id', selectedPharma.value);
+  if (selectedPharma.value) query = query.eq('pharmacist_name', selectedPharma.value);
   if (selectedStatus.value) query = query.eq('status', selectedStatus.value);
   if (selectedFilterType.value) query = query.eq('filter_type', selectedFilterType.value);
 
@@ -275,7 +293,15 @@ const fetchRequests = async () => {
   if (error) {
     alert('데이터 조회 실패: ' + error.message);
   } else {
-    requests.value = data;
+    // 관리자와 동일한 정렬: 1. 미처리건(대기)이 위, 2. 각 그룹 내 최신순
+    const sortedData = data.sort((a, b) => {
+      if (a.status === 'pending' && b.status !== 'pending') return -1;
+      if (a.status !== 'pending' && b.status === 'pending') return 1;
+      const dateA = new Date(a.request_date);
+      const dateB = new Date(b.request_date);
+      return dateB - dateA;
+    });
+    requests.value = sortedData;
     totalCount.value = count || 0;
   }
   loading.value = false;
@@ -311,14 +337,14 @@ function closeUserRemarksModal() {
 
 const downloadExcel = () => {
   const exportData = requests.value.map(row => ({
-    '요청일시': new Date(row.request_date).toLocaleString('sv-SE').slice(0, 16),
+    '요청일시': formatDateTime(row.request_date, false),
     '구분': row.filter_type === 'new' ? '신규' : '이관',
     '거래처명': row.hospital_name,
-    '제약사': row.pharmaceutical_company_name,
+    '제약사': row.pharmacist_name,
     '요청비고': row.user_remarks,
     '처리결과': row.status === 'pending' ? '대기' : row.status === 'approved' ? '승인' : '반려',
     '전달사항': row.admin_comments,
-    '처리일시': row.updated_at && new Date(row.updated_at).getTime() !== new Date(row.request_date).getTime() ? new Date(row.updated_at).toLocaleString('sv-SE').slice(0, 16) : '-',
+    '처리일시': row.updated_at && new Date(row.updated_at).getTime() !== new Date(row.request_date).getTime() ? formatDateTime(row.updated_at, false) : '-',
   }));
   const ws = XLSX.utils.json_to_sheet(exportData);
   const wb = XLSX.utils.book_new();

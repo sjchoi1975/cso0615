@@ -86,12 +86,12 @@
             :field="col.field"
             :header="col.label"
             :sortable="col.sortable || false"
-            :style="{ width: col.width, textAlign: col.align }"
-            :bodyStyle="{ textAlign: col.align }"
+            :style="{ width: col.width, textAlign: col.align, whiteSpace: 'normal', overflow: 'visible', textOverflow: 'unset' }"
+            :bodyStyle="{ textAlign: col.align, whiteSpace: 'normal', overflow: 'visible', textOverflow: 'unset' }"
           >
             <template #body="slotProps">
               <template v-if="col.field === 'index'">
-                {{ first + slotProps.index + 1 }}
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ first + slotProps.index + 1 }}</span>
               </template>
               <template v-else-if="col.field === 'request_date'">
                 {{ formatDateTime(slotProps.data.request_date) }}
@@ -100,7 +100,7 @@
                 {{ formatDateTime(slotProps.data.updated_at) }}
               </template>
               <template v-else-if="col.field === 'filter_type'">
-                {{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.filter_type === 'new' ? '신규' : '이관' }}</span>
               </template>
               <template v-else-if="col.field === 'status'">
                 <select v-model="slotProps.data.status" @change="updateStatus(slotProps.data)" :class="['status-select', `status-select-${slotProps.data.status}`]">
@@ -125,13 +125,42 @@
                 </span>
               </template>
               <template v-else-if="col.field === 'member_name'">
-                <span class="table-title-link">{{ slotProps.data.member_name }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title': slotProps.data.status !== 'rejected' }">{{ slotProps.data.member_name }}</span>
               </template>
               <template v-else-if="col.field === 'hospital_name'">
-                <span class="table-title-link">{{ slotProps.data.hospital_name }}</span>
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title': slotProps.data.status !== 'rejected' }">{{ slotProps.data.hospital_name }}</span>
               </template>
-              <template v-else-if="col.field === 'pharmaceutical_company_name'">
-                <span class="table-title-link">{{ slotProps.data.pharmaceutical_company_name }}</span>
+              <template v-else-if="col.field === 'pharmacist_name'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected', 'table-title': slotProps.data.status !== 'rejected' }">{{ slotProps.data.pharmacist_name }}</span>
+              </template>
+              <template v-else-if="col.field === 'ceo_name'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.ceo_name }}</span>
+              </template>
+              <template v-else-if="col.field === 'created_at'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ formatDateTime(slotProps.data.created_at) }}</span>
+              </template>
+              <template v-else-if="col.field === 'processed_at'">
+                <span v-if="slotProps.data.processed_at">
+                  {{ isMobile.value ? new Date(slotProps.data.processed_at).toISOString().slice(0, 10) : (new Date(slotProps.data.processed_at).getFullYear() + '-' + String(new Date(slotProps.data.processed_at).getMonth() + 1).padStart(2, '0') + '-' + String(new Date(slotProps.data.processed_at).getDate()).padStart(2, '0') + ' ' + String(new Date(slotProps.data.processed_at).getHours()).padStart(2, '0') + ':' + String(new Date(slotProps.data.processed_at).getMinutes()).padStart(2, '0')) }}
+                </span>
+                <span v-else>-</span>
+              </template>
+              <template v-else-if="col.field === 'member_comments'">
+                <span v-if="slotProps.data.member_comments" class="link" @click="openRemarksModal(slotProps.data.member_comments)">
+                  {{ slotProps.data.member_comments }}
+                </span>
+              </template>
+              <template v-else-if="col.field === 'member_biz_no'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.member_biz_no }}</span>
+              </template>
+              <template v-else-if="col.field === 'hospita_biz_no'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_biz_no }}</span>
+              </template>
+              <template v-else-if="col.field === 'hospita_director_name'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_director_name }}</span>
+              </template>
+              <template v-else-if="col.field === 'hospita_address'">
+                <span :class="{ 'rejected-cell': slotProps.data.status === 'rejected' }">{{ slotProps.data.hospita_address }}</span>
               </template>
               <template v-else>
                 <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
@@ -265,9 +294,8 @@ const fetchRequests = async () => {
     .select(`*`, { count: 'exact' });
 
   if (search.value) {
-    query = query.or(`member_name.ilike.%${search.value}%,hospital_name.ilike.%${search.value}%,pharmaceutical_company_name.ilike.%${search.value}%`);
+    query = query.or(`member_name.ilike.%${search.value}%,hospital_name.ilike.%${search.value}%,pharmacist_name.ilike.%${search.value}%`);
   }
-
   if (selectedMember.value) query = query.eq('member_id', selectedMember.value);
   if (selectedHospital.value) query = query.eq('hospital_id', selectedHospital.value);
   if (selectedPharma.value) query = query.eq('pharmaceutical_company_id', selectedPharma.value);
@@ -346,9 +374,14 @@ const onPageChange = (event) => {
 };
 
 const updateStatus = async (request) => {
+  const { data: { user } } = await supabase.auth.getUser();
   const { error } = await supabase
     .from('filtering_requests')
-    .update({ status: request.status, updated_at: new Date().toISOString() })
+    .update({ 
+      status: request.status, 
+      processed_at: new Date().toISOString(),
+      processed_by: user.id
+    })
     .eq('id', request.id);
   if (error) {
     alert('상태 업데이트 실패: ' + error.message);

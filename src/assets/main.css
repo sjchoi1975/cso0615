@@ -1275,7 +1275,7 @@ div.v3dp__datepicker input[type="text"]:focus,
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   color: #222 !important;
-  font-size: var(--font-size-105) !important;
+  font-size: 1.075rem !important;
   font-weight: 500 !important;
   cursor: pointer !important;
 }
@@ -1286,7 +1286,7 @@ div.v3dp__datepicker input[type="text"]:focus,
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   color: #222 !important;
-  font-size: var(--font-size-105) !important;
+  font-size: 1.075rem !important;
   font-weight: 500 !important;
   cursor: pointer !important;
 }
@@ -1488,13 +1488,16 @@ div.v3dp__datepicker input[type="text"]:focus,
 .p-datatable .p-datatable-thead > tr > th {
   /*background: var(--gray-100) !important;*/
   background: var(--gray-100) !important;
-  color: #222 !important;
+  color: #333 !important;
+  font-size: 0.975rem !important;
   font-weight: 500 !important;
   border-bottom: 1px solid var(--border-secondary) !important;
   padding: 0.4rem 0.5rem;
   text-align: center !important;
   transition: background-color 0.2s ease !important;
+  border-bottom: 1px solid var(--gray-600) !important; /* 헤더 하단 테이블 선 명확하게 */
 }
+
 
 .p-datatable .p-datatable-thead > tr > th:hover {
   background: var(--gray-200) !important;
@@ -1503,7 +1506,8 @@ div.v3dp__datepicker input[type="text"]:focus,
 
 .p-datatable .p-datatable-tbody > tr {
   background: #fff !important;
-  color: #333 !important;
+  font-size: 0.975rem !important;
+  color: #444 !important;
   padding: 0 0.5rem !important;
   transition: background 0.2s !important;
 }
@@ -1548,15 +1552,6 @@ div.v3dp__datepicker input[type="text"]:focus,
   border-bottom: none !important;
 }
 
-/* 헤더 하단 테이블 선 명확하게 */
-.p-datatable .p-datatable-thead > tr > th {
-  border-bottom: 1px solid var(--gray-700) !important;
-  color: #222 !important;
-  font-weight: 500 !important;
-  padding: 0.4rem 0.5rem !important;
-  text-align: center !important;
-  transition: background-color 0.2s ease !important;
-}
 
 /* 모든 PrimeVue DataTable 헤더(컬럼명) 가운데 정렬 */
 .p-datatable-column-title {

@@ -120,13 +120,13 @@
                 {{ formatDateTime(slotProps.data.created_at) }}
               </template>
               <template v-else-if="col.field === 'company_name'">
-                <span class="table-title-link">{{ slotProps.data.company_name }}</span>
+                <span class="table-title">{{ slotProps.data.company_name }}</span>
               </template>
               <template v-else-if="col.field === 'hospital_name'">
-                <span class="table-title-link">{{ slotProps.data.hospital_name }}</span>
+                <span class="table-title">{{ slotProps.data.hospital_name }}</span>
               </template>
               <template v-else-if="col.field === 'pharmaceutical_companies'">
-                <span class="table-title-link">{{ formatPharmaceuticalCompanies(slotProps.data.pharmaceutical_companies) }}</span>
+                <span class="table-title">{{ formatPharmaceuticalCompanies(slotProps.data.pharmaceutical_companies) }}</span>
               </template>
               <template v-else-if="col.field === 'confirm'">
                 <span :class="{ 'text-green-500': slotProps.data.confirm, 'text-red-500': !slotProps.data.confirm }">

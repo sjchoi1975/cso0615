@@ -503,6 +503,8 @@ const submitRequest = async () => {
       filter_type: filterType.value,
       user_remarks: userRemarks.value,
       status: 'pending',
+      created_by: currentUser.value.id, // 생성자 uuid
+      // updated_at, processed_at은 절대 포함하지 않음
     }));
     const { error } = await supabase.from('filtering_requests').insert(requests);
     if (error) throw error;

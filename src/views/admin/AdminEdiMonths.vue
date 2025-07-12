@@ -68,7 +68,7 @@
                 </button>
               </template>
               <template v-else-if="col.field === 'settlement_month'">
-                <span class="table-title-link">{{ slotProps.data.settlement_month }}</span>
+                <span class="table-title">{{ slotProps.data.settlement_month }}</span>
               </template>
               <template v-else-if="col.field === 'remarks'">
                 <span v-if="slotProps.data.remarks" class="link" @click="openNoticeModal(slotProps.data.remarks)">
