@@ -1,5 +1,5 @@
 html {
-  font-size: 13.5px; /* 1rem = 16px (기본값) */
+  font-size: 14px; /* 1rem = 16px (기본값) */
 }
 
 html, body {
@@ -1275,7 +1275,7 @@ div.v3dp__datepicker input[type="text"]:focus,
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   color: #222 !important;
-  font-size: 1.075rem !important;
+  font-size: 1.1rem !important;
   font-weight: 500 !important;
   cursor: pointer !important;
 }
@@ -1286,7 +1286,7 @@ div.v3dp__datepicker input[type="text"]:focus,
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   color: #222 !important;
-  font-size: 1.075rem !important;
+  font-size: 1.1rem !important;
   font-weight: 500 !important;
   cursor: pointer !important;
 }
@@ -2358,8 +2358,8 @@ button.p-paginator-page:hover {
 }
 
 .hospital-address {
-  font-size: 0.95rem !important;
-  color: #666;
+  font-size: 1rem !important;
+  color: #444;
   font-weight: 400;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2367,8 +2367,8 @@ button.p-paginator-page:hover {
 }
 
 .hospital-details {
-  font-size: 0.95rem;
-  color: #666;
+  font-size: 1rem;
+  color: #444;
   font-weight: 400;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2622,21 +2622,21 @@ button.p-paginator-page:hover {
 }
 
 .product-info-header .info-value-pharmacist {
-  color: #212529 !important;
-  font-weight: 400 !important;
+  color: #222 !important;
+  font-weight: 500 !important;
   font-size: 1.1rem !important;
 }
 
 .product-info-header .info-value-product-name {
-  color: #212529 !important;
+  color: #222 !important;
   font-weight: 600 !important;
   font-size: 1.2rem !important;
 }
 
 .product-info-header .info-value-ingredient {
-  color: #666 !important;
+  color: #444 !important;
   font-weight: 400 !important;
-  font-size: 0.9rem !important;
+  font-size: 1rem !important;
 }
 
 /* 거래처 정보 헤더 스타일 */
@@ -2659,21 +2659,21 @@ button.p-paginator-page:hover {
 }
 
 .hospital-info-header .info-value-hospital-name {
-  color: #212529 !important;
+  color: #222 !important;
   font-weight: 600 !important;
   font-size: 1.2rem !important;
 }
 
 .hospital-info-header .info-value-hospital-address {
-  color: #666 !important;
+  color: #444 !important;
   font-weight: 400 !important;
   font-size: 1rem !important;
 }
 
 .hospital-info-header .info-value-hospital-details {
-  color: #666 !important;
+  color: #444 !important;
   font-weight: 400 !important;
-  font-size: 0.9rem !important;
+  font-size: 1rem !important;
 }
 
 
@@ -2687,8 +2687,8 @@ button.p-paginator-page:hover {
 .filtering-history-tabs {
   display: flex;
   width: 100%;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #bbb;
 }
 
 .filtering-history-tab {
@@ -2697,8 +2697,8 @@ button.p-paginator-page:hover {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.0rem;
-  color: #666;
+  font-size: 1.1rem;
+  color: #444;
   border-bottom: 2px solid transparent;
   transition: all 0.2s ease;
   text-align: center;

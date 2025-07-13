@@ -100,7 +100,7 @@ export const productsTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center' },
-      { field: 'pharmacist', label: '제약사', width: '6%', align: 'left', sortable: true },
+      { field: 'pharmacist', label: '제약사', width: '6%', align: 'center', sortable: true },
       { field: 'product_name', label: '제품명', width: '10%', align: 'left', sortable: true },
       { field: 'Ingredient', label: '성분명', width: '10%', align: 'left', sortable: false },
       { field: 'price', label: '약가', width: '4%', align: 'right', sortable: true, format: 'number' },
@@ -129,7 +129,7 @@ export const productsTableConfig = {
     },
     columns: [
         { field: 'index', label: '순번', width: '3%', align: 'center' },
-        { field: 'pharmacist', label: '제약사', width: '6%', align: 'left', sortable: true },
+        { field: 'pharmacist', label: '제약사', width: '6%', align: 'center', sortable: true },
         { field: 'product_name', label: '제품명', width: '10%', align: 'left', sortable: true, },
         { field: 'Ingredient', label: '성분명', width: '10%', align: 'left', sortable: false },
         { field: 'price', label: '약가', width: '4%', align: 'right', sortable: true, format: 'number' },
@@ -597,7 +597,7 @@ export const userProductsTableConfig = {
     },
       columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'pharmacist', label: '제약사', width: '6%', align: 'left', sortable: false },
+      { field: 'pharmacist', label: '제약사', width: '6%', align: 'center', sortable: false },
       { field: 'product_name', label: '제품명', width: '12%', align: 'left', sortable: false },
       { field: 'Ingredient', label: '성분명', width: '14%', align: 'left', sortable: false },
       { field: 'price', label: '약가', width: '6%', align: 'right', sortable: false },
@@ -621,8 +621,8 @@ export const userProductsTableConfig = {
     },
     columns: [
       /*{ field: 'index', label: '순번', width: '4%', align: 'center', sortable: false, frozen: false },*/
-      { field: 'pharmacist', label: '제약사', width: '6%', align: 'left', sortable: false },
-      { field: 'product_name', label: '제품명', width: '12%', align: 'left', sortable: false },
+      { field: 'pharmacist', label: '제약사', width: '6%', align: 'center', sortable: false },
+      { field: 'product_name', label: '제품명', width: '16%', align: 'left', sortable: false },
       /*{ field: 'Ingredient', label: '성분명', width: '14%', align: 'left', sortable: false },*/
       { field: 'price', label: '약가', width: '6%', align: 'right', sortable: false },
       { field: 'commission_rate', label: '수수료율', width: '5%', align: 'center', sortable: false },

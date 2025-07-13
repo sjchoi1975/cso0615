@@ -73,7 +73,7 @@
 
               <template v-if="col.field === 'product_name'">
                 <div class="product-name-wrapper" :data-product-id="slotProps.data.id">
-                  <div class="table-title-link" @click="toggleProductDropdown(slotProps.data.id, slotProps.data)" style="cursor: pointer;">
+                  <div class="table-title" @click="toggleProductDropdown(slotProps.data.id, slotProps.data)" style="cursor: pointer;">
                     {{ slotProps.data.product_name }}
                   </div>
                   <div v-if="isMobile" class="mobile-product-info">
