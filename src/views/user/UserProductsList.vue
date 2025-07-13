@@ -363,7 +363,7 @@ const showApprovedPharmaceuticalsModal = ref(false);
 const selectedProductForApproved = ref(null);
 const approvedPharmaceuticals = ref([]);
 const loadingApprovedPharmaceuticals = ref(false);
-const approvedPharmaceuticalsStatusFilter = ref('approved');
+const approvedPharmaceuticalsStatusFilter = ref('all');
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userProductsTableConfig.mobile : userProductsTableConfig.pc);
@@ -811,7 +811,7 @@ const closeApprovedPharmaceuticalsModal = () => {
   showApprovedPharmaceuticalsModal.value = false;
   selectedProductForApproved.value = null;
   approvedPharmaceuticals.value = [];
-  approvedPharmaceuticalsStatusFilter.value = 'approved';
+  approvedPharmaceuticalsStatusFilter.value = 'all';
 };
 
 // 승인 거래처 필터링된 데이터

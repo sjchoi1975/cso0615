@@ -123,7 +123,7 @@
                       class="hospital-icon" 
                       :class="{ 'inactive-icon': !slotProps.data.telephone }"
                       :title="slotProps.data.telephone ? '전화걸기' : '전화번호 정보 없음'">
-                  <i class="pi pi-phone"></i>
+                  <i class="pi pi-phone-classic"></i>
                 </span>
               </template>
               
@@ -137,7 +137,7 @@
                       class="hospital-icon" 
                       :class="{ 'inactive-icon': !slotProps.data.handphone }"
                       :title="slotProps.data.handphone ? '전화걸기' : '휴대폰번호 정보 없음'">
-                  <i class="pi pi-mobile"></i>
+                  <i class="pi pi-phone"></i>
                 </span>
               </template>
 

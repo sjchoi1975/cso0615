@@ -673,8 +673,8 @@ export const userHospitalsTableConfig = {
       /*{ field: 'business_registration_number', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },*/
       /*{ field: 'director_name', label: '원장명', width: '6%', align: 'center', sortable: true },*/
       { field: 'address', label: '주소', width: '12%', align: 'center', sortable: false, type: 'icon', icon: 'pi-map-marker' },
-      { field: 'telephone', label: '전화', width: '12%', align: 'center', sortable: false, type: 'icon', icon: 'pi-phone' },
-      { field: 'handphone', label: '휴대폰', width: '12%', align: 'center', sortable: false, type: 'icon', icon: 'pi-mobile' },
+      { field: 'telephone', label: '전화', width: '12%', align: 'center', sortable: false, type: 'icon', icon: 'pi-phone-classic' },
+      { field: 'handphone', label: '휴대폰', width: '12%', align: 'center', sortable: false, type: 'icon', icon: 'pi-phone' },
       { field: 'more', label: '더보기', width: '12%', align: 'center', type: 'icon', icon: 'pi-ellipsis-v' }
       /*{ field: 'license', label: '사업자등록증', width: '8%', align: 'center', type: 'icon', icon: 'pi-file' },*/
       /*{ field: 'registered_at', label: '등록일자', width: '8%', align: 'center', sortable: true },*/

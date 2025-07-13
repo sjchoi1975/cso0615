@@ -2630,7 +2630,7 @@ button.p-paginator-page:hover {
 .product-info-header .info-value-product-name {
   color: #222 !important;
   font-weight: 600 !important;
-  font-size: 1.2rem !important;
+  font-size: 1.3rem !important;
 }
 
 .product-info-header .info-value-ingredient {
@@ -2661,7 +2661,7 @@ button.p-paginator-page:hover {
 .hospital-info-header .info-value-hospital-name {
   color: #222 !important;
   font-weight: 600 !important;
-  font-size: 1.2rem !important;
+  font-size: 1.3rem !important;
 }
 
 .hospital-info-header .info-value-hospital-address {
@@ -2782,12 +2782,6 @@ button.p-paginator-page:hover {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
-
-
-
-
-
-
 
 
 
