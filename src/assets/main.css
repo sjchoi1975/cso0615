@@ -2504,6 +2504,223 @@ button.p-paginator-page:hover {
 
 
 
+/* ========================================================================================================= */
+/* 동일성분의약품 모달 스타일
+/* ========================================================================================================= */
+
+/* 동일성분의약품 모달 테이블 스타일 */
+.similar-products-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: var(--font-size-base) !important;
+}
+
+/* 동일성분의약품 모달 내부 테이블 너비 조정 */
+.custom-modal-filtering .table-scroll-x {
+  max-height: calc(100vh - 19rem) !important;
+  overflow-y: auto !important;
+}
+
+.custom-modal-filtering .table-scroll-x .mordal-table {
+  min-width: 520px !important;
+  table-layout: fixed !important;
+}
+
+/* 동일성분의약품 모달 테이블 헤더 고정 */
+.custom-modal-filtering .mordal-table thead {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+  background: var(--primary-lightest) !important;
+}
+
+/* 동일성분의약품 모달 테이블 컬럼별 너비와 정렬 */
+.custom-modal-filtering .mordal-table th:nth-child(1) {
+  width: 100px !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 제약사 헤더 */
+
+.custom-modal-filtering .mordal-table td:nth-child(1) { 
+  width: 100px !important; 
+  text-align: left !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 제약사 데이터 */
+
+.custom-modal-filtering .mordal-table th:nth-child(2) {
+  width: auto !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 제품명 헤더 */
+
+.custom-modal-filtering .mordal-table td:nth-child(2) { 
+  width: auto !important; 
+  text-align: left !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 제품명 데이터 */
+
+.custom-modal-filtering .mordal-table th:nth-child(3) {
+  width: 64px !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 약가 헤더 */
+
+.custom-modal-filtering .mordal-table td:nth-child(3) { 
+  width: 64px !important; 
+  text-align: right !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 약가 데이터 */
+
+.custom-modal-filtering .mordal-table th:nth-child(4) {
+  width: 64px !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 수수료율 헤더 */
+
+.custom-modal-filtering .mordal-table td:nth-child(4) { 
+  width: 64px !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 수수료율 데이터 */
+
+.custom-modal-filtering .mordal-table th:nth-child(5) {
+  width: 64px !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 급여 헤더 */
+
+.custom-modal-filtering .mordal-table td:nth-child(5) { 
+  width: 64px !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 급여 데이터 */
+
+.custom-modal-filtering .mordal-table th:nth-child(6) {
+  width: 90px !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 보험코드 헤더 */
+
+.custom-modal-filtering .mordal-table td:nth-child(6) { 
+  width: 90px !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+} /* 보험코드 데이터 */
+
+.similar-products-table .table-header {
+  display: flex !important;
+  background: var(--primary-lightest) !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  border-bottom: 2px solid var(--primary) !important;
+}
+
+.similar-products-table .table-row {
+  display: flex !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.similar-products-table .table-row:hover {
+  background: #f8f9fa !important;
+}
+
+.similar-products-table .header-cell,
+.similar-products-table .table-cell {
+  padding: 0.75rem 0.5rem !important;
+  text-align: left !important;
+  border-right: 1px solid #e5e7eb !important;
+}
+
+.similar-products-table .header-cell:last-child,
+.similar-products-table .table-cell:last-child {
+  border-right: none !important;
+}
+
+/* 컬럼 너비 설정 */
+.similar-products-table .header-cell:nth-child(1),
+.similar-products-table .table-cell:nth-child(1) { flex: 0 0 120px; } /* 제약사 */
+.similar-products-table .header-cell:nth-child(2),
+.similar-products-table .table-cell:nth-child(2) { flex: 1; } /* 제품명 */
+.similar-products-table .header-cell:nth-child(3),
+.similar-products-table .table-cell:nth-child(3) { flex: 0 0 80px; text-align: right !important; } /* 약가 */
+.similar-products-table .header-cell:nth-child(4),
+.similar-products-table .table-cell:nth-child(4) { flex: 0 0 80px; text-align: center !important; } /* 수수료율 */
+.similar-products-table .header-cell:nth-child(5),
+.similar-products-table .table-cell:nth-child(5) { flex: 0 0 60px; text-align: center !important; } /* 급여 */
+.similar-products-table .header-cell:nth-child(6),
+.similar-products-table .table-cell:nth-child(6) { flex: 0 0 100px; text-align: center !important; } /* 보험코드 */
+
+/* 동일성분의약품 모달 제품 정보 헤더 스타일 */
+.product-info-header {
+  margin-bottom: 1.5rem !important;
+  padding: 0 !important;
+  background: #fff !important;
+  border-radius: var(--border-radius) !important;
+  border: none !important;
+}
+
+.product-info-header .info-row {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.product-info-header .info-row:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* 미사용 - 제약사, 제품명, 성분명 */
+.product-info-header .info-label {
+  font-weight: 600 !important;
+  color: #495057 !important;
+  min-width: 80px !important;
+  margin-right: 1rem !important;
+}
+
+/* 제약사 */
+.product-info-header .info-value-pharmacist {
+  color: #212529 !important;
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+}
+/* 제품명 */
+.product-info-header .info-value-product-name {
+  color: #212529 !important;
+  font-weight: 600 !important;
+  font-size: 1.2rem !important;
+}
+/* 성분명 */
+.product-info-header .info-value-ingredient {
+  color: #666 !important;
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+}
+
+
+
 
 
 

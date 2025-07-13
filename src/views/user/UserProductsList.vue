@@ -141,6 +141,68 @@
         </button>
       </div>
     </teleport>
+
+    <!-- Similar Products Modal -->
+    <div v-if="showSimilarProductsModal" class="custom-modal-overlay">
+      <div class="custom-modal-filtering">
+        <div class="modal-header">
+          <h3 class="modal-title">동일성분의약품</h3>
+        </div>
+        <div class="modal-body">
+          <div v-if="loadingSimilarProducts" class="table-loading-spinner-center">
+            <img src="/spinner.svg" alt="로딩중" />
+          </div>
+          <div v-else-if="similarProducts.length === 0" style="text-align: center; padding: 2rem; color: #666;">
+            동일성분의약품이 없습니다.
+          </div>
+          <div v-else>
+            <!-- 제품 정보 표시 -->
+            <div class="product-info-header">
+              <div class="info-row">
+                <span class="info-value-pharmacist">{{ selectedProductForSimilar?.pharmacist }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-value-product-name">{{ selectedProductForSimilar?.product_name }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-value-ingredient">{{ selectedProductForSimilar?.Ingredient }}</span>
+              </div>
+            </div>
+            
+            <!-- 동일성분의약품 테이블 -->
+            <div class="table-scroll-x">
+              <table class="mordal-table">
+                <thead>
+                  <tr>
+                    <th>제약사</th>
+                    <th>제품명</th>
+                    <th>약가</th>
+                    <th>요율</th>
+                    <th>급여</th>
+                    <th>보험코드</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="product in similarProducts" :key="product.insurance_code">
+                    <td>{{ product.pharmacist }}</td>
+                    <td>{{ product.product_name }}</td>
+                    <td>{{ product.price ? product.price.toLocaleString() : '-' }}</td>
+                    <td>{{ formatCommissionRate(getUserCommission(product)) }}</td>
+                    <td>{{ product.reimbursement }}</td>
+                    <td>{{ product.insurance_code }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="closeSimilarProductsModal" style="flex:1;">
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -171,6 +233,12 @@ const userGrade = ref('');
 const activeDropdown = ref(null);
 const activeDropdownData = ref(null);
 const dropdownStyle = ref({});
+
+// 동일성분의약품 모달 관련
+const showSimilarProductsModal = ref(false);
+const selectedProductForSimilar = ref(null);
+const similarProducts = ref([]);
+const loadingSimilarProducts = ref(false);
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userProductsTableConfig.mobile : userProductsTableConfig.pc);
@@ -419,12 +487,92 @@ const viewProductDetails = async (product) => {
   }
 };
 
-const viewSimilarProducts = (product) => {
+const viewSimilarProducts = async (product) => {
   activeDropdown.value = null;
   activeDropdownData.value = null;
-  // TODO: 동일성분의약품 보기
-  console.log('동일성분의약품 보기:', product);
-  alert('동일성분의약품 보기 기능은 구현 예정입니다.');
+  
+  if (!product.insurance_code) {
+    alert('보험코드 정보가 없습니다.');
+    return;
+  }
+  
+  try {
+    // 1. 해당 제품의 성분코드 조회
+    const { data: ingredientData, error: ingredientError } = await supabase
+      .from('products_ingredient_code')
+      .select('ingredient_code')
+      .eq('insurance_code', product.insurance_code)
+      .single();
+    
+    if (ingredientError) {
+      console.error('Error fetching ingredient code:', ingredientError);
+      alert('성분코드 정보를 찾을 수 없습니다.');
+      return;
+    }
+    
+    if (!ingredientData || !ingredientData.ingredient_code) {
+      alert('해당 제품의 성분코드가 등록되지 않았습니다.');
+      return;
+    }
+    
+    // 성분코드가 있으면 모달 열기
+    selectedProductForSimilar.value = product;
+    showSimilarProductsModal.value = true;
+    loadingSimilarProducts.value = true;
+    similarProducts.value = [];
+    
+    // 2. 같은 성분코드를 가진 모든 보험코드 조회
+    const { data: sameIngredientCodes, error: sameIngredientError } = await supabase
+      .from('products_ingredient_code')
+      .select('insurance_code')
+      .eq('ingredient_code', ingredientData.ingredient_code);
+    
+    if (sameIngredientError) {
+      console.error('Error fetching same ingredient codes:', sameIngredientError);
+      alert('동일성분의약품 조회 중 오류가 발생했습니다.');
+      loadingSimilarProducts.value = false;
+      return;
+    }
+    
+    if (!sameIngredientCodes || sameIngredientCodes.length === 0) {
+      loadingSimilarProducts.value = false;
+      return;
+    }
+    
+    // 3. 현재 base_month의 products 테이블에서 해당 보험코드들 조회
+    const insuranceCodes = sameIngredientCodes.map(item => item.insurance_code);
+    
+    const { data: similarProductsData, error: similarProductsError } = await supabase
+      .from('products')
+      .select('*')
+      .eq('base_month', latestMonth)
+      .eq('status', 'active')
+      .in('insurance_code', insuranceCodes)
+      .order('pharmacist', { ascending: true });
+    
+    if (similarProductsError) {
+      console.error('Error fetching similar products:', similarProductsError);
+      alert('동일성분의약품 조회 중 오류가 발생했습니다.');
+      loadingSimilarProducts.value = false;
+      return;
+    }
+    
+    similarProducts.value = similarProductsData || [];
+    
+  } catch (error) {
+    console.error('Error:', error);
+    alert('동일성분의약품 조회 중 오류가 발생했습니다.');
+  } finally {
+    loadingSimilarProducts.value = false;
+  }
+};
+
+// 동일성분의약품 모달 닫기
+const closeSimilarProductsModal = () => {
+  showSimilarProductsModal.value = false;
+  selectedProductForSimilar.value = null;
+  similarProducts.value = [];
+  loadingSimilarProducts.value = false;
 };
 
 const requestFilter = (product) => {

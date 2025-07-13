@@ -203,8 +203,8 @@
           <span>수정</span>
         </button>
         <button class="dropdown-item" @click="deleteHospital(activeDropdownData)">
-          <i class="pi pi-trash"></i>
-          <span>삭제</span>
+          <i class="pi pi-trash" style="color: var(--danger) !important;"></i>
+          <span style="color: var(--danger) !important;">삭제</span>
         </button>
       </div>
     </teleport>
