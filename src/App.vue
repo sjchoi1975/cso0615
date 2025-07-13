@@ -255,6 +255,9 @@ watch(
       '/hospitals/edit/',
       '/filter/create',
       '/edi/submit/',
+      '/edi/submit/upload',
+      '/edi/submit/detail',
+      '/edi/submit/edit',
       '/settlement/month',
       // =============================
       // [중요] 루트 App.vue에서만 있던 경로 (2024-06-07 기준)
@@ -265,7 +268,12 @@ watch(
     ];
     
     // 동적 라우트를 포함한 페이지 체크
-    const isScrollEnabled = scrollEnabledPages.some(page => newPath === page);
+    const isScrollEnabled = scrollEnabledPages.some(page => {
+      if (page.endsWith('/')) {
+        return newPath.startsWith(page);
+      }
+      return newPath === page;
+    });
     
     if (isScrollEnabled) {
       document.documentElement.classList.add('scroll-enabled');

@@ -79,6 +79,7 @@
           scrollable
           :scrollHeight="tableScrollHeight"
           :style="{ width: tableConfig.tableWidth }"
+          :rowClass="getRowClass"
         >
           <Column
             v-for="col in tableConfig.columns"
@@ -316,7 +317,7 @@ const fetchFilteringRequests = async () => {
   loading.value = true;
   
   try {
-    let query = supabase.from('admin_filter_list_view').select('*', { count: 'exact' });
+    let query = supabase.from('filtering_requests_view').select('*', { count: 'exact' });
     
     // 검색 버튼 클릭 시에만 필터 적용
     if (isSearched.value) {
@@ -333,7 +334,7 @@ const fetchFilteringRequests = async () => {
     
     const from = first.value;
     const to = from + pageSize.value - 1;
-    query = query.range(from, to).order('created_at', { ascending: false });
+    query = query.range(from, to);
     
     const { data, error, count } = await query;
     
@@ -345,7 +346,15 @@ const fetchFilteringRequests = async () => {
       hospitalOptions.value = [];
       pharmaOptions.value = [];
     } else {
-      filteringRequests.value = data || [];
+      // 관리자와 동일한 정렬: 1. 미처리건(대기)이 위, 2. 각 그룹 내 최신순
+      const sortedData = (data || []).sort((a, b) => {
+        if (a.status === 'pending' && b.status !== 'pending') return -1;
+        if (a.status !== 'pending' && b.status === 'pending') return 1;
+        const dateA = new Date(a.created_at);
+        const dateB = new Date(b.created_at);
+        return dateB - dateA;
+      });
+      filteringRequests.value = sortedData;
       totalCount.value = count || 0;
       
       // 검색 결과를 기반으로 필터 옵션 업데이트
@@ -397,6 +406,14 @@ const onClearSearch = () => {
     // 검색 전: 검색어만 삭제
     search.value = '';
   }
+};
+
+// 행 클래스 결정 함수
+const getRowClass = (data) => {
+  if (data.status === 'pending') {
+    return 'pending-filter-row';
+  }
+  return '';
 };
 
 onMounted(() => {

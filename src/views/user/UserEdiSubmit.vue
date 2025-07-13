@@ -77,8 +77,18 @@
               <span v-if="col.type === 'index'">{{ slotProps.index + 1 }}</span>
 
               <span v-if="col.field === 'hospital_name'">
-                <div class="table-title">
+                <!-- PC: 거래처명만 표시 -->
+                <div v-if="screenWidth > 768" class="table-title">
                   {{ slotProps.data.hospital_name }}
+                </div>
+
+                <!-- 모바일: 거래처명 + 주소 + 사업자번호/원장명 -->
+                <div v-else class="mobile-hospital-info">
+                  <div class="table-title">{{ slotProps.data.hospital_name }}</div>
+                  <div class="hospital-address">{{ slotProps.data.address }}</div>
+                  <div class="hospital-details">
+                    {{ slotProps.data.business_registration_number }} / {{ slotProps.data.director_name }}
+                  </div>
                 </div>
               </span>
 

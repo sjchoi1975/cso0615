@@ -22,7 +22,7 @@
           <i class="pi pi-search search-btn-icon" @click="search.length >= 2 && onSearch()"
             style="position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
         </div>
-
+        
       </div>
     </div>
     
@@ -77,8 +77,18 @@
               </template>
 
               <template v-if="col.field === 'hospital_name'">
-                <div class="table-title-link">
+                <!-- PC: 거래처명만 표시 -->
+                <div v-if="screenWidth > 768" class="table-title-link">
                   {{ slotProps.data.hospital_name }}
+                </div>
+
+                <!-- 모바일: 거래처명 + 주소 + 사업자번호/원장명 -->
+                <div v-else class="mobile-hospital-info">
+                  <div class="table-title-link">{{ slotProps.data.hospital_name }}</div>
+                  <div class="hospital-address">{{ slotProps.data.address }}</div>
+                  <div class="hospital-details">
+                    {{ slotProps.data.business_registration_number }} / {{ slotProps.data.director_name }}
+                  </div>
                 </div>
               </template>
 
@@ -89,12 +99,63 @@
                 <Button icon="pi pi-trash" class="p-button-rounded p-button-text btn-icon-danger" @click="confirmDeleteMapping(slotProps.data)" />
               </template>
 
+              <template v-else-if="col.field === 'address'">
+                <!-- PC: 주소 텍스트 표시 -->
+                <span v-if="screenWidth > 768" :title="slotProps.data.address">
+                  {{ slotProps.data.address || '-' }}
+                </span>
+                <!-- 모바일: 지도 아이콘 (활성/비활성) -->
+                <span v-else @click="slotProps.data.address ? openMap(slotProps.data.address) : null" 
+                      class="hospital-icon" 
+                      :class="{ 'inactive-icon': !slotProps.data.address }"
+                      :title="slotProps.data.address ? '지도에서 보기' : '주소 정보 없음'">
+                  <i class="pi pi-map-marker"></i>
+                </span>
+              </template>
+              
+              <template v-else-if="col.field === 'telephone'">
+                <!-- PC: 전화번호 텍스트 표시 -->
+                <span v-if="screenWidth > 768">
+                  {{ slotProps.data.telephone || '-' }}
+                </span>
+                <!-- 모바일: 전화 아이콘 (활성/비활성) -->
+                <span v-else @click="slotProps.data.telephone ? makeCall(slotProps.data.telephone) : null" 
+                      class="hospital-icon" 
+                      :class="{ 'inactive-icon': !slotProps.data.telephone }"
+                      :title="slotProps.data.telephone ? '전화걸기' : '전화번호 정보 없음'">
+                  <i class="pi pi-phone"></i>
+                </span>
+              </template>
+              
+              <template v-else-if="col.field === 'handphone'">
+                <!-- PC: 휴대폰번호 텍스트 표시 -->
+                <span v-if="screenWidth > 768">
+                  {{ slotProps.data.handphone || '-' }}
+                </span>
+                <!-- 모바일: 휴대폰 아이콘 (활성/비활성) -->
+                <span v-else @click="slotProps.data.handphone ? makeCall(slotProps.data.handphone) : null" 
+                      class="hospital-icon" 
+                      :class="{ 'inactive-icon': !slotProps.data.handphone }"
+                      :title="slotProps.data.handphone ? '전화걸기' : '휴대폰번호 정보 없음'">
+                  <i class="pi pi-mobile"></i>
+                </span>
+              </template>
+
               <template v-else-if="col.type === 'icon' && col.field === 'license'">
                 <span v-if="slotProps.data.business_license_file" @click="openFileModal(slotProps.data)" style="cursor:pointer;">
                   <i class="pi pi-file biz-doc-icon"></i>
                 </span>
-                <span v-else></span>
+                <span v-else>-</span>
               </template>
+              
+              <template v-else-if="col.type === 'icon' && col.field === 'more'">
+                <div class="more-dropdown-wrapper" :data-hospital-id="slotProps.data.id">
+                  <span @click="toggleMoreDropdown(slotProps.data.id)" class="more-icon" title="더보기">
+                    <i class="pi pi-ellipsis-v"></i>
+                  </span>
+                </div>
+              </template>
+              
               <template v-else-if="col.field === 'registered_at' || col.field === 'updated_at'">
                 {{ formatDate(slotProps.data[col.field]) }}
               </template>
@@ -119,6 +180,35 @@
     </div>
     -->
 
+    <!-- More Dropdown (Portal to body) -->
+    <teleport to="body">
+      <div v-if="activeDropdown" class="more-dropdown-box" :style="dropdownStyle">
+        <button class="dropdown-item" @click="requestFilter(activeDropdownData)">
+          <i class="pi pi-filter"></i>
+          <span>필터링 요청</span>
+        </button>
+        <button class="dropdown-item" @click="viewApprovedPharmaceuticals(activeDropdownData)">
+          <i class="pi pi-check-circle"></i>
+          <span>승인 제약사</span>
+        </button>
+        <button class="dropdown-item" 
+                @click="viewBusinessLicense(activeDropdownData)"
+                :disabled="!activeDropdownData?.business_license_file"
+                :class="{ 'dropdown-item-disabled': !activeDropdownData?.business_license_file }">
+          <i class="pi pi-file"></i>
+          <span>사업자등록증</span>
+        </button>
+        <button class="dropdown-item" @click="editHospital(activeDropdownData)">
+          <i class="pi pi-pencil"></i>
+          <span>수정</span>
+        </button>
+        <button class="dropdown-item" @click="deleteHospital(activeDropdownData)">
+          <i class="pi pi-trash"></i>
+          <span>삭제</span>
+        </button>
+      </div>
+    </teleport>
+
     <!-- File Viewer Modal -->
     <div v-if="showFileModal" class="custom-modal-overlay">
       <div class="custom-modal">
@@ -142,7 +232,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
@@ -158,6 +248,7 @@ const router = useRouter();
 
 // Component state
 const allHospitals = ref([]);
+const screenWidth = ref(window.innerWidth);
 const hospitals = ref([]);
 const loading = ref(false);
 const search = ref('');
@@ -172,6 +263,11 @@ const isSearched = ref(false);
 const showFileModal = ref(false);
 const fileUrl = ref('');
 const currentHospital = ref(null);
+
+// More dropdown state
+const activeDropdown = ref(null);
+const activeDropdownData = ref(null);
+const dropdownStyle = ref({});
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userHospitalsTableConfig.mobile : userHospitalsTableConfig.pc);
@@ -309,9 +405,106 @@ const onReset = () => {
   }
 };
 
+const handleResize = () => {
+  screenWidth.value = window.innerWidth;
+};
+
 onMounted(() => {
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('click', handleClickOutside);
     fetchHospitals(first.value, pageSize.value);
 });
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+  document.removeEventListener('click', handleClickOutside);
+});
+
+// 외부 클릭 시 드롭다운 닫기
+const handleClickOutside = (event) => {
+  if (activeDropdown.value && !event.target.closest('.more-dropdown-wrapper') && !event.target.closest('.more-dropdown-box')) {
+    activeDropdown.value = null;
+    activeDropdownData.value = null;
+  }
+};
+
+// 지도 열기 함수
+const openMap = (address) => {
+  const encodedAddress = encodeURIComponent(address);
+  window.open(`https://map.kakao.com/link/search/${encodedAddress}`, '_blank');
+};
+
+// 전화걸기 함수
+const makeCall = (phoneNumber) => {
+  if (!phoneNumber) return;
+  // 전화번호 정리 (하이픈 제거)
+  const cleanNumber = phoneNumber.replace(/-/g, '');
+  window.location.href = `tel:${cleanNumber}`;
+};
+
+// 더보기 드롭다운 토글
+const toggleMoreDropdown = (hospitalId) => {
+  if (activeDropdown.value === hospitalId) {
+    activeDropdown.value = null;
+    activeDropdownData.value = null;
+  } else {
+    activeDropdown.value = hospitalId;
+    activeDropdownData.value = hospitals.value.find(h => h.id === hospitalId);
+    
+    // 드롭다운 위치 계산
+    setTimeout(() => {
+      const dropdownElement = document.querySelector(`.more-dropdown-wrapper[data-hospital-id="${hospitalId}"]`);
+      if (dropdownElement) {
+        const rect = dropdownElement.getBoundingClientRect();
+        dropdownStyle.value = {
+          position: 'fixed',
+          top: `${rect.bottom + 5}px`,
+          left: `${rect.left - 140}px`, // 드롭다운 너비(160px)에서 아이콘 위치 조정
+          zIndex: 10000
+        };
+      }
+    }, 0);
+  }
+};
+
+// 더보기 드롭다운 메뉴 액션들
+const requestFilter = (hospital) => {
+  activeDropdown.value = null;
+  activeDropdownData.value = null;
+  // TODO: 필터링 요청 페이지로 이동
+  console.log('필터링 요청:', hospital);
+  alert('필터링 요청 기능은 구현 예정입니다.');
+};
+
+const viewApprovedPharmaceuticals = (hospital) => {
+  activeDropdown.value = null;
+  activeDropdownData.value = null;
+  // TODO: 승인 제약사 보기
+  console.log('승인 제약사 보기:', hospital);
+  alert('승인 제약사 보기 기능은 구현 예정입니다.');
+};
+
+const viewBusinessLicense = (hospital) => {
+  activeDropdown.value = null;
+  activeDropdownData.value = null;
+  if (hospital.business_license_file) {
+    openFileModal(hospital);
+  } else {
+    alert('사업자등록증이 등록되지 않았습니다.');
+  }
+};
+
+const editHospital = (hospital) => {
+  activeDropdown.value = null;
+  activeDropdownData.value = null;
+  goToEditPage(hospital.id);
+};
+
+const deleteHospital = (hospital) => {
+  activeDropdown.value = null;
+  activeDropdownData.value = null;
+  confirmDeleteMapping(hospital);
+};
 
 const getPublicUrl = (filePath) => {
   if (!filePath) return '';

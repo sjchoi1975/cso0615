@@ -288,7 +288,7 @@ const fetchRequests = async () => {
   }
 
   let query = supabase
-    .from('admin_filter_list_view')
+    .from('filtering_requests_view')
     .select(`*`, { count: 'exact' })
     .eq('member_id', user.id);
 
