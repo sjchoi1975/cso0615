@@ -488,9 +488,22 @@ const toggleMoreDropdown = (hospitalId) => {
 const requestFilter = (hospital) => {
   activeDropdown.value = null;
   activeDropdownData.value = null;
-  // TODO: 필터링 요청 페이지로 이동
-  console.log('필터링 요청:', hospital);
-  alert('필터링 요청 기능은 구현 예정입니다.');
+  
+  console.log('🏥 필터링 요청할 거래처 정보:', hospital);
+  
+  // 거래처 정보를 쿼리 파라미터로 전달하여 필터링 요청 페이지로 이동
+  router.push({
+    path: '/filter/create',
+    query: {
+      hospital_id: hospital.id.toString(),
+      hospital_name: hospital.hospital_name || '',
+      hospital_address: hospital.address || '',
+      hospital_director: hospital.director_name || '',
+      hospital_business_number: hospital.business_registration_number || '',
+      hospital_telephone: hospital.telephone || '',
+      hospital_handphone: hospital.handphone || ''
+    }
+  });
 };
 
 const viewApprovedPharmaceuticals = (hospital) => {

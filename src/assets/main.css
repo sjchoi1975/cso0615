@@ -2686,6 +2686,7 @@ button.p-paginator-page:hover {
 .product-info-header .info-row {
   display: flex !important;
   align-items: center !important;
+  margin-bottom: 0.2rem !important;
 }
 
 .product-info-header .info-row:last-child {
@@ -2704,7 +2705,7 @@ button.p-paginator-page:hover {
 .product-info-header .info-value-pharmacist {
   color: #212529 !important;
   font-weight: 400 !important;
-  font-size: 1rem !important;
+  font-size: 1.1rem !important;
 }
 /* 제품명 */
 .product-info-header .info-value-product-name {
@@ -2716,7 +2717,7 @@ button.p-paginator-page:hover {
 .product-info-header .info-value-ingredient {
   color: #666 !important;
   font-weight: 400 !important;
-  font-size: 1rem !important;
+  font-size: 1.0rem !important;
 }
 
 

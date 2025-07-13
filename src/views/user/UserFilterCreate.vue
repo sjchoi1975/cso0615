@@ -15,11 +15,15 @@
         <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="new" /> 신규 거래처</label>
       </div>
       <!-- 거래처 선택 버튼 (등록 거래처 선택 시만 노출) -->
-      <div v-if="hospitalSelectionType === 'existing'" style="margin-bottom: 1rem;">
+      <div v-if="hospitalSelectionType === 'existing' && !hospitalInfo.hospital_name" style="margin-bottom: 1rem;">
         <button type="button" class="btn-select-wide" @click="openHospitalModal" style="width: 100%;">거래처 선택</button>
       </div>
+      <!-- 거래처 변경 버튼 (거래처가 이미 선택된 경우) -->
+      <div v-if="hospitalSelectionType === 'existing' && hospitalInfo.hospital_name" style="margin-bottom: 1rem;">
+        <button type="button" class="btn-select-wide" @click="openHospitalModal" style="width: 100%;">거래처 변경</button>
+      </div>
       <!-- 등록 거래처 정보 표시 (선택된 경우) -->
-      <div v-if="hospitalSelectionType === 'existing' && hospitalInfo.id" class="selected-hospital-info" style="margin-top: -1rem; margin-bottom: 2rem;">
+      <div v-if="hospitalSelectionType === 'existing' && (hospitalInfo.id || hospitalInfo.hospital_name)" class="selected-hospital-info" style="margin-top: -1rem; margin-bottom: 2rem;">
         <div style="font-size:1.2rem; color:#444; font-weight:600; margin-left: 1rem;">{{ hospitalInfo.hospital_name }}</div>
         <div style="font-size:1rem; color:#666; font-weight:400; margin-left: 1rem;">{{ hospitalInfo.address }}</div>
         <div style="font-size:1rem; color:#666; font-weight:400; margin-left: 1rem;">{{ hospitalInfo.director_name }} | {{ hospitalInfo.business_registration_number }}</div>
@@ -165,11 +169,12 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { supabase } from '@/supabase';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = useRouter();
+const route = useRoute();
 
 // 폼 데이터
 const filterType = ref('new');
@@ -418,6 +423,26 @@ const fetchPharmas = async () => {
   
   if (!error) {
     allPharmas.value = data;
+    
+    // 제약사 데이터 로딩 완료 후 쿼리 파라미터에서 제약사 자동 선택 처리
+    const query = route.query;
+    if (query.company_id && query.company_name) {
+      const companyId = parseInt(query.company_id);
+      const companyName = query.company_name;
+      
+      console.log(`🔍 제약사 자동 선택 시도: ID=${companyId}, Name=${companyName}`);
+      console.log(`📋 로딩된 제약사 목록:`, allPharmas.value.map(p => `${p.id}: ${p.company_name}`));
+      
+      // 제약사 목록에서 해당 제약사 찾기
+      const matchedCompany = allPharmas.value.find(company => company.id === companyId);
+      
+      if (matchedCompany) {
+        selectedPharmas.value = [matchedCompany];
+        console.log(`✅ 제약사 자동 선택 완료: ${matchedCompany.company_name}`);
+      } else {
+        console.log(`❌ 제약사 ID ${companyId}를 찾을 수 없습니다.`);
+      }
+    }
   } else {
     console.error('제약사 데이터 조회 실패:', error);
   }
@@ -522,9 +547,42 @@ const goBack = () => {
   router.push('/filter/list');
 };
 
+// 쿼리 파라미터 처리 함수
+const processQueryParams = async () => {
+  const query = route.query;
+  
+  console.log('🔍 쿼리 파라미터:', query);
+  
+  // 거래처 정보가 쿼리 파라미터로 전달된 경우
+  if (query.hospital_id) {
+    console.log('✅ 거래처 정보 쿼리 파라미터 발견');
+    
+    hospitalSelectionType.value = 'existing';
+    hospitalInfo.value = {
+      id: parseInt(query.hospital_id),
+      hospital_name: query.hospital_name || '',
+      address: query.hospital_address || '',
+      director_name: query.hospital_director || '',
+      business_registration_number: query.hospital_business_number || '',
+      // 추가 필드들
+      telephone: query.hospital_telephone || '',
+      handphone: query.hospital_handphone || ''
+    };
+    
+    console.log('🏥 설정된 거래처 정보:', hospitalInfo.value);
+  }
+  
+  // 제약사 자동 선택은 fetchPharmas() 함수에서 처리됨
+};
+
 onMounted(async () => {
   await getCurrentUser();
   await fetchMyHospitals();
+  
+  // 거래처 쿼리 파라미터 처리 (제약사 로드 전에 실행)
+  await processQueryParams();
+  
+  // 제약사 데이터 로드 (내부에서 제약사 자동 선택 처리)
   await fetchPharmas();
 });
 

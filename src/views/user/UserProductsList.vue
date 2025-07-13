@@ -208,6 +208,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -217,7 +218,9 @@ import { userProductsTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { findMatchingCompany, logMatchingResult } from '@/utils/companyMatcher';
 
+const router = useRouter();
 const search = ref('');
 const appliedSearch = ref('');
 const isSearched = ref(false);
@@ -575,12 +578,49 @@ const closeSimilarProductsModal = () => {
   loadingSimilarProducts.value = false;
 };
 
-const requestFilter = (product) => {
+const requestFilter = async (product) => {
   activeDropdown.value = null;
   activeDropdownData.value = null;
-  // TODO: 필터링 요청 페이지로 이동
-  console.log('필터링 요청:', product);
-  alert('필터링 요청 기능은 구현 예정입니다.');
+  
+  try {
+    // 제약사 목록 조회
+    const { data: pharmaceuticalCompanies, error } = await supabase
+      .from('pharmaceutical_companies')
+      .select('*')
+      .eq('filtering_status', 'active')
+      .order('company_name');
+    
+    if (error) {
+      console.error('제약사 데이터 조회 실패:', error);
+      // 제약사 정보 없이 필터링 요청 페이지로 이동
+      router.push('/filter/create');
+      return;
+    }
+    
+    // 제품의 pharmacist와 일치하는 제약사 찾기
+    const matchedCompany = findMatchingCompany(product.pharmacist, pharmaceuticalCompanies);
+    
+    // 매칭 결과 로깅
+    logMatchingResult(product.pharmacist, matchedCompany);
+    
+    // 필터링 요청 페이지로 이동 (제약사 정보가 있으면 쿼리 파라미터로 전달)
+    if (matchedCompany) {
+      router.push({
+        path: '/filter/create',
+        query: {
+          company_id: matchedCompany.id,
+          company_name: matchedCompany.company_name
+        }
+      });
+    } else {
+      // 매칭되는 제약사가 없으면 그냥 필터링 요청 페이지로 이동
+      router.push('/filter/create');
+    }
+    
+  } catch (error) {
+    console.error('필터링 요청 처리 중 오류:', error);
+    alert('필터링 요청 처리 중 오류가 발생했습니다.');
+  }
 };
 
 const viewApprovedPharmaceuticals = (product) => {
