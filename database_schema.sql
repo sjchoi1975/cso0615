@@ -358,6 +358,36 @@ FROM
         AND fc.member_id = ef.member_id 
         AND fc.hospital_id = ef.hospital_id;
 
+-- 제품 상세정보 URL 테이블
+CREATE TABLE IF NOT EXISTS products_mfds (
+  id SERIAL PRIMARY KEY,
+  insurance_code VARCHAR(20) NOT NULL UNIQUE,
+  detail_url TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Add RLS policy for products_mfds
+ALTER TABLE products_mfds ENABLE ROW LEVEL SECURITY;
+
+-- Allow read access for authenticated users
+CREATE POLICY "Allow read access for authenticated users"
+ON products_mfds
+FOR SELECT
+TO authenticated
+USING (true);
+
+-- Allow all access for service_role
+CREATE POLICY "Allow all access for service_role"
+ON products_mfds
+FOR ALL
+TO service_role
+USING (true)
+WITH CHECK (true);
+
+-- Create index for faster lookups
+CREATE INDEX IF NOT EXISTS idx_products_mfds_insurance_code ON products_mfds(insurance_code);
+
 COMMIT;
 
 --

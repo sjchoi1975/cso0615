@@ -2337,14 +2337,14 @@ button.p-paginator-page:hover {
 .mobile-hospital-info {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.1rem;
   margin-left: 1.0rem;
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
 }
 
 .hospital-address {
-  font-size: 0.9rem !important;
+  font-size: 0.95rem !important;
   color: #666;
   font-weight: 400;
   overflow: hidden;
@@ -2353,13 +2353,85 @@ button.p-paginator-page:hover {
 }
 
 .hospital-details {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #666;
   font-weight: 400;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+
+/* ========================================================================================================= */
+/* 모바일 제품 정보 스타일 (제품 목록용)
+/* ========================================================================================================= */
+
+.mobile-product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-left: 0;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.product-ingredient {
+  font-size: 0.95rem !important;
+  color: #666;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-pharmacist {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  line-height: 1.4 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+
+/* ========================================================================================================= */
+/* Frozen 컬럼 스타일
+/* ========================================================================================================= */
+
+.p-datatable .p-datatable-thead > tr > th.p-frozen-column {
+  position: sticky !important;
+  z-index: 1 !important;
+  background: #f8f9fa !important;
+}
+
+.p-datatable .p-datatable-tbody > tr > td.p-frozen-column {
+  position: sticky !important;
+  z-index: 1 !important;
+  background: #ffffff !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:nth-child(even) > td.p-frozen-column {
+  background: #f8f9fa !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover > td.p-frozen-column {
+  background: #e3f2fd !important;
+}
+
+/* 오른쪽 frozen 컬럼 */
+.p-datatable .p-datatable-thead > tr > th.p-frozen-column-right {
+  right: 0 !important;
+  border-left: 1px solid #dee2e6 !important;
+}
+
+.p-datatable .p-datatable-tbody > tr > td.p-frozen-column-right {
+  right: 0 !important;
+  border-left: 1px solid #dee2e6 !important;
+}
+
 
 /* ========================================================================================================= */
 /* 더보기 드롭다운 스타일

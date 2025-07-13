@@ -64,6 +64,7 @@
             :style="{ width: col.width, textAlign: col.align }"
             :bodyStyle="{ textAlign: col.align }"
             :frozen="col.frozen"
+            :frozenPosition="col.frozenPosition"
           >
             <template #body="slotProps">
               <template v-if="col.field === 'index'">
@@ -71,8 +72,13 @@
               </template>
 
               <template v-if="col.field === 'product_name'">
-                <div class="table-title-link">
-                  {{ slotProps.data.product_name }}
+                <div class="product-name-wrapper" :data-product-id="slotProps.data.id">
+                  <div class="table-title-link" @click="toggleProductDropdown(slotProps.data.id, slotProps.data)" style="cursor: pointer;">
+                    {{ slotProps.data.product_name }}
+                  </div>
+                  <div v-if="isMobile" class="mobile-product-info">
+                    <div class="product-ingredient">{{ slotProps.data.Ingredient }}</div>
+                  </div>
                 </div>
               </template>
 
@@ -83,6 +89,18 @@
               <template v-else-if="col.field === 'price'">
                 {{ slotProps.data.price != null ? slotProps.data.price.toLocaleString() : '' }}
               </template>
+              
+              <template v-else-if="col.field === 'insurance_code'">
+                {{ slotProps.data.insurance_code }}
+              </template>
+              
+              <template v-else-if="col.field === 'benefit'">
+                {{ slotProps.data.reimbursement || '-' }}
+              </template>
+              <template v-else-if="col.field === 'pharmacist'">
+                <span :title="slotProps.data.pharmacist" :class="{ 'mobile-pharmacist': isMobile }">{{ slotProps.data.pharmacist }}</span>
+              </template>
+              
               <template v-else>
                 <span :title="slotProps.data[col.field]">{{ slotProps.data[col.field] }}</span>
               </template>
@@ -101,11 +119,33 @@
         @page="onPageChange"
       />
     </div>
+
+    <!-- More Dropdown (Portal to body) -->
+    <teleport to="body">
+      <div v-if="activeDropdown" class="more-dropdown-box" :style="dropdownStyle">
+        <button class="dropdown-item" @click="viewProductDetails(activeDropdownData)">
+          <i class="pi pi-info-circle"></i>
+          <span>상세 정보</span>
+        </button>
+        <button class="dropdown-item" @click="viewSimilarProducts(activeDropdownData)">
+          <i class="pi pi-clone"></i>
+          <span>동일성분의약품</span>
+        </button>
+        <button class="dropdown-item" @click="requestFilter(activeDropdownData)">
+          <i class="pi pi-filter"></i>
+          <span>필터링 요청</span>
+        </button>
+        <button class="dropdown-item" @click="viewApprovedPharmaceuticals(activeDropdownData)">
+          <i class="pi pi-check-circle"></i>
+          <span>승인 거래처</span>
+        </button>
+      </div>
+    </teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -126,6 +166,11 @@ const pageSize = ref(200);
 const totalCount = ref(0);
 const tableRef = ref(null);
 const userGrade = ref('');
+
+// 더보기 드롭다운 관련
+const activeDropdown = ref(null);
+const activeDropdownData = ref(null);
+const dropdownStyle = ref({});
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userProductsTableConfig.mobile : userProductsTableConfig.pc);
@@ -223,7 +268,14 @@ onMounted(async () => {
     if (memberError) console.error('Error fetching user grade:', memberError);
     else userGrade.value = memberData.grade;
   }
+  document.addEventListener('click', handleClickOutside);
+  window.addEventListener('scroll', handleScroll, true);
   fetchProducts(first.value, pageSize.value);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+  window.removeEventListener('scroll', handleScroll, true);
 });
 
 const onPageChange = (event) => {
@@ -263,7 +315,7 @@ function downloadExcel() {
     '성분명': item.Ingredient,
     '약가': item.price,
     '수수료율': formatCommissionRate(getUserCommission(item)),
-    '급여': item.benefit,
+    '급여': item.reimbursement,
     '보험코드': item.insurance_code,
     '분류명': item.category,
     '대조약': item.reference_drug,
@@ -282,4 +334,112 @@ function downloadExcel() {
   const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
   saveAs(blob, '수수료율_다운로드.xlsx');
 }
+
+// 외부 클릭 시 드롭다운 닫기
+const handleClickOutside = (event) => {
+  if (activeDropdown.value && !event.target.closest('.product-name-wrapper') && !event.target.closest('.more-dropdown-box')) {
+    activeDropdown.value = null;
+    activeDropdownData.value = null;
+  }
+};
+
+// 스크롤 시 드롭다운 닫기
+const handleScroll = () => {
+  if (activeDropdown.value) {
+    activeDropdown.value = null;
+    activeDropdownData.value = null;
+  }
+};
+
+// 제품명 드롭다운 토글
+const toggleProductDropdown = (productId, productData) => {
+  if (activeDropdown.value === productId) {
+    activeDropdown.value = null;
+    activeDropdownData.value = null;
+  } else {
+    activeDropdown.value = productId;
+    activeDropdownData.value = productData;
+    
+    // 드롭다운 위치 계산
+    setTimeout(() => {
+      const dropdownElement = document.querySelector(`.product-name-wrapper[data-product-id="${productId}"]`);
+      if (dropdownElement) {
+        const rect = dropdownElement.getBoundingClientRect();
+        const dropdownHeight = 200; // 드롭다운 예상 높이
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        
+        // 아래쪽 공간이 부족하고 위쪽 공간이 충분하면 위로 표시
+        const showAbove = spaceBelow < dropdownHeight + 10 && spaceAbove > dropdownHeight + 10;
+        
+        dropdownStyle.value = {
+          position: 'fixed',
+          top: showAbove ? `${rect.top - dropdownHeight - 5}px` : `${rect.bottom + 5}px`,
+          left: `${rect.left}px`,
+          zIndex: 10000
+        };
+      }
+    }, 0);
+  }
+};
+
+// 더보기 드롭다운 메뉴 액션들
+const viewProductDetails = async (product) => {
+  activeDropdown.value = null;
+  activeDropdownData.value = null;
+  
+  if (!product.insurance_code) {
+    alert('보험코드 정보가 없습니다.');
+    return;
+  }
+  
+  try {
+    // products_mfds 테이블에서 해당 보험코드의 상세 URL 조회
+    const { data, error } = await supabase
+      .from('products_mfds')
+      .select('detail_url')
+      .eq('insurance_code', product.insurance_code)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching product details:', error);
+      alert('제품 상세 정보를 찾을 수 없습니다.');
+      return;
+    }
+    
+    if (data && data.detail_url) {
+      // 새 창에서 상세 정보 URL 열기
+      window.open(data.detail_url, '_blank');
+    } else {
+      alert('해당 제품의 상세 정보가 등록되지 않았습니다.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('제품 상세 정보를 불러오는 중 오류가 발생했습니다.');
+  }
+};
+
+const viewSimilarProducts = (product) => {
+  activeDropdown.value = null;
+  activeDropdownData.value = null;
+  // TODO: 동일성분의약품 보기
+  console.log('동일성분의약품 보기:', product);
+  alert('동일성분의약품 보기 기능은 구현 예정입니다.');
+};
+
+const requestFilter = (product) => {
+  activeDropdown.value = null;
+  activeDropdownData.value = null;
+  // TODO: 필터링 요청 페이지로 이동
+  console.log('필터링 요청:', product);
+  alert('필터링 요청 기능은 구현 예정입니다.');
+};
+
+const viewApprovedPharmaceuticals = (product) => {
+  activeDropdown.value = null;
+  activeDropdownData.value = null;
+  // TODO: 승인 거래처 보기
+  console.log('승인 거래처 보기:', product);
+  alert('승인 거래처 보기 기능은 구현 예정입니다.');
+};
 </script>

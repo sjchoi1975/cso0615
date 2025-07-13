@@ -412,17 +412,27 @@ const handleResize = () => {
 onMounted(() => {
     window.addEventListener('resize', handleResize);
     document.addEventListener('click', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, true);
     fetchHospitals(first.value, pageSize.value);
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
   document.removeEventListener('click', handleClickOutside);
+  window.removeEventListener('scroll', handleScroll, true);
 });
 
 // 외부 클릭 시 드롭다운 닫기
 const handleClickOutside = (event) => {
   if (activeDropdown.value && !event.target.closest('.more-dropdown-wrapper') && !event.target.closest('.more-dropdown-box')) {
+    activeDropdown.value = null;
+    activeDropdownData.value = null;
+  }
+};
+
+// 스크롤 시 드롭다운 닫기
+const handleScroll = () => {
+  if (activeDropdown.value) {
     activeDropdown.value = null;
     activeDropdownData.value = null;
   }
@@ -456,9 +466,16 @@ const toggleMoreDropdown = (hospitalId) => {
       const dropdownElement = document.querySelector(`.more-dropdown-wrapper[data-hospital-id="${hospitalId}"]`);
       if (dropdownElement) {
         const rect = dropdownElement.getBoundingClientRect();
+        const dropdownHeight = 250; // 드롭다운 예상 높이 (거래처는 메뉴가 더 많음)
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        
+        // 아래쪽 공간이 부족하고 위쪽 공간이 충분하면 위로 표시
+        const showAbove = spaceBelow < dropdownHeight + 10 && spaceAbove > dropdownHeight + 10;
+        
         dropdownStyle.value = {
           position: 'fixed',
-          top: `${rect.bottom + 5}px`,
+          top: showAbove ? `${rect.top - dropdownHeight - 5}px` : `${rect.bottom + 5}px`,
           left: `${rect.left - 140}px`, // 드롭다운 너비(160px)에서 아이콘 위치 조정
           zIndex: 10000
         };
