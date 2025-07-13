@@ -174,7 +174,7 @@
               <template v-else-if="col.field === 'hospital_name'">
                 <span :class="slotProps.data.status === 'rejected' ? 'rejected-cell' 
                   : slotProps.data.status === 'pending' ? 'pending-cell' 
-                  : 'table-title-link'">{{ slotProps.data.hospital_name }}
+                  : 'table-title'">{{ slotProps.data.hospital_name }}
                 </span>
               </template>
 

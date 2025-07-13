@@ -55,10 +55,13 @@ CREATE TABLE IF NOT EXISTS filtering_requests (
   pharmaceutical_company_id INTEGER REFERENCES pharmaceutical_companies(id) ON DELETE CASCADE,
   filter_type VARCHAR(20) NOT NULL CHECK (filter_type IN ('new', 'transfer')), -- 신규, 이관
   user_remarks TEXT, -- 이용자가 관리자에게 코멘트
-  request_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  status VARCHAR(20) NOT NULL DEFAULT 'checking' CHECK (status IN ('checking', 'approved', 'rejected', 'pending', 'cancelled')), -- 확인중, 승인, 반려, 대기, 취소
-  admin_remarks TEXT, -- 관리자가 회원에게 전달사항
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'cancelled')), -- 대기, 승인, 반려, 취소
+  admin_comments TEXT, -- 관리자가 회원에게 전달사항
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  processed_at TIMESTAMP WITH TIME ZONE, -- 처리 완료 시간
+  processed_by UUID REFERENCES auth.users(id), -- 처리한 관리자
+  created_by UUID REFERENCES auth.users(id) -- 생성자
 );
 
 -- 인덱스 생성

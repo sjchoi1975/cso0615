@@ -1859,6 +1859,20 @@ button.p-paginator-page:hover {
   cursor: default !important;
 }
 
+/* 처리결과와 처리일자 세로 정렬 */
+.status-with-date {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.processed-date {
+  font-size: var(--font-size-90);
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
 
 
 /* 이용자용 */
@@ -2508,14 +2522,7 @@ button.p-paginator-page:hover {
 /* 동일성분의약품 모달 스타일
 /* ========================================================================================================= */
 
-/* 동일성분의약품 모달 테이블 스타일 */
-.similar-products-table {
-  width: 100% !important;
-  border-collapse: collapse !important;
-  font-size: var(--font-size-base) !important;
-}
-
-/* 동일성분의약품 모달 내부 테이블 너비 조정 */
+/* 동일성분의약품 모달 테이블 컨테이너 */
 .custom-modal-filtering .table-scroll-x {
   max-height: calc(100vh - 19rem) !important;
   overflow-y: auto !important;
@@ -2535,146 +2542,67 @@ button.p-paginator-page:hover {
 }
 
 /* 동일성분의약품 모달 테이블 컬럼별 너비와 정렬 */
-.custom-modal-filtering .mordal-table th:nth-child(1) {
-  width: 100px !important; 
-  text-align: center !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-} /* 제약사 헤더 */
-
+/* 제약사 */
+.custom-modal-filtering .mordal-table th:nth-child(1),
 .custom-modal-filtering .mordal-table td:nth-child(1) { 
   width: 100px !important; 
   text-align: left !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-} /* 제약사 데이터 */
+}
 
-.custom-modal-filtering .mordal-table th:nth-child(2) {
-  width: auto !important; 
-  text-align: center !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-} /* 제품명 헤더 */
-
+/* 제품명 */
+.custom-modal-filtering .mordal-table th:nth-child(2),
 .custom-modal-filtering .mordal-table td:nth-child(2) { 
   width: auto !important; 
   text-align: left !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-} /* 제품명 데이터 */
+}
 
-.custom-modal-filtering .mordal-table th:nth-child(3) {
-  width: 64px !important; 
-  text-align: center !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-} /* 약가 헤더 */
-
+/* 약가 */
+.custom-modal-filtering .mordal-table th:nth-child(3),
 .custom-modal-filtering .mordal-table td:nth-child(3) { 
   width: 64px !important; 
   text-align: right !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-} /* 약가 데이터 */
+}
 
-.custom-modal-filtering .mordal-table th:nth-child(4) {
-  width: 64px !important; 
-  text-align: center !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-} /* 수수료율 헤더 */
-
+/* 수수료율 */
+.custom-modal-filtering .mordal-table th:nth-child(4),
 .custom-modal-filtering .mordal-table td:nth-child(4) { 
   width: 64px !important; 
   text-align: center !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-} /* 수수료율 데이터 */
+}
 
-.custom-modal-filtering .mordal-table th:nth-child(5) {
-  width: 64px !important; 
-  text-align: center !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-} /* 급여 헤더 */
-
+/* 급여 */
+.custom-modal-filtering .mordal-table th:nth-child(5),
 .custom-modal-filtering .mordal-table td:nth-child(5) { 
   width: 64px !important; 
   text-align: center !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-} /* 급여 데이터 */
+}
 
-.custom-modal-filtering .mordal-table th:nth-child(6) {
-  width: 90px !important; 
-  text-align: center !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-} /* 보험코드 헤더 */
-
+/* 보험코드 */
+.custom-modal-filtering .mordal-table th:nth-child(6),
 .custom-modal-filtering .mordal-table td:nth-child(6) { 
   width: 90px !important; 
   text-align: center !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-} /* 보험코드 데이터 */
-
-.similar-products-table .table-header {
-  display: flex !important;
-  background: var(--primary-lightest) !important;
-  font-weight: 600 !important;
-  color: var(--text-primary) !important;
-  border-bottom: 2px solid var(--primary) !important;
 }
 
-.similar-products-table .table-row {
-  display: flex !important;
-  border-bottom: 1px solid #e5e7eb !important;
-}
-
-.similar-products-table .table-row:hover {
-  background: #f8f9fa !important;
-}
-
-.similar-products-table .header-cell,
-.similar-products-table .table-cell {
-  padding: 0.75rem 0.5rem !important;
-  text-align: left !important;
-  border-right: 1px solid #e5e7eb !important;
-}
-
-.similar-products-table .header-cell:last-child,
-.similar-products-table .table-cell:last-child {
-  border-right: none !important;
-}
-
-/* 컬럼 너비 설정 */
-.similar-products-table .header-cell:nth-child(1),
-.similar-products-table .table-cell:nth-child(1) { flex: 0 0 120px; } /* 제약사 */
-.similar-products-table .header-cell:nth-child(2),
-.similar-products-table .table-cell:nth-child(2) { flex: 1; } /* 제품명 */
-.similar-products-table .header-cell:nth-child(3),
-.similar-products-table .table-cell:nth-child(3) { flex: 0 0 80px; text-align: right !important; } /* 약가 */
-.similar-products-table .header-cell:nth-child(4),
-.similar-products-table .table-cell:nth-child(4) { flex: 0 0 80px; text-align: center !important; } /* 수수료율 */
-.similar-products-table .header-cell:nth-child(5),
-.similar-products-table .table-cell:nth-child(5) { flex: 0 0 60px; text-align: center !important; } /* 급여 */
-.similar-products-table .header-cell:nth-child(6),
-.similar-products-table .table-cell:nth-child(6) { flex: 0 0 100px; text-align: center !important; } /* 보험코드 */
-
-/* 동일성분의약품 모달 제품 정보 헤더 스타일 */
+/* 동일성분의약품 모달 제품 정보 헤더 */
 .product-info-header {
   margin-bottom: 1.5rem !important;
   padding: 0 !important;
@@ -2693,32 +2621,170 @@ button.p-paginator-page:hover {
   margin-bottom: 0 !important;
 }
 
-/* 미사용 - 제약사, 제품명, 성분명 */
-.product-info-header .info-label {
-  font-weight: 600 !important;
-  color: #495057 !important;
-  min-width: 80px !important;
-  margin-right: 1rem !important;
-}
-
-/* 제약사 */
 .product-info-header .info-value-pharmacist {
   color: #212529 !important;
   font-weight: 400 !important;
   font-size: 1.1rem !important;
 }
-/* 제품명 */
+
 .product-info-header .info-value-product-name {
   color: #212529 !important;
   font-weight: 600 !important;
   font-size: 1.2rem !important;
 }
-/* 성분명 */
+
 .product-info-header .info-value-ingredient {
   color: #666 !important;
   font-weight: 400 !important;
-  font-size: 1.0rem !important;
+  font-size: 0.9rem !important;
 }
+
+/* 거래처 정보 헤더 스타일 */
+.hospital-info-header {
+  margin-bottom: 1.5rem !important;
+  padding: 0 !important;
+  background: #fff !important;
+  border-radius: var(--border-radius) !important;
+  border: none !important;
+}
+
+.hospital-info-header .info-row {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 0.2rem !important;
+}
+
+.hospital-info-header .info-row:last-child {
+  margin-bottom: 0 !important;
+}
+
+.hospital-info-header .info-value-hospital-name {
+  color: #212529 !important;
+  font-weight: 600 !important;
+  font-size: 1.2rem !important;
+}
+
+.hospital-info-header .info-value-hospital-address {
+  color: #666 !important;
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+}
+
+.hospital-info-header .info-value-hospital-details {
+  color: #666 !important;
+  font-weight: 400 !important;
+  font-size: 0.9rem !important;
+}
+
+
+
+/* ========================================================================================================= */
+/* 거래처 - 드롭다운 > 필터링 이력 모달 스타일
+/* ========================================================================================================= */
+
+
+/* 필터링 이력 모달 - 탭 스타일 */
+.filtering-history-tabs {
+  display: flex;
+  width: 100%;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.filtering-history-tab {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.0rem;
+  color: #666;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.filtering-history-tab:hover {
+  color: #333;
+  background-color: #f8f9fa;
+}
+
+.filtering-history-tab.active {
+  color: #1976d2;
+  border-bottom-color: #1976d2;
+  font-weight: 600;
+}
+
+.filtering-history-tab .count {
+  font-weight: 400;
+}
+
+/* 필터링 이력 모달 테이블 스타일 */
+.filtering-history-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: var(--font-size-base) !important;
+}
+
+/* 필터링 이력 모달 내부 테이블 너비 조정 */
+.custom-modal-filtering .filtering-history-table-container {
+  max-height: calc(100vh - 19rem) !important;
+  overflow-y: auto !important;
+}
+
+.custom-modal-filtering .filtering-history-table-container .mordal-table {
+  min-width: 100% !important;
+  table-layout: fixed !important;
+}
+
+/* 필터링 이력 모달 테이블 헤더 고정 */
+.custom-modal-filtering .filtering-history-table thead {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+  background: var(--primary-lightest) !important;
+}
+
+/* 필터링 이력 모달 테이블 컬럼별 너비와 정렬 */
+/* 구분 컬럼 */
+.custom-modal-filtering .filtering-history-table th:nth-child(1),
+.custom-modal-filtering .filtering-history-table td:nth-child(1) { 
+  width: 60px !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* 거래처 정보 컬럼 */
+.custom-modal-filtering .filtering-history-table th:nth-child(2) {
+  width: auto !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.custom-modal-filtering .filtering-history-table td:nth-child(2) { 
+  width: auto !important; 
+  text-align: left !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+/* 처리결과 컬럼 */
+.custom-modal-filtering .filtering-history-table th:nth-child(3),
+.custom-modal-filtering .filtering-history-table td:nth-child(3) { 
+  width: 100px !important; 
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+
+
 
 
 

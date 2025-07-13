@@ -10,6 +10,9 @@ SELECT
     fr.status,
     fr.user_remarks as member_comments,
     fr.admin_comments,
+    fr.processed_at,
+    fr.processed_by,
+    fr.created_by,
     m.company_name as member_name,
     m.ceo_name,
     m.biz_no as member_biz_no,
@@ -17,8 +20,7 @@ SELECT
     h.business_registration_number as hospita_biz_no,
     h.director_name as hospita_director_name,
     h.address as hospita_address,
-    pc.company_name as pharmacist_name,
-    fr.updated_at as processed_at
+    pc.company_name as pharmacist_name
 FROM filtering_requests fr
 LEFT JOIN members m ON fr.member_id = m.id
 LEFT JOIN hospitals h ON fr.hospital_id = h.id

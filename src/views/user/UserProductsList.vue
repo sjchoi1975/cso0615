@@ -137,7 +137,7 @@
         </button>
         <button class="dropdown-item" @click="viewApprovedPharmaceuticals(activeDropdownData)">
           <i class="pi pi-check-circle"></i>
-          <span>승인 거래처</span>
+          <span>필터링 이력</span>
         </button>
       </div>
     </teleport>
@@ -203,6 +203,120 @@
         </div>
       </div>
     </div>
+
+    <!-- Filtering History Modal -->
+    <div v-if="showApprovedPharmaceuticalsModal" class="custom-modal-overlay">
+      <div class="custom-modal-filtering">
+        <div class="modal-header">
+          <h3 class="modal-title">필터링 이력</h3>
+        </div>
+        <div class="modal-body">
+          <div v-if="loadingApprovedPharmaceuticals" class="table-loading-spinner-center">
+            <img src="/spinner.svg" alt="로딩중" />
+          </div>
+          <div v-else-if="approvedPharmaceuticals.length === 0" style="text-align: center; padding: 2rem; color: #666;">
+            필터링 이력이 없습니다.
+          </div>
+          <div v-else>
+            <!-- 제품 정보 표시 -->
+            <div class="product-info-header">
+              <div class="info-row">
+                <span class="info-value-pharmacist">{{ selectedProductForApproved?.pharmacist }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-value-product-name">{{ selectedProductForApproved?.product_name }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-value-ingredient">{{ selectedProductForApproved?.Ingredient }}</span>
+              </div>
+            </div>
+            
+            <!-- 상태 필터 탭 -->
+            <div class="filtering-history-tabs">
+              <button 
+                class="filtering-history-tab"
+                :class="{ active: approvedPharmaceuticalsStatusFilter === 'all' }"
+                @click="approvedPharmaceuticalsStatusFilter = 'all'">
+                전체 <span class="count">({{ approvedPharmaceuticals.length }})</span>
+              </button>
+              <button 
+                class="filtering-history-tab"
+                :class="{ active: approvedPharmaceuticalsStatusFilter === 'approved' }"
+                @click="approvedPharmaceuticalsStatusFilter = 'approved'">
+                승인 <span class="count">({{ getStatusCount('approved') }})</span>
+              </button>
+              <button 
+                class="filtering-history-tab"
+                :class="{ active: approvedPharmaceuticalsStatusFilter === 'rejected' }"
+                @click="approvedPharmaceuticalsStatusFilter = 'rejected'">
+                반려 <span class="count">({{ getStatusCount('rejected') }})</span>
+              </button>
+              <button 
+                class="filtering-history-tab"
+                :class="{ active: approvedPharmaceuticalsStatusFilter === 'pending' }"
+                @click="approvedPharmaceuticalsStatusFilter = 'pending'">
+                대기 <span class="count">({{ getStatusCount('pending') }})</span>
+              </button>
+            </div>
+            
+                        <!-- 필터링 이력 테이블 -->
+            <div class="filtering-history-table-container">
+              <table class="mordal-table filtering-history-table">
+                <thead>
+                  <tr>
+                    <th>구분</th>
+                    <th>거래처</th>
+                    <th v-if="!isMobile">사업자등록번호</th>
+                    <th v-if="!isMobile">원장명</th>
+                    <th v-if="!isMobile">주소</th>
+                    <th>결과</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="pharmaceutical in filteredApprovedPharmaceuticals" :key="pharmaceutical.id">
+                    <td>
+                      {{ pharmaceutical.filter_type === 'new' ? '신규' : '이관' }}
+                    </td>
+                    <td>
+                      <!-- PC: 거래처명만 표시 -->
+                      <div v-if="!isMobile" class="table-title-link">
+                        {{ pharmaceutical.hospital_name }}
+                      </div>
+                      <!-- 모바일: 거래처명 + 주소 + 사업자번호/원장명 -->
+                      <div v-else class="mobile-hospital-info">
+                        <div class="table-title-link">{{ pharmaceutical.hospital_name }}</div>
+                        <div class="hospital-address">{{ pharmaceutical.hospita_address }}</div>
+                        <div class="hospital-details">
+                          {{ pharmaceutical.hospita_biz_no }} / {{ pharmaceutical.hospita_director_name }}
+                        </div>
+                      </div>
+                    </td>
+                    <td v-if="!isMobile">{{ pharmaceutical.hospita_biz_no }}</td>
+                    <td v-if="!isMobile">{{ pharmaceutical.hospita_director_name }}</td>
+                    <td v-if="!isMobile">{{ pharmaceutical.hospita_address }}</td>
+                    <td>
+                      <div class="status-with-date">
+                        <select disabled :class="['status-select-user', `status-select-${pharmaceutical.status}-user`]">
+                          <option value="pending" :selected="pharmaceutical.status === 'pending'">대기</option>
+                          <option value="approved" :selected="pharmaceutical.status === 'approved'">승인</option>
+                          <option value="rejected" :selected="pharmaceutical.status === 'rejected'">반려</option>
+                        </select>
+                        <div class="processed-date">{{ pharmaceutical.processed_at ? pharmaceutical.processed_at.slice(0, 10) : '-' }}</div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="closeApprovedPharmaceuticalsModal" style="flex:1;">
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -219,6 +333,7 @@ import { getTableScrollHeight } from '@/utils/tableHeight';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { findMatchingCompany, logMatchingResult } from '@/utils/companyMatcher';
+import { formatDateTime } from '@/utils/dateFormatter';
 
 const router = useRouter();
 const search = ref('');
@@ -242,6 +357,13 @@ const showSimilarProductsModal = ref(false);
 const selectedProductForSimilar = ref(null);
 const similarProducts = ref([]);
 const loadingSimilarProducts = ref(false);
+
+// 승인 거래처 모달 관련
+const showApprovedPharmaceuticalsModal = ref(false);
+const selectedProductForApproved = ref(null);
+const approvedPharmaceuticals = ref([]);
+const loadingApprovedPharmaceuticals = ref(false);
+const approvedPharmaceuticalsStatusFilter = ref('approved');
 
 const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? userProductsTableConfig.mobile : userProductsTableConfig.pc);
@@ -623,11 +745,89 @@ const requestFilter = async (product) => {
   }
 };
 
-const viewApprovedPharmaceuticals = (product) => {
+const viewApprovedPharmaceuticals = async (product) => {
   activeDropdown.value = null;
   activeDropdownData.value = null;
-  // TODO: 승인 거래처 보기
-  console.log('승인 거래처 보기:', product);
-  alert('승인 거래처 보기 기능은 구현 예정입니다.');
+  
+  try {
+    // 현재 사용자 정보 가져오기
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('사용자 정보를 찾을 수 없습니다.');
+    }
+    
+    // 제약사 정보 추출 (필터링 요청과 동일한 로직)
+    const { data: pharmaceuticalCompanies, error: pharmaError } = await supabase
+      .from('pharmaceutical_companies')
+      .select('*')
+      .eq('filtering_status', 'active')
+      .order('company_name');
+    
+    if (pharmaError) {
+      throw pharmaError;
+    }
+    
+    // 제품의 pharmacist와 일치하는 제약사 찾기
+    const matchedCompany = findMatchingCompany(product.pharmacist, pharmaceuticalCompanies);
+    
+    if (!matchedCompany) {
+      console.log('매칭되는 제약사를 찾을 수 없습니다:', product.pharmacist);
+      alert('필터링 요청 이력이 없습니다.');
+      return;
+    }
+    
+    // filtering_requests_view에서 본인의 요청 중 해당 제약사와 일치하는 것 조회
+    const { data: filteringData, error: filteringError } = await supabase
+      .from('filtering_requests_view')
+      .select('*')
+      .eq('member_id', user.id)
+      .eq('pharmaceutical_company_id', matchedCompany.id)
+      .order('processed_at', { ascending: false });
+    
+    if (filteringError) {
+      throw filteringError;
+    }
+    
+    // 필터링 이력이 전혀 없는 경우 alert 표시
+    if (!filteringData || filteringData.length === 0) {
+      alert('필터링 요청 이력이 없습니다.');
+      return;
+    }
+    
+    // 필터링 이력이 있는 경우에만 모달 표시
+    selectedProductForApproved.value = product;
+    showApprovedPharmaceuticalsModal.value = true;
+    loadingApprovedPharmaceuticals.value = true;
+    approvedPharmaceuticals.value = filteringData;
+    loadingApprovedPharmaceuticals.value = false;
+    
+  } catch (error) {
+    console.error('승인 거래처 조회 실패:', error);
+    alert('필터링 요청 이력이 없습니다.');
+  }
 };
+
+const closeApprovedPharmaceuticalsModal = () => {
+  showApprovedPharmaceuticalsModal.value = false;
+  selectedProductForApproved.value = null;
+  approvedPharmaceuticals.value = [];
+  approvedPharmaceuticalsStatusFilter.value = 'approved';
+};
+
+// 승인 거래처 필터링된 데이터
+const filteredApprovedPharmaceuticals = computed(() => {
+  if (approvedPharmaceuticalsStatusFilter.value === 'all') {
+    return approvedPharmaceuticals.value;
+  }
+  return approvedPharmaceuticals.value.filter(item => item.status === approvedPharmaceuticalsStatusFilter.value);
+});
+
+
+
+// 상태별 카운트 함수
+const getStatusCount = (status) => {
+  return approvedPharmaceuticals.value.filter(item => item.status === status).length;
+};
+
+
 </script>

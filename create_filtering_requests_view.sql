@@ -10,6 +10,9 @@ SELECT
     fr.status,
     fr.user_remarks as member_comments,
     fr.admin_comments,
+    fr.processed_at,
+    fr.processed_by,
+    fr.created_by,
     m.company_name as member_name,
     m.ceo_name,
     m.biz_no as member_biz_no,
@@ -19,8 +22,7 @@ SELECT
     h.address as hospita_address,
     pc.company_name as pharmacist_name,
     CASE WHEN fr.status = 'pending' THEN 0 ELSE 1 END as is_processed,
-    CASE WHEN fr.status = 'pending' THEN fr.created_at ELSE fr.updated_at END as sort_date,
-    fr.updated_at as processed_at
+    CASE WHEN fr.status = 'pending' THEN fr.created_at ELSE COALESCE(fr.processed_at, fr.updated_at) END as sort_date
 FROM filtering_requests fr
 LEFT JOIN members m ON fr.member_id = m.id
 LEFT JOIN hospitals h ON fr.hospital_id = h.id
