@@ -669,13 +669,13 @@ export const userHospitalsTableConfig = {
     },
     columns: [
       /*{ field: 'index', label: '순번', width: '8%', align: 'center', sortable: false },*/
-      { field: 'hospital_name', label: '거래처명', width: '40%', align: 'left', sortable: true },
+      { field: 'hospital_name', label: '거래처명', width: '48%', align: 'left', sortable: true },
       /*{ field: 'business_registration_number', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },*/
       /*{ field: 'director_name', label: '원장명', width: '6%', align: 'center', sortable: true },*/
-      { field: 'address', label: '주소', width: '10%', align: 'center', sortable: false, type: 'icon', icon: 'pi-map-marker' },
-      { field: 'telephone', label: '전화', width: '10%', align: 'center', sortable: false, type: 'icon', icon: 'pi-phone' },
-      { field: 'handphone', label: '휴대폰', width: '10%', align: 'center', sortable: false, type: 'icon', icon: 'pi-mobile' },
-      { field: 'more', label: '더보기', width: '10%', align: 'center', type: 'icon', icon: 'pi-ellipsis-v' }
+      { field: 'address', label: '주소', width: '12%', align: 'center', sortable: false, type: 'icon', icon: 'pi-map-marker' },
+      { field: 'telephone', label: '전화', width: '12%', align: 'center', sortable: false, type: 'icon', icon: 'pi-phone' },
+      { field: 'handphone', label: '휴대폰', width: '12%', align: 'center', sortable: false, type: 'icon', icon: 'pi-mobile' },
+      { field: 'more', label: '더보기', width: '12%', align: 'center', type: 'icon', icon: 'pi-ellipsis-v' }
       /*{ field: 'license', label: '사업자등록증', width: '8%', align: 'center', type: 'icon', icon: 'pi-file' },*/
       /*{ field: 'registered_at', label: '등록일자', width: '8%', align: 'center', sortable: true },*/
       /*{ field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },*/
@@ -770,14 +770,14 @@ export const userEdiSubmitTableConfig = {
     defaultSort: { field: 'hospital_name', order: 'asc' },
     columns: [
       /*{ field: 'index', label: '순번', width: '8%', align: 'center', sortable: false, type: 'index' },*/
-      { field: 'hospital_name', label: '거래처명', width: '24%', align: 'left', sortable: true },
+      { field: 'hospital_name', label: '거래처명', width: '48%', align: 'left', sortable: true },
       /*{ field: 'business_registration_number', label: '사업자등록번호', width: '10%', align: 'center', sortable: true },
       { field: 'director_name', label: '원장명', width: '8%', align: 'center', sortable: true },
       { field: 'address', label: '주소', width: '30%', align: 'left', sortable: true },*/
-      { field: 'prev_month_files', label: '전월', width: '8%', align: 'center', sortable: true },
-      { field: 'current_month_files', label: '당월', width: '8%', align: 'center', sortable: true },
-      { field: 'viewDetail', label: '상세', width: '8%', align: 'center', type: 'icon' },
-      { field: 'submit_button', label: '제출', width: '8%', align: 'center', type: 'icon' }
+      { field: 'prev_month_files', label: '전월', width: '12%', align: 'center', sortable: true },
+      { field: 'current_month_files', label: '당월', width: '12%', align: 'center', sortable: true },
+      { field: 'viewDetail', label: '상세', width: '12%', align: 'center', type: 'icon' },
+      { field: 'submit_button', label: '제출', width: '12%', align: 'center', type: 'icon' }
     ]
   }
 };

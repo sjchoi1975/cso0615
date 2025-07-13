@@ -2337,7 +2337,10 @@ button.p-paginator-page:hover {
 .mobile-hospital-info {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.15rem;
+  margin-left: 1.0rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .hospital-address {
@@ -2359,78 +2362,6 @@ button.p-paginator-page:hover {
 }
 
 /* ========================================================================================================= */
-/* 거래처 아이콘 스타일
-/* ========================================================================================================= */
-
-.hospital-icon {
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  padding: 0.5rem;
-  border-radius: 50%;
-  background-color: #f8f9fa;
-  border: 2px solid #e9ecef;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.2rem;
-  height: 2.2rem;
-}
-
-.hospital-icon:hover {
-  transform: scale(1.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* 비활성 아이콘 스타일 */
-.hospital-icon.inactive-icon {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background-color: #f1f3f4;
-  border-color: #d1d5db;
-}
-
-.hospital-icon.inactive-icon:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.hospital-icon.inactive-icon i {
-  color: #9ca3af !important;
-}
-
-/* 지도 아이콘 */
-.hospital-icon .pi-map-marker {
-  color: #dc3545;
-}
-
-.hospital-icon:hover .pi-map-marker {
-  color: #fff;
-}
-
-.hospital-icon:has(.pi-map-marker):hover {
-  background-color: #dc3545;
-  border-color: #dc3545;
-}
-
-/* 전화 아이콘 */
-.hospital-icon .pi-phone,
-.hospital-icon .pi-mobile {
-  color: #28a745;
-}
-
-.hospital-icon:hover .pi-phone,
-.hospital-icon:hover .pi-mobile {
-  color: #fff;
-}
-
-.hospital-icon:has(.pi-phone):hover,
-.hospital-icon:has(.pi-mobile):hover {
-  background-color: #28a745;
-  border-color: #28a745;
-}
-
-/* ========================================================================================================= */
 /* 더보기 드롭다운 스타일
 /* ========================================================================================================= */
 
@@ -2438,25 +2369,6 @@ button.p-paginator-page:hover {
 .more-dropdown-wrapper {
   position: relative;
   display: inline-block;
-}
-
-.more-icon {
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.3rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  transition: all 0.2s;
-  color: #666;
-}
-
-.more-icon:hover {
-  color: #333;
-  background-color: #f8f9fa;
-  border-radius: 4px;
 }
 
 .more-dropdown-box {

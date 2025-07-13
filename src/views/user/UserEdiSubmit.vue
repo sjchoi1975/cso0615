@@ -102,21 +102,19 @@
                 <span v-if="slotProps.data.prev_month_files != '-'">{{ slotProps.data.prev_month_files }}</span>
                 <span v-else>-</span>
               </span>
-              <Button
-                v-else-if="col.field === 'viewDetail'"
-                icon="pi pi-list"
-                class="p-button-text"
-                @click="goToDetail(slotProps.data)"
-                :disabled="!slotProps.data.submission_count || slotProps.data.submission_count === 0"
-                :class="{ 'p-disabled': !slotProps.data.submission_count || slotProps.data.submission_count === 0 }"
-                :style="(!slotProps.data.submission_count || slotProps.data.submission_count === 0) ? 'opacity: 0.4;' : ''"
-              />
-              <Button
-                v-else-if="col.field === 'submit_button'"
-                icon="pi pi-upload"
-                class="p-button-text"
-                @click="goToUpload(slotProps.data)"
-              />
+              <span v-else-if="col.field === 'viewDetail'" 
+                    @click="(!slotProps.data.submission_count || slotProps.data.submission_count === 0) ? null : goToDetail(slotProps.data)"
+                    class="edi-icon"
+                    :class="{ 'inactive-icon': !slotProps.data.submission_count || slotProps.data.submission_count === 0 }"
+                    :title="(!slotProps.data.submission_count || slotProps.data.submission_count === 0) ? '제출 이력이 없습니다' : '상세 보기'">
+                <i class="pi pi-list"></i>
+              </span>
+              <span v-else-if="col.field === 'submit_button'"
+                    @click="goToUpload(slotProps.data)"
+                    class="edi-icon"
+                    title="파일 제출">
+                <i class="pi pi-upload"></i>
+              </span>
               <span v-else>{{ slotProps.data[col.field] }}</span>
             </template>
           </Column>
