@@ -21,7 +21,7 @@
               v-model="isImportant" 
               class="custom-checkbox"
             />
-            <label for="important" class="label-90-666">중요 공지로 설정 (상단 고정)</label>
+            <label for="important" class="txt-90-666">중요 공지로 설정 (상단 고정)</label>
           </div>
         </div>
         <div class="form-group">

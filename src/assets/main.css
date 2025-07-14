@@ -2493,7 +2493,7 @@ label {
 }
 
 /* 공지사항 - 체크박스 스타일 */
-.label-90-666 {
+.txt-90-666 {
   font-size: 0.9rem !important;
   color: #666 !important;
   cursor: pointer !important;
@@ -2743,6 +2743,8 @@ label {
   text-overflow: ellipsis !important;
 }
 
+
+
 /* placeholder 스타일 통일 - 모든 브라우저 지원 */
 .input::placeholder,
 .input::-webkit-input-placeholder,
@@ -2776,7 +2778,7 @@ textarea.input::placeholder,
 textarea.input::-webkit-input-placeholder,
 textarea.input::-moz-placeholder,
 textarea.input:-ms-input-placeholder {
-  color: #88f !important;
+  color: #888 !important;
   opacity: 1 !important;
   font-size: var(--font-size-90) !important;
   font-weight: normal !important;

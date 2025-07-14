@@ -1,42 +1,44 @@
 <template>
   <div class="board">
-    <form @submit.prevent="onSubmit" class="board-form-720">
-      <div style="margin-bottom: 1.5rem;">
-        <label class="label-05rem">제목</label>
-        <input 
-          v-model="title" 
-          ref="titleInput"
-          class="input" 
-          placeholder="제목을 입력하세요" 
-          required 
-        />
-      </div>
-      <div style="margin-bottom: 1.5rem;">
-        <label class="label-05rem">중요 공지</label>
-        <div class="checkbox-wrapper">
+    <form @submit.prevent="onSubmit" class="board-form-640">
+      <div class="form-grid-2x">
+        <div class="form-group">
+          <label class="label">제목</label>
           <input 
-            type="checkbox" 
-            id="important" 
-            v-model="isImportant" 
-            class="checkbox-input"
+            v-model="title" 
+            ref="titleInput"
+            class="input" 
+            placeholder="제목을 입력하세요" 
+            required 
           />
-          <label for="important" class="label-09-666">중요 공지로 설정 (상단 고정)</label>
+        </div>
+        <div class="form-group">
+          <label class="label">중요 공지</label>
+          <div class="checkbox-wrapper">
+            <input 
+              type="checkbox" 
+              id="important" 
+              v-model="isImportant" 
+              class="custom-checkbox"
+            />
+            <label for="important" class="txt-90-666">중요 공지로 설정 (상단 고정)</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="label">내용</label>
+          <textarea
+            v-model="content"
+            ref="textarea"
+            rows="16"
+            class="input"
+            placeholder="내용을 입력하세요"
+            style="resize: vertical;"
+            @input="autoResize"
+            required
+          ></textarea>
         </div>
       </div>
-      <div style="margin-bottom: 2rem;">
-        <label class="label-05rem">내용</label>
-        <textarea
-          v-model="content"
-          ref="textarea"
-          rows="12"
-          class="input"
-          placeholder="내용을 입력하세요"
-          style="resize: vertical; min-height: 20rem; width: 100%;"
-          @input="autoResize"
-          required
-        ></textarea>
-      </div>
-      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+      <div style="display: flex; gap: 1rem; margin-top: 3rem;">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
         <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canEdit }" style="flex:3;">
           수정

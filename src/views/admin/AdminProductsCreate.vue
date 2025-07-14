@@ -72,14 +72,14 @@
       </div>
       <div style="display: flex; gap: 1rem; margin-top: 3rem;">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="loading" style="flex:3;">등록</button>
+        <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canSubmit }" style="flex:3;">등록</button>
       </div>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
@@ -104,6 +104,11 @@ const status = ref("active");
 const loading = ref(false);
 const router = useRouter();
 
+// 필수 항목이 모두 입력되었는지 확인
+const canSubmit = computed(() => {
+  return pharmacist.value.trim().length > 0 && productName.value.trim().length > 0;
+});
+
 const registerProduct = async () => {
   if (!pharmacist.value || !productName.value) {
     alert("제약사와 제품명을 모두 입력하세요.");
@@ -111,9 +116,9 @@ const registerProduct = async () => {
   }
   try {
     loading.value = true;
-    const commissionAValue = commissionA.value !== undefined && commissionA.value !== null && commissionA.value !== '' ? (parseFloat(commissionA.value) / 100).toFixed(3) : null;
-    const commissionBValue = commissionB.value !== undefined && commissionB.value !== null && commissionB.value !== '' ? (parseFloat(commissionB.value) / 100).toFixed(3) : null;
-    const commissionCValue = commissionC.value !== undefined && commissionC.value !== null && commissionC.value !== '' ? (parseFloat(commissionC.value) / 100).toFixed(3) : null;
+    const commissionAValue = commissionA.value !== undefined && commissionA.value !== null && commissionA.value !== '' ? parseFloat((parseFloat(commissionA.value) / 100).toFixed(3)) : null;
+    const commissionBValue = commissionB.value !== undefined && commissionB.value !== null && commissionB.value !== '' ? parseFloat((parseFloat(commissionB.value) / 100).toFixed(3)) : null;
+    const commissionCValue = commissionC.value !== undefined && commissionC.value !== null && commissionC.value !== '' ? parseFloat((parseFloat(commissionC.value) / 100).toFixed(3)) : null;
     const { error } = await supabase.from('products').insert({
       base_month: baseMonth,
       pharmacist: pharmacist.value,

@@ -195,6 +195,7 @@ const search = ref('');
 const reimbursement = ref('');
 const status = ref('');
 const currentMonth = ref('');
+const defaultMonth = ref(''); // 기본 기준월 저장
 const monthOptions = ref([]);
 const products = ref([]);
 const loading = ref(false);
@@ -209,8 +210,9 @@ const tableRef = ref(null);
 const tableScrollHeight = computed(() => getTableScrollHeight(true));
 
 const isSearchEnabled = computed(() => {
-  // 검색어 2글자 이상 또는 세부 필터(기준월, 급여, 상태) 중 하나라도 선택 시 활성화
-  return search.value.length >= 2 || !!currentMonth.value || !!reimbursement.value || !!status.value;
+  // 검색어 2글자 이상 또는 세부 필터(기준월 변경, 급여, 상태) 중 하나라도 선택 시 활성화
+  const isMonthChanged = currentMonth.value !== defaultMonth.value;
+  return search.value.length >= 2 || isMonthChanged || !!reimbursement.value || !!status.value;
 });
 
 const fetchMonthOptions = async () => {
@@ -227,6 +229,7 @@ const fetchMonthOptions = async () => {
     monthOptions.value = uniqueMonths;
     if (uniqueMonths.length > 0) {
       currentMonth.value = uniqueMonths[0];
+      defaultMonth.value = uniqueMonths[0]; // 기본값 저장
     }
   }
 };
@@ -287,7 +290,7 @@ function onReset() {
     search.value = '';
     reimbursement.value = '';
     status.value = '';
-    currentMonth.value = monthOptions.value.length > 0 ? monthOptions.value[0] : '';
+    currentMonth.value = defaultMonth.value; // 기본값으로 복원
     isSearched.value = false;
     fetchInitialProducts();
   } else {
@@ -426,9 +429,9 @@ const uploadExcel = async (e) => {
       product_name: row['제품명'] || '',
       insurance_code: row['보험코드'] !== undefined && row['보험코드'] !== null ? String(row['보험코드']).padStart(9, '0') : '',
       price: row['약가'] || null,
-      commission_rate_a: row['수수료A'] ? parseFloat(row['수수료A']) : null,
-      commission_rate_b: row['수수료B'] ? parseFloat(row['수수료B']) : null,
-      commission_rate_c: row['수수료C'] ? parseFloat(row['수수료C']) : null,
+      commission_rate_a: row['수수료A'] ? parseFloat(parseFloat(row['수수료A']).toFixed(3)) : null,
+      commission_rate_b: row['수수료B'] ? parseFloat(parseFloat(row['수수료B']).toFixed(3)) : null,
+      commission_rate_c: row['수수료C'] ? parseFloat(parseFloat(row['수수료C']).toFixed(3)) : null,
       Ingredient: row['성분'] || '',
       comparator: row['대조약'] || '',
       reimbursement: row['급여'] || '',
