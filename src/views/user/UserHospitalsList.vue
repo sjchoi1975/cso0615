@@ -106,7 +106,7 @@
                 </span>
                 <!-- 모바일: 지도 아이콘 (활성/비활성) -->
                 <span v-else @click="slotProps.data.address ? openMap(slotProps.data.address) : null" 
-                      class="hospital-icon" 
+                      class="icon" 
                       :class="{ 'inactive-icon': !slotProps.data.address }"
                       :title="slotProps.data.address ? '지도에서 보기' : '주소 정보 없음'">
                   <i class="pi pi-map-marker"></i>
@@ -120,7 +120,7 @@
                 </span>
                 <!-- 모바일: 전화 아이콘 (활성/비활성) -->
                 <span v-else @click="slotProps.data.telephone ? makeCall(slotProps.data.telephone) : null" 
-                      class="hospital-icon" 
+                      class="icon" 
                       :class="{ 'inactive-icon': !slotProps.data.telephone }"
                       :title="slotProps.data.telephone ? '전화걸기' : '전화번호 정보 없음'">
                   <i class="pi pi-phone-classic"></i>
@@ -134,7 +134,7 @@
                 </span>
                 <!-- 모바일: 휴대폰 아이콘 (활성/비활성) -->
                 <span v-else @click="slotProps.data.handphone ? makeCall(slotProps.data.handphone) : null" 
-                      class="hospital-icon" 
+                      class="icon" 
                       :class="{ 'inactive-icon': !slotProps.data.handphone }"
                       :title="slotProps.data.handphone ? '전화걸기' : '휴대폰번호 정보 없음'">
                   <i class="pi pi-phone"></i>

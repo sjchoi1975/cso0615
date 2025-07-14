@@ -104,14 +104,14 @@
               </span>
               <span v-else-if="col.field === 'viewDetail'" 
                     @click="(!slotProps.data.submission_count || slotProps.data.submission_count === 0) ? null : goToDetail(slotProps.data)"
-                    class="edi-icon"
+                    class="icon"
                     :class="{ 'inactive-icon': !slotProps.data.submission_count || slotProps.data.submission_count === 0 }"
                     :title="(!slotProps.data.submission_count || slotProps.data.submission_count === 0) ? '제출 이력이 없습니다' : '상세 보기'">
                 <i class="pi pi-list"></i>
               </span>
               <span v-else-if="col.field === 'submit_button'"
                     @click="goToUpload(slotProps.data)"
-                    class="edi-icon"
+                    class="icon"
                     title="파일 제출">
                 <i class="pi pi-upload"></i>
               </span>
