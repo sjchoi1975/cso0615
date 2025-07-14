@@ -1,56 +1,63 @@
 <template>
   <div class="board">
     <form class="board-form" @submit.prevent="submit">
-      <!-- 파일 선택 -->
-      <label class="title-sm">증빙 파일<span class="required">*</span></label>
-      <input 
-        type="file" 
-        multiple 
-        @change="handleFileSelect" 
-        class="input" 
-      />
-      <div
-        v-if="selectedFiles.length > 0"
-        class="selected-edi-file-list">
-        <div
-          v-for="(file, idx) in selectedFiles"
-          :key="idx"
-          class="selected-edi-file-item">
-          <span>{{ file.name }}</span>
-          <button type="button"@click="removeFile(idx)"
-            style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/> <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/> <line x1="14" y1="11" x2="14" y2="17"/></svg>
-          </button>
+      <div class="form-grid-2x">
+        <!-- 파일 선택 -->
+        <div class="form-group-2x">
+          <label class="txt-110-222">증빙 파일<span class="required">*</span></label>
+          <input 
+            type="file" 
+            multiple 
+            @change="handleFileSelect" 
+            class="input" 
+          />
+          <div
+            v-if="selectedFiles.length > 0"
+            class="selected-edi-file-list">
+            <div
+              v-for="(file, idx) in selectedFiles"
+              :key="idx"
+              class="selected-edi-file-item">
+              <span>{{ file.name }}</span>
+              <button type="button"@click="removeFile(idx)"
+                style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/> <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/> <line x1="14" y1="11" x2="14" y2="17"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 제약사 선택 -->
+        <div class="form-group-2x">
+          <label class="txt-110-222">제약사<span class="required">*</span></label>
+          <button type="button" class="btn-select-wide" @click="openPharmaModal">제약사 선택</button>
+          <div
+            v-if="selectedCompanies.length > 0"
+            class="selected-pharmas-list">
+            <div
+              v-for="company in selectedCompanies" 
+              :key="company.id" 
+              class="selected-pharma-item">
+              <span>{{ company.company_name }}</span>
+              <button type="button" @click="removeCompany(company.id)"
+                style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 메모 -->
+        <div class="form-group-2x">
+          <label class="txt-110-222">특이 사항</label>
+          <textarea
+            v-model="memo"
+            class="input"
+            placeholder=""
+            rows="6">
+          </textarea>
         </div>
       </div>
-
-      <!-- 제약사 선택 -->
-      <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span>
-      </label>
-      <button type="button" class="btn-select-wide" @click="openPharmaModal">제약사 선택</button>
-      <div
-        v-if="selectedCompanies.length > 0"
-        class="selected-pharmas-list">
-        <div
-          v-for="company in selectedCompanies" 
-          :key="company.id" 
-          class="selected-pharma-item">
-          <span>{{ company.company_name }}</span>
-          <button type="button" @click="removeCompany(company.id)"
-            style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- 메모 -->
-      <label class="title-sm" style="margin-top: 2rem;">특이 사항</label>
-      <textarea
-        v-model="memo"
-        class="input"
-        placeholder=""
-        rows="6">
-      </textarea>
 
       <div class="btn-row">
         <button

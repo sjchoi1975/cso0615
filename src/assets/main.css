@@ -418,6 +418,13 @@ body.login-page .main-content.main-margin {
 }
 
 
+.btn-row {
+  display: flex !important;
+  gap: 1rem !important;
+  margin-top: 3rem !important;
+}
+
+
 
 /* ========================================================================================================= */
 /* 카드 스타일 - 필터 카드, 기능 카드, 테이블 카드
@@ -518,21 +525,10 @@ body.login-page .main-content.main-margin {
   width: 140px !important;
 }
 
-/* 하단 버튼 행 */
-.btn-row {
-  display: flex !important;
-  gap: 1rem !important;
-  margin-top: 2rem !important;
-  margin-bottom: 0 !important;
-}
-
-
-
 /* datepicker 팝업 z-index 설정 */
 .mx-datepicker-popup {
   z-index: 2002 !important; /* 모달(2000)보다 높게 설정 */
 }
-
 
 
 
@@ -583,9 +579,8 @@ body.modal-open {
 
 /* 필터링 요청 병원 선택 - 내 거래처, 신규 거래처 */
 .selection-hoapital {
-  margin-bottom: 0.5rem !important;
-  display: flex !important;
-  gap: 1.5rem !important;
+  margin-bottom: 2.5rem !important;
+  display: flex !important; gap: 1.5rem !important;
 }
 
 
@@ -2169,6 +2164,16 @@ button.p-paginator-page:hover {
 
 
 
+.modal-info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+  margin-bottom: 1rem;
+}
+
+
+
+
 /* ========================================================================================================= */
 /* 동일성분의약품 모달 스타일
 /* ========================================================================================================= */
@@ -2444,7 +2449,7 @@ button.p-paginator-page:hover {
 .form-grid {
   display: grid !important;
   grid-template-columns: 1fr !important;
-  gap: 1.2rem !important;
+  gap: 1.0rem !important;
 }
 
 .form-grid-2x {
@@ -2456,7 +2461,13 @@ button.p-paginator-page:hover {
 .form-group {
   display: flex !important;
   flex-direction: column !important;
-  gap: 0.6rem !important;
+  gap: 0.5rem !important;
+}
+
+.form-group-2x {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
 }
 
 /* PrimeVue 그리드 시스템을 위한 간격 조정 */
@@ -2500,6 +2511,174 @@ label {
   font-weight: 400 !important;
 }
 
+/* 비밀번호 변경 - 비밀번호 불일치 */
+.txt-90-danger {
+  color: #dc3545;
+  font-size: 0.9rem;
+}
+
+/* 내 정보 - 보기,수정 */
+.txt-150-222 {
+  font-size: 1.5rem !important;
+  color: #222 !important;
+  font-weight: 600 !important;
+}
+
+.txt-110-222 {
+  font-size: 1.1rem !important;
+  color: #222 !important;
+  font-weight: 600 !important;
+}
+
+.txt-120-222 {
+  font-size: 1.2rem !important;
+  color: #222 !important;
+  font-weight: 600 !important;
+}
+
+.txt-130-222 {
+  font-size: 1.3rem !important;
+  color: #222 !important;
+  font-weight: 600 !important;
+}
+
+
+.txt-100-666 {
+  font-size: 1.0rem !important;
+  color: #666 !important;
+  font-weight: 400 !important;
+}
+
+.table-title {
+  font-size: 1.1rem !important;
+  color: #222 !important;
+  font-weight: 500 !important;
+}
+
+.table-title-link {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: #222 !important;
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+}
+
+.table-title-link:hover {
+  color: var(--primary) !important;
+  text-decoration: underline !important;
+}
+
+
+/* 총 개수 */
+.total-count {
+  font-size: var(--font-size-base) !important;
+  text-align: center !important;
+  color: var(--text-primary) !important;
+  white-space: nowrap !important;
+  margin-right: 1rem !important;
+}
+
+
+.link {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: var(--primary) !important;
+  font-size: var(--font-size-base) !important;
+  cursor: pointer !important;
+}
+
+.link:hover {
+  text-decoration: underline !important;
+}
+
+
+/* 필수값 * 표시 스타일 <- 회원가입, 제품, 병의원.. 등록 페이지 */
+.required {
+  color: var(--danger) !important;
+  margin-left: 0.15rem !important;
+}
+
+
+/* 컬럼 정렬 클래스 */
+.text-center { text-align: center !important; }
+.text-left   { text-align: left !important; }
+.text-right  { text-align: right !important; }
+
+
+
+
+
+
+
+
+
+
+
+/* placeholder 스타일 통일 - 모든 브라우저 지원 */
+.input::placeholder,
+.input::-webkit-input-placeholder,
+.input::-moz-placeholder,
+.input:-ms-input-placeholder,
+.input-login::placeholder,
+.input-login::-webkit-input-placeholder,
+.input-login::-moz-placeholder,
+.input-login:-ms-input-placeholder,
+.input-100::placeholder,
+.input-100::-webkit-input-placeholder,
+.input-100::-moz-placeholder,
+.input-100:-ms-input-placeholder,
+.input-120::placeholder,
+.input-120::-webkit-input-placeholder,
+.input-120::-moz-placeholder,
+.input-120:-ms-input-placeholder,
+.input-180::placeholder,
+.input-180::-webkit-input-placeholder,
+.input-180::-moz-placeholder,
+.input-180:-ms-input-placeholder,
+.input-240::placeholder,
+.input-240::-webkit-input-placeholder,
+.input-240::-moz-placeholder,
+.input-240:-ms-input-placeholder,
+.input-search::placeholder,
+.input-search::-webkit-input-placeholder,
+.input-search::-moz-placeholder,
+.input-search:-ms-input-placeholder,
+textarea.input::placeholder,
+textarea.input::-webkit-input-placeholder,
+textarea.input::-moz-placeholder,
+textarea.input:-ms-input-placeholder {
+  color: #888 !important;
+  opacity: 1 !important;
+  font-size: var(--font-size-90) !important;
+  font-weight: normal !important;
+  font-family: inherit !important;
+}
+
+textarea.input {
+  font-family: inherit !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* 소제목 - EDI 업로드 - 파일 선택, 선택된 파일, 등록된 파일.. */
 .title-lg {
@@ -2524,16 +2703,6 @@ label {
   color: var(--text-secondary) !important;
 }
 
-/* 총 개수 */
-.total-count {
-  font-size: var(--font-size-base) !important;
-  text-align: center !important;
-  color: var(--text-primary) !important;
-  white-space: nowrap !important;
-  margin-right: 1rem !important;
-}
-
-
 /* 없앨거 */
 /* 라벨 - 모달 페이지
 .label-0rem {
@@ -2551,40 +2720,6 @@ label {
   margin-bottom: 0.5rem !important;
 }
 
-
-
-/* 목록 내 중요 포인트 */
-.table-title {
-  display: block !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  color: #222 !important;
-  font-size: 1.1rem !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-}
-
-.table-title-link {
-  display: block !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  color: #222 !important;
-  font-size: 1.1rem !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-}
-
-.table-title-link:hover {
-  color: var(--primary) !important;
-  text-decoration: underline !important;
-}
-
-
-
-
-
 /* 정산내역서 - 정산내역,세금계산서 발행 요청, 전달사항.. */
 .title-sm {
   font-size: 1.1rem !important;
@@ -2597,22 +2732,6 @@ label {
   color: var(--danger) !important;
 }
 
-
-
-.link {
-  display: block !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  color: var(--primary) !important;
-  font-size: var(--font-size-base) !important;
-  cursor: pointer !important;
-}
-
-.link:hover {
-  text-decoration: underline !important;
-}
-
 /* 거래처 수정 - 파일 정보 스타일 */
 .file-info {
   font-size: 0.9em;
@@ -2622,32 +2741,6 @@ label {
 .file-info .link {
   margin-left: 10px;
 }
-
-
-/* 비밀번호 불일치 시 스타일 <- 로그인, 회원가입 */
-.password-mismatch {
-  border-color: #dc3545 !important;
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.0) !important;
-}
-
-.password-error {
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: -0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-/* 필수값 * 표시 스타일 <- 회원가입, 제품, 병의원.. 등록 페이지 */
-.required {
-  color: var(--danger) !important;
-  margin-left: 0.15rem !important;
-}
-
-
-/* 컬럼 정렬 클래스 */
-.text-center { text-align: center !important; }
-.text-left   { text-align: left !important; }
-.text-right  { text-align: right !important; }
 
 
 
@@ -2674,6 +2767,7 @@ label {
   background-color: #dee2e6;
   margin: 1rem 0;
 }
+
 
 
 /* ========================================================================================================= */
@@ -2742,53 +2836,4 @@ label {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
-
-
-
-/* placeholder 스타일 통일 - 모든 브라우저 지원 */
-.input::placeholder,
-.input::-webkit-input-placeholder,
-.input::-moz-placeholder,
-.input:-ms-input-placeholder,
-.input-login::placeholder,
-.input-login::-webkit-input-placeholder,
-.input-login::-moz-placeholder,
-.input-login:-ms-input-placeholder,
-.input-100::placeholder,
-.input-100::-webkit-input-placeholder,
-.input-100::-moz-placeholder,
-.input-100:-ms-input-placeholder,
-.input-120::placeholder,
-.input-120::-webkit-input-placeholder,
-.input-120::-moz-placeholder,
-.input-120:-ms-input-placeholder,
-.input-180::placeholder,
-.input-180::-webkit-input-placeholder,
-.input-180::-moz-placeholder,
-.input-180:-ms-input-placeholder,
-.input-240::placeholder,
-.input-240::-webkit-input-placeholder,
-.input-240::-moz-placeholder,
-.input-240:-ms-input-placeholder,
-.input-search::placeholder,
-.input-search::-webkit-input-placeholder,
-.input-search::-moz-placeholder,
-.input-search:-ms-input-placeholder,
-textarea.input::placeholder,
-textarea.input::-webkit-input-placeholder,
-textarea.input::-moz-placeholder,
-textarea.input:-ms-input-placeholder {
-  color: #888 !important;
-  opacity: 1 !important;
-  font-size: var(--font-size-90) !important;
-  font-weight: normal !important;
-  font-family: inherit !important;
-}
-
-textarea.input {
-  font-family: inherit !important;
-}
-
-
-
 

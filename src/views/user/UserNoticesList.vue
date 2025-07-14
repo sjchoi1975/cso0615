@@ -63,7 +63,7 @@
                 :class="{ 'important-notice-row': data.is_important }"
               >
                 <span v-if="data.is_important" class="important-icon">📌</span>
-                <a @click="toggleExpand(data.id)" class="table-title">
+                <a @click="toggleExpand(data.id)" class="table-title-link">
                   {{ data.title }}
                 </a>
               </div>

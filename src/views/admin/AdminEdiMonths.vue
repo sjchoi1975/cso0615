@@ -93,7 +93,7 @@
         <div class="modal-body">
           <div class="form-grid">
             <div class="form-group">
-              <label for="form-label" class="label-0rem">정산월<span class="required">*</span></label>
+              <label>정산월<span class="required">*</span></label>
               <select v-model="newMonth" class="input">
                 <option value="">- 선택 -</option>
                 <option v-for="opt in registerMonthOptions" :key="opt" :value="opt">
@@ -102,7 +102,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="form-label" class="label-0rem">제출 시작일<span class="required">*</span></label>
+              <label>제출 시작일<span class="required">*</span></label>
               <Datepicker 
                 v-model="currentItem.start_date"
                 :locale="ko"
@@ -110,7 +110,7 @@
               />
             </div>
             <div class="form-group">
-              <label for="form-label" class="label-0rem">제출 마감일<span class="required">*</span></label>
+              <label>제출 마감일<span class="required">*</span></label>
               <Datepicker 
                 v-model="currentItem.end_date"
                 :locale="ko"
@@ -118,7 +118,7 @@
               />
             </div>
             <div class="form-group">
-              <label for="form-label" class="label-0rem">공지사항</label>
+              <label>공지사항</label>
               <Textarea id="remarks"
                 v-model="currentItem.remarks"
                 rows="8"

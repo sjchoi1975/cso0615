@@ -1,86 +1,106 @@
 <template>
   <div class="board">
     <form class="board-form" @submit.prevent="submitRequest">
-      <!-- 구분 -->
-      <label class="title-sm">구분<span class="required">*</span></label>
-      <div class="selection-filter-type" style="margin-bottom: 1.5rem;">
-        <label class="radio-inline"><input type="radio" v-model="filterType" value="new" /> 신규</label>
-        <label class="radio-inline"><input type="radio" v-model="filterType" value="transfer" /> 이관</label>
-      </div>
-
-      <!-- 거래처 선택 구역 -->
-      <label class="title-sm">거래처 선택<span class="required">*</span></label>
-      <div class="selection-hoapital" style="margin-bottom: 0.5rem;">
-        <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="existing" /> 등록 거래처</label>
-        <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="new" /> 신규 거래처</label>
-      </div>
-      <!-- 거래처 선택 버튼 (등록 거래처 선택 시만 노출) -->
-      <div v-if="hospitalSelectionType === 'existing' && !hospitalInfo.hospital_name" style="margin-bottom: 1rem;">
-        <button type="button" class="btn-select-wide" @click="openHospitalModal" style="width: 100%;">거래처 선택</button>
-      </div>
-      <!-- 거래처 변경 버튼 (거래처가 이미 선택된 경우) -->
-      <div v-if="hospitalSelectionType === 'existing' && hospitalInfo.hospital_name" style="margin-bottom: 1rem;">
-        <button type="button" class="btn-select-wide" @click="openHospitalModal" style="width: 100%;">거래처 변경</button>
-      </div>
-      <!-- 등록 거래처 정보 표시 (선택된 경우) -->
-      <div v-if="hospitalSelectionType === 'existing' && (hospitalInfo.id || hospitalInfo.hospital_name)" class="selected-hospital-info" style="margin-top: -1rem; margin-bottom: 2rem;">
-        <div style="font-size:1.2rem; color:#444; font-weight:600; margin-left: 1rem;">{{ hospitalInfo.hospital_name }}</div>
-        <div style="font-size:1rem; color:#666; font-weight:400; margin-left: 1rem;">{{ hospitalInfo.address }}</div>
-        <div style="font-size:1rem; color:#666; font-weight:400; margin-left: 1rem;">{{ hospitalInfo.director_name }} | {{ hospitalInfo.business_registration_number }}</div>
-      </div>
-      <!-- 신규 거래처 입력 폼 -->
-      <div v-if="hospitalSelectionType === 'new'">
-        <label style="margin-top: 0.5rem; margin-bottom: 0.5rem;">거래처명<span class="required">*</span></label>
-        <input v-model="hospitalInfo.hospital_name" type="text" class="input" placeholder="거래처명" required />
-        <label style="margin-top: 0.5rem; margin-bottom: 0.5rem;">사업자등록번호<span class="required">*</span></label>
-        <input v-model="hospitalInfo.business_registration_number" type="text" class="input" placeholder="사업자등록번호" required />
-        <label style="margin-top: 0.5rem; margin-bottom: 0.5rem;">원장명<span class="required">*</span></label>
-        <input v-model="hospitalInfo.director_name" type="text" class="input" placeholder="원장명" required />
-        <label style="margin-top: 0.5rem; margin-bottom: 0.5rem;">주소<span class="required">*</span></label>
-        <input v-model="hospitalInfo.address" type="text" class="input" placeholder="주소" required />
-        <label style="margin-top: 0.5rem; margin-bottom: 0.5rem;">전화번호</label>
-        <input v-model="hospitalInfo.telephone" type="text" class="input" placeholder="전화번호" />
-        <label style="margin-top: 0.5rem; margin-bottom: 0.5rem;">휴대폰번호</label>
-        <input v-model="hospitalInfo.handphone" type="text" class="input" placeholder="휴대폰번호" />
-        <label style="margin-top: 0.5rem; margin-bottom: 0.5rem;">사업자등록증</label>
-        <input type="file" @change="onFileChange" class="input" />
-      </div>
-      
-      <!-- 제약사 선택 -->
-      <label class="title-sm">제약사 선택<span class="required">*</span></label>
-      <button type="button" class="btn-select-wide" @click="openPharmaModal" style="margin-bottom: -0.5rem;">제약사 선택</button>
-      <div v-if="selectedPharmas.length > 0" class="selected-pharmas-list">
-        <div v-for="pharma in selectedPharmas"
-          :key="pharma.id"
-          class="selected-pharma-item"
-          style="display 
-          : flex; align-items
-          : center; justify-content
-          : space-between;
-          gap: 0.5rem;">
-          <span>{{ pharma.company_name }}</span>
-          <button type="button" @click="removePharma(pharma.id)" style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-          </button>
+      <div class="form-grid-2x">
+        <!-- 구분 -->
+        <div class="form-group-2x">
+          <label class="txt-110-222">구분<span class="required">*</span></label>
+          <div class="selection-filter-type">
+            <label class="radio-inline"><input type="radio" v-model="filterType" value="new" /> 신규</label>
+            <label class="radio-inline"><input type="radio" v-model="filterType" value="transfer" /> 이관</label>
+          </div>
+        </div>
+        <!-- 거래처 선택 구역 -->
+        <div class="form-group-2x">
+          <label class="txt-110-222">거래처 선택<span class="required">*</span></label>
+          <div style="display: flex; gap: 1.5rem; margin-bottom: 0.5rem;">
+            <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="existing" /> 등록 거래처</label>
+            <label class="radio-inline"><input type="radio" v-model="hospitalSelectionType" value="new" /> 신규 거래처</label>
+          </div>
+          <!-- 거래처 선택 버튼 (등록 거래처 선택 시만 노출) -->
+          <div v-if="hospitalSelectionType === 'existing' && !hospitalInfo.hospital_name">
+            <button type="button" class="btn-select-wide" @click="openHospitalModal"
+              style="width: 100%; margin-bottom: 0.25rem;">거래처 선택
+            </button>
+          </div>
+          <!-- 거래처 변경 버튼 (거래처가 이미 선택된 경우) -->
+          <div v-if="hospitalSelectionType === 'existing' && hospitalInfo.hospital_name">
+            <button type="button" class="btn-select-wide" @click="openHospitalModal"
+              style="width: 100%; margin-bottom: 0.25rem;">거래처 변경
+            </button>
+          </div>
+          <!-- 등록 거래처 정보 표시 (선택된 경우) -->
+          <div v-if="hospitalSelectionType === 'existing' && (hospitalInfo.id || hospitalInfo.hospital_name)" 
+            style="margin-left: 1rem;">
+            <div class="txt-120-222">
+              {{ hospitalInfo.hospital_name }}
+            </div>
+            <div class="txt-100-666">
+              {{ hospitalInfo.address }}
+            </div>
+            <div class="txt-100-666">
+              {{ hospitalInfo.director_name }} | {{ hospitalInfo.business_registration_number }}
+            </div>
+          </div>
+        </div>
+        <!-- 신규 거래처 입력 폼 -->
+        <template v-if="hospitalSelectionType === 'new'">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>거래처명<span class="required">*</span></label>
+              <input v-model="hospitalInfo.hospital_name" type="text" class="input" placeholder="" required />
+            </div>
+            <div class="form-group">
+              <label>사업자등록번호<span class="required">*</span></label>
+              <input v-model="hospitalInfo.business_registration_number" type="text" class="input" placeholder="- (하이픈) 없이 숫자만 입력" required />
+            </div>
+            <div class="form-group">
+              <label>원장명<span class="required">*</span></label>
+              <input v-model="hospitalInfo.director_name" type="text" class="input" placeholder="" required />
+            </div>
+            <div class="form-group">
+              <label>주소<span class="required">*</span></label>
+              <input v-model="hospitalInfo.address" type="text" class="input" placeholder="" required />
+            </div>
+            <div class="form-group">
+              <label>전화번호</label>
+              <input v-model="hospitalInfo.telephone" type="text" class="input" placeholder="- (하이픈) 없이 숫자만 입력" />
+            </div>
+            <div class="form-group">
+              <label>휴대폰번호</label>
+              <input v-model="hospitalInfo.handphone" type="text" class="input" placeholder="- (하이픈) 없이 숫자만 입력" />
+            </div>
+            <div class="form-group">
+              <label>사업자등록증</label>
+              <input type="file" @change="onFileChange" class="input" />
+            </div>
+          </div>
+        </template>
+        <!-- 제약사 선택 -->
+        <div class="form-group-2x">
+          <label class="txt-110-222">제약사 선택<span class="required">*</span></label>
+          <button type="button" class="btn-select-wide" @click="openPharmaModal" style="margin-bottom: 0.5rem;">제약사 선택</button>
+          <div v-if="selectedPharmas.length > 0" class="selected-pharmas-list">
+            <div v-for="pharma in selectedPharmas"
+              :key="pharma.id"
+              class="selected-pharma-item"
+              style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+              <span>{{ pharma.company_name }}</span>
+              <button type="button" @click="removePharma(pharma.id)" style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- 메모 -->
+        <div class="form-group-2x">
+          <label class="txt-110-222">메모</label>
+          <textarea v-model="userRemarks" class="input" placeholder="요청 메모를 입력해 주세요." rows="5"></textarea>
         </div>
       </div>
-
-      <!-- 메모 -->
-      <label class="title-sm" style="margin-top: 1.5rem;">메모</label>
-      <textarea v-model="userRemarks" class="input" placeholder="요청 메모를 입력해 주세요." rows="5"></textarea>
-
       <div class="btn-row">
-        <button
-          type="button" 
-          class="btn-cancel" 
-          @click="goBack" 
-          style="flex:1;">
-          취소
-        </button>
-        <button 
-          type="submit" 
-          class="btn-confirm" :disabled="loading || !isFormValid" 
-          style="flex:3;">
+        <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
+        <button type="submit" class="btn-confirm" :disabled="loading || !isFormValid" style="flex:3;">
           {{ loading ? '요청 중...' : '등록' }}
         </button>
       </div>

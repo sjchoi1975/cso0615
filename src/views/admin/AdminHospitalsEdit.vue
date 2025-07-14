@@ -1,35 +1,52 @@
 <template>
   <div class="board">
     <form @submit.prevent="onSubmit" class="board-form">
-      <label>거래처명<span class="required">*</span></label>
-      <input v-model="form.hospital_name" placeholder="거래처명을 입력하세요" class="input" required />
-      <label>사업자등록번호<span class="required">*</span></label>
-      <input v-model="form.business_registration_number" placeholder="'-' 없이 숫자만 입력" class="input" required />
-      <label>원장명<span class="required">*</span></label>
-      <input v-model="form.director_name" placeholder="원장명을 입력하세요" class="input" required />
-      <label>주소<span class="required">*</span></label>
-      <input v-model="form.address" placeholder="주소를 입력하세요" class="input" required />
-      <label>전화번호</label>
-      <input v-model="form.telephone" placeholder="지역번호-국번-번호" class="input" maxlength="13" />
-      <label>휴대폰 번호</label>
-      <input v-model="form.handphone" placeholder="010-1234-5678" class="input" maxlength="13" />
-      <label>사업자등록증</label>
-      <input type="file" @change="onFileChange" class="input" />
-      <!-- 담당 업체 선택 섹션 추가 -->
-      <label>담당 업체 (선택)</label>
-      <button type="button" class="btn-secondary" @click="openMemberModal">업체 선택</button>
-      <div v-if="selectedMembers.length > 0" class="selected-members" style="margin-top: 0.5rem;">
-        <div class="selected-title">선택된 업체 ({{ selectedMembers.length }}곳):</div>
-        <div class="selected-list">
-          <div v-for="memberId in selectedMembers" :key="memberId" class="selected-member">
-            {{ getMemberName(memberId) }}
-            <button type="button" @click="removeMember(memberId)" class="remove-member">×</button>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="label">거래처명<span class="required">*</span></label>
+          <input v-model="form.hospital_name" placeholder="거래처명을 입력하세요" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">사업자등록번호<span class="required">*</span></label>
+          <input v-model="form.business_registration_number" placeholder="'-' 없이 숫자만 입력" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">원장명<span class="required">*</span></label>
+          <input v-model="form.director_name" placeholder="원장명을 입력하세요" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">주소<span class="required">*</span></label>
+          <input v-model="form.address" placeholder="주소를 입력하세요" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">전화번호</label>
+          <input v-model="form.telephone" placeholder="지역번호-국번-번호" class="input" maxlength="13" />
+        </div>
+        <div class="form-group">
+          <label class="label">휴대폰 번호</label>
+          <input v-model="form.handphone" placeholder="010-1234-5678" class="input" maxlength="13" />
+        </div>
+        <div class="form-group">
+          <label class="label">사업자등록증</label>
+          <input type="file" @change="onFileChange" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">담당 업체 (선택)</label>
+          <button type="button" class="btn-secondary" @click="openMemberModal">업체 선택</button>
+          <div v-if="selectedMembers.length > 0" class="selected-members" style="margin-top: 0.5rem;">
+            <div class="selected-title">선택된 업체 ({{ selectedMembers.length }}곳):</div>
+            <div class="selected-list">
+              <div v-for="memberId in selectedMembers" :key="memberId" class="selected-member">
+                {{ getMemberName(memberId) }}
+                <button type="button" @click="removeMember(memberId)" class="remove-member">×</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
+      <div class="btn-row">
         <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="loading" style="flex:2;">
+        <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canEdit }" style="flex:3;">
           {{ loading ? '수정 중...' : '수정' }}
         </button>
       </div>
@@ -92,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter, useRoute } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
@@ -111,12 +128,47 @@ const form = ref({
   handphone: ''
 });
 
+// 원본 데이터 저장
+const originalData = ref({
+  hospital_name: '',
+  business_registration_number: '',
+  director_name: '',
+  address: '',
+  telephone: '',
+  handphone: ''
+});
+
+// 필수값 검증
+const canSubmit = computed(() => {
+  return form.value.hospital_name.trim().length > 0 &&
+         form.value.business_registration_number.trim().length > 0 &&
+         form.value.director_name.trim().length > 0 &&
+         form.value.address.trim().length > 0;
+});
+
+// 변경사항 확인
+const hasChanges = computed(() => {
+  return form.value.hospital_name !== originalData.value.hospital_name ||
+         form.value.business_registration_number !== originalData.value.business_registration_number ||
+         form.value.director_name !== originalData.value.director_name ||
+         form.value.address !== originalData.value.address ||
+         form.value.telephone !== originalData.value.telephone ||
+         form.value.handphone !== originalData.value.handphone ||
+         JSON.stringify(selectedMembers.value.sort()) !== JSON.stringify(originalSelectedMembers.value.sort());
+});
+
+// 수정 버튼 활성화 조건
+const canEdit = computed(() => {
+  return canSubmit.value && hasChanges.value;
+});
+
 // 회원 선택 모달 관련 상태 변수
 const showMemberModal = ref(false);
 const members = ref([]);
 const filteredMembers = ref([]);
 const selectedMembers = ref([]); // 최종 선택된 회원
 const tempSelectedMembers = ref([]); // 모달 내에서 임시로 선택된 회원
+const originalSelectedMembers = ref([]); // 원본 선택된 회원 저장
 const memberSearch = ref('');
 const loadingMembers = ref(false);
 
@@ -333,6 +385,20 @@ const fetchHospital = async () => {
     telephone: data.telephone || '',
     handphone: data.handphone || ''
   };
+  
+  // 원본 데이터 저장
+  originalData.value = { ...form.value };
+  
+  // 기존 회원 매핑 조회
+  const { data: mappings, error: mappingError } = await supabase
+    .from('hospital_member_mappings')
+    .select('member_id')
+    .eq('hospital_id', id);
+  
+  if (!mappingError && mappings) {
+    selectedMembers.value = mappings.map(m => m.member_id);
+    originalSelectedMembers.value = [...selectedMembers.value];
+  }
 };
 
 const goBack = () => {

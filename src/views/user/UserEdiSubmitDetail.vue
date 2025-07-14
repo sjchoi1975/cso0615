@@ -1,69 +1,79 @@
 <template>
   <div class="board">
     <form class="board-form" @submit.prevent="submit">
+      <div v-if="loading">로딩 중...</div>
+      <div v-else>
+        <div v-for="(item, idx) in fileHistory" :key="item.id">
+          <div class="form-grid-2x">
+            <!-- 증빙 파일 -->
+            <div class="form-group-2x">
+              <label class="txt-110-222">증빙 파일</label>
+              <div class="selected-edi-file-list">
+                <div
+                  v-for="file in item.files"
+                  :key="file.id"
+                  class="selected-edi-file-item">
+                  <span><a :href="file.file_url" target="_blank">{{ file.original_file_name }}</a></span>
+                </div>
+              </div>
+            </div>
 
-    <div v-if="loading">로딩 중...</div>
-    <div v-else>
-      <div v-for="(item, idx) in fileHistory" :key="item.id">
+            <!-- 제약사 -->
+            <div class="form-group-2x">
+              <label class="txt-110-222">제약사</label>
+              <div class="selected-pharmas-list">
+                <div
+                  v-for="company in item.companies"
+                  :key="company.id"
+                  class="selected-pharma-item">
+                  <span>{{ company.company_name }}</span>
+                </div>
+              </div>
+            </div>
 
-        <label class="title-sm">증빙 파일</label>
-        <div class="selected-edi-file-list">
-          <div
-            v-for="file in item.files"
-            :key="file.id"
-            class="selected-edi-file-item">
-            <span><a :href="file.file_url" target="_blank">{{ file.original_file_name }}</a></span>
+            <!-- 특이 사항 -->
+            <div class="form-group-2x">
+              <label class="txt-110-222">특이 사항</label>
+              <textarea 
+                class="input" 
+                placeholder="" 
+                rows="6" 
+                readonly
+                :value="item.memo || ''"
+                style="background-color: #f8f9fa; resize: none;">
+              </textarea>
+            </div>
+
+            <!-- 등록 일시 -->
+            <div class="form-group-2x">
+              <label class="txt-110-222">등록 일시 : {{ formatDate(item.created_at) }}</label>
+            </div>
           </div>
-        </div>
 
-        <label class="title-sm" style="margin-top: 2rem;">제약사</label>
-        <div class="selected-pharmas-list">
-          <div
-            v-for="company in item.companies"
-            :key="company.id"
-            class="selected-pharma-item">
-            <span>{{ company.company_name }}</span>
+          <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+            <button type="button" class="btn-warning" style="padding: 0.5rem 1rem !important;" @click="goToEdit(item.id)">수정하기</button>
           </div>
+          <hr style="margin-top: 2rem; margin-bottom: 2rem;" v-if="idx < fileHistory.length - 1" />
         </div>
-
-        <label class="title-sm" style="margin-top: 2rem;">특이 사항</label>
-        <textarea 
-          class="input" 
-          placeholder="" 
-          rows="6" 
-          readonly
-          :value="item.memo || ''"
-          style="background-color: #f8f9fa; resize: none;">
-        </textarea>
-
-        <div style="margin-top: 2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.3rem;">
-          <label class="title-sm">등록 일시 : {{ formatDate(item.created_at) }}</label>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
-          <button type="button" class="btn-warning" style="padding: 0.5rem 1rem !important;" @click="goToEdit(item.id)">수정하기</button>
-        </div>
-        <hr style="margin-top: 2rem; margin-bottom: 2rem;" v-if="idx < fileHistory.length - 1" />
       </div>
-    </div>
 
-    <!-- 하단 버튼 영역 추가 -->
-    <div style="display: flex; gap: 0.5rem; margin-top: 2rem;">
-      <button
-        type="button" 
-        class="btn-cancel" 
-        @click="goBack" 
-        style="flex:1;">
-        목록
-      </button>
-      <button 
-       type="button" 
-       class="btn-confirm" 
-       @click="goUpload" 
-       style="flex:3;">
-       추가제출
-      </button>
-    </div>
+      <!-- 하단 버튼 영역 추가 -->
+      <div class="btn-row">
+        <button
+          type="button" 
+          class="btn-cancel" 
+          @click="goBack" 
+          style="flex:1;">
+          목록
+        </button>
+        <button 
+         type="button" 
+         class="btn-confirm" 
+         @click="goUpload" 
+         style="flex:3;">
+         추가제출
+        </button>
+      </div>
     </form>
   </div>
 </template>

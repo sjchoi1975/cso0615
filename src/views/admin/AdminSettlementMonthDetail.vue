@@ -118,7 +118,10 @@
               <span class="table-title">{{ slotProps.data.hospital_name }}</span>
             </template>
             <template v-else-if="col.field === 'pharma_name'">
-              <span class="table-title">{{ slotProps.data.pharma_name }}</span>
+              {{ slotProps.data.pharma_name }}
+            </template>
+            <template v-else-if="col.field === 'product_name'">
+              <span class="table-title">{{ slotProps.data.product_name }}</span>
             </template>
             <template v-else>
               {{ slotProps.data[col.field] }}

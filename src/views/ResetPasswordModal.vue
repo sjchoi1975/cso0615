@@ -5,13 +5,16 @@
         <h3 class="modal-title">비밀번호 재설정</h3>
       </div>
       <div class="modal-body">
-        <div style="margin-bottom: 1rem;">비밀번호 재설정 링크를 보내드리겠습니다.</div>
-        <input type="email" v-model="inputEmail" class="input" placeholder="가입 아이디(이메일 주소) 입력" style="width: 100%; margin-bottom: 1rem;" />
-        <div v-if="errorMsg" class="password-error">{{ errorMsg }}</div>
-        <div class="btn-row" style="justify-content: flex-end !important;">
-          <Button label="취소" class="btn-cancel modal" @click="onCancel"/>
-          <Button label="이메일 받기" class="btn-confirm modal" @click="onSend" :disabled="!isEmailValid || loading" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label style="margin-bottom: 0.5rem;">비밀번호 재설정 링크를 보내드리겠습니다.</label>
+            <input type="email" v-model="inputEmail" class="input" placeholder="가입 아이디(이메일 주소) 입력" />
+          </div>
         </div>
+      </div>
+      <div class="modal-footer">
+        <Button label="취소" class="btn-cancel modal" @click="onCancel"/>
+        <Button label="이메일 받기" class="btn-confirm modal" @click="onSend" :disabled="!isEmailValid || loading" />
       </div>
     </div>
   </div>
@@ -28,7 +31,6 @@ const props = defineProps({
 const emits = defineEmits(['close']);
 
 const inputEmail = ref('');
-const errorMsg = ref('');
 const loading = ref(false);
 
 const isEmailValid = computed(() => {
@@ -38,7 +40,6 @@ const isEmailValid = computed(() => {
 watch(() => props.visible, (v) => {
   if (v) {
     inputEmail.value = '';
-    errorMsg.value = '';
     loading.value = false;
   }
 });
@@ -48,7 +49,6 @@ function onCancel() {
 }
 
 async function onSend() {
-  errorMsg.value = '';
   if (!isEmailValid.value) return;
   loading.value = true;
   // 이메일 존재 여부 확인

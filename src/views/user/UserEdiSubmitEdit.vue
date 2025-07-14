@@ -1,51 +1,58 @@
 <template>
   <div class="board">
     <form class="board-form" @submit.prevent="submitEdit">
-      <!-- 파일 선택 -->
-      <label class="title-sm">증빙 파일<span class="required">*</span></label>
-      <input
-        type="file"
-        multiple
-        @change="handleFileSelect"
-        class="input"
-      />
-      <div class="selected-edi-file-list">
-        <div
-          v-for="(file, idx) in selectedFiles"
-          :key="file.url || file.name"
-          class="selected-edi-file-item">
-          <span>{{ file.original_name || file.name }}</span>
-          <button type="button"@click="removeFile(idx)"
-            style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/> <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/> <line x1="14" y1="11" x2="14" y2="17"/></svg>
-          </button>
+      <div class="form-grid-2x">
+        <!-- 파일 선택 -->
+        <div class="form-group-2x">
+          <label class="txt-110-222">증빙 파일<span class="required">*</span></label>
+          <input
+            type="file"
+            multiple
+            @change="handleFileSelect"
+            class="input"
+          />
+          <div class="selected-edi-file-list">
+            <div
+              v-for="(file, idx) in selectedFiles"
+              :key="file.url || file.name"
+              class="selected-edi-file-item">
+              <span>{{ file.original_name || file.name }}</span>
+              <button type="button"@click="removeFile(idx)"
+                style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/> <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/> <line x1="14" y1="11" x2="14" y2="17"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 제약사 선택 -->
+        <div class="form-group-2x">
+          <label class="txt-110-222">제약사<span class="required">*</span></label>
+          <button type="button" class="btn-select-wide" @click="openPharmaModal">제약사 선택</button>
+          <div class="selected-pharmas-list">
+            <div
+              v-for="company in selectedCompanies"
+              :key="company.id"
+              class="selected-pharma-item">
+              <span>{{ company.company_name }}</span>
+              <button type="button" @click="removeCompany(company.id)"
+                style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 메모 -->
+        <div class="form-group-2x">
+          <label class="txt-110-222">특이 사항</label>
+          <textarea v-model="memo" class="input" placeholder="" rows="6"></textarea>
         </div>
       </div>
-
-      <!-- 제약사 선택 -->
-      <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span>
-      </label>
-      <button type="button" class="btn-select-wide" @click="openPharmaModal">제약사 선택</button>
-      <div class="selected-pharmas-list">
-        <div
-          v-for="company in selectedCompanies"
-          :key="company.id"
-          class="selected-pharma-item">
-          <span>{{ company.company_name }}</span>
-          <button type="button" @click="removeCompany(company.id)"
-            style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- 메모 -->
-      <label class="title-sm" style="margin-top: 2rem;">특이 사항</label>
-      <textarea v-model="memo" class="input" placeholder="" rows="6"></textarea>
 
       <div class="btn-row">
         <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="isSubmitting || !selectedFiles.length || !selectedCompanies.length" style="flex:2;">{{ isSubmitting ? '수정 중...' : '수정' }}</button>
+        <button type="submit" class="btn-confirm" :disabled="isSubmitting || !canEdit" style="flex:2;">{{ isSubmitting ? '수정 중...' : '수정' }}</button>
       </div>
     </form>
 
@@ -140,9 +147,43 @@ const isSubmitting = ref(false);
 const companySearch = ref('');
 const hospitalName = ref('');
 
+// 원본 데이터 저장
+const originalData = ref({
+  selectedFiles: [],
+  selectedCompanies: [],
+  memo: ''
+});
+
 // 모달 관련 상태
 const tempSelectedCompanies = ref([]);
 const showCommentDialog = ref(false);
+
+// 변경사항이 있는지 확인
+const hasChanges = computed(() => {
+  // 파일 변경사항 확인
+  const filesChanged = selectedFiles.value.length !== originalData.value.selectedFiles.length ||
+    selectedFiles.value.some((file, index) => {
+      const originalFile = originalData.value.selectedFiles[index];
+      return !originalFile || file.name !== originalFile.name || file.url !== originalFile.url;
+    });
+  
+  // 제약사 변경사항 확인
+  const companiesChanged = selectedCompanies.value.length !== originalData.value.selectedCompanies.length ||
+    selectedCompanies.value.some(company => !originalData.value.selectedCompanies.some(orig => orig.id === company.id)) ||
+    originalData.value.selectedCompanies.some(orig => !selectedCompanies.value.some(company => company.id === orig.id));
+  
+  // 메모 변경사항 확인
+  const memoChanged = memo.value !== originalData.value.memo;
+  
+  return filesChanged || companiesChanged || memoChanged;
+});
+
+// 수정 버튼 활성화 조건
+const canEdit = computed(() => {
+  return selectedFiles.value.length > 0 && 
+         selectedCompanies.value.length > 0 && 
+         hasChanges.value;
+});
 
 onMounted(async () => {
   const hospitalId = route.params.hospitalId;
@@ -228,6 +269,13 @@ onMounted(async () => {
   });
   
   selectedCompanies.value = Array.from(uniqueCompanies.values());
+  
+  // 원본 데이터 저장
+  originalData.value = {
+    selectedFiles: selectedFiles.value.map(file => ({ ...file })),
+    selectedCompanies: selectedCompanies.value.map(company => ({ ...company })),
+    memo: memo.value
+  };
 });
 
 const filteredCompanies = computed(() => {
@@ -304,6 +352,11 @@ function removeFile(idx) {
 
 async function submitEdit() {
   if (!selectedFiles.value.length || !selectedCompanies.value.length) return;
+  
+  if (!hasChanges.value) {
+    alert('변경된 내용이 없습니다.');
+    return;
+  }
   
   isSubmitting.value = true;
   

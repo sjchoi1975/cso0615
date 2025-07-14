@@ -109,7 +109,7 @@
         <div class="modal-body">
           <div class="form-grid">
             <div class="form-group">
-              <label for="form-label" class="label-0rem">정산월</label>
+              <label>정산월</label>
               <select v-model="newMonth" class="input" :disabled="isEditMode">
                 <option value="">- 선택 -</option>
                 <option v-for="opt in registerMonthOptions" :key="opt" :value="opt">
@@ -118,7 +118,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="form-label" class="label-0rem">전달사항</label>
+              <label>전달사항</label>
               <Textarea id="note"
                 v-model="newNote"
                 rows="8"

@@ -1,30 +1,46 @@
 <template>
   <div class="board">
     <form @submit.prevent="registerHospital" class="board-form">
-      <label>거래처명<span class="required">*</span></label>
-      <input v-model="hospitalName" placeholder="거래처명을 입력하세요" class="input" required />
-      <label>사업자등록번호<span class="required">*</span></label>
-      <input v-model="businessNumber" placeholder="'-' 없이 숫자만 입력" class="input" required />
-      <label>원장명<span class="required">*</span></label>
-      <input v-model="directorName" placeholder="원장명을 입력하세요" class="input" required />
-      <label>주소<span class="required">*</span></label>
-      <input v-model="address" placeholder="주소를 입력하세요" class="input" required />
-      <label>전화번호</label>
-      <input v-model="phone" placeholder="지역번호-국번-번호" class="input" maxlength="13" />
-      <label>휴대폰 번호</label>
-      <input v-model="handphone" placeholder="010-1234-5678" class="input" maxlength="13" />
-      <label>사업자등록증</label>
-      <input type="file" @change="onFileChange" class="input" />
-      <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>거래처명<span class="required">*</span></label>
+          <input v-model="hospitalName" placeholder="" class="input" required />
+        </div>
+        <div class="form-group">
+          <label>사업자등록번호<span class="required">*</span></label>
+          <input v-model="businessNumber" placeholder="- (하이픈) 없이 숫자만 입력" class="input" required />
+        </div>
+        <div class="form-group">
+          <label>원장명<span class="required">*</span></label>
+          <input v-model="directorName" placeholder="" class="input" required />
+        </div>
+        <div class="form-group">
+          <label>주소<span class="required">*</span></label>
+          <input v-model="address" placeholder="" class="input" required />
+        </div>
+        <div class="form-group">
+          <label>전화번호</label>
+          <input v-model="phone" placeholder="- (하이픈) 없이 숫자만 입력" class="input" maxlength="13" />
+        </div>
+        <div class="form-group">
+          <label>휴대폰 번호</label>
+          <input v-model="handphone" placeholder="- (하이픈) 없이 숫자만 입력" class="input" maxlength="13" />
+        </div>
+        <div class="form-group">
+          <label>사업자등록증</label>
+          <input type="file" @change="onFileChange" class="input" />
+        </div>
+      </div>
+      <div class="btn-row">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="loading" style="flex:3;">{{ loading ? '저장 중...' : '등록' }}</button>
+        <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canSubmit }" style="flex:3;">{{ loading ? '저장 중...' : '등록' }}</button>
       </div>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
@@ -38,6 +54,14 @@ const loading = ref(false);
 const router = useRouter();
 const handphone = ref('');
 const phone = ref('');
+
+// 필수값 검증을 위한 computed
+const canSubmit = computed(() => {
+  return hospitalName.value.trim().length > 0 &&
+         businessNumber.value.trim().length > 0 &&
+         directorName.value.trim().length > 0 &&
+         address.value.trim().length > 0;
+});
 
 // 사업자등록번호 자동 하이픈 추가
 watch(businessNumber, (newValue) => {

@@ -73,7 +73,7 @@
 
               <template v-if="col.field === 'product_name'">
                 <div class="product-name-wrapper" :data-product-id="slotProps.data.id">
-                  <div class="table-title" @click="toggleProductDropdown(slotProps.data.id, slotProps.data)" style="cursor: pointer;">
+                  <div class="table-title-link" @click="toggleProductDropdown(slotProps.data.id, slotProps.data)" style="cursor: pointer;">
                     {{ slotProps.data.product_name }}
                   </div>
                   <div v-if="isMobile" class="mobile-product-info">
@@ -157,14 +157,14 @@
           </div>
           <div v-else>
             <!-- 제품 정보 표시 -->
-            <div class="product-info-header">
-              <div class="info-row">
+            <div class="modal-info-group">
+              <div>
                 <span class="info-value-pharmacist">{{ selectedProductForSimilar?.pharmacist }}</span>
               </div>
-              <div class="info-row">
+              <div class="txt-130-222">
                 <span class="info-value-product-name">{{ selectedProductForSimilar?.product_name }}</span>
               </div>
-              <div class="info-row">
+              <div>
                 <span class="info-value-ingredient">{{ selectedProductForSimilar?.Ingredient }}</span>
               </div>
             </div>
@@ -219,14 +219,14 @@
           </div>
           <div v-else>
             <!-- 제품 정보 표시 -->
-            <div class="product-info-header">
-              <div class="info-row">
+            <div class="modal-info-group">
+              <div>
                 <span class="info-value-pharmacist">{{ selectedProductForApproved?.pharmacist }}</span>
               </div>
-              <div class="info-row">
+              <div class="txt-130-222">
                 <span class="info-value-product-name">{{ selectedProductForApproved?.product_name }}</span>
               </div>
-              <div class="info-row">
+              <div>
                 <span class="info-value-ingredient">{{ selectedProductForApproved?.Ingredient }}</span>
               </div>
             </div>
@@ -259,7 +259,7 @@
               </button>
             </div>
             
-                        <!-- 필터링 이력 테이블 -->
+            <!-- 필터링 이력 테이블 -->
             <div class="filtering-history-table-container">
               <table class="mordal-table filtering-history-table">
                 <thead>

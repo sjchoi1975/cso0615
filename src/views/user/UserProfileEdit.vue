@@ -1,31 +1,48 @@
 <template>
   <div class="board">
     <form class="board-form">
-      <label
-        class="title-lg"
-        style="margin-top: -1rem !important;
-               margin-bottom: 1rem !important;
-               text-align: center !important;">
+      <label class="txt-150-222"
+        style="margin-bottom: 1.5rem !important; text-align: center !important;">
         내 정보 수정
       </label>
-      <label>아이디</label>
-      <input type="email" v-model="user.email" class="input" disabled />
-      <label>회사명<span class="required">*</span></label>
-      <input type="text" v-model="user.company_name" class="input" />
-      <label>대표자명<span class="required">*</span></label>
-      <input type="text" v-model="user.ceo_name" class="input" />
-      <label>사업자등록번호<span class="required">*</span></label>
-      <input type="text" v-model="user.biz_no" class="input" @input="formatBizNo" maxlength="12" />
-      <label>주소</label>
-      <input type="text" v-model="user.address" placeholder="" class="input" />
-      <label>CSO 신고번호</label>
-      <input type="text" v-model="user.cso_regist_no" placeholder="숫자와 - (하이픈)만 입력" class="input" />
-      <label>담당자명</label>
-      <input type="text" v-model="user.manager_name" placeholder="" class="input" />
-      <label>휴대폰 번호</label>
-      <input type="text" v-model="user.handphone" placeholder="숫자만 입력" class="input" @input="formatPhone" maxlength="13" />
-      <label>이메일(연락용)</label>
-      <input type="email" v-model="user.contact_email" placeholder="" class="input" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label>아이디</label>
+          <input type="email" v-model="user.email" class="input" disabled />
+        </div>
+        <div class="form-group">
+          <label>회사명<span class="required">*</span></label>
+          <input type="text" v-model="user.company_name" class="input" />
+        </div>
+        <div class="form-group">
+          <label>대표자명<span class="required">*</span></label>
+          <input type="text" v-model="user.ceo_name" class="input" />
+        </div>
+        <div class="form-group">
+          <label>사업자등록번호<span class="required">*</span></label>
+          <input type="text" v-model="user.biz_no" class="input" @input="formatBizNo" maxlength="12" />
+        </div>
+        <div class="form-group">
+          <label>주소</label>
+          <input type="text" v-model="user.address" placeholder="" class="input" />
+        </div>
+        <div class="form-group">
+          <label>CSO 신고번호</label>
+          <input type="text" v-model="user.cso_regist_no" placeholder="숫자와 - (하이픈)만 입력" class="input" />
+        </div>
+        <div class="form-group">
+          <label>담당자명</label>
+          <input type="text" v-model="user.manager_name" placeholder="" class="input" />
+        </div>
+        <div class="form-group">
+          <label>휴대폰 번호</label>
+          <input type="text" v-model="user.handphone" placeholder="숫자만 입력" class="input" @input="formatPhone" maxlength="13" />
+        </div>
+        <div class="form-group">
+          <label>이메일(연락용)</label>
+          <input type="email" v-model="user.contact_email" placeholder="" class="input" />
+        </div>
+      </div>
       <div class="btn-row">
         <Button label="취소" class="btn-cancel" @click.prevent="goToCancel" style="flex:1;"/>
         <Button label="저장" class="btn-signup" @click.prevent="goToSave" style="flex:3;"/>

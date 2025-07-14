@@ -1,25 +1,41 @@
 <template>
   <div class="board">
     <form @submit.prevent="updateHospital" class="board-form">
-      <label>거래처명<span class="required">*</span></label>
-      <input v-model="hospitalName" placeholder="거래처명을 입력하세요" class="input" required />
-      <label>사업자등록번호<span class="required">*</span></label>
-      <input v-model="businessNumber" placeholder="'-' 없이 숫자만 입력" class="input" required />
-      <label>원장명<span class="required">*</span></label>
-      <input v-model="directorName" placeholder="원장명을 입력하세요" class="input" required />
-      <label>주소<span class="required">*</span></label>
-      <input v-model="address" placeholder="주소를 입력하세요" class="input" required />
-      <label>전화번호</label>
-      <input v-model="phone" placeholder="지역번호-국번-번호" class="input" maxlength="13" />
-      <label>휴대폰 번호</label>
-      <input v-model="handphone" placeholder="010-1234-5678" class="input" maxlength="13" />
-      <label>사업자등록증</label>
-      <input type="file" @change="onFileChange" class="input" />
-      <div v-if="existingLicenseFile" class="file-info">
-        <span>기존 파일: {{ getFileName(existingLicenseFile) }}</span>
-        <a :href="getFileUrl(existingLicenseFile)" target="_blank" class="link">파일 보기</a>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>거래처명<span class="required">*</span></label>
+          <input v-model="hospitalName" placeholder="" class="input" required />
+        </div>
+        <div class="form-group">
+          <label>사업자등록번호<span class="required">*</span></label>
+          <input v-model="businessNumber" placeholder="- (하이픈) 없이 숫자만 입력" class="input" required />
+        </div>
+        <div class="form-group">
+          <label>원장명<span class="required">*</span></label>
+          <input v-model="directorName" placeholder="" class="input" required />
+        </div>
+        <div class="form-group">
+          <label>주소<span class="required">*</span></label>
+          <input v-model="address" placeholder="" class="input" required />
+        </div>
+        <div class="form-group">
+          <label>전화번호</label>
+          <input v-model="phone" placeholder="- (하이픈) 없이 숫자만 입력" class="input" maxlength="13" />
+        </div>
+        <div class="form-group">
+          <label>휴대폰 번호</label>
+          <input v-model="handphone" placeholder="- (하이픈) 없이 숫자만 입력" class="input" maxlength="13" />
+        </div>
+        <div class="form-group">
+          <label>사업자등록증</label>
+          <input type="file" @change="onFileChange" class="input" />
+          <div v-if="existingLicenseFile" class="file-info">
+            <span>기존 파일: {{ getFileName(existingLicenseFile) }}</span>
+            <a :href="getFileUrl(existingLicenseFile)" target="_blank" class="link">파일 보기</a>
+          </div>
+        </div>
       </div>
-      <div style="display: flex; gap: 0.5rem; margin-top: 1.2rem;">
+      <div class="btn-row">
         <button 
           type="button" 
           class="btn-cancel" 
@@ -28,7 +44,8 @@
         </button>
         <button 
           type="submit" 
-          class="btn-confirm" :disabled="loading" 
+          class="btn-confirm" 
+          :class="{ 'btn-disabled': loading || !canEdit }" 
           style="flex:3;">
           {{ loading ? '저장 중...' : '수정' }}
         </button>
@@ -38,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter, useRoute } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
@@ -55,6 +72,40 @@ const loading = ref(false);
 const router = useRouter();
 const route = useRoute();
 const hospitalId = route.params.id;
+
+// 원본 데이터 저장
+const originalData = ref({
+  hospital_name: '',
+  business_registration_number: '',
+  director_name: '',
+  address: '',
+  telephone: '',
+  handphone: ''
+});
+
+// 필수값 검증
+const canSubmit = computed(() => {
+  return hospitalName.value.trim().length > 0 &&
+         businessNumber.value.trim().length > 0 &&
+         directorName.value.trim().length > 0 &&
+         address.value.trim().length > 0;
+});
+
+// 변경사항 확인
+const hasChanges = computed(() => {
+  return hospitalName.value !== originalData.value.hospital_name ||
+         businessNumber.value !== originalData.value.business_registration_number ||
+         directorName.value !== originalData.value.director_name ||
+         address.value !== originalData.value.address ||
+         phone.value !== originalData.value.telephone ||
+         handphone.value !== originalData.value.handphone ||
+         newLicenseFile.value !== null;
+});
+
+// 수정 버튼 활성화 조건
+const canEdit = computed(() => {
+  return canSubmit.value && hasChanges.value;
+});
 
 const onFileChange = (event) => {
   const files = event.target.files;
@@ -81,6 +132,16 @@ const fetchHospitalData = async () => {
     phone.value = data.telephone || '';
     handphone.value = data.handphone || '';
     existingLicenseFile.value = data.business_license_file;
+
+    // 원본 데이터 저장
+    originalData.value = {
+      hospital_name: data.hospital_name,
+      business_registration_number: data.business_registration_number,
+      director_name: data.director_name,
+      address: data.address,
+      telephone: data.telephone || '',
+      handphone: data.handphone || ''
+    };
 
   } catch (e) {
     console.error('거래처 정보 로드 오류:', e);

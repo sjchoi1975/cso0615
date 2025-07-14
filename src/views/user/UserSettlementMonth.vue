@@ -28,102 +28,106 @@
       <!-- board-form: 정산내역, 세금계산서, 전달사항 -->
       <div class="board">
         <div class="board-form">
-          <!-- 정산내역 표 -->
-          <div style="margin-bottom:0.5rem;">
-            <b class="title-sm">정산내역</b>
-            <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:2px solid #666; table-layout:fixed;">
-              <thead>
-                <tr style="background:#f8f9fa;">
-                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">거래처</th>
-                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">처방건</th>
-                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">처방액</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.hospital_count) }}</td>
-                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.prescription_count) }}</td>
-                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.prescription_amount) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <!-- 상세내역보기 버튼 -->
-          <div style="text-align:center; margin-bottom:1.5rem;">
-            <button class="btn-select-wide" style="width:100%;" @click="goDetail">상세 내역 보기 ></button>
-          </div>
-          <!-- 세금계산서 발행 요청 표 -->
-          <div style="margin-bottom:1.5rem;">
-            <b class="title-sm">세금계산서 발행 요청</b>
-            <table style="width:100%; margin-top:0.7rem; border-collapse:collapse; border:2px solid #666; table-layout:fixed;">
-              <thead>
-                <tr style="background:#f8f9fa;">
-                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">공급가</th>
-                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">부가세</th>
-                  <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">합계액</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.supply_amount) }}</td>
-                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.vat) }}</td>
-                  <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.total_amount) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <!-- 전달사항 박스 (공용+개별 줄바꿈) -->
-          <div style="margin-bottom:1.5rem;">
-            <b class="title-sm">전달사항</b>
-            <div style="border:1px solid #bbb;
-              border-radius:2px;
-              min-height:80px;
-              padding:0.7rem;
-              background:#fff;
-              margin-top:0.7rem;
-              white-space:pre-line;">
-              <template v-if="publicNote && privateNote">
-                {{ publicNote }}<br><br>{{ privateNote }}
-              </template>
-              <template v-else-if="publicNote">
-                {{ publicNote }}
-              </template>
-              <template v-else-if="privateNote">
-                {{ privateNote }}
-              </template>
-              <template v-else>
-                -
-              </template>
+          <div class="form-grid-2x">
+            <!-- 정산내역 표 -->
+            <div class="form-group">
+              <label class="txt-110-222">정산내역</label>
+              <table style="width:100%; border-collapse:collapse; border:2px solid #666; table-layout:fixed;">
+                <thead>
+                  <tr style="background:#f8f9fa;">
+                    <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">거래처</th>
+                    <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">처방건</th>
+                    <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">처방액</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.hospital_count) }}</td>
+                    <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.prescription_count) }}</td>
+                    <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.prescription_amount) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <!-- 상세내역보기 버튼 -->
+              <div style="text-align:center; margin-top:1rem;">
+                <button class="btn-select-wide" style="width:100%;" @click="goDetail">상세 내역 보기 ></button>
+              </div>
+            </div>
+
+            <!-- 세금계산서 발행 요청 표 -->
+            <div class="form-group">
+              <label class="txt-110-222">세금계산서 발행 요청</label>
+              <table style="width:100%; border-collapse:collapse; border:2px solid #666; table-layout:fixed;">
+                <thead>
+                  <tr style="background:#f8f9fa;">
+                    <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">공급가</th>
+                    <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">부가세</th>
+                    <th style="border:1px solid #bbb; font-weight:500; padding:0.35em; width:33.33%;">합계액</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.supply_amount) }}</td>
+                    <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.vat) }}</td>
+                    <td style="border:1px solid #bbb; text-align:center; font-weight:500; padding:0.35em; width:33.33%;">{{ formatCurrencyNoDecimal(summary.total_amount) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 전달사항 박스 (공용+개별 줄바꿈) -->
+            <div class="form-group">
+              <label class="txt-110-222">전달사항</label>
+              <div style="border:1px solid #bbb;
+                border-radius:2px;
+                min-height:80px;
+                padding:0.7rem;
+                background:#fff;
+                white-space:pre-line;">
+                <template v-if="publicNote && privateNote">
+                  {{ publicNote }}<br><br>{{ privateNote }}
+                </template>
+                <template v-else-if="publicNote">
+                  {{ publicNote }}
+                </template>
+                <template v-else-if="privateNote">
+                  {{ privateNote }}
+                </template>
+                <template v-else>
+                  -
+                </template>
+              </div>
+            </div>
+
+            <!-- 정정요청 내용 표시 -->
+            <div v-if="correctionText" class="form-group">
+              <div style="display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:0.5rem"
+              >
+                <label class="txt-110-222" style="color:#dc3545;">정정요청</label>
+                <button
+                  style="font-size:0.95rem;
+                  color:#1976d2;
+                  background:none;
+                  border:none;
+                  cursor:pointer;
+                  padding:0;
+                  text-decoration:underline;"
+                  @click="onEditCorrection">수정하기</button>
+              </div>
+              <div
+                style="border:1px solid #bbb;
+                border-radius:2px;
+                min-height:60px;
+                padding:0.7rem;
+                background:#fcfcd8;
+                white-space:pre-line;">
+                {{ correctionText }}</div>
             </div>
           </div>
-          <!-- 정정요청 내용 표시 -->
-          <div v-if="correctionText">
-            <div style="display:flex;
-              justify-content:space-between;
-              align-items:center;
-              margin-bottom:0"
-            >
-              <b class="title-sm-danger">정정요청</b>
-              <button
-                style="font-size:0.95rem;
-                color:#1976d2;
-                background:none;
-                border:none;
-                cursor:pointer;
-                padding:0;
-                text-decoration:underline;"
-                @click="onEditCorrection">수정하기</button>
-            </div>
-            <div
-              style="border:1px solid #bbb;
-              border-radius:2px;
-              min-height:60px;
-              padding:0.7rem;
-              background:#fcfcd8;
-              margin-top:0.7rem;
-              white-space:pre-line;">
-              {{ correctionText }}</div>
-          </div>
+
           <!-- 하단 버튼 -->
           <div class="btn-row">
             <button

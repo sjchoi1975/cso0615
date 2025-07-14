@@ -85,8 +85,8 @@
                 <!-- 모바일: 거래처명 + 주소 + 사업자번호/원장명 -->
                 <div v-else class="mobile-hospital-info">
                   <div class="table-title">{{ slotProps.data.hospital_name }}</div>
-                  <div class="hospital-address">{{ slotProps.data.address }}</div>
-                  <div class="hospital-details">
+                  <div>{{ slotProps.data.address }}</div>
+                  <div>
                     {{ slotProps.data.business_registration_number }} / {{ slotProps.data.director_name }}
                   </div>
                 </div>
@@ -227,7 +227,7 @@
         </div>
       </div>
     </div>
-
+    
     <!-- 필터링 이력 모달 -->
     <div v-if="showFilteringHistoryModal" class="custom-modal-overlay">
       <div class="custom-modal-filtering">
@@ -236,15 +236,15 @@
         </div>
         <div class="modal-body">
           <!-- 거래처 정보 표시 -->
-          <div class="hospital-info-header">
-            <div class="info-row">
+          <div class="modal-info-group">
+            <div class="txt-130-222">
               <span class="info-value-hospital-name">{{ currentHospitalForFiltering?.hospital_name }}</span>
             </div>
-            <div class="info-row">
-              <span class="info-value-hospital-address">{{ currentHospitalForFiltering?.address }}</span>
+            <div>
+              <span>{{ currentHospitalForFiltering?.address }}</span>
             </div>
-            <div class="info-row">
-              <span class="info-value-hospital-details">{{ currentHospitalForFiltering?.business_registration_number }} / {{ currentHospitalForFiltering?.director_name }}</span>
+            <div>
+              <span>{{ currentHospitalForFiltering?.business_registration_number }} / {{ currentHospitalForFiltering?.director_name }}</span>
             </div>
           </div>
           <!-- 탭 메뉴 -->

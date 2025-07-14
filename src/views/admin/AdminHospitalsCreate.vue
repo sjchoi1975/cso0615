@@ -1,35 +1,52 @@
 <template>
   <div class="board">
     <form @submit.prevent="registerHospital" class="board-form">
-      <label>거래처명<span class="required">*</span></label>
-      <input v-model="hospitalName" placeholder="거래처명을 입력하세요" class="input" required />
-      <label>사업자등록번호<span class="required">*</span></label>
-      <input v-model="businessNumber" placeholder="'-' 없이 숫자만 입력" class="input" required />
-      <label>원장명<span class="required">*</span></label>
-      <input v-model="directorName" placeholder="원장명을 입력하세요" class="input" required />
-      <label>주소<span class="required">*</span></label>
-      <input v-model="address" placeholder="주소를 입력하세요" class="input" required />
-      <label>전화번호</label>
-      <input v-model="phone" placeholder="지역번호-국번-번호" class="input" maxlength="13" />
-      <label>휴대폰 번호</label>
-      <input v-model="handphone" placeholder="010-1234-5678" class="input" maxlength="13" />
-      <label>사업자등록증</label>
-      <input type="file" @change="onFileChange" class="input" />
-      <!-- 담당 업체 선택 섹션 추가 -->
-      <label>담당 업체</label>
-      <button type="button" class="btn-secondary" @click="openMemberModal">업체 선택</button>
-      <div v-if="selectedMembers.length > 0" class="selected-members" style="margin-top: 0.5rem;">
-        <div class="selected-title">선택된 업체 ({{ selectedMembers.length }}곳):</div>
-        <div class="selected-list">
-          <div v-for="memberId in selectedMembers" :key="memberId" class="selected-member">
-            {{ getMemberName(memberId) }}
-            <button type="button" @click="removeMember(memberId)" class="remove-member">×</button>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="label">거래처명<span class="required">*</span></label>
+          <input v-model="hospitalName" placeholder="거래처명을 입력하세요" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">사업자등록번호<span class="required">*</span></label>
+          <input v-model="businessNumber" placeholder="'-' 없이 숫자만 입력" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">원장명<span class="required">*</span></label>
+          <input v-model="directorName" placeholder="원장명을 입력하세요" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">주소<span class="required">*</span></label>
+          <input v-model="address" placeholder="주소를 입력하세요" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">전화번호</label>
+          <input v-model="phone" placeholder="지역번호-국번-번호" class="input" maxlength="13" />
+        </div>
+        <div class="form-group">
+          <label class="label">휴대폰 번호</label>
+          <input v-model="handphone" placeholder="010-1234-5678" class="input" maxlength="13" />
+        </div>
+        <div class="form-group">
+          <label class="label">사업자등록증</label>
+          <input type="file" @change="onFileChange" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">담당 업체</label>
+          <button type="button" class="btn-secondary" @click="openMemberModal">업체 선택</button>
+          <div v-if="selectedMembers.length > 0" class="selected-members" style="margin-top: 0.5rem;">
+            <div class="selected-title">선택된 업체 ({{ selectedMembers.length }}곳):</div>
+            <div class="selected-list">
+              <div v-for="memberId in selectedMembers" :key="memberId" class="selected-member">
+                {{ getMemberName(memberId) }}
+                <button type="button" @click="removeMember(memberId)" class="remove-member">×</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <div class="btn-row">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="loading" style="flex:2;">
+        <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canSubmit }" style="flex:3;">
           {{ loading ? '저장 중...' : '등록' }}
         </button>
       </div>
@@ -92,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useRouter } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
@@ -105,6 +122,14 @@ const address = ref('');
 const licenseFile = ref(null);
 const loading = ref(false);
 const router = useRouter();
+
+// 필수값 검증을 위한 computed
+const canSubmit = computed(() => {
+  return hospitalName.value.trim().length > 0 &&
+         businessNumber.value.trim().length > 0 &&
+         directorName.value.trim().length > 0 &&
+         address.value.trim().length > 0;
+});
 
 // 회원 선택 모달 관련 상태 변수
 const showMemberModal = ref(false);

@@ -38,7 +38,7 @@
           ></textarea>
         </div>
       </div>
-      <div style="display: flex; gap: 1rem; margin-top: 3rem;">
+      <div class="btn-row">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
         <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canSubmit }" style="flex:3;">
           작성

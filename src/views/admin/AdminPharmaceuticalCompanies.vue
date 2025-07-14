@@ -71,7 +71,7 @@
           >
             <template #body="slotProps">
               <template v-if="col.field === 'index'">
-                {{ slotProps.index + 1 + first }}
+                {{ slotProps.index + 1 }}
               </template>
               <template v-else-if="col.type === 'icon' && col.field === 'edit'">
                 <Button icon="pi pi-pencil" class="p-button-rounded p-button-text btn-icon-edit" @click="openEditModal(slotProps.data)" />
@@ -140,11 +140,6 @@
       </div>
     </div>
 
-    <!-- Paginator -->
-    <div class="fixed-paginator">
-      <Paginator :rows="pageSize" :totalRecords="totalCount" :first="first" @page="onPageChange" />
-    </div>
-
     <!-- 제약사 추가/수정 모달 -->
     <div v-if="showModal" class="custom-modal-overlay">
       <div class="custom-modal">
@@ -152,94 +147,94 @@
           <h3 class="modal-title">{{ isEdit ? '제약사 수정' : '제약사 추가' }}</h3>
         </div>
         <div class="modal-body">
-          <div class="form-group">
-            <label class="label-0rem">제약사명</label>
-            <input 
-              v-model="formData.company_name" 
-              type="text" 
-              class="input" 
-              placeholder="제약사명을 입력하세요"
-              required
-              style="margin-bottom: 2rem;"
-            />
-          </div>
-          <div class="form-group">
-            <label class="label-0rem">필터링</label>
-            <div class="status-input">
-              <div
-                class="custom-toggle-wrap custom-toggle-wrap-left" 
-                style="
-                  display: flex; 
-                  justify-content: flex-start; 
-                  margin-bottom: 1rem;
-                  width: 100%;
-                  padding-left: 0;
-                "
-              >
-                <input
-                  type="checkbox"
-                  v-model="formData.filtering_status"
-                  :true-value="'active'"
-                  :false-value="'inactive'"
-                  class="custom-toggle-checkbox"
-                  :id="'modal-filtering-status'"
-                />
-                <label
-                  :for="'modal-filtering-status'" 
-                  class="custom-toggle-label"
-                  style="margin-left: 0;"
-                >
-                </label>
-              </div>
-              <textarea
-                v-model="formData.filtering_comment"
-                class="input"
-                placeholder="필터링 관련 안내 메시지 (선택사항)"
-                rows="4"
-                style="margin-bottom: 2rem;"
-              ></textarea>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="label">제약사명<span class="required">*</span></label>
+              <input 
+                v-model="formData.company_name" 
+                type="text" 
+                class="input" 
+                placeholder="제약사명을 입력하세요"
+                required
+              />
             </div>
-          </div>
-          <div class="form-group">
-            <label class="label-0rem">EDI 증빙 파일</label>
-            <div class="status-input">
-              <div
-                class="custom-toggle-wrap custom-toggle-wrap-left" 
-                style="
-                  display: flex; 
-                  justify-content: flex-start; 
-                  margin-bottom: 1rem;
-                  width: 100%;
-                  padding-left: 0;"
-              >
-                <input
-                  type="checkbox"
-                  v-model="formData.edi_status"
-                  :true-value="'active'"
-                  :false-value="'inactive'"
-                  class="custom-toggle-checkbox"
-                  :id="'modal-edi-status'"
-                />
-                <label
-                  :for="'modal-edi-status'" 
-                  class="custom-toggle-label"
-                  style="margin-left: 0;"
+            <div class="form-group">
+              <label class="label">필터링</label>
+              <div class="status-input">
+                <div
+                  class="custom-toggle-wrap custom-toggle-wrap-left" 
+                  style="
+                    display: flex; 
+                    justify-content: flex-start; 
+                    margin-bottom: 1rem;
+                    width: 100%;
+                    padding-left: 0;
+                  "
                 >
-                </label>
+                  <input
+                    type="checkbox"
+                    v-model="formData.filtering_status"
+                    :true-value="'active'"
+                    :false-value="'inactive'"
+                    class="custom-toggle-checkbox"
+                    :id="'modal-filtering-status'"
+                  />
+                  <label
+                    :for="'modal-filtering-status'" 
+                    class="custom-toggle-label"
+                    style="margin-left: 0;"
+                  >
+                  </label>
+                </div>
+                <textarea
+                  v-model="formData.filtering_comment"
+                  class="input"
+                  placeholder="필터링 관련 안내 메시지"
+                  rows="4"
+                ></textarea>
               </div>
-              <textarea
-                v-model="formData.edi_comment"
-                class="input"
-                placeholder="EDI 관련 안내 메시지 (선택사항)"
-                rows="4"
-              ></textarea>
+            </div>
+            <div class="form-group">
+              <label class="label">EDI 증빙 파일</label>
+              <div class="status-input">
+                <div
+                  class="custom-toggle-wrap custom-toggle-wrap-left" 
+                  style="
+                    display: flex; 
+                    justify-content: flex-start; 
+                    margin-bottom: 1rem;
+                    width: 100%;
+                    padding-left: 0;"
+                >
+                  <input
+                    type="checkbox"
+                    v-model="formData.edi_status"
+                    :true-value="'active'"
+                    :false-value="'inactive'"
+                    class="custom-toggle-checkbox"
+                    :id="'modal-edi-status'"
+                  />
+                  <label
+                    :for="'modal-edi-status'" 
+                    class="custom-toggle-label"
+                    style="margin-left: 0;"
+                  >
+                  </label>
+                </div>
+                <textarea
+                  v-model="formData.edi_comment"
+                  class="input"
+                  placeholder="EDI 관련 안내 메시지"
+                  rows="4"
+                ></textarea>
+              </div>
             </div>
           </div>
         </div>
         <div class="modal-footer">
           <button class="btn-cancel modal" @click="closeModal">취소</button>
           <button class="btn-confirm modal" @click="saveCompany" 
-            :disabled="!formData.company_name.trim() || loading"
+            :disabled="!canSave || loading"
           >
             {{ loading ? '저장 중...' : (isEdit ? '수정' : '추가') }}
           </button>
@@ -271,7 +266,6 @@ import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import * as XLSX from 'xlsx';
-import Paginator from 'primevue/paginator';
 import Dialog from 'primevue/dialog';
 import { pharmaceuticalCompaniesTableConfig } from '@/config/tableConfig';
 import { getTableScrollHeight } from '@/utils/tableHeight';
@@ -282,8 +276,6 @@ const loading = ref(true);
 const search = ref('');
 const isSearched = ref(false);
 const totalCount = ref(0);
-const pageSize = 10;
-const first = ref(0);
 
 const isModalVisible = ref(false);
 const modalTitle = ref('');
@@ -299,6 +291,15 @@ const formData = ref({
   edi_comment: ''
 });
 
+// 원본 데이터 저장
+const originalData = ref({
+  company_name: '',
+  filtering_status: 'inactive',
+  edi_status: 'inactive',
+  filtering_comment: '',
+  edi_comment: ''
+});
+
 const showCommentDialog = ref(false);
 const commentDialogTitle = ref('');
 const commentDialogContent = ref('');
@@ -307,11 +308,36 @@ const isMobile = computed(() => window.innerWidth <= 768);
 const tableConfig = computed(() => isMobile.value ? pharmaceuticalCompaniesTableConfig.mobile : pharmaceuticalCompaniesTableConfig.pc);
 
 // 테이블 스크롤 높이 계산 (페이지네이터 있음)
-const tableScrollHeight = computed(() => getTableScrollHeight(true));
+const tableScrollHeight = computed(() => getTableScrollHeight(false));
 
 // 검색 활성화 조건
 const isSearchEnabled = computed(() => {
   return search.value.length >= 2;
+});
+
+// 필수값 검증
+const canSubmit = computed(() => {
+  return formData.value.company_name.trim().length > 0;
+});
+
+// 변경사항 확인
+const hasChanges = computed(() => {
+  return formData.value.company_name !== originalData.value.company_name ||
+         formData.value.filtering_status !== originalData.value.filtering_status ||
+         formData.value.edi_status !== originalData.value.edi_status ||
+         formData.value.filtering_comment !== originalData.value.filtering_comment ||
+         formData.value.edi_comment !== originalData.value.edi_comment;
+});
+
+// 버튼 활성화 조건
+const canSave = computed(() => {
+  if (isEdit.value) {
+    // 수정 모드: 필수값 + 변경사항
+    return canSubmit.value && hasChanges.value;
+  } else {
+    // 추가 모드: 필수값만
+    return canSubmit.value;
+  }
 });
 
 // 제약사 데이터 불러오기
@@ -401,6 +427,14 @@ const openCreateModal = () => {
     filtering_comment: '',
     edi_comment: ''
   };
+  // 추가 모드에서는 원본 데이터 초기화
+  originalData.value = {
+    company_name: '',
+    filtering_status: 'active',
+    edi_status: 'active',
+    filtering_comment: '',
+    edi_comment: ''
+  };
   showModal.value = true;
 };
 
@@ -414,6 +448,14 @@ const openEditModal = (company) => {
     filtering_comment: company.filtering_comment || '',
     edi_comment: company.edi_comment || ''
   };
+  // 원본 데이터 저장
+  originalData.value = {
+    company_name: company.company_name,
+    filtering_status: company.filtering_status || 'inactive',
+    edi_status: company.edi_status || 'inactive',
+    filtering_comment: company.filtering_comment || '',
+    edi_comment: company.edi_comment || ''
+  };
   showModal.value = true;
 };
 
@@ -421,6 +463,14 @@ const closeModal = () => {
   showModal.value = false;
   formData.value = {
     id: null,
+    company_name: '',
+    filtering_status: 'inactive',
+    edi_status: 'inactive',
+    filtering_comment: '',
+    edi_comment: ''
+  };
+  // 원본 데이터도 초기화
+  originalData.value = {
     company_name: '',
     filtering_status: 'inactive',
     edi_status: 'inactive',
@@ -528,10 +578,7 @@ const downloadExcel = () => {
   XLSX.writeFile(wb, fileName);
 };
 
-const onPageChange = (event) => {
-  first.value = event.first;
-  fetchCompanies();
-};
+
 
 const formatDate = (dateString) => {
   if (!dateString) return '';
