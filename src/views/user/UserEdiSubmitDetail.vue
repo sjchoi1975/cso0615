@@ -7,9 +7,7 @@
       <div v-for="(item, idx) in fileHistory" :key="item.id">
 
         <label class="title-sm">증빙 파일</label>
-        <div
-          v-if="item.files && item.files.length > 0"
-          class="selected-edi-file-list">
+        <div class="selected-edi-file-list">
           <div
             v-for="file in item.files"
             :key="file.id"
@@ -18,10 +16,8 @@
           </div>
         </div>
 
-        <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span></label>
-        <div
-          v-if="item.companies && item.companies.length > 0"
-          class="selected-pharmas-list">
+        <label class="title-sm" style="margin-top: 2rem;">제약사</label>
+        <div class="selected-pharmas-list">
           <div
             v-for="company in item.companies"
             :key="company.id"
@@ -40,8 +36,9 @@
           style="background-color: #f8f9fa; resize: none;">
         </textarea>
 
-        <label class="title-sm" style="margin-top: 2rem; margin-bottom: 2rem;">등록일시</label>
-        <div style="font-size:1.1rem; margin-left:1rem;">{{ formatDate(item.created_at) }}</div>
+        <div style="margin-top: 2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.3rem;">
+          <label class="title-sm">등록 일시 : {{ formatDate(item.created_at) }}</label>
+        </div>
 
         <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
           <button type="button" class="btn-warning" style="padding: 0.5rem 1rem !important;" @click="goToEdit(item.id)">수정하기</button>

@@ -2208,7 +2208,7 @@ button.p-paginator-page:hover {
   display: flex !important;
   flex-direction: column !important;
   gap: 0rem !important;
-  padding: 0.25rem 0 !important;
+  padding: 0.5rem 0 !important;
   background-color: var(--primary-lightest) !important;
 }
 
@@ -2219,7 +2219,7 @@ button.p-paginator-page:hover {
   font-size: 1.0rem !important;
   background-color: none !important;
   border: none !important;
-  padding: 0.35rem 1.5rem !important;
+  padding: 0.25rem 1.5rem !important;
   border-radius: 0 !important;
 }
 
@@ -2229,7 +2229,7 @@ button.p-paginator-page:hover {
   display: flex !important;
   flex-direction: column !important;
   gap: 0rem !important;
-  padding: 0.25rem 0 !important;
+  padding: 0.5rem 0 !important;
   background-color: var(--primary-lightest) !important;
 }
 
@@ -2240,7 +2240,7 @@ button.p-paginator-page:hover {
   font-size: 1.0rem !important;
   background-color: none !important;
   border: none !important;
-  padding: 0.35rem 1.5rem !important;
+  padding: 0.25rem 1.5rem !important;
   border-radius: 0 !important;
 }
 

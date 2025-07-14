@@ -9,9 +9,7 @@
         @change="handleFileSelect"
         class="input"
       />
-      <div
-        v-if="selectedFiles.length > 0"
-        class="selected-edi-file-list">
+      <div class="selected-edi-file-list">
         <div
           v-for="(file, idx) in selectedFiles"
           :key="file.url || file.name"
@@ -28,9 +26,7 @@
       <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span>
       </label>
       <button type="button" class="btn-select-wide" @click="openPharmaModal">제약사 선택</button>
-      <div
-        v-if="selectedCompanies.length > 0"
-        class="selected-pharmas-list">
+      <div class="selected-pharmas-list">
         <div
           v-for="company in selectedCompanies"
           :key="company.id"
