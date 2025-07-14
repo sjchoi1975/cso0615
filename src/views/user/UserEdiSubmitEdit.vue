@@ -3,37 +3,41 @@
     <form class="board-form" @submit.prevent="submitEdit">
       <!-- 파일 선택 -->
       <label class="title-sm">증빙 파일<span class="required">*</span></label>
-      <input type="file" multiple @change="handleFileSelect" class="input" style="margin-bottom:0rem;" />
-      <ul v-if="selectedFiles.length > 0" style="margin-bottom:1.5rem; padding-left:0; list-style:none;">
-        <li
+      <input
+        type="file"
+        multiple
+        @change="handleFileSelect"
+        class="input"
+      />
+      <div
+        v-if="selectedFiles.length > 0"
+        class="selected-edi-file-list">
+        <div
           v-for="(file, idx) in selectedFiles"
           :key="file.url || file.name"
-          class="selected-edi-file"
-          style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: #eaf6fd; margin-bottom: 0rem;"
-        >
+          class="selected-edi-file-item">
           <span>{{ file.original_name || file.name }}</span>
-          <button
-            type="button"
-            @click="removeFile(idx)"
-            style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
-              <line x1="10" y1="11" x2="10" y2="17"/>
-              <line x1="14" y1="11" x2="14" y2="17"/>
-            </svg>
+          <button type="button"@click="removeFile(idx)"
+            style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/> <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/> <line x1="14" y1="11" x2="14" y2="17"/></svg>
           </button>
-        </li>
-      </ul>
+        </div>
+      </div>
 
       <!-- 제약사 선택 -->
-      <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span></label>
+      <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span>
+      </label>
       <button type="button" class="btn-select-wide" @click="openPharmaModal">제약사 선택</button>
-      <div v-if="selectedCompanies.length > 0" class="selected-pharmas-list" style="margin-bottom: 0rem;">
-        <div v-for="company in selectedCompanies" :key="company.id" class="selected-pharma-item" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+      <div
+        v-if="selectedCompanies.length > 0"
+        class="selected-pharmas-list">
+        <div
+          v-for="company in selectedCompanies"
+          :key="company.id"
+          class="selected-pharma-item">
           <span>{{ company.company_name }}</span>
-          <button type="button" @click="removeCompany(company.id)" style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
+          <button type="button" @click="removeCompany(company.id)"
+            style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
           </button>
         </div>
@@ -129,7 +133,7 @@ const route = useRoute();
 const router = useRouter();
 const settlementMonthId = route.params.settlementMonthId;
 const hospitalId = route.params.hospitalId;
-const fileId = route.params.fileId;
+const submissionId = route.params.fileId; // 실제로는 submission_id
 
 const selectedFiles = ref([]);
 const companies = ref([]);
@@ -151,20 +155,53 @@ onMounted(async () => {
     hospitalName.value = data?.hospital_name || '';
   }
 
-  // 기존 데이터 불러오기
-  const { data: fileData } = await supabase
-    .from('edi_files')
-    .select('file_url, file_name, original_file_name, file_size, memo')
-    .eq('id', fileId)
-    .single();
+  // submission_id 파싱: "settlementMonthId-memberId-hospitalId-submissionSeq"
+  const submissionParts = submissionId.split('-');
+  if (submissionParts.length < 4) {
+    alert('잘못된 접근입니다.');
+    router.back();
+    return;
+  }
+  
+  const submissionSeq = submissionParts[submissionParts.length - 1];
+  
+  // 현재 사용자 정보 가져오기
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    alert('로그인이 필요합니다.');
+    return;
+  }
 
-  if (fileData) {
-    selectedFiles.value = [{
-      url: fileData.file_url,
-      name: fileData.original_file_name,
-      size: fileData.file_size
-    }];
-    memo.value = fileData.memo || '';
+  // 해당 제출의 파일 목록 조회
+  const { data: filesData, error: filesError } = await supabase
+    .from('edi_files')
+    .select('id, file_url, file_name, original_file_name, file_size, memo')
+    .eq('settlement_month_id', settlementMonthId)
+    .eq('member_id', user.id)
+    .eq('hospital_id', hospitalId)
+    .eq('submission_seq', submissionSeq)
+    .eq('is_deleted', false);
+
+  if (filesError) {
+    console.error('파일 데이터 로딩 실패:', filesError);
+    alert('파일 정보를 불러오는데 실패했습니다.');
+    return;
+  }
+
+  if (filesData && filesData.length > 0) {
+    // 모든 파일을 로드
+    selectedFiles.value = filesData.map(file => ({
+      id: file.id,
+      url: file.file_url,
+      name: file.original_file_name || file.file_name,
+      size: file.file_size
+    }));
+    // 첫 번째 파일의 메모를 기본값으로 사용
+    memo.value = filesData[0].memo || '';
+  } else {
+    alert('파일 정보를 찾을 수 없습니다.');
+    router.back();
+    return;
   }
 
   // EDI가 활성화된 제약사만 조회
@@ -175,17 +212,26 @@ onMounted(async () => {
     .order('company_name');
   companies.value = data || [];
 
-  // 선택된 제약사 목록
+  // 선택된 제약사 목록 (해당 제출의 모든 파일에서 중복 제거)
+  const fileIds = filesData.map(f => f.id);
   const { data: companyRows } = await supabase
     .from('edi_file_companies')
     .select('company_id, pharmaceutical_companies(id, company_name, edi_comment)')
-    .eq('edi_file_id', fileId);
+    .in('edi_file_id', fileIds);
   
-  selectedCompanies.value = (companyRows || []).map(c => ({
-    id: c.company_id,
-    company_name: c.pharmaceutical_companies?.company_name || '',
-    edi_comment: c.pharmaceutical_companies?.edi_comment || ''
-  }));
+  // 중복 제거하여 제약사 목록 생성
+  const uniqueCompanies = new Map();
+  (companyRows || []).forEach(c => {
+    if (c.pharmaceutical_companies) {
+      uniqueCompanies.set(c.company_id, {
+        id: c.company_id,
+        company_name: c.pharmaceutical_companies.company_name || '',
+        edi_comment: c.pharmaceutical_companies.edi_comment || ''
+      });
+    }
+  });
+  
+  selectedCompanies.value = Array.from(uniqueCompanies.values());
 });
 
 const filteredCompanies = computed(() => {
@@ -268,13 +314,32 @@ async function submitEdit() {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     const memberId = user?.id;
-    let fileUrl = selectedFiles.value[0].url;
-    let fileName = selectedFiles.value[0].name;
-    let originalFileName = selectedFiles.value[0].name;
-    let fileSize = selectedFiles.value[0].size;
-
-    // 새로운 파일이 선택된 경우
-    if (!fileUrl) {
+    
+    // submission_id 파싱
+    const submissionParts = submissionId.split('-');
+    const submissionSeq = submissionParts[submissionParts.length - 1];
+    
+    // 현재 제출의 모든 파일 조회
+    const { data: currentFiles } = await supabase
+      .from('edi_files')
+      .select('id')
+      .eq('settlement_month_id', settlementMonthId)
+      .eq('member_id', memberId)
+      .eq('hospital_id', hospitalId)
+      .eq('submission_seq', submissionSeq)
+      .eq('is_deleted', false);
+    
+    if (!currentFiles || currentFiles.length === 0) {
+      alert('수정할 파일을 찾을 수 없습니다.');
+      isSubmitting.value = false;
+      return;
+    }
+    
+    const fileIds = currentFiles.map(f => f.id);
+    
+    // 새로운 파일이 업로드된 경우 처리
+    if (selectedFiles.value[0] && !selectedFiles.value[0].url) {
+      // 새 파일 업로드
       const file = selectedFiles.value[0];
       const ext = file.name.split('.').pop();
       const safeName = `edi_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
@@ -291,38 +356,52 @@ async function submitEdit() {
         return;
       }
 
-      fileUrl = supabase.storage.from('edi-uploads').getPublicUrl(filePath).data.publicUrl;
-      fileName = safeName;
-      originalFileName = file.name;
-      fileSize = file.size;
+      const fileUrl = supabase.storage.from('edi-uploads').getPublicUrl(filePath).data.publicUrl;
+      
+      // 첫 번째 파일 정보 업데이트
+      const { error: fileError } = await supabase
+        .from('edi_files')
+        .update({
+          file_url: fileUrl,
+          file_name: safeName,
+          original_file_name: file.name,
+          file_size: file.size,
+          memo: memo.value,
+          updated_by: memberId,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', fileIds[0]);
+
+      if (fileError) {
+        console.error('EDI 파일 수정 실패:', fileError);
+        alert('EDI 파일 정보 수정에 실패했습니다.');
+        isSubmitting.value = false;
+        return;
+      }
+    } else {
+      // 메모만 업데이트
+      const { error: memoError } = await supabase
+        .from('edi_files')
+        .update({
+          memo: memo.value,
+          updated_by: memberId,
+          updated_at: new Date().toISOString()
+        })
+        .in('id', fileIds);
+
+      if (memoError) {
+        console.error('메모 수정 실패:', memoError);
+        alert('메모 수정에 실패했습니다.');
+        isSubmitting.value = false;
+        return;
+      }
     }
 
-    // EDI 파일 정보 업데이트
-    const { error: fileError } = await supabase
-      .from('edi_files')
-      .update({
-        file_url: fileUrl,
-        file_name: fileName,
-        original_file_name: originalFileName,
-        file_size: fileSize,
-        memo: memo.value,
-        updated_by: memberId,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', fileId);
-
-    if (fileError) {
-      console.error('EDI 파일 수정 실패:', fileError);
-      alert('EDI 파일 정보 수정에 실패했습니다.');
-      isSubmitting.value = false;
-      return;
-    }
-
-    // 제약사 매핑 갱신
+    // 기존 제약사 매핑 삭제
     const { error: deleteError } = await supabase
       .from('edi_file_companies')
       .delete()
-      .eq('edi_file_id', fileId);
+      .in('edi_file_id', fileIds);
 
     if (deleteError) {
       console.error('기존 제약사 매핑 삭제 실패:', deleteError);
@@ -331,21 +410,23 @@ async function submitEdit() {
       return;
     }
 
-    // 새로운 제약사 매핑 생성
-    for (const company of selectedCompanies.value) {
-      const { error: mappingError } = await supabase
-        .from('edi_file_companies')
-        .insert({
-          edi_file_id: fileId,
-          company_id: company.id,
-          created_by: memberId,
-          updated_by: memberId
-        });
+    // 새로운 제약사 매핑 생성 (모든 파일에 동일하게 적용)
+    for (const fileId of fileIds) {
+      for (const company of selectedCompanies.value) {
+        const { error: mappingError } = await supabase
+          .from('edi_file_companies')
+          .insert({
+            edi_file_id: fileId,
+            company_id: company.id,
+            created_by: memberId,
+            updated_by: memberId
+          });
 
-      if (mappingError) {
-        console.error('제약사 매핑 추가 실패:', mappingError, company);
-        alert(`제약사 매핑 추가 실패: ${company.company_name}`);
-        // 매핑 실패는 경고만 표시하고 계속 진행
+        if (mappingError) {
+          console.error('제약사 매핑 추가 실패:', mappingError, company);
+          alert(`제약사 매핑 추가 실패: ${company.company_name}`);
+          // 매핑 실패는 경고만 표시하고 계속 진행
+        }
       }
     }
 

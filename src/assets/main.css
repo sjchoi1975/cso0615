@@ -1,5 +1,5 @@
 html {
-  font-size: 14px; /* 1rem = 16px (기본값) */
+  font-size: 13.75px; /* 1rem = 16px (기본값) */
 }
 
 html, body {
@@ -1421,6 +1421,7 @@ button.p-paginator-page:hover {
 }
 
 /* 대기 Pending */
+
 .status-select.status-select-pending {
   background-color: var(--gray-600) !important;
   color: #fff !important;
@@ -1468,7 +1469,7 @@ button.p-paginator-page:hover {
 .status-select-user {
   border: 1px solid #d1d5db !important; /* gray-300 */
   border-radius: var(--border-radius) !important;
-  padding: 0.25rem 0.6rem !important;
+  padding: 0.25rem 0.5rem !important;
   font-size: var(--font-size-90) !important;
   font-weight: 400 !important;
   -webkit-appearance: none !important;
@@ -2201,11 +2202,14 @@ button.p-paginator-page:hover {
   margin-top: 0.5rem;
 }
 
+
+/* 제약사 - 선택된 목록 - 필터링 요청, EDI 등록 */
 .selected-pharmas-list {
-  margin-top: 1rem !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 0.5rem !important;
+  gap: 0rem !important;
+  padding: 0.25rem 0 !important;
+  background-color: var(--primary-lightest) !important;
 }
 
 .selected-pharma-item {
@@ -2213,20 +2217,30 @@ button.p-paginator-page:hover {
   justify-content: space-between !important;
   align-items: center !important;
   font-size: 1.0rem !important;
-  background-color: var(--primary-lightest) !important;
-  border: 1px solid var(--gray-300) !important;
-  padding: 0.5rem 1.5rem !important;
-  border-radius: var(--border-radius) !important;
+  background-color: none !important;
+  border: none !important;
+  padding: 0.35rem 1.5rem !important;
+  border-radius: 0 !important;
 }
 
-.selected-edi-file {
+
+/* EDI 증빙파일 등록 - 선택한 파일 목록 */
+.selected-edi-file-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0rem !important;
+  padding: 0.25rem 0 !important;
+  background-color: var(--primary-lightest) !important;
+}
+
+.selected-edi-file-item {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
   font-size: 1.0rem !important;
-  background-color: var(--gray-100) !important;
+  background-color: none !important;
   border: none !important;
-  padding: 0.65rem 1.5rem !important;
+  padding: 0.35rem 1.5rem !important;
   border-radius: 0 !important;
 }
 
@@ -2543,7 +2557,6 @@ button.p-paginator-page:hover {
   font-size: var(--font-size-100) !important;
   display: block !important;
   font-weight: 500 !important;
-  margin-bottom: -0.5rem !important;
 }
 
 /* 라벨 - 모달 페이지 */
@@ -2551,7 +2564,6 @@ button.p-paginator-page:hover {
   font-size: var(--font-size-100) !important;
   display: block !important;
   font-weight: 500 !important;
-  margin-bottom: 0 !important;
 }
 
 /* 라벨 - 모달 페이지 */
@@ -2600,6 +2612,7 @@ button.p-paginator-page:hover {
   font-size: 1.1rem !important;
   color:#444 !important;
   font-weight:600 !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .title-sm-danger {

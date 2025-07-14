@@ -4,43 +4,43 @@
 
     <div v-if="loading">로딩 중...</div>
     <div v-else>
-      <div v-if="fileHistory.length === 0">제출 이력이 없습니다.</div>
       <div v-for="(item, idx) in fileHistory" :key="item.id">
 
-        <label
-          class="title-sm"
-          style="margin-top: 0rem; margin-bottom: 0.5rem;">
-          제출 파일
-        </label>
-        <ul style="font-size:1.1rem; margin-left:1rem; padding-left:1.2em;">
-          <li v-for="file in item.files" :key="file.id" style="margin-bottom:0.35em;">
-            <a :href="file.file_url" target="_blank">{{ file.original_file_name }}</a>
-          </li>
-        </ul>
+        <label class="title-sm">증빙 파일</label>
+        <div
+          v-if="item.files && item.files.length > 0"
+          class="selected-edi-file-list">
+          <div
+            v-for="file in item.files"
+            :key="file.id"
+            class="selected-edi-file-item">
+            <span><a :href="file.file_url" target="_blank">{{ file.original_file_name }}</a></span>
+          </div>
+        </div>
 
-        <label
-          class="title-sm"
-          style="margin-top: 2rem; margin-bottom: 0.5rem;">
-          제약사
-        </label>
-        <ul style="font-size:1.1rem; margin-left:1rem; padding-left:1.2em;">
-          <li v-for="c in item.companies" :key="c.id" style="margin-bottom:0.35em;">
-            {{ c.company_name }}
-          </li>
-        </ul>
+        <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span></label>
+        <div
+          v-if="item.companies && item.companies.length > 0"
+          class="selected-pharmas-list">
+          <div
+            v-for="company in item.companies"
+            :key="company.id"
+            class="selected-pharma-item">
+            <span>{{ company.company_name }}</span>
+          </div>
+        </div>
 
-        <label
-          class="title-sm" 
-          style="margin-top: 2rem; margin-bottom: 0.5rem;">
-          비고
-        </label>                
-        <div style="font-size:1.1rem; margin-left:1rem; margin-bottom:2.4rem; white-space:pre-line;">{{ item.memo || '-' }}</div>
+        <label class="title-sm" style="margin-top: 2rem;">특이 사항</label>
+        <textarea 
+          class="input" 
+          placeholder="" 
+          rows="6" 
+          readonly
+          :value="item.memo || ''"
+          style="background-color: #f8f9fa; resize: none;">
+        </textarea>
 
-        <label 
-          class="title-sm" 
-          style="margin-top: 2rem; margin-bottom: 0.5rem;">
-          등록일시
-        </label>
+        <label class="title-sm" style="margin-top: 2rem; margin-bottom: 2rem;">등록일시</label>
         <div style="font-size:1.1rem; margin-left:1rem;">{{ formatDate(item.created_at) }}</div>
 
         <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">

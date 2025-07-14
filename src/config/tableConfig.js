@@ -723,12 +723,12 @@ export const userFilterRequestsTableConfig = {
       /*{ field: 'member_name', label: '업체명', width: '10%', align: 'left', sortable: false },*/
       /*{ field: 'ceo_name', label: '대표자', width: '5%', align: 'center', sortable: false },*/
       /*{ field: 'member_biz_no', label: '사업자등록번호', width: '6%', align: 'center', sortable: false },*/
+      { field: 'status', label: '처리결과', width: '6%', align: 'center', sortable: false },
       { field: 'filter_type', label: '구분', width: '4%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처', width: '14%', align: 'left', sortable: false },
       /*{ field: 'hospita_biz_no', label: '사업자등록번호', width: '8%', align: 'center', sortable: false },*/
       /*{ field: 'hospita_director_name', label: '원장명', width: '6%', align: 'center', sortable: false },*/
       /*{ field: 'hospita_address', label: '주소', width: '10%', align: 'left', sortable: false },*/
-      { field: 'status', label: '처리결과', width: '6%', align: 'center', sortable: false },
       { field: 'pharmacist_name', label: '제약사', width: '10%', align: 'left', sortable: false },
       { field: 'admin_comments', label: '전달사항', width: '10%', align: 'left', sortable: false },
       { field: 'processed_at', label: '처리일시', width: '12%', align: 'center', sortable: false },

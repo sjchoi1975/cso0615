@@ -8,45 +8,36 @@
         multiple 
         @change="handleFileSelect" 
         class="input" 
-        style="margin-bottom:0rem;" 
       />
-      <ul v-if="selectedFiles.length > 0" style="margin-bottom:1.5rem; padding-left:0; list-style:none;">
-        <li
+      <div
+        v-if="selectedFiles.length > 0"
+        class="selected-edi-file-list">
+        <div
           v-for="(file, idx) in selectedFiles"
           :key="idx"
-          class="selected-edi-file"
-          style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: #eaf6fd; margin-bottom: 0rem;"
-        >
+          class="selected-edi-file-item">
           <span>{{ file.name }}</span>
-          <button
-            type="button"
-            @click="removeFile(idx)"
-            style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
-              <line x1="10" y1="11" x2="10" y2="17"/>
-              <line x1="14" y1="11" x2="14" y2="17"/>
-            </svg>
+          <button type="button"@click="removeFile(idx)"
+            style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/> <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/> <line x1="14" y1="11" x2="14" y2="17"/></svg>
           </button>
-        </li>
-      </ul>
+        </div>
+      </div>
 
       <!-- 제약사 선택 -->
-      <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span></label>
+      <label class="title-sm" style="margin-top: 2rem;">제약사<span class="required">*</span>
+      </label>
       <button type="button" class="btn-select-wide" @click="openPharmaModal">제약사 선택</button>
-      <div v-if="selectedCompanies.length > 0" class="selected-pharmas-list" style="margin-bottom: 0rem;">
+      <div
+        v-if="selectedCompanies.length > 0"
+        class="selected-pharmas-list">
         <div
           v-for="company in selectedCompanies" 
           :key="company.id" 
-          class="selected-pharma-item" 
-          style="display: flex; 
-          align-items: center; 
-          justify-content: space-between; 
-          gap: 0.5rem;">
+          class="selected-pharma-item">
           <span>{{ company.company_name }}</span>
-          <button type="button" @click="removeCompany(company.id)" style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
+          <button type="button" @click="removeCompany(company.id)"
+            style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 0.5rem;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
           </button>
         </div>
@@ -54,7 +45,12 @@
 
       <!-- 메모 -->
       <label class="title-sm" style="margin-top: 2rem;">특이 사항</label>
-      <textarea v-model="memo" class="input" placeholder="" rows="6"></textarea>
+      <textarea
+        v-model="memo"
+        class="input"
+        placeholder=""
+        rows="6">
+      </textarea>
 
       <div class="btn-row">
         <button
