@@ -1,44 +1,42 @@
 <template>
   <div class="board">
-    <form @submit.prevent="onSubmit" class="board-form-640">
-      <div class="form-grid-2x">
-        <div class="form-group">
-          <label class="label">제목</label>
+    <form @submit.prevent="onSubmit" class="board-form-720">
+      <div style="margin-bottom: 1.5rem;">
+        <label class="label-05rem">제목</label>
+        <input 
+          v-model="title" 
+          ref="titleInput"
+          class="input" 
+          placeholder="제목을 입력하세요" 
+          required 
+        />
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label class="label-05rem">중요 공지</label>
+        <div class="checkbox-wrapper">
           <input 
-            v-model="title" 
-            ref="titleInput"
-            class="input" 
-            placeholder="제목을 입력하세요" 
-            required 
+            type="checkbox" 
+            id="important" 
+            v-model="isImportant" 
+            class="custom-checkbox"
           />
-        </div>
-        <div class="form-group">
-          <label class="label">중요 공지</label>
-          <div class="checkbox-wrapper">
-            <input 
-              type="checkbox" 
-              id="important" 
-              v-model="isImportant" 
-              class="custom-checkbox"
-            />
-            <label for="important" class="label-90-666">중요 공지로 설정 (상단 고정)</label>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="label">내용</label>
-          <textarea
-            v-model="content"
-            ref="textarea"
-            rows="16"
-            class="input"
-            placeholder="내용을 입력하세요"
-            style="resize: vertical;"
-            @input="autoResize"
-            required
-          ></textarea>
+          <label for="important" class="label-09-666">중요 공지로 설정 (상단 고정)</label>
         </div>
       </div>
-      <div style="display: flex; gap: 1rem; margin-top: 3rem;">
+      <div style="margin-bottom: 2rem;">
+        <label class="label-05rem">내용</label>
+        <textarea
+          v-model="content"
+          ref="textarea"
+          rows="16"
+          class="input"
+          placeholder="내용을 입력하세요"
+          style="resize: vertical;"
+          @input="autoResize"
+          required
+        ></textarea>
+      </div>
+      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
         <button type="submit" class="btn-confirm" :class="{ 'btn-disabled': loading || !canSubmit }" style="flex:3;">
           작성

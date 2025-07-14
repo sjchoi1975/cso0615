@@ -2,117 +2,140 @@
   <div class="auth-root">
     <form @submit.prevent="signup" class="board-form">
       <h2 class="Signup-title">회원가입</h2>
-      <label>아이디<span class="required">*</span>
-      </label>
-      <input v-model="idEmail" 
-        type="email" 
-        placeholder="이메일" 
-        class="input" 
-        required />
-      <label>비밀번호<span class="required">*</span></label>
-      <div class="input-eye-wrap">
-        <input :type="showPassword ? 'text' : 'password'" 
-          v-model="password" 
-          placeholder="최소 6자 이상" 
-          class="input" 
-          required minlength="6" />
-        <button type="button" 
-          class="eye-btn" @click="showPassword = !showPassword" 
-          :aria-label="showPassword ? '비밀번호 숨기기' : '비밀번호 보기'">
-          <span v-if="showPassword">
-            <!-- eye-off SVG -->
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              width="18" 
-              height="18" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              stroke-width="2" 
-              stroke-linecap="round" 
-              stroke-linejoin="round">
-              <path d="M17.94 17.94A10.06 10.06 0 0 1 12 20C7 20 2.73 16.11 1 12c.74-1.61 1.81-3.06 3.11-4.24M9.53 9.53A3.5 3.5 0 0 1 12 8.5c1.93 0 3.5 1.57 3.5 3.5 0 .47-.09.92-.26 1.33M14.47 14.47A3.5 3.5 0 0 1 12 15.5c-1.93 0-3.5-1.57-3.5-3.5 0-.47.09-.92.26-1.33"/>
-              <line x1="1" y1="1" x2="23" y2="23"/>
-            </svg>
-          </span>
-          <span v-else>
-            <!-- eye SVG -->
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              width="18" 
-              height="18" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              stroke-width="2" 
-              stroke-linecap="round" 
-              stroke-linejoin="round">
-              <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/>
-              <circle cx="12" cy="12" r="3.5"/>
-            </svg>
-          </span>
-        </button>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="label">아이디<span class="required">*</span></label>
+          <input v-model="idEmail" 
+            type="email" 
+            placeholder="이메일" 
+            class="input" 
+            required />
+        </div>
+        <div class="form-group">
+          <label class="label">비밀번호<span class="required">*</span></label>
+          <div class="input-eye-wrap">
+            <input :type="showPassword ? 'text' : 'password'" 
+              v-model="password" 
+              placeholder="최소 6자 이상" 
+              class="input" 
+              required minlength="6" />
+            <button type="button" 
+              class="eye-btn" @click="showPassword = !showPassword" 
+              :aria-label="showPassword ? '비밀번호 숨기기' : '비밀번호 보기'">
+              <span v-if="showPassword">
+                <!-- eye-off SVG -->
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                  width="18" 
+                  height="18" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  stroke-width="2" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.06 10.06 0 0 1 12 20C7 20 2.73 16.11 1 12c.74-1.61 1.81-3.06 3.11-4.24M9.53 9.53A3.5 3.5 0 0 1 12 8.5c1.93 0 3.5 1.57 3.5 3.5 0 .47-.09.92-.26 1.33M14.47 14.47A3.5 3.5 0 0 1 12 15.5c-1.93 0-3.5-1.57-3.5-3.5 0-.47.09-.92.26-1.33"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </span>
+              <span v-else>
+                <!-- eye SVG -->
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                  width="18" 
+                  height="18" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  stroke-width="2" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round">
+                  <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                  <circle cx="12" cy="12" r="3.5"/>
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="label">비밀번호 확인<span class="required">*</span></label>
+          <div class="input-eye-wrap">
+            <input :type="showConfirmPassword ? 'text' : 'password'" 
+              v-model="confirmPassword" 
+              placeholder="비밀번호 재입력" 
+              class="input" 
+              required minlength="6" 
+              :class="{ 'password-mismatch': showPasswordMismatch }" />
+            <button type="button" class="eye-btn" 
+              @click="showConfirmPassword = !showConfirmPassword" 
+              :aria-label="showConfirmPassword ? '비밀번호 숨기기' : '비밀번호 보기'">
+              <span v-if="showConfirmPassword">
+                <!-- eye-off SVG -->
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                  width="18" 
+                  height="18" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  stroke-width="2" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.06 10.06 0 0 1 12 20C7 20 2.73 16.11 1 12c.74-1.61 1.81-3.06 3.11-4.24M9.53 9.53A3.5 3.5 0 0 1 12 8.5c1.93 0 3.5 1.57 3.5 3.5 0 .47-.09.92-.26 1.33M14.47 14.47A3.5 3.5 0 0 1 12 15.5c-1.93 0-3.5-1.57-3.5-3.5 0-.47.09-.92.26-1.33"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </span>
+              <span v-else>
+                <!-- eye SVG -->
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                  width="18" 
+                  height="18" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  stroke-width="2" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round">
+                  <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                  <circle cx="12" cy="12" r="3.5"/>
+                </svg>
+              </span>
+            </button>
+          </div>
+          <div v-if="showPasswordMismatch" class="password-error">
+            비밀번호가 일치하지 않습니다.
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="label">회사명<span class="required">*</span></label>
+          <input v-model="companyName" placeholder="" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">대표자명<span class="required">*</span></label>
+          <input v-model="ceoName" placeholder="" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">사업자등록번호<span class="required">*</span></label>
+          <input v-model="bizNo" placeholder="숫자만 입력" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">주소</label>
+          <input v-model="address" placeholder="" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">CSO 신고번호</label>
+          <input v-model="csoRegistNo" placeholder="숫자와 - (하이픈)만 입력" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">담당자명</label>
+          <input v-model="managerName" placeholder="" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">휴대폰 번호</label>
+          <input v-model="handphone" placeholder="숫자만 입력" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">이메일(연락용)</label>
+          <input v-model="contactEmail" type="email" placeholder="" class="input" />
+        </div>
       </div>
-      <label>비밀번호 확인<span class="required">*</span></label>
-      <div class="input-eye-wrap">
-        <input :type="showConfirmPassword ? 'text' : 'password'" 
-          v-model="confirmPassword" 
-          placeholder="비밀번호 재입력" 
-          class="input" 
-          required minlength="6" 
-          :class="{ 'password-mismatch': showPasswordMismatch }" />
-        <button type="button" class="eye-btn" 
-          @click="showConfirmPassword = !showConfirmPassword" 
-          :aria-label="showConfirmPassword ? '비밀번호 숨기기' : '비밀번호 보기'">
-          <span v-if="showConfirmPassword">
-            <!-- eye-off SVG -->
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              width="18" 
-              height="18" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              stroke-width="2" 
-              stroke-linecap="round" 
-              stroke-linejoin="round">
-              <path d="M17.94 17.94A10.06 10.06 0 0 1 12 20C7 20 2.73 16.11 1 12c.74-1.61 1.81-3.06 3.11-4.24M9.53 9.53A3.5 3.5 0 0 1 12 8.5c1.93 0 3.5 1.57 3.5 3.5 0 .47-.09.92-.26 1.33M14.47 14.47A3.5 3.5 0 0 1 12 15.5c-1.93 0-3.5-1.57-3.5-3.5 0-.47.09-.92.26-1.33"/>
-              <line x1="1" y1="1" x2="23" y2="23"/>
-            </svg>
-          </span>
-          <span v-else>
-            <!-- eye SVG -->
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              width="18" 
-              height="18" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              stroke-width="2" 
-              stroke-linecap="round" 
-              stroke-linejoin="round">
-              <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/>
-              <circle cx="12" cy="12" r="3.5"/>
-            </svg>
-          </span>
-        </button>
-      </div>
-      <div v-if="showPasswordMismatch" class="password-error">
-        비밀번호가 일치하지 않습니다.
-      </div>
-      <label>회사명<span class="required">*</span></label>
-      <input v-model="companyName" placeholder="" class="input" required />
-      <label>대표자명<span class="required">*</span></label>
-      <input v-model="ceoName" placeholder="" class="input" required />
-      <label>사업자등록번호<span class="required">*</span></label>
-      <input v-model="bizNo" placeholder="숫자만 입력" class="input" required />
-      <label>주소</label>
-      <input v-model="address" placeholder="" class="input" />
-      <label>CSO 신고번호</label>
-      <input v-model="csoRegistNo" placeholder="숫자와 - (하이픈)만 입력" class="input" />
-      <label>담당자명</label>
-      <input v-model="managerName" placeholder="" class="input" />
-      <label>휴대폰 번호</label>
-      <input v-model="handphone" placeholder="숫자만 입력" class="input" />
-      <label>이메일(연락용)</label>
-      <input v-model="contactEmail" type="email" placeholder="" class="input" />
       <div class="btn-row">
         <button type="button" class="btn-cancel" @click="goLogin" style="flex:1;">취소</button>
         <button type="submit" class="btn-signup" :disabled="loading" style="flex:3;">회원가입</button>

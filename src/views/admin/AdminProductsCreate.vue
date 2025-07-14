@@ -1,44 +1,78 @@
 <template>
   <div class="board">
     <form @submit.prevent="registerProduct" class="board-form">
-      <label>기준년월</label>
-      <input :value="baseMonth" class="input" disabled />
-      <label>제약사<span class="required">*</span></label>
-      <input v-model="pharmacist" placeholder="제약사" class="input" required />
-      <label>분류명</label>
-      <input v-model="classification" placeholder="분류명" class="input" />
-      <label>제품명<span class="required">*</span></label>
-      <input v-model="productName" placeholder="제품명" class="input" required />
-      <label>보험코드</label>
-      <input v-model="insuranceCode" placeholder="보험코드" class="input" maxlength="9" />
-      <label>약가</label>
-      <input v-model.number="price" type="number" placeholder="약가" class="input" />
-      <label>수수료 등급 A(%)</label>
-      <input v-model.number="commissionA" type="number" step="0.1" placeholder="수수료 A" class="input" />
-      <label>수수료 등급 B(%)</label>
-      <input v-model.number="commissionB" type="number" step="0.1" placeholder="수수료 B" class="input" />
-      <label>수수료 등급 C(%)</label>
-      <input v-model.number="commissionC" type="number" step="0.1" placeholder="수수료 C" class="input" />
-      <label>성분</label>
-      <input v-model="ingredient" placeholder="성분" class="input" />
-      <label>대조약</label>
-      <input v-model="comparator" placeholder="대조약" class="input" />
-      <label>급여</label>
-      <input v-model="reimbursement" placeholder="급여" class="input" />
-      <label>생동</label>
-      <input v-model="bioequivalence" placeholder="생동" class="input" />
-      <label>자사/위탁</label>
-      <input v-model="inhouse" placeholder="자사/위탁" class="input" />
-      <label>비고</label>
-      <input v-model="remarks" placeholder="비고" class="input" />
-      <label>상태</label>
-      <select v-model="status" class="input">
-        <option value="active">활성</option>
-        <option value="inactive">비활성</option>
-      </select>
-      <div style="display: flex; gap: 1rem; margin-top: 1.2rem;">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="label">기준년월</label>
+          <input :value="baseMonth" class="input" disabled />
+        </div>
+        <div class="form-group">
+          <label class="label">제약사<span class="required">*</span></label>
+          <input v-model="pharmacist" placeholder="제약사" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">분류명</label>
+          <input v-model="classification" placeholder="분류명" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">제품명<span class="required">*</span></label>
+          <input v-model="productName" placeholder="제품명" class="input" required />
+        </div>
+        <div class="form-group">
+          <label class="label">보험코드</label>
+          <input v-model="insuranceCode" placeholder="보험코드" class="input" maxlength="9" />
+        </div>
+        <div class="form-group">
+          <label class="label">약가</label>
+          <input v-model.number="price" type="number" placeholder="약가" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">수수료 등급 A(%)</label>
+          <input v-model.number="commissionA" type="number" step="0.1" placeholder="수수료 A" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">수수료 등급 B(%)</label>
+          <input v-model.number="commissionB" type="number" step="0.1" placeholder="수수료 B" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">수수료 등급 C(%)</label>
+          <input v-model.number="commissionC" type="number" step="0.1" placeholder="수수료 C" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">성분</label>
+          <input v-model="ingredient" placeholder="성분" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">대조약</label>
+          <input v-model="comparator" placeholder="대조약" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">급여</label>
+          <input v-model="reimbursement" placeholder="급여" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">생동</label>
+          <input v-model="bioequivalence" placeholder="생동" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">자사/위탁</label>
+          <input v-model="inhouse" placeholder="자사/위탁" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">비고</label>
+          <input v-model="remarks" placeholder="비고" class="input" />
+        </div>
+        <div class="form-group">
+          <label class="label">상태</label>
+          <select v-model="status" class="input">
+            <option value="active">활성</option>
+            <option value="inactive">비활성</option>
+          </select>
+        </div>
+      </div>
+      <div style="display: flex; gap: 1rem; margin-top: 3rem;">
         <button type="button" class="btn-cancel" @click="goList" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="loading" style="flex:2;">등록</button>
+        <button type="submit" class="btn-confirm" :disabled="loading" style="flex:3;">등록</button>
       </div>
     </form>
   </div>
