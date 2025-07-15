@@ -78,10 +78,10 @@
             <!-- 전달사항 박스 (공용+개별 줄바꿈) -->
             <div class="form-group">
               <label class="txt-110-222">전달사항</label>
-              <div style="border:1px solid #bbb;
+              <div style="border:1px solid #888;
                 border-radius:2px;
                 min-height:80px;
-                padding:0.7rem;
+                padding:0.5rem 1rem;
                 background:#fff;
                 white-space:pre-line;">
                 <template v-if="publicNote && privateNote">
@@ -106,7 +106,7 @@
                 align-items:center;
                 margin-bottom:0.5rem"
               >
-                <label class="txt-110-222" style="color:#dc3545;">정정요청</label>
+                <label class="txt-110-222" style="color:#dc3545 !important;">정정요청</label>
                 <button
                   style="font-size:0.95rem;
                   color:#1976d2;
@@ -118,13 +118,14 @@
                   @click="onEditCorrection">수정하기</button>
               </div>
               <div
-                style="border:1px solid #bbb;
+                style="border:1px solid #dc3545;
                 border-radius:2px;
                 min-height:60px;
-                padding:0.7rem;
+                padding:0.5rem 1rem;
                 background:#fcfcd8;
                 white-space:pre-line;">
-                {{ correctionText }}</div>
+                {{ correctionText }}
+              </div>
             </div>
           </div>
 
@@ -404,6 +405,15 @@ onMounted(async () => {
 
 watch([selectedMonth, currentUserRegNo], async ([month, regNo]) => {
   if (month && regNo) {
+    await fetchMonthList();
+    await fetchShareStatus();
+  }
+});
+
+// 정산월만 변경되는 경우에도 데이터 업데이트
+watch(selectedMonth, async (newMonth) => {
+  if (newMonth && currentUserRegNo.value) {
+    await fetchMonthList();
     await fetchShareStatus();
   }
 });
