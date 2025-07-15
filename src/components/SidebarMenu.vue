@@ -37,6 +37,26 @@
             </div>
           </a>
         </div>
+        
+        <!-- 매뉴얼 섹션 -->
+        <div class="manual-section">
+          <div class="manual-divider"></div>
+          <div
+            v-for="manual in manualItems"
+            :key="manual.label"
+          >
+            <RouterLink
+              :to="manual.to"
+              class="menu-item manual-item"
+              @click="$emit('menu-click')"
+            >
+              <div class="menu-item-content">
+                <font-awesome-icon :icon="manual.icon" class="menu-icon-fa" />
+                <span class="menu-label">{{ manual.label }}</span>
+              </div>
+            </RouterLink>
+          </div>
+        </div>
       </nav>
     </aside>
   </div>
@@ -97,7 +117,18 @@ const userMenu = [
   { label: 'EDI 제출', icon: ['fas', 'upload'], onClick: goToEdiSubmit },
   { label: '정산내역서', icon: ['fas', 'credit-card'], to: '/settlement/month' },
 ];
+
+const adminManualItems = [
+  { label: '관리자 매뉴얼', icon: ['fas', 'book'], to: '/manual/admin' },
+  { label: '이용자 매뉴얼', icon: ['fas', 'book-open'], to: '/manual/user' },
+];
+
+const userManualItems = [
+  { label: '이용자 매뉴얼', icon: ['fas', 'book-open'], to: '/manual/user' },
+];
+
 const menuItems = computed(() => props.userInfo?.role === 'admin' ? adminMenu : userMenu);
+const manualItems = computed(() => props.userInfo?.role === 'admin' ? adminManualItems : userManualItems);
 
 const activeGroup = computed(() => {
   const currentPath = route.path;
@@ -186,6 +217,12 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
   white-space: nowrap;
 }
 
+.sidebar nav {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .sidebar:hover {
   width: 15rem;
 }
@@ -237,6 +274,36 @@ const isAdmin = computed(() => props.userInfo?.role === 'admin');
 
 .mobile-sidebar-header {
   display: none;
+}
+
+/* 매뉴얼 섹션 스타일 */
+.manual-section {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.manual-divider {
+  height: 1px;
+  background: none;
+  margin: 0.5rem 0.6rem;
+  opacity: 0.5;
+}
+
+.manual-item {
+  background-color: #f8f9fa;
+  border-left: 0px solid #444;
+}
+
+.manual-item:hover {
+  background: #ddd;
+  color: #666;
+  border-left-color: #888;
+}
+
+.manual-item.router-link-exact-active {
+  background: #888;
+  color: #fff;
+  border-left-color: #666;
 }
 
 /* ========================================================================================================= */

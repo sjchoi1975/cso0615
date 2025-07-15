@@ -55,7 +55,7 @@
       <div style="text-align: center; margin-top: 1.6rem; display: flex; justify-content: center; gap: 2rem;">
         <a href="#" class="link" @click.prevent="showResetPwModal = true">비밀번호 재설정</a>
         <span class="link" style="text-decoration: underline;" @click="goSignup">회원가입</span>
-      </div>        
+      </div>
     </form>
     <ResetPasswordModal :visible="showResetPwModal" @close="showResetPwModal = false" />
   </div>

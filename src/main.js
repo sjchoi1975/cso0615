@@ -21,7 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { 
   faUsers, faBoxArchive, faFilter, faWallet, faList, 
   faListCheck, faUpload, faBullhorn, faBuilding as faBuildingSolid, faCapsules, faPills, faTablets,
-  faMoneyBillWave, faFileInvoiceDollar, faCreditCard, faCoins
+  faMoneyBillWave, faFileInvoiceDollar, faCreditCard, faCoins, faBook, faBookOpen
 } from '@fortawesome/free-solid-svg-icons'
 import { 
   faHospital, faBuilding, faCalendarDays, faFileLines
@@ -38,7 +38,7 @@ import './assets/main.css';
 library.add(
   faUsers, faBoxArchive, faFilter, faWallet, faList, 
   faListCheck, faUpload, faBullhorn, faBuildingSolid, faCapsules, faPills, faTablets,
-  faMoneyBillWave, faFileInvoiceDollar, faCreditCard, faCoins,
+  faMoneyBillWave, faFileInvoiceDollar, faCreditCard, faCoins, faBook, faBookOpen,
   faHospital, faBuilding, faCalendarDays, faFileLines
 )
 

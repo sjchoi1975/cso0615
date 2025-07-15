@@ -27,6 +27,9 @@ import UserEdiList from '../views/user/UserEdiList.vue'
 import UserSettlementMonth from '../views/user/UserSettlementMonth.vue'
 import UserSettlementMonthDatail from '../views/user/UserSettlementMonthDatail.vue'
 
+import AdminManualView from '../views/AdminManualView.vue'
+import UserManualView from '../views/UserManualView.vue'
+
 import { supabase } from '@/supabase';
 
 const router = createRouter({
@@ -36,6 +39,16 @@ const router = createRouter({
       path: '/',
        name: 'home',
       component: HomeView,
+    },
+    {
+      path: '/manual/admin',
+      name: 'manual-admin',
+      component: AdminManualView,
+    },
+    {
+      path: '/manual/user',
+      name: 'manual-user',
+      component: UserManualView,
     },
     {
       path: '/admin/products/list',

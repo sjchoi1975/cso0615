@@ -275,6 +275,8 @@ watch(
       '/edi/submit/detail',
       '/edi/submit/edit',
       '/settlement/month',
+      '/manual/admin',    // 관리자 매뉴얼 페이지
+      '/manual/user',     // 이용자 매뉴얼 페이지
       // =============================
       // [중요] 루트 App.vue에서만 있던 경로 (2024-06-07 기준)
       // '/edi/files/' 경로는 루트 App.vue에만 있었으나 혹시 모를 호환성/누락 방지 위해 추가함

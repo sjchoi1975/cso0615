@@ -347,18 +347,18 @@ export const adminEdiDashboardTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'company_name', label: '업체명', width: '16%', align: 'left', sortable: true },
+      { field: 'company_name', label: '업체명', width: '16%', align: 'left', sortable: false },
       { field: 'business_registration_number', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
-      { field: 'ceo_name', label: '대표자', width: '6%', align: 'center', sortable: true },
-      { field: 'total_hospitals', label: '총 거래처', width: '7%', align: 'center', sortable: true },
-      { field: 'prev_month_submitted_hospitals', label: '전월 제출 거래처', width: '7%', align: 'center', sortable: true },
-      { field: 'current_month_submitted_hospitals', label: '당월 제출 거래처', width: '7%', align: 'center', sortable: true },
-      { field: 'prev_month_files', label: '전월 제출파일', width: '7%', align: 'center', sortable: true },
-      { field: 'current_month_files', label: '당월 제출파일', width: '7%', align: 'center', sortable: true },
-      { field: 'confirmed_files', label: '제약사 확인', width: '7%', align: 'center', sortable: true },
-      { field: 'unconfirmed_files', label: '제약사 미확인', width: '7%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자', width: '6%', align: 'center', sortable: false },
+      { field: 'total_hospitals', label: '총 거래처', width: '7%', align: 'center', sortable: false },
+      { field: 'prev_month_submitted_hospitals', label: '전월 제출 거래처', width: '7%', align: 'center', sortable: false },
+      { field: 'current_month_submitted_hospitals', label: '당월 제출 거래처', width: '7%', align: 'center', sortable: false },
+      { field: 'prev_month_files', label: '전월 제출파일', width: '7%', align: 'center', sortable: false },
+      { field: 'current_month_files', label: '당월 제출파일', width: '7%', align: 'center', sortable: false },
+      { field: 'confirmed_files', label: '제약사 확인', width: '7%', align: 'center', sortable: false },
+      { field: 'unconfirmed_files', label: '제약사 미확인', width: '7%', align: 'center', sortable: false },
       { field: 'detail', label: '상세', width: '7%', align: 'center', sortable: false, type: 'icon' },
-      { field: 'last_submission_date', label: '최종 등록일시', width: '10%', align: 'center', sortable: true }
+      { field: 'last_submission_date', label: '최종 등록일시', width: '10%', align: 'center', sortable: false }
     ]
   },
   mobile: {
@@ -370,18 +370,18 @@ export const adminEdiDashboardTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
-      { field: 'company_name', label: '업체명', width: '12%', align: 'left', sortable: true },
-      { field: 'business_registration_number', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
-      { field: 'ceo_name', label: '대표자', width: '6%', align: 'center', sortable: true },
-      { field: 'total_hospitals', label: '총 거래처', width: '7%', align: 'center', sortable: true },
-      { field: 'prev_month_submitted_hospitals', label: '전월 거래처', width: '7%', align: 'center', sortable: true },
-      { field: 'current_month_submitted_hospitals', label: '당월 거래처', width: '7%', align: 'center', sortable: true },
-      { field: 'prev_month_files', label: '전월 제출', width: '7%', align: 'center', sortable: true },
-      { field: 'current_month_files', label: '당월 제출', width: '7%', align: 'center', sortable: true },
-      { field: 'confirmed_files', label: '확인', width: '7%', align: 'center', sortable: true },
-      { field: 'unconfirmed_files', label: '미확인', width: '7%', align: 'center', sortable: true },
+      { field: 'company_name', label: '업체명', width: '12%', align: 'left', sortable: false },
+      { field: 'business_registration_number', label: '사업자등록번호', width: '8%', align: 'center', sortable: false },
+      { field: 'ceo_name', label: '대표자', width: '6%', align: 'center', sortable: false },
+      { field: 'total_hospitals', label: '총 거래처', width: '7%', align: 'center', sortable: false },
+      { field: 'prev_month_submitted_hospitals', label: '전월 거래처', width: '7%', align: 'center', sortable: false },
+      { field: 'current_month_submitted_hospitals', label: '당월 거래처', width: '7%', align: 'center', sortable: false },
+      { field: 'prev_month_files', label: '전월 제출', width: '7%', align: 'center', sortable: false },
+      { field: 'current_month_files', label: '당월 제출', width: '7%', align: 'center', sortable: false },
+      { field: 'confirmed_files', label: '확인', width: '7%', align: 'center', sortable: false },
+      { field: 'unconfirmed_files', label: '미확인', width: '7%', align: 'center', sortable: false },
       { field: 'detail', label: '상세', width: '7%', align: 'center', sortable: false, type: 'icon' },
-      { field: 'last_submission_date', label: '최종 등록일시', width: '10%', align: 'center', sortable: true }
+      { field: 'last_submission_date', label: '최종 등록일시', width: '10%', align: 'center', sortable: false }
     ]
   }
 };
@@ -395,18 +395,18 @@ export const adminEdiListTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center' },
-      { field: 'company_name', label: '업체명', width: '8%', align: 'left', sortable: true },
+      { field: 'company_name', label: '업체명', width: '8%', align: 'left', sortable: false },
       { field: 'member_biz_no', label: '사업자등록번호', width: '7%', align: 'center' },
       { field: 'member_ceo_name', label: '대표자', width: '5%', align: 'center' },
-      { field: 'hospital_name', label: '거래처', width: '10%', align: 'left', sortable: true },
+      { field: 'hospital_name', label: '거래처', width: '10%', align: 'left', sortable: false },
       { field: 'hospital_biz_no', label: '사업자등록번호', width: '7%', align: 'center' },
       { field: 'director_name', label: '원장명', width: '5%', align: 'center' },
       { field: 'address', label: '주소', width: '10%', align: 'left' },
       { field: 'original_file_name', label: '파일명', width: '10%', align: 'left', type: 'link' },
       { field: 'download', label: '다운로드', width: '4%', align: 'center', type: 'icon' },
-      { field: 'confirm', label: '확인', width: '5%', align: 'center', sortable: true },
+      { field: 'confirm', label: '확인', width: '5%', align: 'center', sortable: false },
       { field: 'pharmaceutical_companies', label: '제약사', width: '9%', align: 'left' },
-      { field: 'created_at', label: '등록일자', width: '8%', align: 'center', sortable: true },
+      { field: 'created_at', label: '등록일자', width: '8%', align: 'center', sortable: false },
       { field: 'created_by_name', label: '등록자', width: '8%', align: 'center' }
     ]
   },
@@ -418,18 +418,18 @@ export const adminEdiListTableConfig = {
     },
     columns: [
       { field: 'index', label: '순번', width: '4%', align: 'center' },
-      { field: 'company_name', label: '업체명', width: '8%', align: 'left', sortable: true },
+      { field: 'company_name', label: '업체명', width: '8%', align: 'left', sortable: false },
       { field: 'member_biz_no', label: '사업자등록번호', width: '7%', align: 'center' },
       { field: 'member_ceo_name', label: '대표자', width: '5%', align: 'center' },
-      { field: 'hospital_name', label: '거래처', width: '10%', align: 'left', sortable: true },
+      { field: 'hospital_name', label: '거래처', width: '10%', align: 'left', sortable: false },
       { field: 'hospital_biz_no', label: '사업자등록번호', width: '7%', align: 'center' },
       { field: 'director_name', label: '원장명', width: '5%', align: 'center' },
       { field: 'address', label: '주소', width: '10%', align: 'left' },
       { field: 'original_file_name', label: '파일명', width: '10%', align: 'left', type: 'link' },
       { field: 'download', label: '다운로드', width: '4%', align: 'center', type: 'icon' },
-      { field: 'confirm', label: '확인', width: '5%', align: 'center', sortable: true },
+      { field: 'confirm', label: '확인', width: '5%', align: 'center', sortable: false },
       { field: 'pharmaceutical_companies', label: '제약사', width: '9%', align: 'left' },
-      { field: 'created_at', label: '등록일자', width: '8%', align: 'center', sortable: true },
+      { field: 'created_at', label: '등록일자', width: '8%', align: 'center', sortable: false },
       { field: 'created_by_name', label: '등록자', width: '8%', align: 'center' }
     ]
   }
