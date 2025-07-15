@@ -169,6 +169,7 @@
 
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { supabase } from '@/supabase';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -611,6 +612,12 @@ const onClearSearch = () => {
 };
 
 onMounted(() => {
+  // 쿼리 파라미터에서 company 값 확인
+  const route = useRoute();
+  if (route.query.company) {
+    selectedCompany.value = route.query.company;
+    isSearched.value = true;
+  }
   fetchFiles();
 });
 

@@ -69,7 +69,7 @@ const adminMenu = [
   { label: '필터링 요청', icon: ['fas', 'filter'], to: '/admin/filter/list' },
   { label: '제약사 관리', icon: ['far', 'building'], to: '/admin/pharmaceutical-companies' },
   { label: '마감 일정 관리', icon: ['far', 'calendar-days'], to: '/admin/edi/months' },
-  { label: 'EDI 증빙 파일', icon: ['far', 'file-lines'], to: '/admin/edi/list' },
+  { label: 'EDI 증빙 파일', icon: ['far', 'file-lines'], to: '/admin/edi/dashboard' },
   { label: '정산내역서', icon: ['fas', 'credit-card'], to: '/admin/settlement/month' },
 ];
 

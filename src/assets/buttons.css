@@ -550,37 +550,34 @@ button:focus,
   vertical-align: middle;
 }
 
-/* 관리자 - 정산내역서 회원 확인 */
+/* 관리자 - 정산 확정 상태 배지 스타일 */
 
-/* 확인 배지 스타일 */
-.badge-confirm {
-  display: inline-block;
+.badge-settle-confirm {
   padding: 0.25rem 0.5rem;
-  width: 3.2rem;
   border-radius: 2px;
-  font-size: 0.825rem;
+  font-size: 0.85rem;
   font-weight: 400;
+  display: inline-block;
+  width: 60px;
   text-align: center;
-  white-space: nowrap;
 }
 
-.badge-confirm-confirmed {
+.settle-confirmed {
   background-color: #1976d2;
-  color: #ffffff;
+  color: #fff;
+  border: 1px solid #1976d2;
 }
 
-.badge-confirm-unconfirmed {
-  background-color: #666666;
-  color: #ffffff;
+.settle-unconfirmed {
+  background-color: #888;
+  color: #fff;
+  border: 1px solid #666;
 }
 
-.badge-confirm-clickable {
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.badge-confirm-clickable:hover {
-  opacity: 0.8;
+.settle-correction {
+  background-color: #c62828;
+  color: #ff0;
+  border: 1px solid #c62828;
 }
 
 

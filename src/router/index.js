@@ -12,7 +12,8 @@ import AdminProductsList from '../views/admin/AdminProductsList.vue'
 import AdminProductsCreate from '../views/admin/AdminProductsCreate.vue'
 import AdminFilterList from '../views/admin/AdminFilterList.vue'
 import AdminPharmaceuticalCompanies from '../views/admin/AdminPharmaceuticalCompanies.vue'
-import AdminEdiList from '../views/admin/AdminEdiList.vue'
+import AdminEdiMonthsDash from '../views/admin/AdminEdiMonthsDash.vue'
+import AdminEdiMonthsList from '../views/admin/AdminEdiMonthsList.vue'
 import AdminSettlementMonth from '../views/admin/AdminSettlementMonth.vue'
 import AdminSettlementMonthDetail from '../views/admin/AdminSettlementMonthDetail.vue'
 
@@ -62,9 +63,15 @@ const router = createRouter({
       component: AdminPharmaceuticalCompanies,
     },
     {
-      path: '/admin/edi/list',
-      name: 'admin-edi-list',
-      component: () => import('../views/admin/AdminEdiList.vue'),
+      path: '/admin/edi/dashboard',
+      name: 'admin-edi-dashboard',
+      component: AdminEdiMonthsDash,
+      meta: { requiresAuth: true, role: 'admin' },
+    },
+    {
+      path: '/admin/edi/months/list',
+      name: 'admin-edi-months-list',
+      component: AdminEdiMonthsList,
       meta: { requiresAuth: true, role: 'admin' },
     },
     {

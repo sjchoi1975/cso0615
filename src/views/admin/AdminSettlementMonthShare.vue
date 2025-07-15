@@ -104,7 +104,14 @@
                 </span>
               </template>
               <template v-else-if="col.field === 'confirm_status'">
-                {{ slotProps.data.confirm_status || '-' }}
+                <span 
+                  v-if="slotProps.data.confirm_status" 
+                  :class="getConfirmStatusClass(slotProps.data.confirm_status)"
+                  class="badge-settle-confirm"
+                >
+                  {{ slotProps.data.confirm_status }}
+                </span>
+                <span v-else class="badge-settle-confirm settle-unconfirmed">미확인</span>
               </template>
               <template v-else-if="col.field === 'confirm_comment'">
                 <span v-if="slotProps.data.confirm_comment" class="link" style="color:#1976d2;cursor:pointer;" @click="openRequestModal(slotProps.data.confirm_comment)">
@@ -345,6 +352,20 @@ function openRequestModal(content) {
 function closeRequestModal() {
   showRequestModal.value = false;
 }
+
+// 확정 상태에 따른 배지 클래스 반환
+const getConfirmStatusClass = (status) => {
+  switch(status) {
+    case '확정':
+    case '확인':
+      return 'settle-confirmed';
+    case '정정요청':
+      return 'settle-correction';
+    case '미확인':
+    default:
+      return 'settle-unconfirmed';
+  }
+};
 
 onMounted(() => {
   fetchCompanies();

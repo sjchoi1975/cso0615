@@ -116,6 +116,21 @@ const specialLayoutRoutes = [
     showBack: true
   },
   {
+    path: /^\/admin\/edi\/months\/list$/,
+    menuName: () => 'EDI 증빙파일 상세',
+    showBack: true
+  },
+  {
+    path: /^\/admin\/settlement\/month\/[^\/]+$/,
+    menuName: () => '정산내역서 상세',
+    showBack: true
+  },
+  {
+    path: /^\/admin\/settlement\/share\/[^\/]+$/,
+    menuName: () => '정산내역서 공유',
+    showBack: true
+  },
+  {
     path: /^\/settlement\/month\/detail/,
     menuName: () => {
       const month = route.query.month;
@@ -160,7 +175,8 @@ const menuNameMap = {
   '/admin/filter/list': '필터링 요청',
   '/admin/pharmaceutical-companies': '제약사 관리',
   '/admin/edi/months': '마감 일정 관리',
-  '/admin/edi/list': 'EDI 증빙 파일',
+  '/admin/edi/dashboard': 'EDI 증빙 파일',
+  '/admin/edi/months/list': 'EDI 증빙파일 상세',
   '/admin/settlement/month': '정산내역서',
   '/notice/list': '공지사항',
   '/notice/detail': '공지사항 상세',  

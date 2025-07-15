@@ -338,6 +338,54 @@ export const ediMonthsTableConfig = {
 };
 
 
+/* 관리자 - EDI 대시보드 ===================================================================================== */
+export const adminEdiDashboardTableConfig = {
+  pc: {
+    tableWidth: 'calc(100vw - 3rem)',
+    tableStyle: {
+      minWidth: 'calc(100vw - 3rem)'
+    },
+    columns: [
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      { field: 'company_name', label: '업체명', width: '16%', align: 'left', sortable: true },
+      { field: 'business_registration_number', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자', width: '6%', align: 'center', sortable: true },
+      { field: 'total_hospitals', label: '총 거래처', width: '7%', align: 'center', sortable: true },
+      { field: 'prev_month_submitted_hospitals', label: '전월 제출 거래처', width: '7%', align: 'center', sortable: true },
+      { field: 'current_month_submitted_hospitals', label: '당월 제출 거래처', width: '7%', align: 'center', sortable: true },
+      { field: 'prev_month_files', label: '전월 제출파일', width: '7%', align: 'center', sortable: true },
+      { field: 'current_month_files', label: '당월 제출파일', width: '7%', align: 'center', sortable: true },
+      { field: 'confirmed_files', label: '제약사 확인', width: '7%', align: 'center', sortable: true },
+      { field: 'unconfirmed_files', label: '제약사 미확인', width: '7%', align: 'center', sortable: true },
+      { field: 'detail', label: '상세', width: '7%', align: 'center', sortable: false, type: 'icon' },
+      { field: 'last_submission_date', label: '최종 등록일시', width: '10%', align: 'center', sortable: true }
+    ]
+  },
+  mobile: {
+    tableWidth: '100vw',
+    tableStyle: {
+      overflowX: 'auto',
+      minWidth: '1280px',
+      width: '100vw'
+    },
+    columns: [
+      { field: 'index', label: '순번', width: '4%', align: 'center', sortable: false },
+      { field: 'company_name', label: '업체명', width: '12%', align: 'left', sortable: true },
+      { field: 'business_registration_number', label: '사업자등록번호', width: '8%', align: 'center', sortable: true },
+      { field: 'ceo_name', label: '대표자', width: '6%', align: 'center', sortable: true },
+      { field: 'total_hospitals', label: '총 거래처', width: '7%', align: 'center', sortable: true },
+      { field: 'prev_month_submitted_hospitals', label: '전월 거래처', width: '7%', align: 'center', sortable: true },
+      { field: 'current_month_submitted_hospitals', label: '당월 거래처', width: '7%', align: 'center', sortable: true },
+      { field: 'prev_month_files', label: '전월 제출', width: '7%', align: 'center', sortable: true },
+      { field: 'current_month_files', label: '당월 제출', width: '7%', align: 'center', sortable: true },
+      { field: 'confirmed_files', label: '확인', width: '7%', align: 'center', sortable: true },
+      { field: 'unconfirmed_files', label: '미확인', width: '7%', align: 'center', sortable: true },
+      { field: 'detail', label: '상세', width: '7%', align: 'center', sortable: false, type: 'icon' },
+      { field: 'last_submission_date', label: '최종 등록일시', width: '10%', align: 'center', sortable: true }
+    ]
+  }
+};
+
 /* 관리자 - EDI 목록 ===================================================================================== */
 export const adminEdiListTableConfig = {
   pc: {
@@ -402,11 +450,11 @@ export const settlementMonthTableConfig = {
       { field: 'settlement_month', label: '정산월', width: '6%', align: 'center', sortable: false },
       { field: 'note', label: '전달사항', width: '38%', align: 'left', sortable: false },
       /*{ field: 'edit', label: '수정', width: '6%', align: 'center', type: 'icon', icon: 'pi-pencil' },*/
-      { field: 'detail', label: '상세', width: '6%', align: 'center', type: 'icon', icon: 'pi-list' },
       { field: 'company_name', label: '업체', width: '6%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처', width: '6%', align: 'center', sortable: false },
       { field: 'prescription_amount', label: '처방액', width: '8%', align: 'center', sortable: false },
       { field: 'total_amount', label: '정산금액', width: '8%', align: 'center', sortable: false },
+      { field: 'detail', label: '상세', width: '6%', align: 'center', type: 'icon', icon: 'pi-list' },
       { field: 'share', label: '공유', width: '6%', align: 'center', type: 'icon', icon: 'pi-share-alt' },
       { field: 'delete', label: '삭제', width: '6%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
@@ -423,11 +471,11 @@ export const settlementMonthTableConfig = {
       { field: 'settlement_month', label: '정산월', width: '12%', align: 'center', sortable: false },
       { field: 'note', label: '전달사항', width: '16%', align: 'left', sortable: false },
       /*{ field: 'edit', label: '수정', width: '8%', align: 'center', type: 'icon', icon: 'pi-pencil' },*/
-      { field: 'detail', label: '상세', width: '8%', align: 'center', type: 'icon', icon: 'pi-list' },
       { field: 'company_name', label: '업체', width: '10%', align: 'center', sortable: false },
       { field: 'hospital_name', label: '거래처', width: '10%', align: 'center', sortable: false },
       { field: 'prescription_amount', label: '처방액', width: '15%', align: 'center', sortable: false },
       { field: 'total_amount', label: '정산금액', width: '15%', align: 'center', sortable: false },
+      { field: 'detail', label: '상세', width: '8%', align: 'center', type: 'icon', icon: 'pi-list' },
       { field: 'share', label: '공유', width: '8%', align: 'center', type: 'icon', icon: 'pi-share-alt' },
       { field: 'delete', label: '삭제', width: '8%', align: 'center', type: 'icon', icon: 'pi-trash' }
     ]
@@ -455,10 +503,10 @@ export const settlementMonthShareTableConfig = {
       { field: 'supply_amount', label: '공급가', width: '6%', align: 'right', sortable: true },
       { field: 'vat', label: '부가세', width: '6%', align: 'right', sortable: true },
       { field: 'total_amount', label: '합계액', width: '6%', align: 'right', sortable: true },
-      { field: 'memo', label: '전달사항', width: '10%', align: 'left', sortable: false },
+      { field: 'memo', label: '개별 전달사항', width: '10%', align: 'left', sortable: false },
       { field: 'share', label: '공유', width: '6%', align: 'center', type: 'icon', sortable: false },
-      { field: 'confirm_status', label: '확정여부', width: '6%', align: 'center', sortable: true },
-      { field: 'confirm_comment', label: '정정요청', width: '10%', align: 'left', sortable: false }
+      { field: 'confirm_status', label: '확정 여부', width: '6%', align: 'center', sortable: true },
+      { field: 'confirm_comment', label: '회원 정정요청', width: '10%', align: 'left', sortable: false }
     ]
   },
 
@@ -483,7 +531,7 @@ export const settlementMonthShareTableConfig = {
       { field: 'total_amount', label: '합계액', width: '7%', align: 'right', sortable: true },
       { field: 'memo', label: '전달사항', width: '8%', align: 'left', sortable: false },
       { field: 'share', label: '공유', width: '5%', align: 'center', type: 'icon', sortable: false },
-      { field: 'confirm_status', label: '확정여부', width: '6%', align: 'center', sortable: true },
+      { field: 'confirm_status', label: '확정', width: '6%', align: 'center', sortable: true },
       { field: 'confirm_comment', label: '정정요청', width: '8%', align: 'left', sortable: false }
     ]
   }
