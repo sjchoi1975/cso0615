@@ -367,17 +367,24 @@ const openUploadDialog = (data) => {
   alert(`${data.settlement_month} 정산 데이터 등록 로직을 여기에 추가해야 합니다.`);
 };
 const deleteMonth = async (row) => {
-  if (!confirm(`${row.settlement_month} 정산월을 삭제하시겠습니까?`)) return;
+  if (!confirm(`${row.settlement_month} 정산월을 삭제하시겠습니까?\n\n※ 주의: 해당 정산월의 모든 관련 데이터(정산내역, 공유설정 등)가 함께 삭제됩니다.`)) return;
+  
   try {
-    const { error } = await supabase
-      .from('settlement_months')
-      .delete()
-      .eq('settlement_month', row.settlement_month);
-    if (error) throw error;
-    alert('삭제되었습니다.');
+    // 트랜잭션을 사용하여 모든 관련 데이터를 안전하게 삭제
+    const { data, error } = await supabase.rpc('delete_settlement_month_with_related_data', {
+      target_settlement_month: row.settlement_month
+    });
+    
+    if (error) {
+      console.error('정산월 삭제 RPC 오류:', error);
+      throw new Error(`정산월 삭제 실패: ${error.message}`);
+    }
+
+    alert('정산월과 관련된 모든 데이터가 성공적으로 삭제되었습니다.');
     fetchMonthList();
     fetchMonthOptions && fetchMonthOptions(); // 옵션도 새로고침
   } catch (e) {
+    console.error('정산월 삭제 중 오류 발생:', e);
     alert('삭제 실패: ' + e.message);
   }
 };
