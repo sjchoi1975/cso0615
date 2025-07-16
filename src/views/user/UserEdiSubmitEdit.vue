@@ -52,7 +52,7 @@
 
       <div class="btn-row">
         <button type="button" class="btn-cancel" @click="goBack" style="flex:1;">취소</button>
-        <button type="submit" class="btn-confirm" :disabled="isSubmitting || !canEdit" style="flex:2;">{{ isSubmitting ? '수정 중...' : '수정' }}</button>
+        <button type="submit" class="btn-confirm" :disabled="isSubmitting || !canEdit" style="flex:3;">{{ isSubmitting ? '수정 중...' : '수정' }}</button>
       </div>
     </form>
 

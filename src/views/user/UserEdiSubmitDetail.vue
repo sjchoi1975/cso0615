@@ -5,6 +5,12 @@
       <div v-else>
         <div v-for="(item, idx) in fileHistory" :key="item.id">
           <div class="form-grid-2x">
+
+            <!-- 등록 일시 -->
+            <div class="form-group-2x">
+              <label class="txt-110-222">등록 일시 : {{ formatDate(item.created_at) }}</label>
+            </div>
+
             <!-- 증빙 파일 -->
             <div class="form-group-2x">
               <label class="txt-110-222">증빙 파일</label>
@@ -44,14 +50,14 @@
               </textarea>
             </div>
 
-            <!-- 등록 일시 -->
-            <div class="form-group-2x">
-              <label class="txt-110-222">등록 일시 : {{ formatDate(item.created_at) }}</label>
-            </div>
           </div>
 
-          <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
-            <button type="button" class="btn-warning" style="padding: 0.5rem 1rem !important;" @click="goToEdit(item.id)">수정하기</button>
+          <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
+            <button
+              type="button"
+              class="btn-warning"
+              style="padding: 0.5rem 1rem !important; font-size: 1rem !important;"
+              @click="goToEdit(item.id)">수정하기</button>
           </div>
           <hr style="margin-top: 2rem; margin-bottom: 2rem;" v-if="idx < fileHistory.length - 1" />
         </div>

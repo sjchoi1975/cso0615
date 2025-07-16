@@ -2127,14 +2127,15 @@ button.p-paginator-page:hover {
   flex-direction: column !important;
   gap: 0rem !important;
   padding: 0.5rem 0 !important;
-  background-color: var(--primary-lightest) !important;
+  background-color: #f4f4f4 !important;
 }
 
 .selected-pharma-item {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  font-size: 1.0rem !important;
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
   background-color: none !important;
   border: none !important;
   padding: 0.25rem 1.5rem !important;
@@ -2148,7 +2149,7 @@ button.p-paginator-page:hover {
   flex-direction: column !important;
   gap: 0rem !important;
   padding: 0.5rem 0 !important;
-  background-color: var(--primary-lightest) !important;
+  background-color: #f4f4f4 !important;
 }
 
 .selected-edi-file-item {
@@ -2527,7 +2528,7 @@ label {
 .txt-110-222 {
   font-size: 1.1rem !important;
   color: #222 !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
 }
 
 .txt-120-222 {
@@ -2542,17 +2543,17 @@ label {
   font-weight: 600 !important;
 }
 
-
 .txt-100-666 {
   font-size: 1.0rem !important;
   color: #666 !important;
   font-weight: 400 !important;
 }
 
+
 .table-title {
   font-size: 1.1rem !important;
-  color: #222 !important;
-  font-weight: 500 !important;
+  color: #444 !important;
+  font-weight: 600 !important;
 }
 
 .table-title-link {
@@ -2560,9 +2561,10 @@ label {
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  color: #222 !important;
+
+  color: #444 !important;
   font-size: 1.1rem !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   cursor: pointer !important;
 }
 
@@ -2570,6 +2572,8 @@ label {
   color: var(--primary) !important;
   text-decoration: underline !important;
 }
+
+
 
 
 /* 총 개수 */
@@ -2661,14 +2665,8 @@ textarea.input:-ms-input-placeholder {
 
 textarea.input {
   font-family: inherit !important;
+  padding: 0.5rem 1rem !important;
 }
-
-
-
-
-
-
-
 
 
 

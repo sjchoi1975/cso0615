@@ -91,7 +91,7 @@ const specialLayoutRoutes = [
   },
   {
     path: /^\/edi\/submit\/\d+\/\d+\/detail$/, // EDI 증빙자료 제출내역
-    menuName: async (params) => {
+    async menuName(params) {
       const { hospitalId } = params;
       const { data: hospital } = await supabase
         .from('hospitals')
@@ -103,8 +103,8 @@ const specialLayoutRoutes = [
     showBack: true
   },
   {
-    path: /^\/edi\/submit\/\d+\/\d+\/\d+\/edit$/, // EDI 증빙자료 제출내역 수정
-    menuName: async (params) => {
+    path: /^\/edi\/submit\/\d+\/\d+\/[^\/]+\/edit$/, // EDI 증빙자료 제출내역 수정
+    async menuName(params) {
       const { hospitalId } = params;
       const { data: hospital } = await supabase
         .from('hospitals')
